@@ -83,7 +83,7 @@
 
 .store-sticky-header-container.header-transparent .store-header {
   background: transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: none;
   backdrop-filter: none;
   pointer-events: auto;
 }
@@ -5406,7 +5406,7 @@
     box-shadow: inset 0 1px 4px rgba(99, 102, 241, 0.08);
   }
 
-  .category-count {
+  .filter-link-btn .category-count {
     font-size: 0.78rem;
     color: #6b7280;
     background: #f3f4f6;
