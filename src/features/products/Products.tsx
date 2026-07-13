@@ -20,6 +20,7 @@ export default function Products() {
   const [tempProduct, setTempProduct] = useState<ProductConfig | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [editorTab, setEditorTab] = useState<'basic' | 'inventory' | 'media' | 'features'>('basic');
+  const [customOptionInput, setCustomOptionInput] = useState('');
 
   const perPage = viewMode === 'list' ? 12 : 8;
 
@@ -132,6 +133,35 @@ export default function Products() {
     });
     setIsAdding(false);
     setEditorTab('basic');
+  };
+
+  const toggleOption = (label: string) => {
+    if (!tempProduct) return;
+    const currentSizes = tempProduct.sizes || [];
+    const exists = currentSizes.some(s => s.label === label);
+    let newSizes;
+    if (exists) {
+      newSizes = currentSizes.map(s => s.label === label ? { ...s, enabled: !s.enabled } : s);
+    } else {
+      newSizes = [...currentSizes, { label, enabled: true }];
+    }
+    setTempProduct({ ...tempProduct, sizes: newSizes });
+  };
+
+  const handleAddCustomOption = () => {
+    if (!customOptionInput.trim() || !tempProduct) return;
+    const label = customOptionInput.trim();
+    const currentSizes = tempProduct.sizes || [];
+    const exists = currentSizes.some(s => s.label === label);
+    if (!exists) {
+      setTempProduct({ ...tempProduct, sizes: [...currentSizes, { label, enabled: true }] });
+    } else {
+      setTempProduct({
+        ...tempProduct,
+        sizes: currentSizes.map(s => s.label === label ? { ...s, enabled: true } : s)
+      });
+    }
+    setCustomOptionInput('');
   };
 
   // Open Add Editor
@@ -500,18 +530,7 @@ export default function Products() {
                             return (
                               <div 
                                 key={label} 
-                                onClick={() => {
-                                  const standardLabels = ['S', 'M', 'L', 'XL', 'XXL', '3XL'];
-                                  const newSizes = standardLabels.map(l => {
-                                    const existing = tempProduct.sizes?.find(s => s.label === l);
-                                    let enabled = existing ? existing.enabled : false;
-                                    if (l === label) {
-                                      enabled = !enabled;
-                                    }
-                                    return { label: l, enabled };
-                                  });
-                                  setTempProduct({ ...tempProduct, sizes: newSizes });
-                                }}
+                                onClick={() => toggleOption(label)}
                                 style={{
                                   display: 'flex',
                                   alignItems: 'center',
@@ -651,55 +670,267 @@ export default function Products() {
                 {/* 4. FEATURES & SPECS TAB */}
                 {editorTab === 'features' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    {/* Size Options Toggle */}
-                    <div className="form-group">
-                      <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>📏 Available Sizes (সাইজ সিলেক্ট করুন)</label>
-                      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: '12px', marginTop: '2px' }}>এখানে যে সাইজগুলো Enable করবেন, Customer শুধু সেই সাইজগুলোই দেখতে পাবে এবং সেখান থেকে সিলেক্ট করে অর্ডার করতে পারবে।</p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                        {['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((label) => {
-                          const isEnabled = tempProduct.sizes ? tempProduct.sizes.some(s => s.label === label && s.enabled) : false;
-                          return (
-                            <div 
-                              key={label} 
-                              onClick={() => {
-                                const standardLabels = ['S', 'M', 'L', 'XL', 'XXL', '3XL'];
-                                const newSizes = standardLabels.map(l => {
-                                  const existing = tempProduct.sizes?.find(s => s.label === l);
-                                  let enabled = existing ? existing.enabled : false;
-                                  if (l === label) {
-                                    enabled = !enabled;
-                                  }
-                                  return { label: l, enabled };
-                                });
-                                setTempProduct({ ...tempProduct, sizes: newSizes });
-                              }}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '60px',
-                                height: '40px',
-                                borderRadius: 'var(--radius-md)',
-                                border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
-                                background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
-                                color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
-                                fontWeight: 700,
-                                fontSize: 'var(--text-sm)',
-                                cursor: 'pointer',
-                                transition: 'all 0.15s ease',
-                                userSelect: 'none',
-                              }}
-                            >
-                              {label}
-                            </div>
-                          );
-                        })}
+                    {/* Option Selection Panel (Weight, Color, KG, Height, Custom) */}
+                    <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                      <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: 700 }}>📏 Available Product Options (প্রোডাক্টের অপশন ও সাইজ সিলেক্ট করুন)</label>
+                      <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: '4px', marginTop: '-12px' }}>
+                        কাস্টমার প্রোডাক্ট ভিউ পেজে এই অপশনগুলো থেকে সিলেক্ট করে কার্ট বা অর্ডার করতে পারবে।
+                      </p>
+
+                      {/* 1. Standard Sizes */}
+                      <div>
+                        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sizes (সাইজসমূহ)</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                          {['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((label) => {
+                            const isEnabled = tempProduct.sizes ? tempProduct.sizes.some(s => s.label === label && s.enabled) : false;
+                            return (
+                              <button
+                                type="button"
+                                key={label}
+                                onClick={() => toggleOption(label)}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: '55px',
+                                  height: '36px',
+                                  borderRadius: 'var(--radius-md)',
+                                  border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
+                                  background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
+                                  color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
+                                  fontWeight: 700,
+                                  cursor: 'pointer',
+                                  transition: 'all 0.15s ease',
+                                }}
+                              >
+                                {label}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
+
+                      {/* 2. Colors */}
+                      <div>
+                        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Colors (রংসমূহ)</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                          {['Red', 'Blue', 'Black', 'White', 'Green', 'Yellow', 'Grey', 'Orange', 'Pink'].map((label) => {
+                            const isEnabled = tempProduct.sizes ? tempProduct.sizes.some(s => s.label === label && s.enabled) : false;
+                            return (
+                              <button
+                                type="button"
+                                key={label}
+                                onClick={() => toggleOption(label)}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  padding: '0 12px',
+                                  height: '36px',
+                                  borderRadius: 'var(--radius-md)',
+                                  border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
+                                  background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
+                                  color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
+                                  fontWeight: 700,
+                                  cursor: 'pointer',
+                                  transition: 'all 0.15s ease',
+                                }}
+                              >
+                                {label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* 3. Weight Options */}
+                      <div>
+                        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Weights (ওজনসমূহ)</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                          {['5kg', '10kg', '15kg', '20kg', '25kg', '30kg'].map((label) => {
+                            const isEnabled = tempProduct.sizes ? tempProduct.sizes.some(s => s.label === label && s.enabled) : false;
+                            return (
+                              <button
+                                type="button"
+                                key={label}
+                                onClick={() => toggleOption(label)}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: '65px',
+                                  height: '36px',
+                                  borderRadius: 'var(--radius-md)',
+                                  border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
+                                  background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
+                                  color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
+                                  fontWeight: 700,
+                                  cursor: 'pointer',
+                                  transition: 'all 0.15s ease',
+                                }}
+                              >
+                                {label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* 4. KG Options */}
+                      <div>
+                        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>KGs (কেজিসমূহ)</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                          {['1kg', '2kg', '3kg', '4kg', '5kg', '6kg', '7kg', '8kg', '9kg', '10kg'].map((label) => {
+                            const isEnabled = tempProduct.sizes ? tempProduct.sizes.some(s => s.label === label && s.enabled) : false;
+                            return (
+                              <button
+                                type="button"
+                                key={label}
+                                onClick={() => toggleOption(label)}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: '65px',
+                                  height: '36px',
+                                  borderRadius: 'var(--radius-md)',
+                                  border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
+                                  background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
+                                  color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
+                                  fontWeight: 700,
+                                  cursor: 'pointer',
+                                  transition: 'all 0.15s ease',
+                                }}
+                              >
+                                {label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* 5. Height Options */}
+                      <div>
+                        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Heights/Dimensions (উচ্চতা/সাইজ)</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                          {['4ft', '5ft', '6ft', '7ft', '100cm', '120cm', '150cm', '180cm'].map((label) => {
+                            const isEnabled = tempProduct.sizes ? tempProduct.sizes.some(s => s.label === label && s.enabled) : false;
+                            return (
+                              <button
+                                type="button"
+                                key={label}
+                                onClick={() => toggleOption(label)}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  padding: '0 12px',
+                                  height: '36px',
+                                  borderRadius: 'var(--radius-md)',
+                                  border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
+                                  background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
+                                  color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
+                                  fontWeight: 700,
+                                  cursor: 'pointer',
+                                  transition: 'all 0.15s ease',
+                                }}
+                              >
+                                {label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* 6. Dynamic Custom Options */}
+                      {(() => {
+                        const predefined = [
+                          'S', 'M', 'L', 'XL', 'XXL', '3XL',
+                          'Red', 'Blue', 'Black', 'White', 'Green', 'Yellow', 'Grey', 'Orange', 'Pink',
+                          '5kg', '10kg', '15kg', '20kg', '25kg', '30kg',
+                          '1kg', '2kg', '3kg', '4kg', '5kg', '6kg', '7kg', '8kg', '9kg', '10kg',
+                          '4ft', '5ft', '6ft', '7ft', '100cm', '120cm', '150cm', '180cm'
+                        ];
+                        const customSizes = (tempProduct.sizes || []).filter(s => !predefined.includes(s.label));
+                        if (customSizes.length === 0) return null;
+                        return (
+                          <div>
+                            <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Created Custom Options (কাস্টম অপশনসমূহ)</div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                              {customSizes.map((s) => {
+                                const isEnabled = s.enabled;
+                                return (
+                                  <button
+                                    type="button"
+                                    key={s.label}
+                                    onClick={() => toggleOption(s.label)}
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      padding: '0 12px',
+                                      height: '36px',
+                                      borderRadius: 'var(--radius-md)',
+                                      border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
+                                      background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
+                                      color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
+                                      fontWeight: 700,
+                                      cursor: 'pointer',
+                                      transition: 'all 0.15s ease',
+                                    }}
+                                  >
+                                    {s.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* 7. Custom Options Input */}
+                      <div>
+                        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Custom Option (অন্যান্য কাস্টম অপশন যুক্ত করুন)</div>
+                        <div style={{ display: 'flex', gap: '10px', maxWidth: '360px' }}>
+                          <input
+                            type="text"
+                            className="form-input"
+                            value={customOptionInput}
+                            onChange={(e) => setCustomOptionInput(e.target.value)}
+                            placeholder="e.g. 2.5kg, Purple, XL-Long"
+                            style={{ flex: 1 }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleAddCustomOption();
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddCustomOption}
+                            style={{
+                              padding: '0 16px',
+                              background: 'var(--accent-primary)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: 'var(--radius-md)',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              transition: 'opacity 0.15s ease',
+                            }}
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Active Options Summary */}
                       <div style={{ marginTop: '8px', fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>
                         {(() => {
                           const enabledSizes = (tempProduct.sizes || []).filter(s => s.enabled);
-                          if (enabledSizes.length === 0) return '⚠️ কোনো সাইজ সিলেক্ট করা হয়নি — Customer "Free Size" দেখবে।';
-                          return `✅ সক্রিয় সাইজ: ${enabledSizes.map(s => s.label).join(', ')}`;
+                          if (enabledSizes.length === 0) return '⚠️ কোনো অপশন সিলেক্ট করা হয়নি — Customer "Free Size" দেখবে।';
+                          return `✅ সক্রিয় অপশনসমূহ: ${enabledSizes.map(s => s.label).join(', ')}`;
                         })()}
                       </div>
                     </div>

@@ -1,21 +1,16 @@
-[debug] [2026-07-13T17:04:54.433Z] ----------------------------------------------------------------------
-[debug] [2026-07-13T17:04:54.438Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\World\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only hosting
-[debug] [2026-07-13T17:04:54.439Z] CLI Version:   15.20.0
-[debug] [2026-07-13T17:04:54.439Z] Platform:      win32
-[debug] [2026-07-13T17:04:54.439Z] Node Version:  v26.3.0
-[debug] [2026-07-13T17:04:54.439Z] Time:          Mon Jul 13 2026 23:04:54 GMT+0600 (Bangladesh Standard Time)
-[debug] [2026-07-13T17:04:54.439Z] ----------------------------------------------------------------------
+[debug] [2026-07-13T17:26:41.539Z] ----------------------------------------------------------------------
+[debug] [2026-07-13T17:26:41.544Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\World\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only hosting
+[debug] [2026-07-13T17:26:41.544Z] CLI Version:   15.20.0
+[debug] [2026-07-13T17:26:41.544Z] Platform:      win32
+[debug] [2026-07-13T17:26:41.544Z] Node Version:  v26.3.0
+[debug] [2026-07-13T17:26:41.544Z] Time:          Mon Jul 13 2026 23:26:41 GMT+0600 (Bangladesh Standard Time)
+[debug] [2026-07-13T17:26:41.544Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2026-07-13T17:04:59.432Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2026-07-13T17:04:59.432Z] > authorizing via signed-in user (rjtamim154@gmail.com)
-[debug] [2026-07-13T17:04:59.432Z] [iam] checking project rtofficial2026 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
-[debug] [2026-07-13T17:04:59.434Z] Checked if tokens are valid: false, expires at: 1783945878104
-[debug] [2026-07-13T17:04:59.434Z] Checked if tokens are valid: false, expires at: 1783945878104
-[debug] [2026-07-13T17:04:59.434Z] > refreshing access token with scopes: []
-[debug] [2026-07-13T17:04:59.437Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
-[debug] [2026-07-13T17:04:59.437Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
-[debug] [2026-07-13T17:04:59.687Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
-[debug] [2026-07-13T17:04:59.688Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
-[debug] [2026-07-13T17:04:59.701Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/rtofficial2026:testIamPermissions [none]
-[debug] [2026-07-13T17:04:59.701Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/rtofficial2026:testIamPermissions  x-goog-user-project=rtofficial2026
-[debug] [2026-07-13T17:04:59.701Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/rtofficial2026:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-07-13T17:26:44.905Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-07-13T17:26:44.906Z] > authorizing via signed-in user (rjtamim154@gmail.com)
+[debug] [2026-07-13T17:26:44.906Z] [iam] checking project rtofficial2026 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-07-13T17:26:44.908Z] Checked if tokens are valid: true, expires at: 1783965898688
+[debug] [2026-07-13T17:26:44.908Z] Checked if tokens are valid: true, expires at: 1783965898688
+[debug] [2026-07-13T17:26:44.909Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/rtofficial2026:testIamPermissions [none]
+[debug] [2026-07-13T17:26:44.910Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/rtofficial2026:testIamPermissions  x-goog-user-project=rtofficial2026
+[debug] [2026-07-13T17:26:44.910Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/rtofficial2026:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
