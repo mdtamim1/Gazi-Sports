@@ -1,0 +1,683 @@
+/* ---- Customer Account Dashboard & Saved Addresses Styles ---- */
+
+.account-container {
+  max-width: var(--sf-max-width);
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+@media (max-width: 768px) {
+  .account-container {
+    padding: 16px 12px !important;
+  }
+}
+
+.account-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+@media (max-width: 576px) {
+  .account-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  .account-header-row button {
+    align-self: center;
+  }
+}
+
+/* Tab Content Card */
+.account-content-card {
+  background: white;
+  border: 1px solid var(--sf-border);
+  border-radius: var(--sf-radius-lg);
+  padding: 32px;
+  min-height: 400px;
+  box-shadow: var(--sf-shadow-sm);
+  transition: box-shadow 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .account-content-card {
+    padding: 16px !important;
+    border-radius: 12px;
+  }
+}
+
+/* Profile Badge Row */
+.profile-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 576px) {
+  .profile-badge-row {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+/* Saved Addresses Section */
+.addresses-section {
+  margin-top: 40px;
+  border-top: 1px solid var(--sf-border);
+  padding-top: 32px;
+}
+
+.addresses-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.addresses-section-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--sf-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Address Grid layout */
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+
+@media (max-width: 576px) {
+  .address-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Address Card Design */
+.address-card {
+  border: 1.5px solid var(--sf-border);
+  border-radius: 14px;
+  padding: 20px;
+  background: var(--sf-bg-white);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.address-card:hover {
+  border-color: var(--sf-accent);
+  box-shadow: var(--sf-shadow-md);
+  transform: translateY(-2px);
+}
+
+.address-card.default-address {
+  border-color: var(--sf-accent);
+  background: rgba(99, 102, 241, 0.02);
+}
+
+.address-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.address-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--sf-accent);
+  background: var(--sf-accent-light);
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.address-default-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--sf-success);
+  background: rgba(16, 185, 129, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.address-card-body {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--sf-text-secondary);
+}
+
+.address-user-name {
+  font-weight: 700;
+  color: var(--sf-text-primary);
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+}
+
+.address-user-phone {
+  font-weight: 600;
+  color: var(--sf-text-secondary);
+  margin-bottom: 8px;
+}
+
+.address-details {
+  color: var(--sf-text-tertiary);
+  word-break: break-word;
+}
+
+.address-card-actions {
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid var(--sf-border);
+  padding-top: 12px;
+  margin-top: auto;
+}
+
+.address-action-btn {
+  flex: 1;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s;
+  border: 1px solid var(--sf-border);
+  background: white;
+  color: var(--sf-text-secondary);
+}
+
+.address-action-btn:hover {
+  background: var(--sf-bg-light);
+  color: var(--sf-text-primary);
+}
+
+.address-action-btn.delete {
+  color: var(--sf-danger);
+}
+
+.address-action-btn.delete:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #ef4444;
+}
+
+.address-action-btn.set-default {
+  color: var(--sf-accent);
+}
+
+.address-action-btn.set-default:hover {
+  background: var(--sf-accent-light);
+  border-color: #c7d2fe;
+}
+
+/* Empty State */
+.address-empty-state {
+  border: 2px dashed var(--sf-border);
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  color: var(--sf-text-tertiary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Modal overlay & container */
+.address-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.address-modal {
+  background: white;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: var(--sf-shadow-xl);
+  border: 1px solid var(--sf-border);
+  animation: modalScaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes modalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.address-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.address-modal-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--sf-text-primary);
+}
+
+.address-modal-close-btn {
+  background: var(--sf-bg-light);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sf-text-secondary);
+  transition: all 0.2s;
+}
+
+.address-modal-close-btn:hover {
+  background: var(--sf-border);
+  color: var(--sf-text-primary);
+}
+
+.address-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.address-form-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--sf-text-secondary);
+  margin-bottom: 6px;
+}
+
+.address-form-label span {
+  color: var(--sf-danger);
+}
+
+.address-form-input {
+  width: 100%;
+  height: 42px;
+  border: 1.5px solid var(--sf-border);
+  border-radius: 8px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  outline: none;
+  background: var(--sf-bg-light);
+  color: var(--sf-text-primary);
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.address-form-input:focus {
+  border-color: var(--sf-accent);
+}
+
+.address-form-textarea {
+  width: 100%;
+  min-height: 80px;
+  border: 1.5px solid var(--sf-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  outline: none;
+  background: var(--sf-bg-light);
+  color: var(--sf-text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.address-form-textarea:focus {
+  border-color: var(--sf-accent);
+}
+
+.address-form-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.address-form-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.address-form-checkbox-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sf-text-secondary);
+  user-select: none;
+}
+
+.address-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.address-btn-cancel {
+  height: 42px;
+  padding: 0 18px;
+  background: white;
+  border: 1.5px solid var(--sf-border);
+  color: var(--sf-text-secondary);
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  transition: background 0.2s;
+}
+
+.address-btn-cancel:hover {
+  background: var(--sf-bg-light);
+  color: var(--sf-text-primary);
+}
+
+.address-btn-save {
+  height: 42px;
+  padding: 0 24px;
+  background: var(--sf-text-primary);
+  color: white;
+  border: none;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  transition: background 0.2s;
+}
+
+.address-btn-save:hover {
+  background: var(--sf-text-secondary);
+}
+
+/* Quick Fill Checkout component */
+.checkout-saved-addresses-container {
+  grid-column: 1 / -1;
+  background: #f8fafc;
+  border: 1.5px solid var(--sf-border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.checkout-saved-addresses-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--sf-text-secondary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.checkout-address-list {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+
+.checkout-address-list::-webkit-scrollbar {
+  height: 6px;
+}
+
+.checkout-address-list::-webkit-scrollbar-thumb {
+  background-color: var(--sf-border);
+  border-radius: 3px;
+}
+
+.checkout-address-card {
+  min-width: 240px;
+  max-width: 240px;
+  border: 1.5px solid var(--sf-border);
+  border-radius: 10px;
+  padding: 12px;
+  background: white;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-sizing: border-box;
+}
+
+.checkout-address-card:hover {
+  border-color: var(--sf-accent);
+}
+
+.checkout-address-card.selected {
+  border-color: var(--sf-accent);
+  background: var(--sf-accent-light);
+  box-shadow: none;
+}
+
+.checkout-address-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.checkout-address-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--sf-accent);
+  background: var(--sf-accent-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.checkout-address-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--sf-text-primary);
+}
+
+.checkout-address-phone {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--sf-text-secondary);
+}
+
+.checkout-address-details {
+  font-size: 0.75rem;
+  color: var(--sf-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.checkout-address-check {
+  color: var(--sf-accent);
+  display: flex;
+  align-items: center;
+}
+
+/* ---- Mobile Responsive Layout & Touch-Friendly Account Slide Drawer ---- */
+.account-mobile-bar {
+  display: none;
+}
+
+.mobile-drawer-header {
+  display: none;
+}
+
+.account-drawer-overlay {
+  display: none;
+}
+
+.store-products-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .store-products-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Mobile Bar Toggle Header */
+  .account-mobile-bar {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    border: 1px solid var(--sf-border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  }
+
+  .account-drawer-toggle-btn {
+    background: linear-gradient(135deg, var(--sf-accent) 0%, var(--sf-accent-hover) 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  }
+
+  .account-mobile-chat-trigger-btn {
+    background: white;
+    color: var(--sf-accent);
+    border: 1.5px solid var(--sf-accent);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .account-mobile-chat-trigger-btn:hover {
+    background: var(--sf-bg-light);
+  }
+
+  /* Backdrop Overlay */
+  .account-drawer-overlay {
+    display: block !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    animation: fadeIn 0.2s ease;
+  }
+
+  /* Mobile Slide-Out Side Drawer */
+  .account-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 280px !important;
+    max-width: 85vw !important;
+    height: 100vh !important;
+    background: white !important;
+    z-index: 9999 !important;
+    padding: 20px 16px !important;
+    box-shadow: 8px 0 30px rgba(0,0,0,0.2) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    overflow-y: auto !important;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .account-sidebar.drawer-open {
+    transform: translateX(0) !important;
+  }
+
+  .mobile-drawer-header {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--sf-border);
+  }
+
+  .drawer-close-btn {
+    background: var(--sf-bg-light);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sf-text-secondary);
+    cursor: pointer;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

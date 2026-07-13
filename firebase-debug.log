@@ -1,0 +1,21 @@
+[debug] [2026-07-13T11:31:34.100Z] ----------------------------------------------------------------------
+[debug] [2026-07-13T11:31:34.103Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\World\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only hosting
+[debug] [2026-07-13T11:31:34.103Z] CLI Version:   15.20.0
+[debug] [2026-07-13T11:31:34.104Z] Platform:      win32
+[debug] [2026-07-13T11:31:34.104Z] Node Version:  v26.3.0
+[debug] [2026-07-13T11:31:34.104Z] Time:          Mon Jul 13 2026 17:31:34 GMT+0600 (Bangladesh Standard Time)
+[debug] [2026-07-13T11:31:34.104Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-07-13T11:31:42.777Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-07-13T11:31:42.777Z] > authorizing via signed-in user (rjtamim154@gmail.com)
+[debug] [2026-07-13T11:31:42.777Z] [iam] checking project rtofficial2026 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-07-13T11:31:42.779Z] Checked if tokens are valid: true, expires at: 1783945878104
+[debug] [2026-07-13T11:31:42.779Z] Checked if tokens are valid: true, expires at: 1783945878104
+[debug] [2026-07-13T11:31:42.781Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/rtofficial2026:testIamPermissions [none]
+[debug] [2026-07-13T11:31:42.781Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/rtofficial2026:testIamPermissions  x-goog-user-project=rtofficial2026
+[debug] [2026-07-13T11:31:42.781Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/rtofficial2026:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-07-13T11:31:44.248Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/rtofficial2026:testIamPermissions 200
+[debug] [2026-07-13T11:31:44.248Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/rtofficial2026:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-07-13T11:31:44.249Z] Checked if tokens are valid: true, expires at: 1783945878104
+[debug] [2026-07-13T11:31:44.249Z] Checked if tokens are valid: true, expires at: 1783945878104
+[debug] [2026-07-13T11:31:44.249Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/rtofficial2026 [none]

@@ -1,0 +1,484 @@
+import { Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
+import db from '../config/db';
+
+// Get all employees
+export const getEmployees = (req: Request, res: Response) => {
+  db.all(
+    `SELECT e.id, e.first_name, e.last_name, e.email, e.status, e.department, e.created_at, e.last_login_at, r.name as role, r.id as role_id 
+     FROM employees e 
+     JOIN roles r ON e.role_id = r.id
+     ORDER BY e.created_at DESC`,
+    [],
+    (err, rows: any[]) => {
+      if (err) {
+        console.error('Failed to get employees:', err);
+        return res.status(500).json({ status: 'error', message: 'Database error' });
+      }
+
+      const employees = (rows || []).map(r => ({
+        id: r.id,
+        name: `${r.first_name} ${r.last_name}`.trim(),
+        first_name: r.first_name,
+        last_name: r.last_name,
+        email: r.email,
+        role: r.role,
+        role_id: r.role_id,
+        status: r.status,
+        department: r.department || 'Operations',
+        created_at: r.created_at,
+        lastLogin: r.last_login_at || '',
+        avatar: r.first_name.substring(0, 1) + r.last_name.substring(0, 1)
+      }));
+
+      res.json({ status: 'success', data: employees });
+    }
+  );
+};
+
+// Update employee (role, status, department)
+export const updateEmployee = (req: Request, res: Response) => {
+  const employeeId = req.params.id;
+  const { role_id, status, department } = req.body;
+
+  // Cannot disable EMP-001 (Super Admin)
+  if (employeeId === 'EMP-001' && status === 'inactive') {
+    return res.status(400).json({ status: 'error', message: 'Cannot deactivate the primary Super Admin account.' });
+  }
+
+  db.run(
+    `UPDATE employees 
+     SET role_id = ?, status = ?, department = ? 
+     WHERE id = ?`,
+    [role_id, status, department || 'Operations', employeeId],
+    function (err) {
+      if (err) {
+        console.error('Failed to update employee:', err);
+        return res.status(500).json({ status: 'error', message: 'Database error' });
+      }
+
+      res.json({ status: 'success', message: 'Employee updated successfully' });
+    }
+  );
+};
+
+// Delete employee
+export const deleteEmployee = (req: Request, res: Response) => {
+  const employeeId = req.params.id;
+
+  if (employeeId === 'EMP-001') {
+    return res.status(400).json({ status: 'error', message: 'Cannot delete the primary Super Admin account.' });
+  }
+
+  db.run(
+    `DELETE FROM employees WHERE id = ?`,
+    [employeeId],
+    function (err) {
+      if (err) {
+        console.error('Failed to delete employee:', err);
+        return res.status(500).json({ status: 'error', message: 'Database error' });
+      }
+
+      res.json({ status: 'success', message: 'Employee deleted successfully' });
+    }
+  );
+};
+
+// Get all invitations
+export const getInvitations = (req: Request, res: Response) => {
+  db.all(
+    `SELECT i.id, i.email, i.status, i.created_at, i.expires_at, i.token, r.name as role, r.id as role_id 
+     FROM employee_invitations i 
+     JOIN roles r ON i.role_id = r.id
+     ORDER BY i.created_at DESC`,
+    [],
+    (err, rows: any[]) => {
+      if (err) {
+        console.error('Failed to get invitations:', err);
+        return res.status(500).json({ status: 'error', message: 'Database error' });
+      }
+
+      const invitations = (rows || []).map(r => ({
+        id: r.id,
+        email: r.email,
+        role: r.role,
+        role_id: r.role_id,
+        status: r.status,
+        created_at: r.created_at,
+        expires_at: r.expires_at,
+        token: r.token
+      }));
+
+      res.json({ status: 'success', data: invitations });
+    }
+  );
+};
+
+// Create invitation token (Invite Moderator/Admin)
+export const inviteEmployee = (req: Request, res: Response) => {
+  const { email, role_id } = req.body;
+
+  if (!email || !role_id) {
+    return res.status(400).json({ status: 'error', message: 'Email and Role are required' });
+  }
+
+  // Check if user is already an employee
+  db.get('SELECT id FROM employees WHERE email = ?', [email], (err, row) => {
+    if (row) {
+      return res.status(400).json({ status: 'error', message: 'এই ইমেইল দিয়ে অলরেডি রেজিস্টার্ড ইউজার আছে' });
+    }
+
+    // Check if there is already a pending invitation
+    db.get("SELECT id FROM employee_invitations WHERE email = ? AND status = 'pending'", [email], (err, inviteRow) => {
+      if (inviteRow) {
+        return res.status(400).json({ status: 'error', message: 'এই ইমেইলে ইতিমধ্যে একটি পেন্ডিং ইনভাইটেশন পাঠানো আছে' });
+      }
+
+      const token = `inv-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+      const invitationId = `invite-${Date.now()}`;
+      const expiresAt = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(); // 7 Days Expiry
+
+      db.run(
+        `INSERT INTO employee_invitations (id, email, role_id, token, status, expires_at)
+         VALUES (?, ?, ?, ?, 'pending', ?)`,
+        [invitationId, email, role_id, token, expiresAt],
+        function (err) {
+          if (err) {
+            console.error('Failed to create invitation:', err);
+            return res.status(500).json({ status: 'error', message: 'Database error' });
+          }
+
+          // Mock sending email to gmail (in real application, NodeMailer is used)
+          console.log(`✉️ [SIMULATED EMAIL SENT] to ${email}`);
+          console.log(`🔗 Registration Link: http://localhost:5173/register-employee?token=${token}`);
+
+          res.json({
+            status: 'success',
+            data: {
+              id: invitationId,
+              email,
+              token,
+              expires_at: expiresAt
+            }
+          });
+        }
+      );
+    });
+  });
+};
+
+// Delete / Revoke Invitation
+export const deleteInvitation = (req: Request, res: Response) => {
+  const invitationId = req.params.id;
+
+  db.run(
+    `DELETE FROM employee_invitations WHERE id = ?`,
+    [invitationId],
+    function (err) {
+      if (err) {
+        console.error('Failed to revoke invitation:', err);
+        return res.status(500).json({ status: 'error', message: 'Database error' });
+      }
+
+      res.json({ status: 'success', message: 'Invitation revoked successfully' });
+    }
+  );
+};
+
+// Get all roles
+export const getRoles = (req: Request, res: Response) => {
+  db.all(`SELECT * FROM roles ORDER BY id ASC`, [], (err, rows: any[]) => {
+    if (err) {
+      console.error('Failed to get roles:', err);
+      return res.status(500).json({ status: 'error', message: 'Database error' });
+    }
+
+    const roles = (rows || []).map(r => {
+      let permissions = [];
+      try {
+        if (r.permissions) permissions = JSON.parse(r.permissions);
+      } catch (e) {
+        console.error(`Error parsing permissions for role ${r.name}:`, e);
+      }
+      return {
+        id: r.id,
+        name: r.name,
+        description: r.description || '',
+        is_system: r.is_system === 1,
+        permissions
+      };
+    });
+
+    res.json({ status: 'success', data: roles });
+  });
+};
+
+// Create a custom role
+export const createRole = (req: Request, res: Response) => {
+  const { name, description, permissions } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ status: 'error', message: 'Role name is required' });
+  }
+
+  db.run(
+    `INSERT INTO roles (name, description, is_system, permissions)
+     VALUES (?, ?, 0, ?)`,
+    [name, description || '', JSON.stringify(permissions || [])],
+    function (err) {
+      if (err) {
+        console.error('Failed to create role:', err);
+        return res.status(500).json({ status: 'error', message: 'Database error' });
+      }
+
+      res.json({
+        status: 'success',
+        data: {
+          id: this.lastID,
+          name,
+          description,
+          is_system: false,
+          permissions: permissions || []
+        }
+      });
+    }
+  );
+};
+
+// Update a custom role
+export const updateRole = (req: Request, res: Response) => {
+  const roleId = req.params.id;
+  const { name, description, permissions } = req.body;
+
+  // Cannot modify Super Admin or Admin role name to prevent breaking system roles, but permissions can be synced
+  db.get(`SELECT * FROM roles WHERE id = ?`, [roleId], (err, role: any) => {
+    if (!role) {
+      return res.status(404).json({ status: 'error', message: 'Role not found' });
+    }
+
+    const finalName = role.is_system === 1 ? role.name : name;
+
+    db.run(
+      `UPDATE roles 
+       SET name = ?, description = ?, permissions = ? 
+       WHERE id = ?`,
+      [finalName, description || '', JSON.stringify(permissions || []), roleId],
+      function (err) {
+        if (err) {
+          console.error('Failed to update role:', err);
+          return res.status(500).json({ status: 'error', message: 'Database error' });
+        }
+
+        res.json({ status: 'success', message: 'Role updated successfully' });
+      }
+    );
+  });
+};
+
+// Delete a custom role
+export const deleteRole = (req: Request, res: Response) => {
+  const roleId = req.params.id;
+
+  db.get(`SELECT is_system FROM roles WHERE id = ?`, [roleId], (err, role: any) => {
+    if (!role) {
+      return res.status(404).json({ status: 'error', message: 'Role not found' });
+    }
+
+    if (role.is_system === 1) {
+      return res.status(400).json({ status: 'error', message: 'Cannot delete built-in system roles.' });
+    }
+
+    db.run(`DELETE FROM roles WHERE id = ?`, [roleId], function (err) {
+      if (err) {
+        console.error('Failed to delete role:', err);
+        return res.status(500).json({ status: 'error', message: 'Database error' });
+      }
+
+      res.json({ status: 'success', message: 'Role deleted successfully' });
+    });
+  });
+};
+
+// Public: verify invitation token
+export const verifyInvitationToken = (req: Request, res: Response) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({ status: 'error', message: 'Token is required' });
+  }
+
+  db.get(
+    `SELECT i.*, r.name as role_name 
+     FROM employee_invitations i 
+     JOIN roles r ON i.role_id = r.id 
+     WHERE i.token = ?`,
+    [token],
+    (err, row: any) => {
+      if (err) {
+        return res.status(500).json({ status: 'error', message: 'Database error' });
+      }
+
+      if (!row) {
+        return res.status(404).json({ status: 'error', message: 'ইনভাইটেশন টোকেনটি সঠিক নয়।' });
+      }
+
+      if (row.status !== 'pending') {
+        return res.status(400).json({ status: 'error', message: 'ইনভাইটেশন টোকেনটি ইতিমধ্যে ব্যবহার করা হয়েছে।' });
+      }
+
+      const expiry = new Date(row.expires_at).getTime();
+      if (expiry < Date.now()) {
+        return res.status(400).json({ status: 'error', message: 'ইনভাইটেশন লিংকটির মেয়াদ শেষ হয়ে গেছে।' });
+      }
+
+      res.json({
+        status: 'success',
+        data: {
+          email: row.email,
+          role: row.role_name
+        }
+      });
+    }
+  );
+};
+
+// Public: register employee using invitation token
+export const registerInvitedEmployee = (req: Request, res: Response) => {
+  const { token, name, password } = req.body;
+
+  if (!token || !name || !password) {
+    return res.status(400).json({ status: 'error', message: 'Token, Name, and Password are required' });
+  }
+
+  db.get(
+    `SELECT i.*, r.name as role_name 
+     FROM employee_invitations i 
+     JOIN roles r ON i.role_id = r.id 
+     WHERE i.token = ?`,
+    [token],
+    (err, invite: any) => {
+      if (err || !invite) {
+        return res.status(400).json({ status: 'error', message: 'Invalid token' });
+      }
+
+      if (invite.status !== 'pending') {
+        return res.status(400).json({ status: 'error', message: 'Token already used' });
+      }
+
+      const expiry = new Date(invite.expires_at).getTime();
+      if (expiry < Date.now()) {
+        return res.status(400).json({ status: 'error', message: 'Invitation has expired' });
+      }
+
+      // Hash password
+      bcrypt.hash(password, 10, (err, hash) => {
+        if (err) {
+          return res.status(500).json({ status: 'error', message: 'Password hashing failed' });
+        }
+
+        const parts = name.trim().split(' ');
+        const first_name = parts[0] || '';
+        const last_name = parts.slice(1).join(' ') || '';
+        const employeeId = `EMP-${Date.now()}`;
+
+        // Begin transaction-like sequence in serialized SQLite
+        db.serialize(() => {
+          // Insert employee
+          db.run(
+            `INSERT INTO employees (id, role_id, first_name, last_name, email, password_hash, status, department)
+             VALUES (?, ?, ?, ?, ?, ?, 'active', 'Operations')`,
+            [employeeId, invite.role_id, first_name, last_name, invite.email, hash],
+            (err) => {
+              if (err) {
+                console.error('Error creating invited employee:', err);
+                return res.status(500).json({ status: 'error', message: 'Failed to create employee record' });
+              }
+
+              // Update invitation status
+              db.run(
+                `UPDATE employee_invitations SET status = 'accepted' WHERE id = ?`,
+                [invite.id],
+                (err) => {
+                  if (err) console.error('Error updating invitation status:', err);
+                  res.json({ status: 'success', message: 'Registration complete! You can now log in.' });
+                }
+              );
+            }
+          );
+        });
+      });
+    }
+  );
+};
+
+// Get all active employees for order assignment (not just moderators)
+export const getActiveEmployees = (req: Request, res: Response) => {
+  db.all(
+    `SELECT e.id, e.first_name, e.last_name, e.email, e.status, r.name as role
+     FROM employees e
+     JOIN roles r ON e.role_id = r.id
+     WHERE e.status = 'active'
+     ORDER BY e.first_name ASC`,
+    [],
+    (err, rows: any[]) => {
+      if (err) {
+        console.error('Error fetching active employees:', err);
+        return res.status(500).json({ status: 'error', message: 'Database error' });
+      }
+
+      const employees = (rows || []).map(r => ({
+        id: r.id,
+        name: `${r.first_name} ${r.last_name}`.trim(),
+        email: r.email,
+        role: r.role,
+        status: r.status
+      }));
+
+      res.json({ status: 'success', data: employees });
+    }
+  );
+};
+
+// Keep backward compatibility alias
+export const getActiveModerators = getActiveEmployees;
+
+// Toggle employee status (active <-> inactive)
+export const toggleEmployeeStatus = (req: Request, res: Response) => {
+  const employeeId = req.params.id;
+
+  // Cannot toggle EMP-001 (Super Admin)
+  if (employeeId === 'EMP-001') {
+    return res.status(400).json({ status: 'error', message: 'Super Admin এর স্ট্যাটাস পরিবর্তন করা যাবে না।' });
+  }
+
+  // Get current status
+  db.get(`SELECT status FROM employees WHERE id = ?`, [employeeId], (err, row: any) => {
+    if (err) {
+      console.error('Error fetching employee status:', err);
+      return res.status(500).json({ status: 'error', message: 'Database error' });
+    }
+
+    if (!row) {
+      return res.status(404).json({ status: 'error', message: 'Employee not found' });
+    }
+
+    const newStatus = row.status === 'active' ? 'inactive' : 'active';
+
+    db.run(
+      `UPDATE employees SET status = ? WHERE id = ?`,
+      [newStatus, employeeId],
+      function (err) {
+        if (err) {
+          console.error('Error toggling employee status:', err);
+          return res.status(500).json({ status: 'error', message: 'Database error' });
+        }
+
+        res.json({
+          status: 'success',
+          message: `Employee ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`,
+          data: { id: employeeId, newStatus }
+        });
+      }
+    );
+  });
+};
