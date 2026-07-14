@@ -155,6 +155,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/settings', settingsRoutes);
 app.use('/api/v1/chats', chatRoutes);
 app.use('/api/v1/employees', employeeRoutes);
 app.use('/api/v1/marketing', marketingRoutes);
@@ -162,10 +163,11 @@ app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/blogs', blogRoutes);
 app.use('/', seoRoutes);
 
+
 // Fallback stubs for other routes to prevent breaks
 app.use('/api/v1/customers', customerRoutes);
-app.use('/api/v1/settings', settingsRoutes);
 app.use('/api/v1/vendors', (_req, res) => res.json({ status: 'success', data: [] }));
+
 
 // Serve static assets from Vite build folder
 const distPath = path.resolve(__dirname, '../dist');
