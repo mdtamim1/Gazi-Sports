@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Megaphone, Mail, MessageSquare, Bell, Share2, Ticket, Zap, Gift, Send, Play, Pause, BarChart2, X, Plus, Trash2, Eye, DollarSign, Sparkles } from 'lucide-react';
-import { generateCampaigns, saveCampaigns, formatCurrency, formatDate } from '../../mock/data';
+import { formatCurrency, formatDate } from '../../mock/data';
 import { SpinWheelControl } from './SpinWheelControl';
 import { 
   fetchCoupons, 
@@ -97,12 +97,8 @@ export default function Marketing() {
       ]);
       if (couponData) setCoupons(couponData);
       if (subData) setSubscribers(subData);
-      if (campaignData) {
-        setCampaigns(campaignData);
-      } else {
-        // Fallback to local storage if API fails
-        setCampaigns(generateCampaigns(15));
-      }
+      // Use real backend campaigns, empty array if API fails
+      setCampaigns(campaignData || []);
 
       let finalProducts = productData;
       if (!finalProducts || finalProducts.length === 0) {
@@ -246,7 +242,7 @@ export default function Marketing() {
     }
   };
 
-  if (loading && coupons.length === 0) {
+  if (loading) {
     return (
       <div style={{ display: 'flex', minHeight: '60vh', alignItems: 'center', justifyContent: 'center' }}>
         <div className="spinner" />

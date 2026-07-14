@@ -9,17 +9,12 @@ import Login from './features/auth/Login';
 
 // Admin Features
 import Dashboard from './features/dashboard/Dashboard';
-import Analytics from './features/analytics/Analytics';
 import Orders from './features/orders/Orders';
 import Products from './features/products/Products';
 import Marketing from './features/marketing/Marketing';
 import Employees from './features/employees/Employees';
-import Finance from './features/finance/Finance';
-import Security from './features/security/Security';
-import SystemSettings from './features/system/SystemSettings';
 import StorefrontManager from './features/storefront-manager/StorefrontManager';
 import RegisterEmployee from './features/employees/RegisterEmployee';
-import Customers from './features/customers/Customers';
 
 // Storefront (Customer-facing)
 import StorefrontLayout from './storefront/StorefrontLayout';
@@ -108,17 +103,12 @@ function AdminLayout() {
         <main className="app-content">
           <Routes>
             <Route index element={<Dashboard />} />
-            <Route path="analytics" element={<Analytics />} />
             <Route path="orders" element={<Orders />} />
             <Route path="products" element={<Products />} />
             <Route path="marketing" element={<Marketing />} />
             <Route path="employees" element={<Employees />} />
-            <Route path="finance" element={<Finance />} />
-            <Route path="security" element={<Security />} />
-            <Route path="settings" element={<SystemSettings />} />
             <Route path="storefront-manager" element={<StorefrontManager />} />
             <Route path="chats" element={<Inbox />} />
-            <Route path="customers" element={<Customers />} />
             <Route path="blogs" element={<BlogManager />} />
           </Routes>
         </main>

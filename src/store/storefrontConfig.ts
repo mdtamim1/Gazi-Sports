@@ -749,7 +749,27 @@ export function useStorefrontConfig(): [StorefrontConfig, (config: StorefrontCon
     const unsubscribe = subscribeToConfig(() => {
       setConfigState({ ...loadConfig() });
     });
-    return unsubscribe;
+
+    // Cross-tab sync: when admin saves config in another tab,
+    // the 'storage' event fires here and we reload the config.
+    const handleStorageEvent = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        try {
+          let parsed = JSON.parse(e.newValue);
+          parsed = migrateConfig(parsed);
+          _config = parsed;
+          setConfigState({ ...parsed });
+        } catch {
+          // ignore
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageEvent);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('storage', handleStorageEvent);
+    };
   }, []);
 
   const setConfig = (newConfig: StorefrontConfig) => {

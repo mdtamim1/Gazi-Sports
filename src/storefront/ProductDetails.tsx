@@ -50,6 +50,10 @@ export default function ProductDetails() {
   const [buyNowQty, setBuyNowQty] = useState<number>(1);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [selectedWeight, setSelectedWeight] = useState<string>('');
+  const [selectedKg, setSelectedKg] = useState<string>('');
+  const [selectedHeight, setSelectedHeight] = useState<string>('');
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
 
   const imagesList = (product?.gallery && product.gallery.length > 0)
@@ -531,8 +535,14 @@ export default function ProductDetails() {
       subtotal: subtotal,
       productsList: [{
         name: product.name,
-        color: 'Default',
-        size: selectedSize || 'Free Size',
+        color: selectedColor || 'Default',
+        size: [
+          selectedSize,
+          selectedColor,
+          selectedWeight,
+          selectedKg,
+          selectedHeight,
+        ].filter(Boolean).join(' / ') || 'Free Size',
         code: product.sku,
         quantity: buyNowQty,
         price: product.price,
@@ -571,6 +581,10 @@ export default function ProductDetails() {
     setTrxId('');
     setBuyNowQty(1);
     setSelectedSize('');
+    setSelectedColor('');
+    setSelectedWeight('');
+    setSelectedKg('');
+    setSelectedHeight('');
     setSelectedAddressId('');
     setNameEdited(false);
     setPhoneEdited(false);
@@ -894,47 +908,65 @@ export default function ProductDetails() {
           </div>
 
 
-          {/* Size Selector - only show if product has enabled sizes */}
-          {product.sizes && product.sizes.filter((s: any) => s.enabled).length > 0 && (
-            <div className="pdp-size-selector" style={{ margin: '8px 0 4px 0' }}>
-              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--sf-text-primary)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                📏 সাইজ সিলেক্ট করুন (Select Size)
-                {selectedSize && <span style={{ fontSize: '0.78rem', color: 'var(--sf-accent)', fontWeight: 800 }}>— {selectedSize}</span>}
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {product.sizes.filter((s: any) => s.enabled).map((size: any, idx: number) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setSelectedSize(size.label)}
-                    style={{
-                      minWidth: '52px',
-                      height: '42px',
-                      padding: '0 16px',
-                      borderRadius: '10px',
-                      border: selectedSize === size.label ? '2px solid var(--sf-accent)' : '1.5px solid var(--sf-border)',
-                      background: selectedSize === size.label ? 'rgba(225, 29, 72, 0.08)' : 'var(--sf-bg-light, #f8f9fa)',
-                      color: selectedSize === size.label ? 'var(--sf-accent)' : 'var(--sf-text-primary)',
-                      fontWeight: 700,
-                      fontSize: '0.9rem',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {size.label}
-                  </button>
-                ))}
-              </div>
-              {!selectedSize && (
-                <div style={{ fontSize: '0.78rem', color: '#ef4444', marginTop: '8px', fontWeight: 600 }}>
-                  ⚠️ অর্ডার করতে দয়া করে আপনার সাইজ সিলেক্ট করুন।
+          {/* ====== Variant Selectors ====== */}
+          {product.sizes && product.sizes.filter((s: any) => s.enabled).length > 0 && (() => {
+            const SIZES    = ['S','M','L','XL','XXL','3XL'];
+            const COLORS   = ['Red','Blue','Black','White','Green','Yellow','Grey','Orange','Pink'];
+            const WEIGHTS  = ['5kg','10kg','15kg','20kg','25kg','30kg'];
+            const KGS      = ['1kg','2kg','3kg','4kg','5kg','6kg','7kg','8kg','9kg','10kg'];
+            const HEIGHTS  = ['4ft','5ft','6ft','7ft','100cm','120cm','150cm','180cm'];
+            const allPredefined = [...SIZES,...COLORS,...WEIGHTS,...KGS,...HEIGHTS];
+
+            const enabled = product.sizes.filter((s: any) => s.enabled);
+            const sizeOpts   = enabled.filter((s: any) => SIZES.includes(s.label));
+            const colorOpts  = enabled.filter((s: any) => COLORS.includes(s.label));
+            const weightOpts = enabled.filter((s: any) => WEIGHTS.includes(s.label));
+            const kgOpts     = enabled.filter((s: any) => KGS.includes(s.label));
+            const heightOpts = enabled.filter((s: any) => HEIGHTS.includes(s.label));
+            const customOpts = enabled.filter((s: any) => !allPredefined.includes(s.label));
+
+            const VariantGroup = ({
+              label, emoji, items, selected, onSelect
+            }: { label: string; emoji: string; items: any[]; selected: string; onSelect: (v: string) => void }) => {
+              if (items.length === 0) return null;
+              return (
+                <div className="pdp-variant-group">
+                  <div className="pdp-variant-label">
+                    <span>{emoji} {label}</span>
+                    {selected && <span className="pdp-variant-selected-badge">{selected}</span>}
+                  </div>
+                  <div className="pdp-variant-options">
+                    {items.map((item: any) => (
+                      <button
+                        key={item.label}
+                        type="button"
+                        className={`pdp-variant-btn${selected === item.label ? ' active' : ''}`}
+                        onClick={() => onSelect(selected === item.label ? '' : item.label)}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
+              );
+            };
+
+            const hasSizes = sizeOpts.length > 0;
+
+            return (
+              <div className="pdp-variants-container">
+                <VariantGroup label="সাইজ" emoji="📐" items={sizeOpts} selected={selectedSize} onSelect={setSelectedSize} />
+                <VariantGroup label="কালার" emoji="🎨" items={colorOpts} selected={selectedColor} onSelect={setSelectedColor} />
+                <VariantGroup label="ওজন" emoji="⚖️" items={weightOpts} selected={selectedWeight} onSelect={setSelectedWeight} />
+                <VariantGroup label="কেজি" emoji="📦" items={kgOpts} selected={selectedKg} onSelect={setSelectedKg} />
+                <VariantGroup label="উচ্চতা" emoji="📏" items={heightOpts} selected={selectedHeight} onSelect={setSelectedHeight} />
+                <VariantGroup label="কাস্টম" emoji="✨" items={customOpts} selected={selectedSize} onSelect={setSelectedSize} />
+                {hasSizes && !selectedSize && (
+                  <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে আপনার সাইজ সিলেক্ট করুন।</div>
+                )}
+              </div>
+            );
+          })()}
 
           <div className="pdp-stock-status">
             <CheckCircle size={20} color="var(--sf-success)" />
@@ -943,19 +975,20 @@ export default function ProductDetails() {
 
           <div className="pdp-actions">
             <button className="store-btn store-btn-primary pdp-add-to-cart" onClick={() => {
-              const hasSizes = product.sizes && product.sizes.filter((s: any) => s.enabled).length > 0;
-              if (hasSizes && !selectedSize) {
+              const enabledSizes = product.sizes ? product.sizes.filter((s: any) => s.enabled && ['S','M','L','XL','XXL','3XL'].includes(s.label)) : [];
+              if (enabledSizes.length > 0 && !selectedSize) {
                 alert('দয়া করে প্রথমে সাইজ সিলেক্ট করুন!');
                 return;
               }
-              addToCart({ ...product, selectedSize: selectedSize || 'Free Size' });
+              const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
+              addToCart({ ...product, selectedSize: variantLabel });
             }}>
               <ShoppingCart size={20} /> Add to Cart
             </button>
             <button 
               onClick={() => {
-                const hasSizes = product.sizes && product.sizes.filter((s: any) => s.enabled).length > 0;
-                if (hasSizes && !selectedSize) {
+                const enabledSizes = product.sizes ? product.sizes.filter((s: any) => s.enabled && ['S','M','L','XL','XXL','3XL'].includes(s.label)) : [];
+                if (enabledSizes.length > 0 && !selectedSize) {
                   alert('দয়া করে প্রথমে সাইজ সিলেক্ট করুন!');
                   return;
                 }

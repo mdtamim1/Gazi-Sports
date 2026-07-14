@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import App from './App'
 import './index.css'
-import './firebase'
+
 
 // Global fetch interceptor to handle auth token expiration/invalidations
 const originalFetch = window.fetch;

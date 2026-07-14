@@ -28,18 +28,15 @@ const statusColors: Record<string, string> = {
 
 const availableModules = [
   { id: 'dashboard', name: 'Dashboard Overview' },
-  { id: 'analytics', name: 'Advanced Analytics' },
   { id: 'orders', name: 'Order Processing' },
   { id: 'products', name: 'Product Control Center' },
-  { id: 'storefront', name: 'Storefront manager' },
+  { id: 'storefront', name: 'Storefront Manager' },
+  { id: 'blogs', name: 'Blog Manager' },
   { id: 'chats', name: 'Inbox (Chats)' },
   { id: 'marketing', name: 'Marketing Campaigns' },
   { id: 'employees', name: 'Employee Management' },
-  { id: 'finance', name: 'Financial Overview' },
-  { id: 'security', name: 'Security Center' },
-  { id: 'settings', name: 'System Settings' },
-  { id: 'ai', name: 'AI Center' }
 ];
+
 
 export default function Employees() {
   const [activeTab, setActiveTab] = useState('directory');
@@ -288,7 +285,7 @@ export default function Employees() {
     );
   };
 
-  if (loading && employees.length === 0) {
+  if (loading) {
     return (
       <div style={{ display: 'flex', minHeight: '60vh', alignItems: 'center', justifyContent: 'center' }}>
         <div className="spinner" />
