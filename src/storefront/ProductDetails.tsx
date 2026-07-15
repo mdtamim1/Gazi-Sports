@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, Link, useOutletContext } from 'react-router-dom';
+import { useParams, Link, useOutletContext, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart, Share2, Star, CheckCircle, Shield, Truck, RotateCcw, ChevronRight, Smartphone, Phone, MessageCircle, X, User, MapPin, Package, CreditCard, ArrowRight, Minus, Plus, Headphones, Store, Send, ChevronLeft, ZoomIn, List } from 'lucide-react';
 import { useStorefrontConfig } from '../store/storefrontConfig';
 import { addOrder } from '../mock/data';
@@ -29,6 +29,7 @@ export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   const { addToCart, toggleWishlist, wishlist } = useOutletContext<StorefrontContext>();
   const [config, setConfig] = useStorefrontConfig();
+  const navigate = useNavigate();
   
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -964,8 +965,9 @@ export default function ProductDetails() {
                   alert('দয়া করে প্রথমে সাইজ সিলেক্ট করুন!');
                   return;
                 }
-                setBuyNowQty(1);
-                setIsCheckoutOpen(true);
+                const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
+                const buyProduct = { ...product, selectedSize: variantLabel };
+                navigate('/checkout', { state: { product: buyProduct, quantity: 1 } });
               }}
               className="store-btn pdp-buy-now" 
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: 'none' }}
@@ -1015,7 +1017,7 @@ export default function ProductDetails() {
           </div>
 
           <div className="pdp-trust-badges">
-            <div className="trust-badge"><Truck size={20} /> Free Shipping</div>
+            <div className="trust-badge"><Truck size={20} /> Fast Delivery</div>
             <div className="trust-badge"><Shield size={20} /> 1 Year Warranty</div>
             <div className="trust-badge"><RotateCcw size={20} /> 30-Day Returns</div>
           </div>
@@ -1219,14 +1221,14 @@ export default function ProductDetails() {
       </div>
 
       {/* Video & Photo Reviews Section */}
-      <div className="pdp-tabs-container pdp-media-section" style={{ padding: '30px', background: 'white', marginTop: '40px' }}>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--sf-text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <MessageCircle size={22} color="var(--sf-accent)" />
-          ভিডিও ও ছবি রিভিউ (Video & Photo Reviews)
-        </h3>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {(product.videoUrl || product.video_url || product.photoContent || product.photo_content) ? (
+      {(product.videoUrl || product.video_url || product.photoContent || product.photo_content) && (
+        <div className="pdp-tabs-container pdp-media-section" style={{ padding: '30px', background: 'white', marginTop: '40px' }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--sf-text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <MessageCircle size={22} color="var(--sf-accent)" />
+            ভিডিও ও ছবি রিভিউ (Video & Photo Reviews)
+          </h3>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div className="pdp-media-grid">
               {(product.videoUrl || product.video_url) && (
                 <div style={{ background: 'var(--sf-bg-light)', padding: '20px', borderRadius: '12px', border: '1px solid var(--sf-border)' }}>
@@ -1267,26 +1269,9 @@ export default function ProductDetails() {
                 </div>
               )}
             </div>
-          ) : (
-            <div style={{ background: 'var(--sf-bg-light)', padding: '36px 20px', borderRadius: '16px', border: '1px dashed var(--sf-border)', textAlign: 'center' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(225, 29, 72, 0.1)', color: 'var(--sf-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
-                <MessageCircle size={28} />
-              </div>
-              <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--sf-text-primary)', marginBottom: '8px' }}>ভিডিও ও ছবি রিভিউ দেখতে চান?</h4>
-              <p style={{ fontSize: '0.9rem', color: 'var(--sf-text-secondary)', maxWidth: '480px', margin: '0 auto 20px auto', lineHeight: 1.6 }}>
-                এই প্রোডাক্টটির রিয়েল ফটো বা লাইভ আনবক্সিং ভিডিও ডেমো দেখতে সরাসরি আমাদের সাপোর্ট টিমের চ্যাটে মেসেজ পাঠান।
-              </p>
-              <button 
-                onClick={() => setIsChatDrawerOpen(true)} 
-                className="store-btn store-btn-primary" 
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', borderRadius: '24px', fontWeight: 700, cursor: 'pointer', border: 'none' }}
-              >
-                <MessageCircle size={18} /> লাইভ চ্যাটে ভিডিও রিভিউ চান
-              </button>
-            </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Related / Suggested Products */}
       {product && (() => {
@@ -1394,341 +1379,6 @@ export default function ProductDetails() {
           </div>
         );
       })()}
-      {/* Premium Checkout Modal Overlay */}
-      {isCheckoutOpen && (
-        <div className="pdp-checkout-overlay" onClick={closeCheckoutModal}>
-          <div className="pdp-checkout-modal" onClick={e => e.stopPropagation()}>
-            <button className="pdp-checkout-close" onClick={closeCheckoutModal} aria-label="Close modal">
-              <X size={20} />
-            </button>
-
-            {!checkoutSuccess ? (
-              <>
-                <div className="pdp-checkout-header">
-                  <h3>নিরাপদ অর্ডার ফরম (Secure Order Form)</h3>
-                  <p>অর্ডারটি সম্পন্ন করতে আপনার সঠিক তথ্য দিয়ে ফরমটি পূরণ করুন</p>
-                </div>
-
-                <form className="pdp-checkout-form" onSubmit={handleCheckoutSubmit}>
-                  
-                  {/* Step 1: Order Summary */}
-                  <div className="pdp-checkout-summary">
-                    <div className="pdp-checkout-item">
-                      <img src={product.image} alt={product.name} className="pdp-checkout-item-img" />
-                      <div className="pdp-checkout-item-details">
-                        <div className="pdp-checkout-item-name">{product.name}</div>
-                        <div className="pdp-checkout-item-variant">রঙ: ডিফল্ট | সাইজ: {selectedSize || 'ফ্রি সাইজ'}</div>
-                        <div className="pdp-checkout-item-row">
-                          <div className="pdp-checkout-item-price">৳{product.price}</div>
-                          <div className="qty-control">
-                            <button type="button" className="qty-btn" onClick={() => setBuyNowQty(prev => Math.max(1, prev - 1))}>
-                              <Minus size={12} />
-                            </button>
-                            <div className="qty-val">{buyNowQty}</div>
-                            <button type="button" className="qty-btn" onClick={() => setBuyNowQty(prev => prev + 1)}>
-                              <Plus size={12} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {(() => {
-                      const subtotal = product.price * buyNowQty;
-                      const deliveryCharge = shippingLocation === 'dhaka' 
-                        ? config.delivery.insideDhakaPrice 
-                        : config.delivery.outsideDhakaPrice;
-                      let discount = 0;
-                      if (appliedCoupon) {
-                        if (appliedCoupon.type === 'percentage') {
-                          discount = (subtotal * appliedCoupon.value) / 100;
-                        } else {
-                          discount = appliedCoupon.value;
-                        }
-                      }
-                      const checkoutTotal = subtotal + deliveryCharge - discount;
-
-                      return (
-                        <>
-                          <div className="pdp-checkout-totals">
-                            <div className="pdp-checkout-row">
-                              <span>পণ্যের মূল্য (Subtotal)</span>
-                              <span>৳{subtotal.toFixed(2)}</span>
-                            </div>
-                            <div className="pdp-checkout-row">
-                              <span>ডেলিভারি চার্জ (Shipping)</span>
-                              <span>৳{deliveryCharge.toFixed(2)}</span>
-                            </div>
-                            {discount > 0 && (
-                              <div className="pdp-checkout-row" style={{ color: '#16a34a', fontWeight: 600 }}>
-                                <span>ছাড় (Discount)</span>
-                                <span>-৳{discount.toFixed(2)}</span>
-                              </div>
-                            )}
-                            <div className="pdp-checkout-row total">
-                              <span>সর্বমোট (Total)</span>
-                              <span>৳{checkoutTotal.toFixed(2)}</span>
-                            </div>
-                          </div>
-
-                          {/* Coupon / Promo Code Form */}
-                          <div style={{ padding: '12px 14px', background: '#fafafa', borderTop: '1px dashed #e5e5e5', borderBottom: '1px dashed #e5e5e5', margin: '12px 0' }}>
-                            <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--sf-text-secondary)', marginBottom: '8px' }}>প্রোমো কোড (Promo Code)</div>
-                            {appliedCoupon ? (
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '6px 10px', borderRadius: '6px' }}>
-                                <span style={{ fontSize: '0.78rem', color: '#16a34a', fontWeight: 600 }}>
-                                  '{appliedCoupon.code}' প্রয়োগ করা হয়েছে ({appliedCoupon.type === 'percentage' ? `${appliedCoupon.value}%` : `৳${appliedCoupon.value}`} ছাড়)
-                                </span>
-                                <button type="button" onClick={() => { setAppliedCoupon(null); setPromoCodeInput(''); setCouponSuccess(''); setCouponError(''); }} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 700 }}>সরিয়ে ফেলুন</button>
-                              </div>
-                            ) : (
-                              <div style={{ display: 'flex', gap: '8px' }}>
-                                <input
-                                  type="text"
-                                  placeholder="কোড লিখুন (যেমন: SUMMER20)"
-                                  className="pdp-checkout-input"
-                                  style={{ height: '36px', fontSize: '0.8rem', textTransform: 'uppercase', flex: 1, padding: '0 10px', backgroundColor: '#ffffff', color: '#0f172a' }}
-                                  value={promoCodeInput}
-                                  onChange={(e) => setPromoCodeInput(e.target.value)}
-                                />
-                                <button
-                                  type="button"
-                                  onClick={async () => {
-                                    setCouponError('');
-                                    setCouponSuccess('');
-                                    if (!promoCodeInput.trim()) return;
-                                    setIsValidating(true);
-                                    const res = await validateCouponCode(promoCodeInput.trim());
-                                    setIsValidating(false);
-                                    if (res.status === 'success') {
-                                      setAppliedCoupon(res.data);
-                                      setCouponSuccess(`কুপন কোড '${res.data.code}' সফলভাবে যুক্ত হয়েছে!`);
-                                    } else {
-                                      setCouponError(res.message || 'কুপনটি প্রযোজ্য নয়।');
-                                      setAppliedCoupon(null);
-                                    }
-                                  }}
-                                  disabled={isValidating}
-                                  style={{ height: '36px', padding: '0 12px', background: '#000000', color: '#ffffff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}
-                                >
-                                  {isValidating ? '...' : 'প্রয়োগ'}
-                                </button>
-                              </div>
-                            )}
-                            {couponError && <div style={{ color: '#ef4444', fontSize: '0.72rem', marginTop: '6px' }}>{couponError}</div>}
-                            {couponSuccess && <div style={{ color: '#16a34a', fontSize: '0.72rem', marginTop: '6px' }}>{couponSuccess}</div>}
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-
-                  {/* Step 2: Customer details */}
-                  {customer && customer.addresses && customer.addresses.length > 0 && (
-                    <div className="checkout-saved-addresses-container" style={{ gridColumn: '1 / -1', marginBottom: '16px' }}>
-                      <div className="checkout-saved-addresses-title">
-                        <MapPin size={16} /> সংরক্ষিত ঠিকানা থেকে সিলেক্ট করুন (Quick Fill)
-                      </div>
-                      <div className="checkout-address-list">
-                        {customer.addresses.map((addr) => {
-                          const isSelected = selectedAddressId === addr.id;
-                          return (
-                            <div 
-                              key={addr.id} 
-                              className={`checkout-address-card ${isSelected ? 'selected' : ''}`}
-                              onClick={() => handleSelectAddress(addr)}
-                            >
-                              <div className="checkout-address-card-header">
-                                <span className="checkout-address-label">{addr.label}</span>
-                                {isSelected && (
-                                  <span className="checkout-address-check">
-                                    <CheckCircle size={14} />
-                                  </span>
-                                )}
-                              </div>
-                              <div className="checkout-address-name">{addr.name}</div>
-                              <div className="checkout-address-phone">{addr.phone}</div>
-                              <div className="checkout-address-details">{addr.address}</div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="pdp-checkout-group">
-                    <label className="pdp-checkout-label">আপনার নাম (Full Name) <span>*</span></label>
-                    <input 
-                      type="text" 
-                      className="pdp-checkout-input" 
-                      placeholder="আপনার নাম লিখুন" 
-                      required 
-                      value={customerName} 
-                      onChange={e => { setCustomerName(e.target.value); setNameEdited(true); setSelectedAddressId(''); }} 
-                    />
-                  </div>
-
-                  <div className="pdp-checkout-group">
-                    <label className="pdp-checkout-label">মোবাইল নম্বর (Phone Number) <span>*</span></label>
-                    <input 
-                      type="tel" 
-                      className="pdp-checkout-input" 
-                      placeholder="যেমন: ০১৭XXXXXXXX" 
-                      required 
-                      value={customerPhone} 
-                      onChange={e => { setCustomerPhone(e.target.value); setPhoneEdited(true); setSelectedAddressId(''); }} 
-                    />
-                  </div>
-
-                  <div className="pdp-checkout-group">
-                    <label className="pdp-checkout-label">সম্পূর্ণ ডেলিভারি ঠিকানা (Detailed Address) <span>*</span></label>
-                    <input 
-                      type="text" 
-                      className="pdp-checkout-input" 
-                      placeholder="বাসা/হোল্ডিং নং, রোড নং, এলাকা, থানা ও জেলা লিখুন" 
-                      required 
-                      value={customerAddress} 
-                      onChange={e => { setCustomerAddress(e.target.value); setAddressEdited(true); setSelectedAddressId(''); }} 
-                    />
-                  </div>
-
-                  <div className="pdp-checkout-group">
-                    <label className="pdp-checkout-label">অর্ডার সংক্রান্ত নোট (Optional Note)</label>
-                    <input 
-                      type="text" 
-                      className="pdp-checkout-input" 
-                      placeholder="অর্ডার সংক্রান্ত অতিরিক্ত তথ্য বা নির্দেশনা" 
-                      value={customerNote} 
-                      onChange={e => setCustomerNote(e.target.value)} 
-                    />
-                  </div>
-
-                  {/* Step 3: Shipping & Payment */}
-                  <div className="pdp-checkout-group">
-                    <label className="pdp-checkout-label">ডেলিভারি চার্জ (Shipping Rate)</label>
-                    <div className="pdp-checkout-shipping">
-                      <div 
-                        className={`pdp-checkout-card ${shippingLocation === 'dhaka' ? 'active' : ''}`}
-                        onClick={() => setShippingLocation('dhaka')}
-                      >
-                        <div>
-                          <div className="pdp-checkout-card-title">ঢাকার ভেতরে</div>
-                          <div className="pdp-checkout-card-desc">৳{config.delivery.insideDhakaPrice} ({config.delivery.insideDhakaTimeline})</div>
-                        </div>
-                        {shippingLocation === 'dhaka' && <CheckCircle size={18} color="var(--sf-accent)" />}
-                      </div>
-
-                      <div 
-                        className={`pdp-checkout-card ${shippingLocation === 'outside' ? 'active' : ''}`}
-                        onClick={() => setShippingLocation('outside')}
-                      >
-                        <div>
-                          <div className="pdp-checkout-card-title">ঢাকার বাইরে</div>
-                          <div className="pdp-checkout-card-desc">৳{config.delivery.outsideDhakaPrice} ({config.delivery.outsideDhakaTimeline})</div>
-                        </div>
-                        {shippingLocation === 'outside' && <CheckCircle size={18} color="var(--sf-accent)" />}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pdp-checkout-group">
-                    <label className="pdp-checkout-label">পেমেন্ট পদ্ধতি (Payment Method)</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '8px', marginTop: '6px' }}>
-                      {/* COD */}
-                      <div 
-                        className={`pdp-checkout-card ${paymentMethod === 'cod' ? 'active' : ''}`}
-                        onClick={() => setPaymentMethod('cod')}
-                        style={{ cursor: 'pointer', padding: '10px', borderRadius: '8px', border: paymentMethod === 'cod' ? '2px solid var(--sf-accent)' : '1px solid var(--sf-border)', background: paymentMethod === 'cod' ? 'var(--sf-bg-light)' : 'white', display: 'flex', alignItems: 'center', gap: '6px' }}
-                      >
-                        <Package size={18} />
-                        <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>ক্যাশ অন ডেলিভারি</span>
-                      </div>
-
-                      {/* bKash */}
-                      <div 
-                        className={`pdp-checkout-card ${paymentMethod === 'bkash' ? 'active' : ''}`}
-                        onClick={() => setPaymentMethod('bkash')}
-                        style={{ cursor: 'pointer', padding: '10px', borderRadius: '8px', border: paymentMethod === 'bkash' ? '2px solid #e11d48' : '1px solid var(--sf-border)', background: paymentMethod === 'bkash' ? 'rgba(225, 29, 72, 0.06)' : 'white', display: 'flex', alignItems: 'center', gap: '6px' }}
-                      >
-                        <div style={{ background: '#e11d48', color: 'white', fontWeight: 800, fontSize: '9px', padding: '2px 5px', borderRadius: '3px' }}>bKash</div>
-                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#e11d48' }}>বিকাশ</span>
-                      </div>
-
-                      {/* Nagad */}
-                      <div 
-                        className={`pdp-checkout-card ${paymentMethod === 'nagad' ? 'active' : ''}`}
-                        onClick={() => setPaymentMethod('nagad')}
-                        style={{ cursor: 'pointer', padding: '10px', borderRadius: '8px', border: paymentMethod === 'nagad' ? '2px solid #ea580c' : '1px solid var(--sf-border)', background: paymentMethod === 'nagad' ? 'rgba(234, 88, 12, 0.06)' : 'white', display: 'flex', alignItems: 'center', gap: '6px' }}
-                      >
-                        <div style={{ background: '#ea580c', color: 'white', fontWeight: 800, fontSize: '9px', padding: '2px 5px', borderRadius: '3px' }}>NAGAD</div>
-                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ea580c' }}>নগদ</span>
-                      </div>
-                    </div>
-
-                    {/* bKash / Nagad Instructions & Inputs */}
-                    {(paymentMethod === 'bkash' || paymentMethod === 'nagad') && (
-                      <div style={{ marginTop: '12px', padding: '12px', background: paymentMethod === 'bkash' ? 'rgba(225, 29, 72, 0.04)' : 'rgba(234, 88, 12, 0.04)', border: `1.5px dashed ${paymentMethod === 'bkash' ? '#e11d48' : '#ea580c'}`, borderRadius: '10px' }}>
-                        <div style={{ fontWeight: 800, fontSize: '0.85rem', color: paymentMethod === 'bkash' ? '#e11d48' : '#ea580c', marginBottom: '6px' }}>
-                          {paymentMethod === 'bkash' ? 'bKash (বিকাশ)' : 'Nagad (নগদ)'} টাকা পাঠানোর নিয়ম:
-                        </div>
-                        <ol style={{ paddingLeft: '18px', fontSize: '0.78rem', lineHeight: 1.5, color: 'var(--sf-text-secondary)', margin: '0 0 10px 0' }}>
-                          <li>নম্বর: <b style={{ color: paymentMethod === 'bkash' ? '#e11d48' : '#ea580c', background: 'white', padding: '1px 6px', borderRadius: '4px', border: '1px solid var(--sf-border)' }}>{paymentMethod === 'bkash' ? '01700000000' : '01800000000'}</b> (Personal Send Money)</li>
-                          <li>পরিমাণ: <b>৳{(product.price * buyNowQty + (shippingLocation === 'dhaka' ? config.delivery.insideDhakaPrice : config.delivery.outsideDhakaPrice) - (appliedCoupon ? (appliedCoupon.type === 'percentage' ? (product.price * buyNowQty * appliedCoupon.value / 100) : appliedCoupon.value) : 0)).toFixed(2)}</b></li>
-                        </ol>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                          <div>
-                            <label style={{ fontSize: '0.73rem', fontWeight: 700, color: 'var(--sf-text-primary)', display: 'block', marginBottom: '3px' }}>
-                              প্রেরকের নম্বর <span style={{ color: '#ef4444' }}>*</span>
-                            </label>
-                            <input 
-                              type="tel" 
-                              placeholder="০১৭XXXXXXXX" 
-                              required 
-                              value={senderNumber} 
-                              onChange={e => setSenderNumber(e.target.value)} 
-                              style={{ width: '100%', height: '36px', border: '1.5px solid #cbd5e1', borderRadius: '6px', padding: '0 8px', fontSize: '0.8rem', color: '#0f172a', backgroundColor: '#ffffff', fontWeight: 600 }}
-                            />
-                          </div>
-
-                          <div>
-                            <label style={{ fontSize: '0.73rem', fontWeight: 700, color: 'var(--sf-text-primary)', display: 'block', marginBottom: '3px' }}>
-                              TrxID কোড <span style={{ color: '#ef4444' }}>*</span>
-                            </label>
-                            <input 
-                              type="text" 
-                              placeholder="8N7X9K2L1" 
-                              required 
-                              value={trxId} 
-                              onChange={e => setTrxId(e.target.value.toUpperCase())} 
-                              style={{ width: '100%', height: '36px', border: '1.5px solid #cbd5e1', borderRadius: '6px', padding: '0 8px', fontSize: '0.8rem', textTransform: 'uppercase', color: '#0f172a', backgroundColor: '#ffffff', fontWeight: 700 }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <button type="submit" className="pdp-checkout-btn-confirm">
-                    অর্ডার নিশ্চিত করুন (Confirm Order) <ArrowRight size={18} />
-                  </button>
-                </form>
-              </>
-            ) : (
-              <div className="pdp-checkout-success">
-                <div className="pdp-checkout-success-icon">
-                  <CheckCircle size={40} />
-                </div>
-                <h2>অর্ডার সফল হয়েছে!</h2>
-                <p>ধন্যবাদ! আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে। খুব শীঘ্রই আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করে অর্ডারটি কনফার্ম করবে।</p>
-                <button className="pdp-checkout-btn-confirm" onClick={closeCheckoutModal}>
-                  ঠিক আছে (OK)
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Mobile Sticky Bottom Action Bar */}
       <div className="pdp-mobile-sticky-bar">
@@ -1758,8 +1408,14 @@ export default function ProductDetails() {
             type="button" 
             className="sticky-bar-btn buy-now" 
             onClick={() => {
-              setBuyNowQty(1);
-              setIsCheckoutOpen(true);
+              const hasSizes = product.sizes && product.sizes.filter((s: any) => s.enabled).length > 0;
+              if (hasSizes && !selectedSize) {
+                alert('দয়া করে প্রথমে সাইজ সিলেক্ট করুন!');
+                return;
+              }
+              const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
+              const buyProduct = { ...product, selectedSize: variantLabel };
+              navigate('/checkout', { state: { product: buyProduct, quantity: 1 } });
             }}
           >
             Buy Now

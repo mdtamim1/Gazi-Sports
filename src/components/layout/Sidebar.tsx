@@ -3,7 +3,7 @@ import { NavLink, useLocation, Link } from 'react-router-dom';
 import {
   LayoutDashboard, ShoppingCart, Package, Store,
   Megaphone, UserCog, MessageSquare, BookOpen,
-  ChevronLeft, ChevronRight, Trophy
+  ChevronLeft, ChevronRight, Trophy, ShieldAlert
 } from 'lucide-react';
 
 import { useAuth } from '../../context/AuthContext';
@@ -72,6 +72,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
         { id: 'marketing', label: 'Marketing', icon: Megaphone, path: '/admin/marketing', badge: '', badgeType: '' },
         { id: 'events', label: 'Events', icon: Trophy, path: '/admin/events', badge: '', badgeType: '' },
         { id: 'employees', label: 'Employees', icon: UserCog, path: '/admin/employees', badge: '', badgeType: '' },
+        { id: 'security', label: 'Security Logs', icon: ShieldAlert, path: '/admin/security', badge: '', badgeType: '' },
       ],
     },
   ];

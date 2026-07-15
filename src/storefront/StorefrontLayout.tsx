@@ -121,6 +121,48 @@ export default function StorefrontLayout() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [wishlist, setWishlist] = useState<number[]>([]);
+
+  // Load cart and wishlist from localStorage on mount and when customer changes
+  useEffect(() => {
+    const cartKey = customer ? `cart_${customer.id}` : 'cart_guest';
+    const wishlistKey = customer ? `wishlist_${customer.id}` : 'wishlist_guest';
+    
+    // Load Cart
+    const storedCart = localStorage.getItem(cartKey);
+    if (storedCart) {
+      try {
+        setCart(JSON.parse(storedCart));
+      } catch (e) {
+        setCart([]);
+      }
+    } else {
+      setCart([]);
+    }
+
+    // Load Wishlist
+    const storedWishlist = localStorage.getItem(wishlistKey);
+    if (storedWishlist) {
+      try {
+        setWishlist(JSON.parse(storedWishlist));
+      } catch (e) {
+        setWishlist([]);
+      }
+    } else {
+      setWishlist([]);
+    }
+  }, [customer]);
+
+  // Save Cart to localStorage when it changes
+  useEffect(() => {
+    const cartKey = customer ? `cart_${customer.id}` : 'cart_guest';
+    localStorage.setItem(cartKey, JSON.stringify(cart));
+  }, [cart, customer]);
+
+  // Save Wishlist to localStorage when it changes
+  useEffect(() => {
+    const wishlistKey = customer ? `wishlist_${customer.id}` : 'wishlist_guest';
+    localStorage.setItem(wishlistKey, JSON.stringify(wishlist));
+  }, [wishlist, customer]);
   const [shopDropdownOpen, setShopDropdownOpen] = useState(false);
   const [mobileShopDropdownOpen, setMobileShopDropdownOpen] = useState(false);
   const shopDropdownRef = useRef<HTMLDivElement>(null);
@@ -772,23 +814,7 @@ export default function StorefrontLayout() {
 
             {cart.length > 0 && (
               <div className="cart-footer">
-                {/* Free Shipping Progress */}
-                <div className="cart-shipping-progress">
-                  {cartTotal >= 3000 ? (
-                    <div className="cart-shipping-msg cart-shipping-free">
-                      <Truck size={16} /> <span>🎉 You've unlocked <strong>Free Shipping!</strong></span>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="cart-shipping-msg">
-                        <Truck size={16} /> <span>Add <strong>৳{(3000 - cartTotal).toFixed(0)}</strong> more for free shipping</span>
-                      </div>
-                      <div className="cart-shipping-bar">
-                        <div className="cart-shipping-bar-fill" style={{ width: `${Math.min((cartTotal / 3000) * 100, 100)}%` }} />
-                      </div>
-                    </>
-                  )}
-                </div>
+
 
                 <div className="cart-total">
                   <span>Subtotal</span>
@@ -852,6 +878,7 @@ export default function StorefrontLayout() {
                             className="wishlist-add-cart-btn"
                             onClick={() => {
                               addToCart(product);
+                              setWishlist(prev => prev.filter(id => String(id) !== String(product.id)));
                             }}
                           >
                             Add to Cart

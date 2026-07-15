@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import db from '../config/db';
+import { logSecurityAction } from '../utils/auditLogger';
 
 const keyMapToCamel: Record<string, string> = {
   site_name: 'siteName',
@@ -157,6 +158,14 @@ export const updateSettings = (req: Request, res: Response) => {
             });
             return;
           }
+          const actor = (req as any).user;
+          logSecurityAction(
+            actor?.id || null,
+            actor?.email || null,
+            'SETTINGS_UPDATE',
+            `System settings updated: ${keys.join(', ')}`,
+            req
+          );
           res.json({ status: 'success', message: 'System settings updated successfully' });
         });
         return;
@@ -224,6 +233,14 @@ export const updateStorefrontSettings = (req: Request, res: Response) => {
         console.error('Failed to update storefront settings:', err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
       }
+      const actor = (req as any).user;
+      logSecurityAction(
+        actor?.id || null,
+        actor?.email || null,
+        'SETTINGS_UPDATE',
+        'Storefront layout configuration updated',
+        req
+      );
       res.json({ status: 'success', message: 'Storefront settings updated successfully' });
     }
   );

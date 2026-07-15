@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import db from '../config/db';
 import { cacheService } from '../services/cacheService';
+import { logSecurityAction } from '../utils/auditLogger';
 
 // Auto-migrate: ensure 'sizes' column exists in products table
 db.run(`ALTER TABLE products ADD COLUMN sizes TEXT DEFAULT '[]'`, (err) => {
@@ -161,6 +162,14 @@ export const createProduct = (req: Request, res: Response) => {
               return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
             }
             cacheService.delPattern('products:*').catch(console.error);
+            const actor = (req as any).user;
+            logSecurityAction(
+              actor?.id || null,
+              actor?.email || null,
+              'PRODUCT_CREATE',
+              `Product created: ${name} (SKU: ${sku}, ID: ${id}, Price: ৳${price})`,
+              req
+            );
             res.json({ status: 'success', message: 'Product created', data: { id } });
           });
         };
@@ -260,6 +269,14 @@ export const updateProduct = (req: Request, res: Response) => {
               return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
             }
             cacheService.delPattern('products:*').catch(console.error);
+            const actor = (req as any).user;
+            logSecurityAction(
+              actor?.id || null,
+              actor?.email || null,
+              'PRODUCT_UPDATE',
+              `Product updated: ${name || 'ID: ' + id} (ID: ${id}, Price: ৳${price || 'unchanged'}, Stock: ${stock || 'unchanged'})`,
+              req
+            );
             res.json({ status: 'success', message: 'Product updated' });
           });
         };
@@ -321,6 +338,14 @@ export const deleteProduct = (req: Request, res: Response) => {
     }
     // Invalidate cache
     cacheService.delPattern('products:*').catch(console.error);
+    const actor = (req as any).user;
+    logSecurityAction(
+      actor?.id || null,
+      actor?.email || null,
+      'PRODUCT_DELETE',
+      `Product deleted: ID: ${id}`,
+      req
+    );
     res.json({ status: 'success', message: 'Product deleted' });
   });
 };

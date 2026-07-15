@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../config/db';
+import { logSecurityAction } from '../utils/auditLogger';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-premium-jwt-secret-key-1283';
 
@@ -25,16 +26,19 @@ export const login = (req: Request, res: Response) => {
       }
 
       if (!employee) {
+        logSecurityAction(null, email, 'LOGIN_FAILED', 'Account not found', req);
         return res.status(401).json({ status: 'error', message: 'Invalid email or password' });
       }
 
       if (employee.status !== 'active') {
+        logSecurityAction(employee.id, employee.email, 'LOGIN_FAILED', 'Account is suspended/inactive', req);
         return res.status(403).json({ status: 'error', message: 'Account is inactive or suspended' });
       }
 
       // Safe check for hashed password comparison
       bcrypt.compare(password, employee.password_hash, (err, isMatch) => {
         if (err || !isMatch) {
+          logSecurityAction(employee.id, employee.email, 'LOGIN_FAILED', 'Invalid password attempt', req);
           return res.status(401).json({ status: 'error', message: 'Invalid email or password' });
         }
 
@@ -65,6 +69,8 @@ export const login = (req: Request, res: Response) => {
           [lastLoginIp, employee.id]
         );
 
+        logSecurityAction(employee.id, employee.email, 'LOGIN_SUCCESS', 'User logged in successfully', req);
+
         res.json({
           status: 'success',
           message: 'Login successful',
@@ -86,7 +92,12 @@ export const login = (req: Request, res: Response) => {
   );
 };
 
-export const logout = (req: Request, res: Response) => {
+export const logout = (req: any, res: Response) => {
+  if (req.user) {
+    logSecurityAction(req.user.id, req.user.email, 'LOGOUT', 'User logged out', req);
+  } else {
+    logSecurityAction(null, null, 'LOGOUT', 'User logged out', req);
+  }
   res.json({ status: 'success', message: 'Logout successful' });
 };
 

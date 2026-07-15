@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import db from '../config/db';
+import { logSecurityAction } from '../utils/auditLogger';
 
 // Get all employees
 export const getEmployees = (req: Request, res: Response) => {
@@ -57,6 +58,15 @@ export const updateEmployee = (req: Request, res: Response) => {
         return res.status(500).json({ status: 'error', message: 'Database error' });
       }
 
+      const actor = (req as any).user;
+      logSecurityAction(
+        actor?.id || null,
+        actor?.email || null,
+        'EMPLOYEE_UPDATE',
+        `Employee updated: ID ${employeeId} (Role ID: ${role_id}, Status: ${status}, Dept: ${department})`,
+        req
+      );
+
       res.json({ status: 'success', message: 'Employee updated successfully' });
     }
   );
@@ -78,6 +88,15 @@ export const deleteEmployee = (req: Request, res: Response) => {
         console.error('Failed to delete employee:', err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
       }
+
+      const actor = (req as any).user;
+      logSecurityAction(
+        actor?.id || null,
+        actor?.email || null,
+        'EMPLOYEE_DELETE',
+        `Employee deleted: ID ${employeeId}`,
+        req
+      );
 
       res.json({ status: 'success', message: 'Employee deleted successfully' });
     }
@@ -148,6 +167,15 @@ export const inviteEmployee = (req: Request, res: Response) => {
             return res.status(500).json({ status: 'error', message: 'Database error' });
           }
 
+          const actor = (req as any).user;
+          logSecurityAction(
+            actor?.id || null,
+            actor?.email || null,
+            'EMPLOYEE_INVITE',
+            `Employee invitation created for: ${email} (Role ID: ${role_id}, Token: ${token})`,
+            req
+          );
+
           // Mock sending email to gmail (in real application, NodeMailer is used)
           console.log(`✉️ [SIMULATED EMAIL SENT] to ${email}`);
           console.log(`🔗 Registration Link: http://localhost:5173/register-employee?token=${token}`);
@@ -179,6 +207,15 @@ export const deleteInvitation = (req: Request, res: Response) => {
         console.error('Failed to revoke invitation:', err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
       }
+
+      const actor = (req as any).user;
+      logSecurityAction(
+        actor?.id || null,
+        actor?.email || null,
+        'EMPLOYEE_INVITE_REVOKE',
+        `Employee invitation revoked: ID ${invitationId}`,
+        req
+      );
 
       res.json({ status: 'success', message: 'Invitation revoked successfully' });
     }
@@ -231,6 +268,15 @@ export const createRole = (req: Request, res: Response) => {
         return res.status(500).json({ status: 'error', message: 'Database error' });
       }
 
+      const actor = (req as any).user;
+      logSecurityAction(
+        actor?.id || null,
+        actor?.email || null,
+        'ROLE_CREATE',
+        `Custom role created: ${name} (Permissions: ${JSON.stringify(permissions || [])})`,
+        req
+      );
+
       res.json({
         status: 'success',
         data: {
@@ -269,6 +315,15 @@ export const updateRole = (req: Request, res: Response) => {
           return res.status(500).json({ status: 'error', message: 'Database error' });
         }
 
+        const actor = (req as any).user;
+        logSecurityAction(
+          actor?.id || null,
+          actor?.email || null,
+          'ROLE_UPDATE',
+          `Custom role updated: ${finalName} (ID: ${roleId}, Permissions: ${JSON.stringify(permissions || [])})`,
+          req
+        );
+
         res.json({ status: 'success', message: 'Role updated successfully' });
       }
     );
@@ -293,6 +348,15 @@ export const deleteRole = (req: Request, res: Response) => {
         console.error('Failed to delete role:', err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
       }
+
+      const actor = (req as any).user;
+      logSecurityAction(
+        actor?.id || null,
+        actor?.email || null,
+        'ROLE_DELETE',
+        `Custom role deleted: ID ${roleId} (${role.name})`,
+        req
+      );
 
       res.json({ status: 'success', message: 'Role deleted successfully' });
     });

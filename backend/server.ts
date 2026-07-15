@@ -34,6 +34,7 @@ import { initChatSocket } from './websocket/chatSocket';
 import blogRoutes from './routes/blogs';
 
 import eventRoutes from './routes/events';
+import securityRoutes from './routes/security';
 
 dotenv.config();
 
@@ -161,6 +162,7 @@ app.use('/api/v1/marketing', marketingRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/blogs', blogRoutes);
 app.use('/api/v1/events', eventRoutes);
+app.use('/api/v1/security', securityRoutes);
 
 
 

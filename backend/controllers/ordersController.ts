@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import db from '../config/db';
 import { cacheService } from '../services/cacheService';
 import jwt from 'jsonwebtoken';
+import { logSecurityAction } from '../utils/auditLogger';
 
 const logOrderHistory = (
   orderId: string,
@@ -325,6 +326,15 @@ export const updateOrderStatus = (req: Request, res: Response) => {
       const performedBy = (req as any).user ? `${(req as any).user.name} (${(req as any).user.role})` : 'System';
       logOrderHistory(id, 'status_change', oldStatus, status, performedBy);
 
+      const actor = (req as any).user;
+      logSecurityAction(
+        actor?.id || null,
+        actor?.email || null,
+        'ORDER_STATUS_UPDATE',
+        `Order ${id} status updated from ${oldStatus} to ${status}`,
+        req
+      );
+
       res.json({ status: 'success', message: 'Order status updated' });
     });
   });
@@ -446,6 +456,15 @@ export const updateOrder = (req: Request, res: Response) => {
                           if (oldShopNote !== shopNote) {
                             logOrderHistory(id, 'shop_note', oldShopNote || null, shopNote || null, performedBy);
                           }
+
+                          const actor = (req as any).user;
+                          logSecurityAction(
+                            actor?.id || null,
+                            actor?.email || null,
+                            'ORDER_UPDATE',
+                            `Order ${id} updated (Customer: ${customer}, Amount: ৳${amount}, Status: ${status})`,
+                            req
+                          );
 
                           res.json({ status: 'success', message: 'Order updated successfully' });
                         });
@@ -628,6 +647,16 @@ export const assignOrder = (req: Request, res: Response) => {
               }
               const performedBy = (req as any).user ? `${(req as any).user.name} (${(req as any).user.role})` : 'System';
               logOrderHistory(id, 'assignment', oldAssigneeName, assignedName, performedBy);
+              
+              const actor = (req as any).user;
+              logSecurityAction(
+                actor?.id || null,
+                actor?.email || null,
+                'ORDER_ASSIGN',
+                `Order ${id} assigned to ${assignedName || assignedTo} (was: ${oldAssigneeName || 'unassigned'})`,
+                req
+              );
+
               res.json({
                 status: 'success',
                 message: 'Order assigned successfully',
@@ -649,6 +678,16 @@ export const assignOrder = (req: Request, res: Response) => {
           }
           const performedBy = (req as any).user ? `${(req as any).user.name} (${(req as any).user.role})` : 'System';
           logOrderHistory(id, 'assignment', oldAssigneeName, 'Unassigned', performedBy);
+
+          const actor = (req as any).user;
+          logSecurityAction(
+            actor?.id || null,
+            actor?.email || null,
+            'ORDER_ASSIGN',
+            `Order ${id} unassigned (was: ${oldAssigneeName || 'unassigned'})`,
+            req
+          );
+
           res.json({
             status: 'success',
             message: 'Order unassigned successfully',

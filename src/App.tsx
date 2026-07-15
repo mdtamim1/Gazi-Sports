@@ -15,6 +15,7 @@ import Marketing from './features/marketing/Marketing';
 import Employees from './features/employees/Employees';
 import StorefrontManager from './features/storefront-manager/StorefrontManager';
 import RegisterEmployee from './features/employees/RegisterEmployee';
+import SecurityLogs from './features/security/SecurityLogs';
 
 // Storefront (Customer-facing)
 import StorefrontLayout from './storefront/StorefrontLayout';
@@ -115,6 +116,7 @@ function AdminLayout() {
             <Route path="chats" element={<Inbox />} />
             <Route path="blogs" element={<BlogManager />} />
             <Route path="events" element={<EventsManager />} />
+            <Route path="security" element={<SecurityLogs />} />
           </Routes>
         </main>
       </div>

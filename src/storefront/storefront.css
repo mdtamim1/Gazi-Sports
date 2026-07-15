@@ -85,6 +85,7 @@
   background: transparent;
   border-bottom: none;
   backdrop-filter: none;
+  box-shadow: none;
   pointer-events: auto;
 }
 

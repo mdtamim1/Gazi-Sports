@@ -1147,6 +1147,31 @@ export const addCustomerAchievement = async (eventId: string, customerEmail: str
   }
 };
 
+export const fetchSecurityLogs = async (
+  page: number,
+  limit: number,
+  email?: string,
+  actionType?: string,
+  date?: string
+): Promise<any> => {
+  try {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    if (email) params.append('email', email);
+    if (actionType) params.append('action_type', actionType);
+    if (date) params.append('date', date);
+
+    const res = await fetch(`${API_BASE}/security/logs?${params.toString()}`, {
+      headers: getAuthHeaders(),
+    });
+    return await res.json();
+  } catch (e) {
+    return { status: 'error', message: 'Failed to fetch security logs' };
+  }
+};
+
 
 
 
