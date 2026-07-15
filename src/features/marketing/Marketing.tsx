@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Megaphone, Mail, MessageSquare, Bell, Share2, Ticket, Zap, Gift, Send, Play, Pause, BarChart2, X, Plus, Trash2, Eye, DollarSign, Sparkles } from 'lucide-react';
+import { Megaphone, Mail, MessageSquare, Bell, Share2, Ticket, X, Trash2, BarChart2, Play, Pause } from 'lucide-react';
 import { formatCurrency, formatDate } from '../../mock/data';
-import { SpinWheelControl } from './SpinWheelControl';
 import { 
   fetchCoupons, 
   createCoupon, 
   deleteCoupon, 
-  fetchSubscribers, 
-  deleteSubscriber,
   fetchProductsFromBackend,
   fetchCampaignsFromBackend,
   createCampaignInBackend,
@@ -32,36 +29,16 @@ const statusConfig: Record<string, string> = {
 export default function Marketing() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('campaigns');
-  
+
   // Modals state
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [showCouponModal, setShowCouponModal] = useState(false);
 
   // Marketing database states
   const [coupons, setCoupons] = useState<any[]>([]);
-  const [subscribers, setSubscribers] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
-
-  // Flash Sale state
-  const [flashSale, setFlashSale] = useState({
-    title: 'Eid Megastore Flash Sale',
-    discountPct: 25,
-    status: 'active',
-    itemsSold: 145,
-    itemsTotal: 500,
-    endsIn: '03:45:12'
-  });
-
-  // Loyalty Program state
-  const [loyaltyPointsValue, setLoyaltyPointsValue] = useState(0.10); // 1 pt = ৳0.10
-  const [loyaltyStatus, setLoyaltyStatus] = useState(true);
-  const [loyaltyLeaderboard] = useState([
-    { name: 'Sarah Khan', points: 420, spent: 42000 },
-    { name: 'John Doe', points: 245, spent: 24500 },
-    { name: 'Rahim Ahmed', points: 89, spent: 8900 }
-  ]);
 
   // Form states (Campaign Creation)
   const [campName, setCampName] = useState('');
@@ -79,25 +56,18 @@ export default function Marketing() {
 
   const tabs = [
     { id: 'campaigns', label: 'Campaigns', icon: Megaphone },
-    { id: 'spin-wheel', label: 'Spin & Win Wheel', icon: Sparkles },
     { id: 'coupons', label: 'Coupons Matrix', icon: Ticket },
-    { id: 'subscribers', label: 'Subscribers Log', icon: Mail },
-    { id: 'flash', label: 'Flash Sales', icon: Zap },
-    { id: 'loyalty', label: 'Loyalty Program', icon: Gift },
   ];
 
   const loadMarketingData = async () => {
     setLoading(true);
     try {
-      const [couponData, subData, productData, campaignData] = await Promise.all([
+      const [couponData, productData, campaignData] = await Promise.all([
         fetchCoupons(),
-        fetchSubscribers(),
         fetchProductsFromBackend(),
         fetchCampaignsFromBackend()
       ]);
       if (couponData) setCoupons(couponData);
-      if (subData) setSubscribers(subData);
-      // Use real backend campaigns, empty array if API fails
       setCampaigns(campaignData || []);
 
       let finalProducts = productData;
@@ -127,12 +97,11 @@ export default function Marketing() {
           }
         }
       }
-      
       if (finalProducts) {
         setProducts(finalProducts);
       }
     } catch (e) {
-      setErrorMsg('ডাটাবেজ থেকে কুপন, সাবস্ক্রাইবার ও প্রোডাক্ট ডাটা লোড করা যাচ্ছে না।');
+      setErrorMsg('ডাটাবেজ থেকে কুপন ও ক্যাম্পেইন ডাটা লোড করা যাচ্ছে না।');
     } finally {
       setLoading(false);
     }
@@ -147,11 +116,7 @@ export default function Marketing() {
     const found = campaigns.find(c => c.id === id);
     if (!found) return;
     const nextStatus = found.status === 'active' ? 'paused' : 'active';
-    
-    // Optimistic UI update
     setCampaigns(prev => prev.map(c => c.id === id ? { ...c, status: nextStatus } : c));
-    
-    // Sync with backend SQLite
     await updateCampaignInBackend(id, nextStatus);
   };
 
@@ -174,13 +139,9 @@ export default function Marketing() {
       productIds: selectedProductIds
     };
 
-    // Optimistic UI update
     setCampaigns(prev => [newCamp, ...prev]);
-
-    // Save to backend SQLite
     await createCampaignInBackend(newCamp);
 
-    // Reset Form
     setCampName('');
     setCampMessage('');
     setSelectedProductIds([]);
@@ -190,11 +151,7 @@ export default function Marketing() {
 
   const handleDeleteCampaign = async (id: string) => {
     if (!window.confirm('আপনি কি নিশ্চিত যে এই ক্যাম্পেইনটি ডিলিট করতে চান?')) return;
-    
-    // Optimistic UI update
     setCampaigns(prev => prev.filter(c => c.id !== id));
-    
-    // Sync with backend SQLite
     await deleteCampaignFromBackend(id);
   };
 
@@ -230,18 +187,6 @@ export default function Marketing() {
     }
   };
 
-  // Subscriber Actions
-  const handleDeleteSubscriber = async (id: number) => {
-    if (confirm('Are you sure you want to remove this subscriber email?')) {
-      const res = await deleteSubscriber(id);
-      if (res.status === 'success') {
-        setSubscribers(prev => prev.filter(sub => sub.id !== id));
-      } else {
-        alert(res.message || 'Failed to delete subscriber');
-      }
-    }
-  };
-
   if (loading) {
     return (
       <div style={{ display: 'flex', minHeight: '60vh', alignItems: 'center', justifyContent: 'center' }}>
@@ -256,7 +201,7 @@ export default function Marketing() {
         <div className="page-header-left">
           <div className="page-breadcrumb"><span>Home</span><span className="page-breadcrumb-sep">/</span><span>Marketing</span></div>
           <h1 className="page-title">Marketing Control Center</h1>
-          <p className="page-subtitle">Manage campaigns, promo coupons, and email subscriptions</p>
+          <p className="page-subtitle">Manage campaigns and promo coupons</p>
         </div>
         <div className="page-header-actions">
           {activeTab === 'coupons' ? (
@@ -273,12 +218,13 @@ export default function Marketing() {
         </div>
       )}
 
+      {/* STATS */}
       <div className="stats-grid" style={{ marginBottom: 'var(--space-6)' }}>
         {[
-          { label: 'Active Campaigns', value: campaigns.filter(c => c.status === 'active').length.toString(), icon: Play, color: 'success' },
-          { label: 'Subscribed Emails', value: subscribers.length.toString(), icon: Mail, color: 'primary' },
+          { label: 'Active Campaigns', value: campaigns.filter(c => c.status === 'active').length.toString(), icon: Megaphone, color: 'success' },
+          { label: 'Total Campaigns', value: campaigns.length.toString(), icon: BarChart2, color: 'primary' },
           { label: 'Total Promo Codes', value: coupons.length.toString(), icon: Ticket, color: 'info' },
-          { label: 'Campaign Revenue', value: formatCurrency(campaigns.reduce((acc, c) => acc + c.revenue, 0)), icon: DollarSign, color: 'warning' },
+          { label: 'Campaign Revenue', value: formatCurrency(campaigns.reduce((acc, c) => acc + (c.revenue || 0), 0)), icon: Mail, color: 'warning' },
         ].map((s, i) => {
           const Icon = s.icon;
           return (
@@ -293,6 +239,7 @@ export default function Marketing() {
         })}
       </div>
 
+      {/* TABS */}
       <div className="tabs" style={{ marginBottom: 'var(--space-6)' }}>
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -315,83 +262,93 @@ export default function Marketing() {
           <div className="data-table-header">
             <div className="data-table-title">All Campaigns</div>
           </div>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Campaign Name</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Sent</th>
-                <th>Open Rate</th>
-                <th>Click Rate</th>
-                <th>Conversion</th>
-                <th>Revenue</th>
-                <th>Duration</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {campaigns.map((campaign) => {
-                const TypeIcon = typeConfig[campaign.type].icon;
-                const openRate = campaign.sent > 0 ? ((campaign.opened / campaign.sent) * 100).toFixed(1) : '0.0';
-                const clickRate = campaign.opened > 0 ? ((campaign.clicked / campaign.opened) * 100).toFixed(1) : '0.0';
-                const convRate = campaign.clicked > 0 ? ((campaign.converted / campaign.clicked) * 100).toFixed(1) : '0.0';
-                
-                return (
-                  <tr key={campaign.id}>
-                    <td>
-                      <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{campaign.name}</div>
-                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>{campaign.id}</div>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 'var(--text-xs)', textTransform: 'capitalize' }}>
-                        <TypeIcon size={14} className={`text-${typeConfig[campaign.type].color}`} /> {campaign.type}
-                      </div>
-                    </td>
-                    <td><span className={`badge ${statusConfig[campaign.status]}`}>{campaign.status}</span></td>
-                    <td>{campaign.sent.toLocaleString()}</td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontWeight: 600 }}>{openRate}%</span>
-                        <div className="progress-bar" style={{ width: '40px', height: '4px' }}>
-                          <div className="progress-fill success" style={{ width: `${openRate}%` }} />
+          {campaigns.length === 0 ? (
+            <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '48px 24px' }}>
+              <Megaphone size={40} style={{ opacity: 0.3, marginBottom: '12px' }} />
+              <p>কোনো ক্যাম্পেইন পাওয়া যায়নি। নতুন ক্যাম্পেইন তৈরি করুন।</p>
+            </div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Campaign Name</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Sent</th>
+                  <th>Open Rate</th>
+                  <th>Click Rate</th>
+                  <th>Conversion</th>
+                  <th>Revenue</th>
+                  <th>Duration</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {campaigns.map((campaign) => {
+                  const TypeIcon = typeConfig[campaign.type]?.icon || Mail;
+                  const openRate = campaign.sent > 0 ? ((campaign.opened / campaign.sent) * 100).toFixed(1) : '0.0';
+                  const clickRate = campaign.opened > 0 ? ((campaign.clicked / campaign.opened) * 100).toFixed(1) : '0.0';
+                  const convRate = campaign.clicked > 0 ? ((campaign.converted / campaign.clicked) * 100).toFixed(1) : '0.0';
+
+                  return (
+                    <tr key={campaign.id}>
+                      <td>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{campaign.name}</div>
+                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>{campaign.id}</div>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: 'var(--text-xs)', textTransform: 'capitalize' }}>
+                          <TypeIcon size={14} /> {campaign.type}
                         </div>
-                      </div>
-                    </td>
-                    <td>{clickRate}%</td>
-                    <td>{convRate}%</td>
-                    <td style={{ fontWeight: 600, color: 'var(--color-success)' }}>{formatCurrency(campaign.revenue)}</td>
-                    <td style={{ fontSize: 'var(--text-xs)' }}>
-                      {formatDate(campaign.startDate)} - <br/>{formatDate(campaign.endDate)}
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '4px' }}>
-                        <button className="btn btn-ghost btn-sm" title="Campaign Analytics" onClick={() => alert(`Analytics for ${campaign.name}`)}><BarChart2 size={14} /></button>
-                        {campaign.status === 'active' ? (
-                          <button className="btn btn-ghost btn-sm" title="Pause Campaign" onClick={() => handleToggleCampaign(campaign.id)}><Pause size={14} /></button>
-                        ) : campaign.status === 'paused' ? (
-                          <button className="btn btn-ghost btn-sm" title="Resume Campaign" onClick={() => handleToggleCampaign(campaign.id)}><Play size={14} /></button>
-                        ) : null}
-                        <button 
-                          className="btn btn-ghost btn-sm text-danger" 
-                          title="Delete Campaign" 
-                          onClick={() => handleDeleteCampaign(campaign.id)}
-                          style={{ color: '#ef4444' }}
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </td>
+                      <td><span className={`badge ${statusConfig[campaign.status] || 'badge-warning'}`}>{campaign.status}</span></td>
+                      <td>{campaign.sent?.toLocaleString()}</td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontWeight: 600 }}>{openRate}%</span>
+                          <div className="progress-bar" style={{ width: '40px', height: '4px' }}>
+                            <div className="progress-fill success" style={{ width: `${openRate}%` }} />
+                          </div>
+                        </div>
+                      </td>
+                      <td>{clickRate}%</td>
+                      <td>{convRate}%</td>
+                      <td style={{ fontWeight: 600, color: 'var(--color-success)' }}>{formatCurrency(campaign.revenue || 0)}</td>
+                      <td style={{ fontSize: 'var(--text-xs)' }}>
+                        {formatDate(campaign.startDate)} –<br />{formatDate(campaign.endDate)}
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <button className="btn btn-ghost btn-sm" title="Campaign Analytics" onClick={() => alert(`Analytics for ${campaign.name}`)}>
+                            <BarChart2 size={14} />
+                          </button>
+                          {campaign.status === 'active' ? (
+                            <button className="btn btn-ghost btn-sm" title="Pause Campaign" onClick={() => handleToggleCampaign(campaign.id)}>
+                              <Pause size={14} />
+                            </button>
+                          ) : campaign.status === 'paused' ? (
+                            <button className="btn btn-ghost btn-sm" title="Resume Campaign" onClick={() => handleToggleCampaign(campaign.id)}>
+                              <Play size={14} />
+                            </button>
+                          ) : null}
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            title="Delete Campaign"
+                            onClick={() => handleDeleteCampaign(campaign.id)}
+                            style={{ color: '#ef4444' }}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
-
-      {/* SPIN & WIN WHEEL CONTROL PANEL */}
-      {activeTab === 'spin-wheel' && <SpinWheelControl />}
 
       {/* COUPONS MATRIX PANEL */}
       {activeTab === 'coupons' && (
@@ -411,65 +368,28 @@ export default function Marketing() {
               </tr>
             </thead>
             <tbody>
-              {coupons.map((c) => (
-                <tr key={c.code}>
-                  <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-primary)' }}>{c.code}</td>
-                  <td style={{ textTransform: 'capitalize' }}>{c.type}</td>
-                  <td style={{ fontWeight: 600 }}>
-                    {c.type === 'percentage' ? `${c.value}%` : `৳${c.value.toFixed(2)}`}
-                  </td>
-                  <td>{formatDate(c.expiry)}</td>
-                  <td>
-                    <span className={`badge ${c.status === 'active' ? 'badge-success' : 'badge-danger'}`}>
-                      {c.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="btn btn-ghost btn-sm" style={{ color: 'var(--color-danger)' }} onClick={() => handleDeleteCoupon(c.code)}>
-                      <Trash2 size={14} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* NEWSLETTER SUBSCRIBERS PANEL */}
-      {activeTab === 'subscribers' && (
-        <div className="data-table-container">
-          <div className="data-table-header">
-            <div className="data-table-title">Newsletter Subscriptions</div>
-          </div>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Subscriber Email</th>
-                <th>Status</th>
-                <th>Joined Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {subscribers.length === 0 ? (
+              {coupons.length === 0 ? (
                 <tr>
-                  <td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '24px' }}>
-                    কোনো নিউজলেটার সাবস্ক্রাইবার পাওয়া যায়নি।
+                  <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '24px' }}>
+                    কোনো কুপন কোড পাওয়া যায়নি।
                   </td>
                 </tr>
               ) : (
-                subscribers.map((sub) => (
-                  <tr key={sub.id}>
-                    <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{sub.email}</td>
+                coupons.map((c) => (
+                  <tr key={c.code}>
+                    <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-primary)' }}>{c.code}</td>
+                    <td style={{ textTransform: 'capitalize' }}>{c.type}</td>
+                    <td style={{ fontWeight: 600 }}>
+                      {c.type === 'percentage' ? `${c.value}%` : `৳${Number(c.value).toFixed(2)}`}
+                    </td>
+                    <td>{formatDate(c.expiry)}</td>
                     <td>
-                      <span className="badge badge-success">
-                        {sub.status}
+                      <span className={`badge ${c.status === 'active' ? 'badge-success' : 'badge-danger'}`}>
+                        {c.status}
                       </span>
                     </td>
-                    <td>{new Date(sub.created_at).toLocaleString()}</td>
                     <td>
-                      <button className="btn btn-ghost btn-sm" style={{ color: 'var(--color-danger)' }} onClick={() => handleDeleteSubscriber(sub.id)}>
+                      <button className="btn btn-ghost btn-sm" style={{ color: 'var(--color-danger)' }} onClick={() => handleDeleteCoupon(c.code)}>
                         <Trash2 size={14} />
                       </button>
                     </td>
@@ -478,118 +398,6 @@ export default function Marketing() {
               )}
             </tbody>
           </table>
-        </div>
-      )}
-
-      {/* FLASH SALES PANEL */}
-      {activeTab === 'flash' && (
-        <div className="card" style={{ maxWidth: '600px' }}>
-          <div className="card-header">
-            <div>
-              <div className="card-title">{flashSale.title}</div>
-              <div className="card-subtitle">Eid Megastore Sale Campaign Configurator</div>
-            </div>
-            <span className={`badge ${flashSale.status === 'active' ? 'badge-success' : 'badge-danger'}`}>
-              {flashSale.status.toUpperCase()}
-            </span>
-          </div>
-          <div className="card-body">
-            <div className="grid-2" style={{ marginBottom: '24px' }}>
-              <div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>Discount Applied</div>
-                <div style={{ fontSize: 'var(--text-xl)', fontWeight: 800 }}>{flashSale.discountPct}% OFF Everything</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>Time Remaining</div>
-                <div style={{ fontSize: 'var(--text-xl)', fontWeight: 800, color: 'var(--color-danger)' }}>{flashSale.endsIn}</div>
-              </div>
-            </div>
-
-            <div style={{ marginBottom: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', marginBottom: '8px' }}>
-                <span>Campaign Progress (Stock sold)</span>
-                <strong>{flashSale.itemsSold} / {flashSale.itemsTotal} Units Sold</strong>
-              </div>
-              <div className="progress-bar" style={{ height: '14px', borderRadius: '4px' }}>
-                <div className="progress-fill success" style={{ width: `${(flashSale.itemsSold / flashSale.itemsTotal) * 100}%`, borderRadius: '4px' }} />
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {flashSale.status === 'active' ? (
-                <button className="btn btn-danger" style={{ flex: 1 }} onClick={() => setFlashSale({ ...flashSale, status: 'paused' })}>
-                  <Pause size={14} /> Pause Flash Sale
-                </button>
-              ) : (
-                <button className="btn btn-success" style={{ flex: 1 }} onClick={() => setFlashSale({ ...flashSale, status: 'active' })}>
-                  <Play size={14} /> Resume Flash Sale
-                </button>
-              )}
-              <button className="btn btn-secondary" onClick={() => {
-                const discount = prompt('Enter new flash sale discount percentage (e.g. 30):');
-                if (discount && !isNaN(Number(discount))) {
-                  setFlashSale({ ...flashSale, discountPct: Number(discount) });
-                }
-              }}>Edit Discount</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* LOYALTY PROGRAM PANEL */}
-      {activeTab === 'loyalty' && (
-        <div className="grid-1-2">
-          <div className="card">
-            <div className="card-header">
-              <div>
-                <div className="card-title">Loyalty Leaderboard</div>
-                <div className="card-subtitle">Top customers accumulation records</div>
-              </div>
-            </div>
-            <div className="card-body" style={{ padding: 0 }}>
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Customer</th>
-                    <th>Earned Points</th>
-                    <th>Converted Cash (৳)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loyaltyLeaderboard.map((item, i) => (
-                    <tr key={i}>
-                      <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{item.name}</td>
-                      <td style={{ fontWeight: 700, color: 'var(--accent-primary-hover)' }}>{item.points} pts</td>
-                      <td>৳{(item.points * loyaltyPointsValue).toFixed(2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="card-header">
-              <div>
-                <div className="card-title">Program Settings</div>
-              </div>
-              <button className={`form-switch ${loyaltyStatus ? 'active' : ''}`} onClick={() => setLoyaltyStatus(!loyaltyStatus)} />
-            </div>
-            <div className="card-body">
-              <div className="form-group">
-                <label className="form-label">Points to Cash Conversion Rate</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: 'var(--text-sm)' }}>1 Point = </span>
-                  <input type="number" step="0.01" className="form-input" style={{ width: '80px', height: '34px' }} value={loyaltyPointsValue} onChange={e => setLoyaltyPointsValue(Number(e.target.value))} />
-                  <span style={{ fontSize: 'var(--text-sm)' }}>BDT (৳)</span>
-                </div>
-              </div>
-
-              <div style={{ padding: '12px', background: 'var(--bg-input)', border: '1px solid var(--border-secondary)', borderRadius: 'var(--radius-md)', fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
-                <strong>How points are earned:</strong> Customers automatically earn 1 loyalty point for every 100 Tk spent on the storefront checkout. Converted cash is redeemable in checkout.
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
@@ -630,17 +438,14 @@ export default function Marketing() {
 
                 <div className="form-group">
                   <label className="form-label">সংশ্লিষ্ট পণ্যসমূহ (Associated Products - Select Multiple)</label>
-                  
-                  {/* Product Search Input */}
-                  <input 
-                    type="text" 
-                    placeholder="পণ্য খুঁজুন (Search Product by Name or SKU)..." 
+                  <input
+                    type="text"
+                    placeholder="পণ্য খুঁজুন (Search Product by Name or SKU)..."
                     value={productSearchQuery}
                     onChange={(e) => setProductSearchQuery(e.target.value)}
                     className="form-input"
-                    style={{ marginBottom: '8px', background: '#111827', border: '1px solid #1e293b', color: '#fff', fontSize: '0.85rem', height: '36px', boxSizing: 'border-box' }}
+                    style={{ marginBottom: '8px', fontSize: '0.85rem', height: '36px', boxSizing: 'border-box' }}
                   />
-
                   <div style={{
                     maxHeight: '150px',
                     overflowY: 'auto',
@@ -654,8 +459,8 @@ export default function Marketing() {
                     color: '#e2e8f0'
                   }}>
                     {products
-                      .filter(p => 
-                        p.name.toLowerCase().includes(productSearchQuery.toLowerCase()) || 
+                      .filter(p =>
+                        p.name.toLowerCase().includes(productSearchQuery.toLowerCase()) ||
                         (p.sku && p.sku.toLowerCase().includes(productSearchQuery.toLowerCase()))
                       )
                       .map(p => (

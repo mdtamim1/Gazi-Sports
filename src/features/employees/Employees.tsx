@@ -34,6 +34,7 @@ const availableModules = [
   { id: 'blogs', name: 'Blog Manager' },
   { id: 'chats', name: 'Inbox (Chats)' },
   { id: 'marketing', name: 'Marketing Campaigns' },
+  { id: 'events', name: 'Events Manager' },
   { id: 'employees', name: 'Employee Management' },
 ];
 

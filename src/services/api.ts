@@ -1084,6 +1084,69 @@ export const deleteBlogFromBackend = async (id: string): Promise<any> => {
   }
 };
 
+// ============================================
+// EVENTS & ACHIEVEMENTS SERVICES
+// ============================================
+
+export const fetchEventsFromBackend = async (): Promise<any> => {
+  try {
+    const res = await fetch(`${API_BASE}/events`);
+    return await res.json();
+  } catch (e) {
+    return { status: 'error', message: 'Failed to fetch events' };
+  }
+};
+
+export const createEventInBackend = async (eventData: any): Promise<any> => {
+  try {
+    const res = await fetch(`${API_BASE}/events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(eventData)
+    });
+    return await res.json();
+  } catch (e) {
+    return { status: 'error', message: 'Failed to create event' };
+  }
+};
+
+export const deleteEventFromBackend = async (id: string): Promise<any> => {
+  try {
+    const res = await fetch(`${API_BASE}/events/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    return await res.json();
+  } catch (e) {
+    return { status: 'error', message: 'Failed to delete event' };
+  }
+};
+
+export const fetchCustomerAchievements = async (email: string): Promise<any> => {
+  try {
+    const res = await fetch(`${API_BASE}/events/achievements?email=${encodeURIComponent(email)}`);
+    return await res.json();
+  } catch (e) {
+    return { status: 'error', message: 'Failed to fetch customer achievements' };
+  }
+};
+
+export const addCustomerAchievement = async (eventId: string, customerEmail: string): Promise<any> => {
+  try {
+    const res = await fetch(`${API_BASE}/events/achievements`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ eventId, customerEmail })
+    });
+    return await res.json();
+  } catch (e) {
+    return { status: 'error', message: 'Failed to submit event achievement' };
+  }
+};
+
 
 
 

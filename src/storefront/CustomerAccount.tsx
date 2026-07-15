@@ -45,7 +45,6 @@ export default function CustomerAccount() {
     customer, 
     login, 
     register, 
-    loginWithGmail, 
     logout, 
     updateCustomerProfile,
     addCustomerAddress,
@@ -452,35 +451,7 @@ export default function CustomerAccount() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, activeTab]);
 
-  // Initialize and render Google Identity Services Button
-  useEffect(() => {
-    if (!customer) {
-      const initGsi = () => {
-        // @ts-ignore
-        if (window.google?.accounts?.id) {
-          // @ts-ignore
-          window.google.accounts.id.initialize({
-            client_id: "284151905011-fs0mh1j6rdug41p2hk882bjl1vq9nmb2.apps.googleusercontent.com",
-            callback: (response: any) => {
-              loginWithGmail(response.credential);
-            }
-          });
-          const btnElem = document.getElementById("google-signin-btn");
-          if (btnElem) {
-            // @ts-ignore
-            window.google.accounts.id.renderButton(
-              btnElem,
-              { theme: "outline", size: "large", width: btnElem.clientWidth || 396 }
-            );
-          }
-        }
-      };
 
-      initGsi();
-      const timer = setTimeout(initGsi, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [customer]);
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -648,24 +619,7 @@ export default function CustomerAccount() {
             </button>
           </form>
 
-          {/* Gmail Login Option */}
-          <div style={{ position: 'relative', marginTop: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '16px 0', position: 'relative' }}>
-              <div style={{ position: 'absolute', width: '100%', height: '1px', background: 'var(--sf-border)', zIndex: 1 }} />
-              <span style={{ position: 'relative', zIndex: 2, background: 'white', padding: '0 12px', fontSize: '0.75rem', color: 'var(--sf-text-tertiary)', fontWeight: 600 }}>অথবা</span>
-            </div>
 
-            <div 
-              id="google-signin-btn" 
-              style={{ 
-                width: '100%', 
-                display: 'flex', 
-                justifyContent: 'center', 
-                marginTop: '8px', 
-                minHeight: '44px' 
-              }} 
-            />
-          </div>
 
           <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.85rem', color: 'var(--sf-text-secondary)' }}>
             {isRegister ? (
@@ -921,7 +875,7 @@ export default function CustomerAccount() {
                   <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--sf-text-primary)' }}>{customer.name}</h4>
                   <div style={{ display: 'flex', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
                     <span style={{ background: 'var(--sf-bg-light)', color: 'var(--sf-accent)', fontSize: '0.75rem', fontWeight: 700, padding: '4px 8px', borderRadius: '4px', textTransform: 'uppercase' }}>
-                      {customer.isGmail ? 'Gmail Account' : 'Verified Customer'}
+                      Verified Customer
                     </span>
                     <span style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--sf-success)', fontSize: '0.75rem', fontWeight: 700, padding: '4px 8px', borderRadius: '4px' }}>
                       সদস্যপদ: {new Date(customer.createdAt).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long' })}

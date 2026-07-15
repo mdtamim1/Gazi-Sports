@@ -17,7 +17,6 @@ export interface CustomerProfile {
   address?: string;
   avatar?: string;
   createdAt: string;
-  isGmail?: boolean;
   addresses?: SavedAddress[];
 }
 
@@ -27,7 +26,6 @@ interface CustomerAuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, password: string, phone: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithGmail: (idToken: string) => Promise<void>;
   logout: () => void;
   updateCustomerPhone: (phone: string) => Promise<void>;
   updateCustomerProfile: (profileData: { name: string; phone: string; address: string }) => Promise<void>;
@@ -169,60 +167,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setCustomers(updated);
       setCustomer(newCustomer);
       return { success: true };
-    }
-  };
-
-  const loginWithGmail = async (idToken: string) => {
-    try {
-      const response = await fetch(`${API_BASE}/login-gmail`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken })
-      });
-      const res = await response.json();
-      if (res.status === 'success') {
-        localStorage.setItem('customer_token', res.data.token);
-        localStorage.setItem('storefront_active_customer', JSON.stringify(res.data.customer));
-        setCustomer(res.data.customer);
-      } else {
-        throw new Error(res.message || 'Gmail login failed');
-      }
-    } catch (e) {
-      console.error('Gmail login failed, falling back to local storage decode', e);
-      try {
-        const base64Url = idToken.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        const payload = JSON.parse(jsonPayload);
-        const email = payload.email;
-        const name = payload.name || email.split('@')[0];
-
-        const existing = customers.find(c => c.email.toLowerCase() === email.toLowerCase());
-        if (existing) {
-          localStorage.setItem('storefront_active_customer', JSON.stringify(existing));
-          setCustomer(existing);
-        } else {
-          const newCustomer: CustomerProfile = {
-            id: `cust-${Date.now()}`,
-            name,
-            email,
-            phone: '',
-            avatar: name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase(),
-            createdAt: new Date().toISOString(),
-            isGmail: true,
-            addresses: []
-          };
-          const updated = [...customers, newCustomer];
-          localStorage.setItem('storefront_customers', JSON.stringify(updated));
-          localStorage.setItem('storefront_active_customer', JSON.stringify(newCustomer));
-          setCustomers(updated);
-          setCustomer(newCustomer);
-        }
-      } catch (err) {
-        console.error('Local fallback decode failed:', err);
-      }
     }
   };
 
@@ -430,7 +374,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       loading, 
       login, 
       register, 
-      loginWithGmail, 
       logout, 
       updateCustomerPhone, 
       updateCustomerProfile,

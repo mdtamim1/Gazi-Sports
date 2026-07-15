@@ -5,7 +5,7 @@ import { useStorefrontConfig } from '../store/storefrontConfig';
 import './storefront.css';
 import { replaceContactInfo } from '../utils/storefrontUtils';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
-import { SpinWheelModal } from './SpinWheelModal';
+
 import { OptimizedImage } from '../components/layout/OptimizedImage';
 
 interface CartItem {
@@ -122,6 +122,7 @@ export default function StorefrontLayout() {
   const [searchQuery, setSearchQuery] = useState('');
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [shopDropdownOpen, setShopDropdownOpen] = useState(false);
+  const [mobileShopDropdownOpen, setMobileShopDropdownOpen] = useState(false);
   const shopDropdownRef = useRef<HTMLDivElement>(null);
   
   let categories = config.categories
@@ -220,6 +221,7 @@ export default function StorefrontLayout() {
   // Scroll restoration and reset bottom nav on route changes
   useEffect(() => {
     setShopDropdownOpen(false);
+    setMobileShopDropdownOpen(false);
     // Track PageView in Facebook Meta Pixel on SPA route navigation
     if (typeof window !== 'undefined' && (window as any).fbq) {
       (window as any).fbq('track', 'PageView');
@@ -478,6 +480,9 @@ export default function StorefrontLayout() {
                     </Link>
                   );
                 })}
+                <Link to="/events" className="store-nav-link">
+                  Events
+                </Link>
               </nav>
 
               {/* Right Action: Search, Profile, Wishlist & Cart */}
@@ -903,7 +908,7 @@ export default function StorefrontLayout() {
                           className="mobile-menu-dropdown-btn"
                           onClick={(e) => {
                             e.preventDefault();
-                            setShopDropdownOpen(!shopDropdownOpen);
+                            setMobileShopDropdownOpen(!mobileShopDropdownOpen);
                           }}
                           style={{
                             background: 'none',
@@ -914,14 +919,14 @@ export default function StorefrontLayout() {
                             display: 'flex',
                             alignItems: 'center',
                             transition: 'transform 0.2s ease',
-                            transform: shopDropdownOpen ? 'rotate(180deg)' : 'none'
+                            transform: mobileShopDropdownOpen ? 'rotate(180deg)' : 'none'
                           }}
                           title="View Categories"
                         >
                           <ChevronDown size={18} />
                         </button>
                       </div>
-                      {shopDropdownOpen && (
+                      {mobileShopDropdownOpen && (
                         <div 
                           className="mobile-menu-dropdown-list"
                           style={{
@@ -939,7 +944,7 @@ export default function StorefrontLayout() {
                                 to={`/collection/${categorySlug}`}
                                 className="mobile-menu-dropdown-item"
                                 onClick={() => {
-                                  setShopDropdownOpen(false);
+                                  setMobileShopDropdownOpen(false);
                                   setMobileMenuOpen(false);
                                 }}
                               >
@@ -963,6 +968,13 @@ export default function StorefrontLayout() {
                   </Link>
                 );
               })}
+              <Link 
+                to="/events" 
+                className="mobile-menu-nav-link"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Events
+              </Link>
 
               <div style={{ borderTop: '1px solid rgba(226, 232, 240, 0.6)', marginTop: '16px', paddingTop: '16px' }}>
                 <Link 
@@ -1010,7 +1022,7 @@ export default function StorefrontLayout() {
           </svg>
         </a>
       )}
-      <SpinWheelModal />
+
     </div>
   );
 }

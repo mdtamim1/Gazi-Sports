@@ -35,7 +35,7 @@ export default function ProductDetails() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
   
-  const { customer, login, register, loginWithGmail, updateCustomerProfile } = useCustomerAuth();
+  const { customer, login, register, updateCustomerProfile } = useCustomerAuth();
   
   // Checkout Modal State
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -223,35 +223,7 @@ export default function ProductDetails() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, isChatDrawerOpen]);
 
-  // Initialize and render Google Identity Services Button in Chat Drawer
-  useEffect(() => {
-    if (isChatDrawerOpen && !customer) {
-      const initGsi = () => {
-        // @ts-ignore
-        if (window.google?.accounts?.id) {
-          // @ts-ignore
-          window.google.accounts.id.initialize({
-            client_id: "284151905011-fs0mh1j6rdug41p2hk882bjl1vq9nmb2.apps.googleusercontent.com",
-            callback: (response: any) => {
-              loginWithGmail(response.credential);
-            }
-          });
-          const btnElem = document.getElementById("google-chat-signin-btn");
-          if (btnElem) {
-            // @ts-ignore
-            window.google.accounts.id.renderButton(
-              btnElem,
-              { theme: "outline", size: "large", width: btnElem.clientWidth || 300 }
-            );
-          }
-        }
-      };
 
-      initGsi();
-      const timer = setTimeout(initGsi, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [isChatDrawerOpen, customer]);
 
   // Sync local storage & local state
   const syncChatData = (updated: any[]) => {
@@ -1764,17 +1736,23 @@ export default function ProductDetails() {
           <Store size={20} />
           <span>স্টোর</span>
         </Link>
-        <button 
-          type="button" 
+        <a 
+          href={config.contactInfo.messengerUrl || 'https://m.me/gazisports'} 
+          target="_blank" 
+          rel="noopener noreferrer" 
           className="sticky-bar-icon-btn" 
-          onClick={() => {
-            setProductShared(false); // Reset session share status so they can share it
-            setIsChatDrawerOpen(true);
-          }}
         >
-          <MessageCircle size={20} />
-          <span>চ্যাট</span>
-        </button>
+          <svg 
+            viewBox="0 0 24 24" 
+            width="20" 
+            height="20" 
+            fill="currentColor"
+            style={{ color: '#00B2FF' }}
+          >
+            <path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.914 1.458 5.512 3.738 7.218.196.147.316.38.316.628l-.004 1.834c-.002.395.405.69.774.55l2.083-.794a.897.897 0 0 1 .632.036c.773.238 1.597.368 2.457.368 5.523 0 10-4.146 10-9.258C22 6.145 17.523 2 12 2zm1.025 12.274l-2.62-2.795-5.112 2.795 5.62-5.962 2.62 2.795 5.112-2.795-5.62 5.962z"/>
+          </svg>
+          <span>মেসেঞ্জার</span>
+        </a>
         <div className="sticky-bar-actions">
           <button 
             type="button" 
@@ -2014,13 +1992,7 @@ export default function ProductDetails() {
                   </button>
                 </form>
 
-                <div style={{ display: 'flex', alignItems: 'center', margin: '14px 0', width: '100%' }}>
-                  <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-                  <span style={{ fontSize: '0.72rem', color: '#94a3b8', padding: '0 8px' }}>অথবা</span>
-                  <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-                </div>
 
-                <div id="google-chat-signin-btn" style={{ width: '100%', display: 'flex', justifyContent: 'center' }} />
 
                 <div className="pdp-chat-auth-toggle">
                   {chatIsRegister ? (

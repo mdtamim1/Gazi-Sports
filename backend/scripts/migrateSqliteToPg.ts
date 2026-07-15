@@ -51,15 +51,22 @@ async function runMigration() {
   const tables = [
     'roles',
     'employees',
+    'employee_invitations',
     'customers',
+    'customer_addresses',
     'products',
     'product_gallery',
     'orders',
     'order_items',
     'order_history',
-    'ai_queries',
     'coupons',
-    'blogs',
+    'newsletter_subscribers',
+    'customer_coupons',
+    'support_messages',
+    'campaigns',
+    'blog_posts',
+    'events',
+    'customer_events',
     'system_settings'
   ];
 

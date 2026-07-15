@@ -38,6 +38,10 @@ import BlogList from './storefront/BlogList';
 import BlogDetails from './storefront/BlogDetails';
 import BlogManager from './features/blogs/BlogManager';
 
+// Events
+import EventsPage from './storefront/EventsPage';
+import EventsManager from './features/marketing/EventsManager';
+
 // Guard wrapper to protect admin routes
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -110,6 +114,7 @@ function AdminLayout() {
             <Route path="storefront-manager" element={<StorefrontManager />} />
             <Route path="chats" element={<Inbox />} />
             <Route path="blogs" element={<BlogManager />} />
+            <Route path="events" element={<EventsManager />} />
           </Routes>
         </main>
       </div>
@@ -178,6 +183,7 @@ export default function App() {
             <Route path="account" element={<CustomerAccount />} />
             <Route path="blogs" element={<BlogList />} />
             <Route path="blog/:slug" element={<BlogDetails />} />
+            <Route path="events" element={<EventsPage />} />
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
             <Route path="terms-of-service" element={<TermsOfService />} />
             <Route path="about-us" element={<AboutUs />} />

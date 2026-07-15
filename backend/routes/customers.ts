@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { 
   registerCustomer, 
   loginCustomer, 
-  loginGmailCustomer, 
   getCustomerProfile, 
   updateCustomerProfile,
   getAddresses,
@@ -18,7 +17,6 @@ const router = Router();
 // Customer Authentication
 router.post('/register', registerCustomer);
 router.post('/login', loginCustomer);
-router.post('/login-gmail', loginGmailCustomer);
 
 // Customer Profile
 router.get('/profile', authenticateToken, getCustomerProfile);

@@ -1,8 +1,10 @@
 /**
  * Centralized Storefront Configuration Store
  * 
- * All storefront-editable content lives here. Data is persisted to localStorage
- * and consumed reactively by storefront components.
+ * API-First: Config is always loaded from the backend API.
+ * An in-memory cache (5 minutes TTL) is used to avoid redundant requests.
+ * LocalStorage is NOT used for config persistence — admins updating settings
+ * will be visible to all customers within 5 minutes.
  * 
  * When a real backend is added, swap localStorage calls for API calls.
  */
@@ -567,47 +569,22 @@ function migrateConfig(parsed: any): any {
   return parsed;
 }
 
-function loadConfig(): StorefrontConfig {
-  if (_config) return _config;
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      let parsed = JSON.parse(stored);
-      parsed = migrateConfig(parsed);
-      const defaults = getDefaultConfig();
+// In-memory cache TTL: 5 minutes
+const CACHE_TTL_MS = 5 * 60 * 1000;
+let _cacheTimestamp: number = 0;
 
-      // Merge with defaults to handle new fields added in updates
-      _config = {
-        ...defaults,
-        ...parsed,
-        contactInfo: { ...defaults.contactInfo, ...parsed.contactInfo },
-        branding: { ...defaults.branding, ...parsed.branding },
-        delivery: { ...defaults.delivery, ...parsed.delivery },
-        newsletter: { ...defaults.newsletter, ...parsed.newsletter },
-        mostSellingProductIds: parsed.mostSellingProductIds !== undefined ? parsed.mostSellingProductIds : defaults.mostSellingProductIds,
-        trendingProductIds: parsed.trendingProductIds !== undefined ? parsed.trendingProductIds : defaults.trendingProductIds,
-        newArrivalProductIds: parsed.newArrivalProductIds !== undefined ? parsed.newArrivalProductIds : defaults.newArrivalProductIds,
-        middleBannerImage: parsed.middleBannerImage !== undefined ? parsed.middleBannerImage : defaults.middleBannerImage,
-        middleBannerLink: parsed.middleBannerLink !== undefined ? parsed.middleBannerLink : defaults.middleBannerLink,
-        middleBannerEnabled: parsed.middleBannerEnabled !== undefined ? parsed.middleBannerEnabled : defaults.middleBannerEnabled,
-        middleBanners: parsed.middleBanners !== undefined ? parsed.middleBanners : defaults.middleBanners,
-      };
-      return _config as StorefrontConfig;
-    }
-  } catch {
-    // ignore parse errors
-  }
+function loadConfig(): StorefrontConfig {
+  // Return in-memory cache if still fresh
+  if (_config && (Date.now() - _cacheTimestamp) < CACHE_TTL_MS) return _config;
+  // Return stale cache while API fetch is in progress (avoids blank screen)
+  if (_config) return _config;
   _config = getDefaultConfig();
   return _config;
 }
 
 function saveConfig(config: StorefrontConfig): void {
   _config = config;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-  } catch {
-    // ignore storage errors
-  }
+  _cacheTimestamp = Date.now();
   // Notify all listeners
   _listeners.forEach(fn => fn());
 }
@@ -620,7 +597,7 @@ const isLocalDev = window.location.hostname === 'localhost' || window.location.h
 
 const API_BASE = isLocalDev
   ? `${window.location.protocol}//${window.location.hostname}:5000/api/v1`
-  : 'https://api.tamimglobal.com/api/v1';
+  : 'https://api.gazisports.com/api/v1';
 
 const getAuthHeaders = (): Record<string, string> => {
   const token = localStorage.getItem('admin_token');
@@ -628,40 +605,35 @@ const getAuthHeaders = (): Record<string, string> => {
 };
 
 async function syncWithBackend() {
+  // Skip fetch if cache is still fresh (within TTL)
+  if (_config && (Date.now() - _cacheTimestamp) < CACHE_TTL_MS) return;
+
   try {
-    const response = await fetch(`${API_BASE}/settings/storefront?t=${Date.now()}`);
+    const response = await fetch(`${API_BASE}/settings/storefront`);
     if (response.ok) {
       const res = await response.json();
       if (res.status === 'success' && res.data) {
         let serverConfig = res.data;
         serverConfig = migrateConfig(serverConfig);
-        
-        // Preserve products from currently loaded memory config or localStorage
-        const currentProducts = _config?.products || [];
-        if (currentProducts.length > 0) {
-          serverConfig.products = currentProducts;
-        } else {
-          const localDataStr = localStorage.getItem(STORAGE_KEY);
-          if (localDataStr) {
-            try {
-              const localData = JSON.parse(localDataStr);
-              if (localData.products && localData.products.length > 0) {
-                serverConfig.products = localData.products;
-              }
-            } catch (e) {}
-          }
-        }
 
-        const localData = localStorage.getItem(STORAGE_KEY);
-        if (JSON.stringify(serverConfig) !== localData) {
-          _config = serverConfig;
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(serverConfig));
-          _listeners.forEach(fn => fn());
-        }
+        // Merge with defaults to handle any new fields
+        const defaults = getDefaultConfig();
+        serverConfig = {
+          ...defaults,
+          ...serverConfig,
+          contactInfo: { ...defaults.contactInfo, ...serverConfig.contactInfo },
+          branding: { ...defaults.branding, ...serverConfig.branding },
+          delivery: { ...defaults.delivery, ...serverConfig.delivery },
+          newsletter: { ...defaults.newsletter, ...serverConfig.newsletter },
+        };
+
+        _config = serverConfig;
+        _cacheTimestamp = Date.now();
+        _listeners.forEach(fn => fn());
       }
     }
   } catch (err) {
-    console.warn("Failed to sync storefront config from backend:", err);
+    console.warn('⚠️ Failed to sync storefront config from backend — using cached defaults:', err);
   }
 }
 
@@ -722,7 +694,7 @@ export function subscribeToConfig(listener: () => void): () => void {
 /** Reset config to defaults */
 export function resetStorefrontConfig(): void {
   _config = null;
-  localStorage.removeItem(STORAGE_KEY);
+  _cacheTimestamp = 0;
   _listeners.forEach(fn => fn());
   fetch(`${API_BASE}/settings/storefront`, {
     method: 'PUT',
@@ -731,7 +703,7 @@ export function resetStorefrontConfig(): void {
       ...getAuthHeaders(),
     },
     body: JSON.stringify(getDefaultConfig()),
-  }).catch(e => console.warn("Failed to reset config on backend:", e));
+  }).catch(e => console.warn('Failed to reset config on backend:', e));
 }
 
 // ============================================================
@@ -745,30 +717,16 @@ export function useStorefrontConfig(): [StorefrontConfig, (config: StorefrontCon
   const [config, setConfigState] = useStateReact<StorefrontConfig>(() => loadConfig());
 
   useEffectReact(() => {
+    // One-time cleanup: remove stale localStorage config from older versions
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+
     syncWithBackend();
     const unsubscribe = subscribeToConfig(() => {
       setConfigState({ ...loadConfig() });
     });
 
-    // Cross-tab sync: when admin saves config in another tab,
-    // the 'storage' event fires here and we reload the config.
-    const handleStorageEvent = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY && e.newValue) {
-        try {
-          let parsed = JSON.parse(e.newValue);
-          parsed = migrateConfig(parsed);
-          _config = parsed;
-          setConfigState({ ...parsed });
-        } catch {
-          // ignore
-        }
-      }
-    };
-    window.addEventListener('storage', handleStorageEvent);
-
     return () => {
       unsubscribe();
-      window.removeEventListener('storage', handleStorageEvent);
     };
   }, []);
 

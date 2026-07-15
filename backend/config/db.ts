@@ -495,6 +495,15 @@ function initializeDatabase() {
     db.run("ALTER TABLE roles ADD COLUMN permissions TEXT", (err) => {
       // ignore error if column already exists
     });
+    db.run("ALTER TABLE events ADD COLUMN video_url TEXT DEFAULT NULL", (err) => {
+      // ignore error if column already exists
+    });
+    db.run("ALTER TABLE events ADD COLUMN quiz_data TEXT DEFAULT NULL", (err) => {
+      // ignore error if column already exists
+    });
+    db.run("ALTER TABLE events ADD COLUMN discount_value INTEGER DEFAULT 15", (err) => {
+      // ignore error if column already exists
+    });
 
     db.run(`
       CREATE TABLE IF NOT EXISTS product_gallery (
@@ -622,6 +631,86 @@ function initializeDatabase() {
         product_ids TEXT
       )
     `);
+
+    db.run(`
+      CREATE TABLE IF NOT EXISTS events (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        description TEXT,
+        reward_coupon_code TEXT NOT NULL,
+        start_date TEXT,
+        end_date TEXT,
+        image_url TEXT,
+        video_url TEXT DEFAULT NULL,
+        quiz_data TEXT DEFAULT NULL,
+        discount_value INTEGER DEFAULT 15,
+        status TEXT DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    db.run(`
+      CREATE TABLE IF NOT EXISTS customer_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        customer_email TEXT NOT NULL,
+        event_id TEXT NOT NULL,
+        status TEXT DEFAULT 'achieved',
+        reward_code TEXT NOT NULL,
+        claimed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
+      )
+    `);
+
+    db.get("SELECT COUNT(*) as count FROM events", (err, row: any) => {
+      if (!err && row && row.count === 0) {
+        const welcomeQuizJson = JSON.stringify([
+          {
+            question: "১. কোন খেলায় শাটলকর্ক (shuttlecock) ব্যবহার করা হয়?",
+            options: ["ফুটবল (Football)", "ক্রিকেট (Cricket)", "ব্যাডমিন্টন (Badminton)", "টেনিস (Tennis)"],
+            correct: "ব্যাডমিন্টন (Badminton)"
+          },
+          {
+            question: "২. গাজী স্পোর্টসের হেক্স ডাম্বেল (Hex Dumbbell Set) সেটের মোট ওজন কত?",
+            options: ["১০ কেজি (10kg)", "২০ কেজি (20kg)", "৩০ কেজি (30kg)", "৫ কেজি (5kg)"],
+            correct: "২০ কেজি (20kg)"
+          },
+          {
+            question: "৩. পেটের মেদ কমাতে এবং কোর শক্তিশালী করতে নিচের কোন রোলারটি উপযোগী?",
+            options: ["ফেস রোলার (Face Roller)", "হেয়ার রোলার (Hair Roller)", "এবি রোলার (AB Roller)"],
+            correct: "এবি রোলার (AB Roller)"
+          }
+        ]);
+
+        const fitnessQuizJson = JSON.stringify([
+          {
+            question: "১. কার্ডিও এক্সারসাইজের জন্য নিচের কোনটি সবচেয়ে কার্যকর?",
+            options: ["ভারোত্তোলন (Weightlifting)", "দড়ি লাফানো (Skipping)", "যোগব্যায়াম (Yoga)"],
+            correct: "দড়ি লাফানো (Skipping)"
+          },
+          {
+            question: "২. আমাদের ট্র্যাডমিল সেটের সর্বোচ্চ গতিসীমা কত?",
+            options: ["১০ কিমি/ঘণ্টা", "১৬ কিমি/ঘণ্টা", "২২ কিমি/ঘণ্টা"],
+            correct: "১৬ কিমি/ঘণ্টা"
+          }
+        ]);
+
+        db.run(`
+          INSERT INTO events (id, title, description, reward_coupon_code, start_date, end_date, image_url, video_url, quiz_data, discount_value, status)
+          VALUES 
+          ('EVT-001', 'Gazi Sports Welcome Quiz Challenge', 'আমাদের স্টোরের বিভিন্ন প্রোডাক্ট এবং খেলাধুলা বিষয়ক সাধারণ প্রশ্নের সঠিক উত্তর দিয়ে জিতে নিন ১৫% স্পেশাল কুপন ডিসকাউন্ট কোড।', 'GAZIQUIZ', ?, ?, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80', '', ?, 15, 'active'),
+          ('EVT-002', 'Summer Fitness Challenge 2026', 'ব্যায়াম ও সুস্থ থাকার এই চ্যালেঞ্জ ইভেন্টটি সম্পন্ন করে জিতে নিন আকর্ষণীয় ২০% ডিসকাউন্ট ভাউচার।', 'FITNESS2026', ?, ?, 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=80', '', ?, 20, 'active')
+        `, [
+          new Date().toISOString().split('T')[0],
+          new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
+          welcomeQuizJson,
+          new Date().toISOString().split('T')[0],
+          new Date(Date.now() + 60 * 24 * 3600 * 1000).toISOString().split('T')[0],
+          fitnessQuizJson
+        ]);
+        db.run(`INSERT OR IGNORE INTO coupons (code, type, value, expiry, status) VALUES ('GAZIQUIZ', 'percentage', 15, '2030-12-31', 'active')`);
+        db.run(`INSERT OR IGNORE INTO coupons (code, type, value, expiry, status) VALUES ('FITNESS2026', 'percentage', 20, '2030-12-31', 'active')`);
+      }
+    });
 
     db.get("SELECT COUNT(*) as count FROM campaigns", (err, row: any) => {
       if (!err && row && row.count === 0) {
@@ -1095,7 +1184,7 @@ function initializeDatabase() {
       }
     });
 
-    console.log('✅ SQLite Schema verification & seeding completed.');
+    console.log('✅ Database Schema verification & seeding completed.');
   });
 }
 

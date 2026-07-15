@@ -32,7 +32,8 @@ import marketingRoutes from './routes/marketing';
 import analyticsRoutes from './routes/analytics';
 import { initChatSocket } from './websocket/chatSocket';
 import blogRoutes from './routes/blogs';
-import seoRoutes from './routes/seo';
+
+import eventRoutes from './routes/events';
 
 dotenv.config();
 
@@ -98,7 +99,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
       connectSrc: [
         "'self'",
         "https://beauty-elegance-admin.onrender.com",
@@ -107,8 +108,7 @@ app.use(helmet({
         "https://admin.tamimglobal.com",
         "http://localhost:5000",
         "ws:",
-        "wss:",
-        "https://generativelanguage.googleapis.com"
+        "wss:"
       ],
       imgSrc: [
         "'self'",
@@ -120,7 +120,7 @@ app.use(helmet({
       ],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
-      frameSrc: ["'self'", "https://accounts.google.com"]
+      frameSrc: ["'self'"]
     }
   },
   crossOriginEmbedderPolicy: false
@@ -140,7 +140,6 @@ app.use('/api', (req, res, next) => {
 // Apply rate limiters
 app.use('/api/', apiLimiter);
 app.use('/api/v1/auth', authLimiter);
-app.use('/api/v1/customers/login-gmail', authLimiter);
 app.use('/api/v1/customers/login', authLimiter);
 
 // --- Health Check ---
@@ -161,7 +160,8 @@ app.use('/api/v1/employees', employeeRoutes);
 app.use('/api/v1/marketing', marketingRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/blogs', blogRoutes);
-app.use('/', seoRoutes);
+app.use('/api/v1/events', eventRoutes);
+
 
 
 // Fallback stubs for other routes to prevent breaks
@@ -203,8 +203,5 @@ server.listen(PORT, () => {
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`📂 API Base: http://localhost:${PORT}/api/v1`);
 });
-
-// Export Cloud Function for Firebase
-export const api = onRequest({ region: 'us-central1' }, app);
 
 export default app;

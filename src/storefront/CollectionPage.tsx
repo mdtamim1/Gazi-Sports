@@ -162,8 +162,17 @@ export default function CollectionPage() {
     new Set(collectionProducts.map(p => p.brand).filter(Boolean))
   ).sort() as string[];
 
-  // Categories for pill bar
-  const uniqueCategories = ['All', ...Array.from(new Set(collectionProducts.map(p => p.category)))];
+  // Categories for pill bar - aligned with home page and admin configuration
+  let categoriesConfig = config.categories
+    .filter(c => c.published)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+  let categoryNames = categoriesConfig.map(c => c.name);
+
+  if (categoryNames.length === 0) {
+    categoryNames = Array.from(new Set(products.map(p => p.category)));
+  }
+
+  const uniqueCategories = ['All', ...categoryNames];
 
   useEffect(() => {
     setSelectedCategory('All');
@@ -230,6 +239,23 @@ export default function CollectionPage() {
         <Link to={`/product/${product.id}`} key={product.id} className="jersey-product-card" style={{ textDecoration: 'none' }}>
           <div className="jersey-product-image-container">
             <OptimizedImage src={product.image} alt={product.name} className="jersey-product-image" width={400} height={533} />
+            <button 
+              type="button"
+              className="product-card-wishlist"
+              style={{ left: '12px', right: 'auto' }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleWishlist(product.id);
+              }}
+              title={wishlist.some((id: any) => String(id) === String(product.id)) ? "Remove from Wishlist" : "Add to Wishlist"}
+            >
+              <Heart 
+                size={16} 
+                fill={wishlist.some((id: any) => String(id) === String(product.id)) ? "var(--sf-danger)" : "none"} 
+                color={wishlist.some((id: any) => String(id) === String(product.id)) ? "var(--sf-danger)" : "currentColor"} 
+              />
+            </button>
             <div className="jersey-badges-container">
               <span className="jersey-badge jersey-badge-limited">LIMITED STOCK</span>
               {hasDiscount && <span className="jersey-badge jersey-badge-discount">-{discountPercent}%</span>}
@@ -252,6 +278,22 @@ export default function CollectionPage() {
       <Link to={`/product/${product.id}`} key={product.id} className="trending-product-card" style={{ textDecoration: 'none' }}>
         <div className="trending-product-image-container">
           <OptimizedImage src={product.image} alt={product.name} className="trending-product-image" width={400} height={400} />
+          <button 
+            type="button"
+            className="product-card-wishlist"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleWishlist(product.id);
+            }}
+            title={wishlist.some((id: any) => String(id) === String(product.id)) ? "Remove from Wishlist" : "Add to Wishlist"}
+          >
+            <Heart 
+              size={16} 
+              fill={wishlist.some((id: any) => String(id) === String(product.id)) ? "var(--sf-danger)" : "none"} 
+              color={wishlist.some((id: any) => String(id) === String(product.id)) ? "var(--sf-danger)" : "currentColor"} 
+            />
+          </button>
           {hasDiscount ? (
             <span className="trending-product-badge">-{discountPercent}%</span>
           ) : product.badge ? (

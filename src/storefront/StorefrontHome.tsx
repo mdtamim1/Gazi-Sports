@@ -116,6 +116,23 @@ export default function StorefrontHome() {
         <Link to={`/product/${product.id}`} key={product.id} className="jersey-product-card" style={{ textDecoration: 'none' }}>
           <div className="jersey-product-image-container">
             <OptimizedImage src={product.image} alt={product.name} className="jersey-product-image" width={400} height={533} />
+            <button 
+              type="button"
+              className="product-card-wishlist"
+              style={{ left: '12px', right: 'auto' }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleWishlist(product.id);
+              }}
+              title={wishlist.some((id: any) => String(id) === String(product.id)) ? "Remove from Wishlist" : "Add to Wishlist"}
+            >
+              <Heart 
+                size={16} 
+                fill={wishlist.some((id: any) => String(id) === String(product.id)) ? "var(--sf-danger)" : "none"} 
+                color={wishlist.some((id: any) => String(id) === String(product.id)) ? "var(--sf-danger)" : "currentColor"} 
+              />
+            </button>
             <div className="jersey-badges-container">
               <span className="jersey-badge jersey-badge-limited">LIMITED STOCK</span>
               {hasDiscount && (
@@ -148,6 +165,22 @@ export default function StorefrontHome() {
       <Link to={`/product/${product.id}`} key={product.id} className="trending-product-card" style={{ textDecoration: 'none' }}>
         <div className="trending-product-image-container">
           <OptimizedImage src={product.image} alt={product.name} className="trending-product-image" width={400} height={400} />
+          <button 
+            type="button"
+            className="product-card-wishlist"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleWishlist(product.id);
+            }}
+            title={wishlist.some((id: any) => String(id) === String(product.id)) ? "Remove from Wishlist" : "Add to Wishlist"}
+          >
+            <Heart 
+              size={16} 
+              fill={wishlist.some((id: any) => String(id) === String(product.id)) ? "var(--sf-danger)" : "none"} 
+              color={wishlist.some((id: any) => String(id) === String(product.id)) ? "var(--sf-danger)" : "currentColor"} 
+            />
+          </button>
           {hasDiscount ? (
             <span className="trending-product-badge">
               -{discountPercent}%
