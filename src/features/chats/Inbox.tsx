@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, Send, MessageSquare, ShieldCheck, Clock, User, AlertCircle, RefreshCw, Plus } from 'lucide-react';
 import { fetchChatHistory, markCustomerChatAsRead } from '../../services/api';
+import { convertToWebP } from '../../utils/imageCdn';
+import { getWebSocketUrl } from '../../utils/storefrontUtils';
 
 interface ChatMessage {
   id: string;
@@ -90,10 +92,7 @@ export default function Inbox() {
       }
 
       // 2. Open WebSocket
-      const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const wsHost = isLocalDev ? 'localhost:5000' : 'api.tamimglobal.com';
-      const wsUrl = `${wsProto}//${wsHost}/ws/chat`;
+      const wsUrl = getWebSocketUrl();
 
       try {
         const ws = new WebSocket(wsUrl);
@@ -227,14 +226,13 @@ export default function Inbox() {
     setReplyText('');
   };
 
-  const handleAdminImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAdminImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!selectedCustomerId) return;
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
+    try {
+      const base64String = await convertToWebP(file);
       const selectedGroup = chatGroups.find(g => g.customerId === selectedCustomerId);
       const customerName = selectedGroup ? selectedGroup.customerName : 'Customer';
 
@@ -267,8 +265,9 @@ export default function Inbox() {
         const updated = [...allChats, newReply];
         syncChatData(updated);
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+    }
   };
 
   // Get active conversation messages

@@ -26,9 +26,19 @@ export const getOptimizedImageUrl = (src: string, width?: number, height?: numbe
   
   // Determine frontend deployment base for image origin proxying
   const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const backendBase = isLocalDev
-    ? `${window.location.protocol}//${window.location.hostname}:5000`
-    : 'https://api.tamimglobal.com';
+  let backendBase = 'https://api.gazisports.com';
+  
+  if (isLocalDev) {
+    backendBase = `${window.location.protocol}//${window.location.hostname}:5000`;
+  } else {
+    const envApiUrl = import.meta.env.VITE_API_URL;
+    if (envApiUrl) {
+      try {
+        const urlObj = new URL(envApiUrl);
+        backendBase = `${urlObj.protocol}//${urlObj.host}`;
+      } catch (e) {}
+    }
+  }
   
   const cdnUrl = IMAGE_CDN_ENDPOINT;
   if (!cdnUrl) {
@@ -49,4 +59,38 @@ export const getOptimizedImageUrl = (src: string, width?: number, height?: numbe
   }
 
   return `${cdnUrl}/${transformation}/${backendBase}${cleanPath}`;
+};
+
+/**
+ * Compresses an image file on the client side using Canvas API and converts it to WebP format.
+ * Returns a Base64 WebP string.
+ */
+export const convertToWebP = (file: File, quality = 0.8): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0);
+          const webpDataUrl = canvas.toDataURL('image/webp', quality);
+          resolve(webpDataUrl);
+        } else {
+          reject(new Error('Canvas context not available'));
+        }
+      };
+      img.onerror = () => {
+        reject(new Error('Failed to load image'));
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.onerror = () => {
+      reject(new Error('Failed to read file'));
+    };
+    reader.readAsDataURL(file);
+  });
 };

@@ -5,9 +5,12 @@ import {
   User, Mail, Phone, Calendar, ShoppingBag, MessageSquare, LogOut, 
   Lock, ArrowRight, ShieldCheck, MapPin, Truck, CheckCircle2, 
   Clock, AlertCircle, HelpCircle, Send, Plus, ArrowLeft, RefreshCw,
-  Trash2, Edit, X, Heart, ShoppingCart, Ticket, Menu, RotateCcw, Trophy
+  Trash2, Edit, X, Heart, ShoppingCart, Ticket, Menu, RotateCcw, Trophy,
+  FileText
 } from 'lucide-react';
 import { fetchOrdersFromBackend, fetchCustomerOrdersFromBackend, fetchChatHistory } from '../services/api';
+import { convertToWebP } from '../utils/imageCdn';
+import { getWebSocketUrl } from '../utils/storefrontUtils';
 import { generateOrders as getOrders } from '../mock/data';
 import { useStorefrontConfig } from '../store/storefrontConfig';
 import { CustomerCouponsTab } from './CustomerCouponsTab';
@@ -28,6 +31,11 @@ interface OrderItem {
   courier?: string;
   city?: string;
   address?: string;
+  memoNumber?: string;
+  productsList?: { name: string; size: string; quantity: number; price: number }[];
+  subtotal?: number;
+  deliveryCharge?: number;
+  discount?: number;
 }
 
 interface ChatMessage {
@@ -45,6 +53,7 @@ export default function CustomerAccount() {
     customer, 
     login, 
     register, 
+    googleLogin,
     logout, 
     updateCustomerProfile,
     addCustomerAddress,
@@ -71,11 +80,12 @@ export default function CustomerAccount() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Dashboard state
-  const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'coupons' | 'events' | 'addresses' | 'wishlist' | 'cart' | 'chat'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'invoices' | 'coupons' | 'events' | 'addresses' | 'wishlist' | 'cart' | 'chat'>('profile');
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<OrderItem | null>(null);
 
   // Chat/Messaging State
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -180,14 +190,72 @@ export default function CustomerAccount() {
     }
   }, [customer]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Load Google Client SDK Script and Render Login Button
+  useEffect(() => {
+    if (!customer) {
+      // 1. Dynamic Script Loader
+      const scriptId = 'google-gsi-client-script';
+      let script = document.getElementById(scriptId) as HTMLScriptElement;
+      if (!script) {
+        script = document.createElement('script');
+        script.id = scriptId;
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        document.body.appendChild(script);
+      }
+
+      // 2. Initialize and render button when script and DOM container are ready
+      const initGoogle = () => {
+        if ((window as any).google && document.getElementById('google-signin-btn')) {
+          const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+          
+          (window as any).google.accounts.id.initialize({
+            client_id: clientId,
+            callback: async (response: any) => {
+              setAuthError('');
+              setAuthSuccess('');
+              if (response.credential) {
+                const res = await googleLogin(response.credential);
+                if (res.success) {
+                  setAuthSuccess('গুগল দিয়ে লগইন সফল হয়েছে!');
+                } else {
+                  setAuthError(res.error || 'গুগল লগইন ব্যর্থ হয়েছে।');
+                }
+              } else {
+                setAuthError('গুগল থেকে কোনো ভ্যালিড ক্রেডেনশিয়াল পাওয়া যায়নি।');
+              }
+            },
+          });
+
+          (window as any).google.accounts.id.renderButton(
+            document.getElementById('google-signin-btn'),
+            { theme: 'outline', size: 'large', width: 396 }
+          );
+        }
+      };
+
+      // Poll check every 300ms until window.google is loaded
+      const pollTimer = setInterval(() => {
+        if ((window as any).google && document.getElementById('google-signin-btn')) {
+          initGoogle();
+          clearInterval(pollTimer);
+        }
+      }, 300);
+
+      return () => {
+        clearInterval(pollTimer);
+      };
+    }
+  }, [customer, isRegister]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!customer) return;
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
+    try {
+      const base64String = await convertToWebP(file);
       
       const newMessage: ChatMessage = {
         id: `msg-${Date.now()}`,
@@ -217,8 +285,9 @@ export default function CustomerAccount() {
         }
         syncChatData([...allChats, newMessage]);
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+    }
   };
 
   const handleProfileUpdate = (e: React.FormEvent) => {
@@ -378,10 +447,7 @@ export default function CustomerAccount() {
         }
 
         // 2. Open WebSocket
-        const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const wsHost = isLocalDev ? 'localhost:5000' : 'api.tamimglobal.com';
-        const wsUrl = `${wsProto}//${wsHost}/ws/chat`;
+        const wsUrl = getWebSocketUrl();
 
         try {
           const ws = new WebSocket(wsUrl);
@@ -619,7 +685,25 @@ export default function CustomerAccount() {
             </button>
           </form>
 
+          {/* OR Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', gap: '10px' }}>
+            <div style={{ flex: 1, height: '1px', background: 'var(--sf-border)' }} />
+            <span style={{ fontSize: '0.78rem', color: 'var(--sf-text-tertiary)', fontWeight: 600 }}>অথবা</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--sf-border)' }} />
+          </div>
 
+          {/* Google Sign-In Button Container */}
+          <div 
+            id="google-signin-btn" 
+            style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              width: '100%', 
+              minHeight: '44px',
+              borderRadius: '8px',
+              overflow: 'hidden'
+            }} 
+          />
 
           <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.85rem', color: 'var(--sf-text-secondary)' }}>
             {isRegister ? (
@@ -689,8 +773,12 @@ export default function CustomerAccount() {
           {/* Drawer Header (Mobile Only) */}
           <div className="mobile-drawer-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--sf-accent) 0%, var(--sf-accent-hover) 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px' }}>
-                {customer.avatar || 'C'}
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--sf-accent) 0%, var(--sf-accent-hover) 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px', overflow: 'hidden' }}>
+                {customer.avatar && customer.avatar.startsWith('http') ? (
+                  <img src={customer.avatar} alt={customer.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  customer.avatar || 'C'
+                )}
               </div>
               <div>
                 <div style={{ fontWeight: 800, color: 'var(--sf-text-primary)', fontSize: '0.9rem' }}>{customer.name}</div>
@@ -714,6 +802,13 @@ export default function CustomerAccount() {
             style={{ width: '100%', padding: '12px 16px', background: activeTab === 'orders' ? 'var(--sf-bg-light)' : 'none', color: activeTab === 'orders' ? 'var(--sf-accent)' : 'var(--sf-text-secondary)', border: 'none', borderRadius: '8px', textAlign: 'left', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
           >
             <ShoppingBag size={18} /> আমার অর্ডারসমূহ ({orders.length})
+          </button>
+          
+          <button 
+            onClick={() => { setActiveTab('invoices'); setSelectedOrder(null); setSelectedInvoice(null); setIsMobileDrawerOpen(false); }}
+            style={{ width: '100%', padding: '12px 16px', background: activeTab === 'invoices' ? 'var(--sf-bg-light)' : 'none', color: activeTab === 'invoices' ? 'var(--sf-accent)' : 'var(--sf-text-secondary)', border: 'none', borderRadius: '8px', textAlign: 'left', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
+          >
+            <FileText size={18} /> আমার ইনভয়েসসমূহ (Invoices)
           </button>
           
           <button 
@@ -862,14 +957,210 @@ export default function CustomerAccount() {
             </div>
           )}
 
+          {/* INVOICES TAB */}
+          {activeTab === 'invoices' && (
+            <div>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px', borderBottom: '1px solid var(--sf-border)', paddingBottom: '10px' }}>আমার ইনভয়েসসমূহ (Invoice History)</h3>
+              
+              {orders.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--sf-text-tertiary)' }}>
+                  <FileText size={48} style={{ marginBottom: '16px', opacity: 0.3 }} />
+                  <p style={{ fontWeight: 600, color: 'var(--sf-text-secondary)' }}>আপনার কোনো ইনভয়েস নেই।</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {orders.map((order) => {
+                    const isSelected = selectedInvoice?.id === order.id;
+                    return (
+                      <div 
+                        key={order.id} 
+                        style={{ 
+                          border: '1px solid var(--sf-border)', 
+                          borderRadius: '8px', 
+                          background: 'var(--sf-bg-card)',
+                          overflow: 'hidden'
+                        }}
+                      >
+                        {/* Invoice row header summary */}
+                        <div 
+                          onClick={() => setSelectedInvoice(isSelected ? null : order)}
+                          style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center', 
+                            padding: '16px', 
+                            cursor: 'pointer',
+                            background: isSelected ? 'var(--sf-bg-light)' : 'transparent',
+                            transition: 'background 0.2s'
+                          }}
+                        >
+                          <div>
+                            <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--sf-text-primary)' }}>
+                              ইনভয়েস #{(order.memoNumber || '').includes('TrxID:') ? `GS-${order.id}` : `GS-${order.id}`}
+                            </div>
+                            <div style={{ fontSize: '0.78rem', color: 'var(--sf-text-tertiary)', marginTop: '4px' }}>
+                              তারিখ: {new Date(order.date || order.created_at || Date.now()).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--sf-accent)' }}>৳{order.amount}</div>
+                              <span style={{ 
+                                fontSize: '10px', 
+                                background: order.status === 'delivered' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(251, 191, 36, 0.1)', 
+                                color: order.status === 'delivered' ? 'var(--sf-success)' : 'var(--sf-warning)',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                fontWeight: 700,
+                                textTransform: 'uppercase'
+                              }}>
+                                {order.status === 'delivered' ? 'ডেলিভার্ড' : order.status === 'processing' ? 'প্রসেসিং' : 'পেন্ডিং'}
+                              </span>
+                            </div>
+                            <button 
+                              style={{ 
+                                background: 'none', 
+                                border: 'none', 
+                                color: 'var(--sf-accent)', 
+                                fontWeight: 700, 
+                                fontSize: '0.85rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              {isSelected ? 'বন্ধ করুন' : 'বিস্তারিত দেখুন'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Collapsible printable invoice view */}
+                        {isSelected && (
+                          <div style={{ borderTop: '1px solid var(--sf-border)', padding: '24px', background: 'white' }}>
+                            <div className="printable-invoice" style={{ background: 'white', color: 'black' }}>
+                              <div className="invoice-header">
+                                <div>
+                                  <h1 className="invoice-title">{config.branding.storeName || 'Gazi Sports'}</h1>
+                                  <span style={{ fontSize: '0.78rem', color: '#4f566b', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Play Hard, Shop Smart</span>
+                                </div>
+                                <div className="invoice-meta">
+                                  <div><b>মেমো নং:</b> {order.memoNumber ? order.memoNumber : `GS-${order.id}`}</div>
+                                  <div><b>তারিখ:</b> {new Date(order.date || order.created_at || Date.now()).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                                  <div><b>পেমেন্ট:</b> {order.paymentMethod || 'ক্যাশ অন ডেলিভারি'}</div>
+                                </div>
+                              </div>
+
+                              <div className="invoice-parties">
+                                <div>
+                                  <div className="invoice-party-title">প্রেরক (Sender)</div>
+                                  <div className="invoice-party-details">
+                                    <b>{config.branding.storeName || 'Gazi Sports'}</b><br />
+                                    মোবাইল: {config.contactInfo.phoneNumber || '01700000000'}<br />
+                                    ইমেইল: {config.contactInfo.email || 'support@gazisports.com'}<br />
+                                    ঠিকানা: ঢাকা, বাংলাদেশ
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="invoice-party-title">বিলিং ও ডেলিভারি ঠিকানা</div>
+                                  <div className="invoice-party-details">
+                                    <b>নাম:</b> {order.customer || customer.name}<br />
+                                    <b>মোবাইল:</b> {order.phone || customer.phone}<br />
+                                    <b>ঠিকানা:</b> {order.address || customer.address}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="invoice-table-wrapper">
+                                <table className="invoice-table">
+                                  <thead>
+                                    <tr>
+                                      <th>পণ্য বিবরণ (Product)</th>
+                                      <th style={{ textAlign: 'center' }}>সাইজ (Size)</th>
+                                      <th style={{ textAlign: 'center' }}>পরিমাণ (Qty)</th>
+                                      <th style={{ textAlign: 'right' }}>মূল্য (Price)</th>
+                                      <th style={{ textAlign: 'right' }}>মোট (Total)</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {order.productsList ? (
+                                      order.productsList.map((item: any, itemIdx: number) => (
+                                        <tr key={itemIdx}>
+                                          <td>{item.name}</td>
+                                          <td style={{ textAlign: 'center' }}>{item.size || 'Free Size'}</td>
+                                          <td style={{ textAlign: 'center' }}>{item.quantity || 1}টি</td>
+                                          <td style={{ textAlign: 'right' }}>৳{(item.price || order.amount).toFixed(2)}</td>
+                                          <td style={{ textAlign: 'right' }}>৳{((item.price || order.amount) * (item.quantity || 1)).toFixed(2)}</td>
+                                        </tr>
+                                      ))
+                                    ) : (
+                                      <tr>
+                                        <td>পণ্য বিবরণ (অর্ডার #{order.id})</td>
+                                        <td style={{ textAlign: 'center' }}>ফ্রি সাইজ</td>
+                                        <td style={{ textAlign: 'center' }}>১টি</td>
+                                        <td style={{ textAlign: 'right' }}>৳{order.amount.toFixed(2)}</td>
+                                        <td style={{ textAlign: 'right' }}>৳{order.amount.toFixed(2)}</td>
+                                      </tr>
+                                    )}
+                                  </tbody>
+                                </table>
+                              </div>
+
+                              <div className="invoice-totals">
+                                <div className="invoice-total-row">
+                                  <span>উপমোট (Subtotal)</span>
+                                  <span>৳{(order.subtotal || order.amount - (order.deliveryCharge || 0) + (order.discount || 0)).toFixed(2)}</span>
+                                </div>
+                                <div className="invoice-total-row">
+                                  <span>ডেলিভারি চার্জ</span>
+                                  <span>৳{(order.deliveryCharge || 0).toFixed(2)}</span>
+                                </div>
+                                {(order.discount || 0) > 0 && (
+                                  <div className="invoice-total-row" style={{ color: '#ef4444' }}>
+                                    <span>ডিসকাউন্ট</span>
+                                    <span>-৳{(order.discount || 0).toFixed(2)}</span>
+                                  </div>
+                                )}
+                                <div className="invoice-total-row grand-total">
+                                  <span>সর্বমোট (Total Paid)</span>
+                                  <span>৳{order.amount.toFixed(2)}</span>
+                                </div>
+                              </div>
+
+                              <div className="invoice-footer">
+                                <p>আমাদের ওপর আস্থা রাখার জন্য আপনাকে ধন্যবাদ!</p>
+                                <p style={{ fontSize: '0.7rem', opacity: 0.8, marginTop: '4px' }}>এটি একটি কম্পিউটার জেনারেটেড চালান (Invoice), কোনো স্বাক্ষরের প্রয়োজন নেই।</p>
+                              </div>
+                            </div>
+
+                            {/* Print Action for selected invoice */}
+                            <div className="no-print" style={{ display: 'flex', gap: '12px', marginTop: '20px', borderTop: '1px solid var(--sf-border)', paddingTop: '16px', justifyContent: 'flex-end' }}>
+                              <button 
+                                onClick={() => window.print()} 
+                                style={{ padding: '0 24px', height: '40px', background: 'var(--sf-accent)', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}
+                              >
+                                ইনভয়েস প্রিন্ট / সেভ করুন
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* PROFILE TAB */}
           {activeTab === 'profile' && (
             <div>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px', borderBottom: '1px solid var(--sf-border)', paddingBottom: '10px' }}>প্রোফাইল বিবরণী</h3>
               
               <div className="profile-badge-row">
-                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--sf-accent) 0%, var(--sf-accent-hover) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 800, color: 'white' }}>
-                  {customer.avatar || 'C'}
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--sf-accent) 0%, var(--sf-accent-hover) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 800, color: 'white', overflow: 'hidden' }}>
+                  {customer.avatar && customer.avatar.startsWith('http') ? (
+                    <img src={customer.avatar} alt={customer.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    customer.avatar || 'C'
+                  )}
                 </div>
                 <div>
                   <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--sf-text-primary)' }}>{customer.name}</h4>

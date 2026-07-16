@@ -36,6 +36,7 @@ export default function Checkout() {
   const [customerNote, setCustomerNote] = useState('');
   const [shippingLocation, setShippingLocation] = useState<'dhaka' | 'outside'>('dhaka');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submittedOrder, setSubmittedOrder] = useState<any | null>(null);
   const [selectedAddressId, setSelectedAddressId] = useState<string | number>('');
   const [saveAddress, setSaveAddress] = useState(true);
   
@@ -271,6 +272,25 @@ export default function Checkout() {
       });
     }
     
+    setSubmittedOrder({
+      invoiceNo: `GS-${Math.floor(100000 + Math.random() * 900000)}`,
+      date: new Date().toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }),
+      customerName,
+      customerPhone,
+      customerAddress,
+      paymentMethodName: paymentMethod === 'bkash' ? 'বিকাশ (Send Money)' : paymentMethod === 'nagad' ? 'নগদ (Send Money)' : 'ক্যাশ অন ডেলিভারি',
+      items: items.map(item => ({
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+        size: item.product.selectedSize || 'Free Size'
+      })),
+      subtotal,
+      deliveryCharge,
+      discount,
+      total
+    });
+
     setIsSuccess(true);
   };
 
@@ -584,17 +604,120 @@ export default function Checkout() {
       </form>
 
       {/* Success Modal */}
-      {isSuccess && (
+      {isSuccess && submittedOrder && (
         <div className="success-modal-overlay">
-          <div className="success-modal">
-            <div className="success-icon">
-              <CheckCircle size={48} />
+          <div className="success-modal invoice-expanded">
+            {/* Header Success alert */}
+            <div className="no-print" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '24px', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '16px', borderRadius: '12px' }}>
+              <div className="success-icon" style={{ background: '#10b981', color: 'white', marginBottom: '8px', width: '40px', height: '40px' }}>
+                <CheckCircle size={28} />
+              </div>
+              <h2 style={{ fontSize: '1.25rem', color: '#16a34a', margin: 0, fontWeight: 800 }}>অর্ডার সফল হয়েছে!</h2>
+              <p style={{ fontSize: '0.82rem', color: '#15803d', margin: '4px 0 0 0', lineHeight: 1.4 }}>আপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে। রশিদটি প্রিন্ট করতে বা পিডিএফ সেভ করতে নিচের "ইনভয়েস প্রিন্ট / সেভ করুন" বাটনে ক্লিক করুন।</p>
             </div>
-            <h2>অর্ডার সফল হয়েছে!</h2>
-            <p>ধন্যবাদ! আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে। খুব শীঘ্রই আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করে অর্ডারটি কনফার্ম করবে।</p>
-            <Link to="/" className="btn-confirm" style={{ textDecoration: 'none' }}>
-              শপিং এ ফিরে যান (Go to Store)
-            </Link>
+
+            {/* Printable Invoice Card */}
+            <div className="printable-invoice" style={{ background: 'white' }}>
+              <div className="invoice-header">
+                <div>
+                  <h1 className="invoice-title">{config.branding.storeName || 'Gazi Sports'}</h1>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--sf-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Play Hard, Shop Smart</span>
+                </div>
+                <div className="invoice-meta">
+                  <div><b>মেমো নং:</b> {submittedOrder.invoiceNo}</div>
+                  <div><b>তারিখ:</b> {submittedOrder.date}</div>
+                  <div><b>পেমেন্ট:</b> {submittedOrder.paymentMethodName}</div>
+                </div>
+              </div>
+
+              <div className="invoice-parties">
+                <div>
+                  <div className="invoice-party-title">প্রেরক (Sender)</div>
+                  <div className="invoice-party-details">
+                    <b>{config.branding.storeName || 'Gazi Sports'}</b><br />
+                    মোবাইল: {config.contactInfo.phoneNumber || '01700000000'}<br />
+                    ইমেইল: {config.contactInfo.email || 'support@gazisports.com'}<br />
+                    ঠিকানা: ঢাকা, বাংলাদেশ
+                  </div>
+                </div>
+                <div>
+                  <div className="invoice-party-title">বিলিং ও ডেলিভারি ঠিকানা</div>
+                  <div className="invoice-party-details">
+                    <b>নাম:</b> {submittedOrder.customerName}<br />
+                    <b>মোবাইল:</b> {submittedOrder.customerPhone}<br />
+                    <b>ঠিকানা:</b> {submittedOrder.customerAddress}
+                  </div>
+                </div>
+              </div>
+
+              <div className="invoice-table-wrapper">
+                <table className="invoice-table">
+                  <thead>
+                    <tr>
+                      <th>পণ্য বিবরণ (Product)</th>
+                      <th style={{ textAlign: 'center' }}>সাইজ (Size)</th>
+                      <th style={{ textAlign: 'center' }}>পরিমাণ (Qty)</th>
+                      <th style={{ textAlign: 'right' }}>মূল্য (Price)</th>
+                      <th style={{ textAlign: 'right' }}>মোট (Total)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {submittedOrder.items.map((item: any, idx: number) => (
+                      <tr key={idx}>
+                        <td>{item.name}</td>
+                        <td style={{ textAlign: 'center' }}>{item.size}</td>
+                        <td style={{ textAlign: 'center' }}>{item.quantity}টি</td>
+                        <td style={{ textAlign: 'right' }}>৳{item.price.toFixed(2)}</td>
+                        <td style={{ textAlign: 'right' }}>৳{(item.price * item.quantity).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="invoice-totals">
+                <div className="invoice-total-row">
+                  <span>উপমোট (Subtotal)</span>
+                  <span>৳{submittedOrder.subtotal.toFixed(2)}</span>
+                </div>
+                <div className="invoice-total-row">
+                  <span>ডেলিভারি চার্জ</span>
+                  <span>৳{submittedOrder.deliveryCharge.toFixed(2)}</span>
+                </div>
+                {submittedOrder.discount > 0 && (
+                  <div className="invoice-total-row" style={{ color: '#ef4444' }}>
+                    <span>ডিসকাউন্ট</span>
+                    <span>-৳{submittedOrder.discount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="invoice-total-row grand-total">
+                  <span>সর্বমোট (Total Paid)</span>
+                  <span>৳{submittedOrder.total.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="invoice-footer">
+                <p>আমাদের ওপর আস্থা রাখার জন্য আপনাকে ধন্যবাদ!</p>
+                <p style={{ fontSize: '0.7rem', opacity: 0.8, marginTop: '4px' }}>এটি একটি কম্পিউটার জেনারেটেড চালান (Invoice), কোনো স্বাক্ষরের প্রয়োজন নেই।</p>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="no-print" style={{ display: 'flex', gap: '12px', marginTop: '24px', borderTop: '1px solid var(--sf-border)', paddingTop: '20px' }}>
+              <button 
+                onClick={() => window.print()} 
+                style={{ flex: 1, height: '44px', background: 'var(--sf-accent)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                ইনভয়েস প্রিন্ট / সেভ করুন
+              </button>
+              <Link 
+                to="/" 
+                className="btn-confirm" 
+                style={{ flex: 1, height: '44px', border: '1.5px solid var(--sf-border)', background: 'white', color: 'var(--sf-text-primary)', textDecoration: 'none', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, fontWeight: 700 }}
+              >
+                শপিং চালিয়ে যান
+              </Link>
+            </div>
           </div>
         </div>
       )}

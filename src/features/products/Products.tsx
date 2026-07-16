@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
-import { Package, Search, Plus, Download, Edit, Trash2, AlertCircle, Grid, List as ListIcon, Star, X, RefreshCw, CheckCircle } from 'lucide-react';
+import { Package, Search, Plus, Download, Edit, Trash2, AlertCircle, Grid, List as ListIcon, Star, X, RefreshCw, CheckCircle, Upload } from 'lucide-react';
 import { useStorefrontConfig, type ProductConfig } from '../../store/storefrontConfig';
+import { convertToWebP } from '../../utils/imageCdn';
 import { formatCurrency } from '../../mock/data';
 import { createProductInBackend, updateProductInBackend, deleteProductFromBackend, fetchProductsFromBackend } from '../../services/api';
 import '../storefront-manager/storefront-manager.css';
@@ -618,9 +619,28 @@ export default function Products() {
                 {editorTab === 'media' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <div className="form-group">
-                      <label className="form-label">Main Image URL</label>
-                      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                        <input className="form-input" style={{ flex: 1 }} value={tempProduct.image} onChange={e => setTempProduct({ ...tempProduct, image: e.target.value })} placeholder="https://example.com/image.png" />
+                      <label className="form-label">Main Image URL / Upload</label>
+                      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                        <input className="form-input" style={{ flex: 1, minWidth: '200px' }} value={tempProduct.image} onChange={e => setTempProduct({ ...tempProduct, image: e.target.value })} placeholder="https://example.com/image.png" />
+                        <label className="btn btn-secondary" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: '8px 16px', height: '38px', boxSizing: 'border-box' }}>
+                          <Upload size={14} /> Upload Main Image (WebP)
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            style={{ display: 'none' }} 
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                try {
+                                  const webpBase64 = await convertToWebP(file);
+                                  setTempProduct({ ...tempProduct, image: webpBase64 });
+                                } catch (err) {
+                                  alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+                                }
+                              }
+                            }} 
+                          />
+                        </label>
                         {tempProduct.image && <img src={tempProduct.image} alt="Preview" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover', border: '1px solid var(--border-secondary)' }} />}
                       </div>
                     </div>
@@ -634,12 +654,33 @@ export default function Products() {
                       <label className="form-label">Gallery Images</label>
                       <div className="sfm-list-editor">
                         {tempProduct.gallery.map((url, idx) => (
-                          <div key={idx} className="sfm-list-editor-row" style={{ marginBottom: '8px' }}>
+                          <div key={idx} className="sfm-list-editor-row" style={{ marginBottom: '8px', display: 'flex', gap: 8, alignItems: 'center' }}>
                             <input className="sfm-input" style={{ flex: 1 }} value={url} onChange={e => {
                               const newGallery = [...tempProduct.gallery];
                               newGallery[idx] = e.target.value;
                               setTempProduct({ ...tempProduct, gallery: newGallery });
                             }} placeholder="Gallery image URL" />
+                            <label className="btn btn-secondary btn-sm" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '4px', cursor: 'pointer', height: '32px' }}>
+                              <Upload size={12} />
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                style={{ display: 'none' }} 
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    try {
+                                      const webpBase64 = await convertToWebP(file);
+                                      const newGallery = [...tempProduct.gallery];
+                                      newGallery[idx] = webpBase64;
+                                      setTempProduct({ ...tempProduct, gallery: newGallery });
+                                    } catch (err) {
+                                      alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+                                    }
+                                  }
+                                }} 
+                              />
+                            </label>
                             {url && <img src={url} alt="" style={{ width: '32px', height: '32px', borderRadius: '4px', objectFit: 'cover' }} />}
                             <button type="button" className="sfm-btn-icon danger" onClick={() => {
                               setTempProduct({ ...tempProduct, gallery: tempProduct.gallery.filter((_, i) => i !== idx) });
@@ -653,9 +694,28 @@ export default function Products() {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Additional Photo Content URL</label>
-                      <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                        <input className="form-input" style={{ flex: 1 }} value={tempProduct.photoContent || ''} onChange={e => setTempProduct({ ...tempProduct, photoContent: e.target.value })} placeholder="e.g. https://example.com/extra-photo.png" />
+                      <label className="form-label">Additional Photo Content URL / Upload</label>
+                      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                        <input className="form-input" style={{ flex: 1, minWidth: '200px' }} value={tempProduct.photoContent || ''} onChange={e => setTempProduct({ ...tempProduct, photoContent: e.target.value })} placeholder="e.g. https://example.com/extra-photo.png" />
+                        <label className="btn btn-secondary" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: '8px 16px', height: '38px', boxSizing: 'border-box' }}>
+                          <Upload size={14} /> Upload Review Photo (WebP)
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            style={{ display: 'none' }} 
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                try {
+                                  const webpBase64 = await convertToWebP(file);
+                                  setTempProduct({ ...tempProduct, photoContent: webpBase64 });
+                                } catch (err) {
+                                  alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+                                }
+                              }
+                            }} 
+                          />
+                        </label>
                         {tempProduct.photoContent && <img src={tempProduct.photoContent} alt="Preview" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover', border: '1px solid var(--border-secondary)' }} />}
                       </div>
                     </div>

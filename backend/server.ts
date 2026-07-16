@@ -78,6 +78,35 @@ const authLimiter = rateLimit({
 });
 
 
+const getBaseDomain = (urlStr: string): string => {
+  try {
+    const hostname = new URL(urlStr).hostname;
+    const parts = hostname.split('.');
+    if (parts.length >= 2) {
+      return parts.slice(-2).join('.');
+    }
+    return hostname;
+  } catch (e) {
+    return 'gazisports.com';
+  }
+};
+
+const storeBaseDomain = getBaseDomain(process.env.STORE_URL || 'https://gazisports.com');
+
+const connectSrcOrigins = [
+  "'self'",
+  "https://beauty-elegance-admin.onrender.com",
+  `https://api.${storeBaseDomain}`,
+  `https://${storeBaseDomain}`,
+  `https://admin.${storeBaseDomain}`,
+  "https://api.tamimglobal.com",
+  "https://tamimglobal.com",
+  "https://admin.tamimglobal.com",
+  "http://localhost:5000",
+  "ws:",
+  "wss:"
+];
+
 // --- Middleware ---
 app.use(cors({
   origin: (origin, callback) => {
@@ -87,6 +116,7 @@ app.use(cors({
       origin.includes('beauty-elegance-ec88f') ||
       origin.includes('web.app') ||
       origin.includes('firebaseapp.com') ||
+      (storeBaseDomain && origin.includes(storeBaseDomain)) ||
       origin.includes('tamimglobal.com')
     ) {
       callback(null, true);
@@ -101,16 +131,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
-      connectSrc: [
-        "'self'",
-        "https://beauty-elegance-admin.onrender.com",
-        "https://api.tamimglobal.com",
-        "https://tamimglobal.com",
-        "https://admin.tamimglobal.com",
-        "http://localhost:5000",
-        "ws:",
-        "wss:"
-      ],
+      connectSrc: connectSrcOrigins,
       imgSrc: [
         "'self'",
         "data:",

@@ -17,6 +17,7 @@ import {
   type MiddleBannerConfig,
   resetStorefrontConfig,
 } from '../../store/storefrontConfig';
+import { convertToWebP } from '../../utils/imageCdn';
 import './storefront-manager.css';
 
 // ============================================================
@@ -285,14 +286,15 @@ function BannersSection({ config, updateConfig }: SectionProps) {
                             type="file" 
                             accept="image/*" 
                             style={{ display: 'none' }} 
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  update(banner.id, 'image', reader.result as string);
-                                };
-                                reader.readAsDataURL(file);
+                                try {
+                                  const webpBase64 = await convertToWebP(file);
+                                  update(banner.id, 'image', webpBase64);
+                                } catch (err) {
+                                  alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+                                }
                               }
                             }} 
                           />
@@ -373,14 +375,15 @@ function BannersSection({ config, updateConfig }: SectionProps) {
                             type="file" 
                             accept="image/*" 
                             style={{ display: 'none' }} 
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  updateMiddle(banner.id, 'image', reader.result as string);
-                                };
-                                reader.readAsDataURL(file);
+                                try {
+                                  const webpBase64 = await convertToWebP(file);
+                                  updateMiddle(banner.id, 'image', webpBase64);
+                                } catch (err) {
+                                  alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+                                }
                               }
                             }} 
                           />

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import db from '../config/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-premium-jwt-secret-key-1283';
@@ -457,4 +458,143 @@ export const setDefaultAddress = (req: any, res: Response) => {
       }
     );
   });
+};
+
+// google login customer
+export const googleLoginCustomer = async (req: Request, res: Response) => {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ status: 'error', message: 'Token is required' });
+  }
+
+  try {
+    let email: string = '';
+    let name: string = '';
+    let picture: string = '';
+    let googleId: string = '';
+
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (clientId) {
+      // Secure mode using google-auth-library verification
+      const client = new OAuth2Client(clientId);
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: clientId
+      });
+      const payload = ticket.getPayload();
+      if (!payload || !payload.email) {
+        return res.status(400).json({ status: 'error', message: 'Invalid Google Token payload' });
+      }
+      email = payload.email.trim().toLowerCase();
+      name = payload.name || 'Google User';
+      picture = payload.picture || '';
+      googleId = payload.sub;
+    } else {
+      // Developer/mock mode: directly decode JWT payload so they can test without GCP configuration
+      console.warn('⚠️ [WARNING] GOOGLE_CLIENT_ID is not configured in .env! Running Google Login in developer/mock mode.');
+      const parts = token.split('.');
+      if (parts.length < 2) {
+        return res.status(400).json({ status: 'error', message: 'Invalid JWT token format' });
+      }
+      const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const payloadDecoded = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('utf-8'));
+      
+      if (!payloadDecoded || !payloadDecoded.email) {
+        return res.status(400).json({ status: 'error', message: 'Invalid decoded Google Token payload' });
+      }
+      email = payloadDecoded.email.trim().toLowerCase();
+      name = payloadDecoded.name || 'Google User';
+      picture = payloadDecoded.picture || '';
+      googleId = payloadDecoded.sub || `g-${Date.now()}`;
+    }
+
+    if (!email.endsWith('@gmail.com')) {
+      return res.status(400).json({ status: 'error', message: 'শুধুমাত্র আসল জিমেইল (@gmail.com) অ্যাকাউন্ট দিয়ে লগইন করা যাবে।' });
+    }
+
+    // Check if customer exists in database
+    db.get('SELECT * FROM customers WHERE email = ?', [email], (err, customerRow: any) => {
+      if (err) {
+        console.error('Database error on Google login check:', err);
+        return res.status(500).json({ status: 'error', message: 'Database error' });
+      }
+
+      const { first_name, last_name } = parseName(name);
+
+      if (customerRow) {
+        // Customer exists, sign in
+        const token = jwt.sign(
+          { id: customerRow.id, email: customerRow.email, role: 'customer' },
+          JWT_SECRET,
+          { expiresIn: '7d' }
+        );
+
+        // Update avatar if changed
+        if (picture && customerRow.avatar_url !== picture) {
+          db.run('UPDATE customers SET avatar_url = ? WHERE id = ?', [picture, customerRow.id]);
+          customerRow.avatar_url = picture;
+        }
+
+        return res.json({
+          status: 'success',
+          data: {
+            token,
+            customer: {
+              id: customerRow.id,
+              name: `${customerRow.first_name} ${customerRow.last_name}`.trim(),
+              email: customerRow.email,
+              phone: customerRow.phone || '',
+              address: customerRow.address || '',
+              avatar: customerRow.avatar_url || '',
+              createdAt: customerRow.created_at || customerRow.createdAt || '',
+              addresses: customerRow.addresses ? JSON.parse(customerRow.addresses) : []
+            }
+          }
+        });
+      } else {
+        // Customer doesn't exist, create profile and grant welcome coupon
+        const customerId = `cust-${Date.now()}`;
+
+        db.run(
+          `INSERT INTO customers (id, first_name, last_name, email, password_hash, avatar_url)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [customerId, first_name, last_name, email, `google-oauth-${googleId}`, picture],
+          (err) => {
+            if (err) {
+              console.error('Database error creating Google customer:', err);
+              return res.status(500).json({ status: 'error', message: 'Failed to create customer' });
+            }
+
+            grantNewCustomerWelcomeAndAutoCoupons(email);
+
+            const token = jwt.sign(
+              { id: customerId, email, role: 'customer' },
+              JWT_SECRET,
+              { expiresIn: '7d' }
+            );
+
+            return res.json({
+              status: 'success',
+              data: {
+                token,
+                customer: {
+                  id: customerId,
+                  name: name.trim(),
+                  email,
+                  phone: '',
+                  address: '',
+                  avatar: picture,
+                  createdAt: new Date().toISOString(),
+                  addresses: []
+                }
+              }
+            });
+          }
+        );
+      }
+    });
+  } catch (error: any) {
+    console.error('Failed to verify Google token:', error);
+    return res.status(401).json({ status: 'error', message: 'গুগল টোকেন ভেরিফিকেশন ব্যর্থ হয়েছে।' });
+  }
 };

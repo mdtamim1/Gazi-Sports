@@ -26,6 +26,7 @@ interface CustomerAuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, password: string, phone: string) => Promise<{ success: boolean; error?: string }>;
+  googleLogin: (googleToken: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   updateCustomerPhone: (phone: string) => Promise<void>;
   updateCustomerProfile: (profileData: { name: string; phone: string; address: string }) => Promise<void>;
@@ -174,6 +175,53 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     localStorage.removeItem('customer_token');
     localStorage.removeItem('storefront_active_customer');
     setCustomer(null);
+  };
+
+  const googleLogin = async (googleToken: string) => {
+    try {
+      const response = await fetch(`${API_BASE}/google-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: googleToken })
+      });
+      const res = await response.json();
+      if (res.status === 'success') {
+        localStorage.setItem('customer_token', res.data.token);
+        localStorage.setItem('storefront_active_customer', JSON.stringify(res.data.customer));
+        setCustomer(res.data.customer);
+        return { success: true };
+      } else {
+        return { success: false, error: res.message || 'গুগল লগইন ব্যর্থ হয়েছে।' };
+      }
+    } catch (e) {
+      console.warn('Backend offline, mock Google sign in');
+      try {
+        const parts = googleToken.split('.');
+        if (parts.length >= 2) {
+          const payloadDecoded = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+          if (payloadDecoded && payloadDecoded.email) {
+            const email = payloadDecoded.email;
+            const name = payloadDecoded.name || 'Google User';
+            const picture = payloadDecoded.picture || '';
+            
+            const offlineCustomer: CustomerProfile = {
+              id: `cust-${Date.now()}`,
+              name,
+              email,
+              phone: '',
+              avatar: picture || name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase(),
+              createdAt: new Date().toISOString(),
+              addresses: []
+            };
+            
+            localStorage.setItem('storefront_active_customer', JSON.stringify(offlineCustomer));
+            setCustomer(offlineCustomer);
+            return { success: true };
+          }
+        }
+      } catch (err) {}
+      return { success: false, error: 'সার্ভারে সংযোগ করা যাচ্ছে না।' };
+    }
   };
 
   const updateCustomerPhone = async (phone: string) => {
@@ -374,6 +422,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       loading, 
       login, 
       register, 
+      googleLogin,
       logout, 
       updateCustomerPhone, 
       updateCustomerProfile,

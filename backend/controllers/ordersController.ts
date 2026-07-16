@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import db from '../config/db';
 import { cacheService } from '../services/cacheService';
 import jwt from 'jsonwebtoken';
+import { sendOrderConfirmationEmail } from '../services/emailService';
 import { logSecurityAction } from '../utils/auditLogger';
 
 const logOrderHistory = (
@@ -268,6 +269,21 @@ export const createOrder = (req: Request, res: Response) => {
                         db.run(`UPDATE customer_coupons SET status = 'used' WHERE UPPER(code) = ?`, [cleanCode]);
                       }
 
+                      // Send confirmation email asynchronously
+                      sendOrderConfirmationEmail(
+                        email,
+                        id,
+                        customer,
+                        productsList || [],
+                        subtotal || amount,
+                        deliveryCharge || 0,
+                        discount || 0,
+                        amount,
+                        paymentMethod || 'Cash on Delivery',
+                        phone,
+                        address
+                      ).catch(err => console.error('Failed to send confirmation email on commit:', err));
+
                       res.json({ status: 'success', message: 'Order created successfully', data: { id } });
                     });
                   });
@@ -295,6 +311,21 @@ export const createOrder = (req: Request, res: Response) => {
               db.run(`UPDATE coupons SET status = 'used' WHERE UPPER(code) = ?`, [cleanCode]);
               db.run(`UPDATE customer_coupons SET status = 'used' WHERE UPPER(code) = ?`, [cleanCode]);
             }
+
+            // Send confirmation email asynchronously
+            sendOrderConfirmationEmail(
+              email,
+              id,
+              customer,
+              [],
+              amount,
+              deliveryCharge || 0,
+              discount || 0,
+              amount,
+              paymentMethod || 'Cash on Delivery',
+              phone,
+              address
+            ).catch(err => console.error('Failed to send confirmation email on commit:', err));
 
             res.json({ status: 'success', message: 'Order created successfully', data: { id } });
           });

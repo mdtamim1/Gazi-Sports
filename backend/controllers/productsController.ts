@@ -370,17 +370,17 @@ export const getFacebookFeed = (req: Request, res: Response) => {
       console.error(err);
       return res.status(500).send('Database error');
     }
-
-    const domain = 'https://beauty-elegance-ec88f.web.app';
+    const domain = process.env.STORE_URL || 'https://gazisports.com';
+    const storeName = process.env.STORE_NAME || 'Gazi Sports';
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">\n`;
     xml += `  <channel>\n`;
-    xml += `    <title>AURA Sports - Facebook Catalog Feed</title>\n`;
+    xml += `    <title>${storeName} - Facebook Catalog Feed</title>\n`;
     xml += `    <link>${domain}</link>\n`;
     xml += `    <description>Dynamic Product Catalog Feed for Facebook Ads</description>\n`;
 
     rows.forEach((p: any) => {
-      const rawDesc = p.description || `${p.name} - Premium sports item from AURA Sports.`;
+      const rawDesc = p.description || `${p.name} - Premium sports item from ${storeName}.`;
       const cleanDesc = rawDesc.replace(/<[^>]*>/g, ''); // strip HTML tags
       
       let imageLink = p.image || '';

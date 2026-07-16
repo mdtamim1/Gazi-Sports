@@ -12,7 +12,7 @@ const createTransporter = () => {
 };
 
 const STORE_NAME = process.env.STORE_NAME || 'Gazi Sports';
-const STORE_URL = process.env.STORE_URL || 'https://tamimglobal.com';
+const STORE_URL = process.env.STORE_URL || 'https://gazisports.com';
 const STORE_LOGO = `${STORE_URL}/logo.png`;
 const FROM_EMAIL = `"${STORE_NAME}" <${process.env.EMAIL_USER}>`;
 
@@ -99,6 +99,100 @@ export const sendWelcomeEmail = async (email: string): Promise<boolean> => {
     return true;
   } catch (err) {
     console.error('[EmailService] Failed to send welcome email:', err);
+    return false;
+  }
+};
+
+// ---- Order Confirmation email ----
+export const sendOrderConfirmationEmail = async (
+  email: string, 
+  orderId: string, 
+  customerName: string, 
+  items: any[], 
+  subtotal: number, 
+  deliveryCharge: number, 
+  discount: number, 
+  total: number,
+  paymentMethod: string,
+  phone: string,
+  address: string
+): Promise<boolean> => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn('[EmailService] EMAIL_USER or EMAIL_PASS not set in .env, skipping order confirmation email.');
+    return false;
+  }
+
+  // Only send if we have a valid-looking email
+  if (!email || !email.includes('@')) {
+    console.log(`[EmailService] Skipping confirmation email since no valid email address is provided (${email}).`);
+    return false;
+  }
+
+  const itemsHtml = items.map(item => `
+    <div class="product-card" style="display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid #f3f4f6;">
+      <div>
+        <div style="font-weight: 700; font-size: 0.85rem; color: #111827;">${item.name} (${item.size || 'Free Size'})</div>
+        <div style="font-size: 0.78rem; color: #6b7280; margin-top: 2px;">${item.quantity}টি × ৳${item.price.toFixed(2)}</div>
+      </div>
+      <div style="font-weight: 800; font-size: 0.88rem; color: #111827; text-align: right;">
+        ৳${(item.price * item.quantity).toFixed(2)}
+      </div>
+    </div>
+  `).join('');
+
+  const content = `
+    <h2 style="color: #111827; margin-bottom: 8px;">🛍️ অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে!</h2>
+    <p>প্রিয় <strong>${customerName}</strong>, আপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে। খুব শীঘ্রই আমাদের প্রতিনিধি কল করে অর্ডারটি কনফার্ম করবে।</p>
+    
+    <div style="background: #f3f4f6; padding: 16px; border-radius: 12px; margin-bottom: 20px; font-size: 0.82rem; line-height: 1.6; color: #374151;">
+      <h3 style="margin: 0 0 8px; font-size: 0.88rem; color: #111827; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;">অর্ডার বিবরণী:</h3>
+      <div><b>অর্ডার আইডি:</b> ${orderId}</div>
+      <div><b>তারিখ:</b> ${new Date().toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+      <div><b>পেমেন্ট পদ্ধতি:</b> ${paymentMethod}</div>
+      <div><b>ডেলিভারি ঠিকানা:</b> ${address}</div>
+      <div><b>মোবাইল নম্বর:</b> ${phone}</div>
+    </div>
+
+    <h3 style="font-size: 0.92rem; color: #111827; margin-bottom: 12px; border-bottom: 1.5px solid #111827; padding-bottom: 4px;">অর্ডারকৃত পণ্যসমূহ:</h3>
+    ${itemsHtml}
+
+    <div style="margin-top: 16px; border-top: 1px solid #e5e7eb; padding-top: 12px; font-size: 0.85rem; line-height: 1.6; color: #4b5563;">
+      <div style="display: flex; justify-content: space-between;">
+        <span>উপমোট (Subtotal):</span>
+        <span style="font-weight: 700; color: #111827;">৳${subtotal.toFixed(2)}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+        <span>ডেলিভারি চার্জ:</span>
+        <span style="font-weight: 700; color: #111827;">৳${deliveryCharge.toFixed(2)}</span>
+      </div>
+      ${discount > 0 ? `
+      <div style="display: flex; justify-content: space-between; margin-top: 4px; color: #dc2626;">
+        <span>ডিসকাউন্ট:</span>
+        <span>-৳${discount.toFixed(2)}</span>
+      </div>` : ''}
+      <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1rem; border-top: 2px solid #111827; padding-top: 8px; margin-top: 8px; color: #e11d48;">
+        <span>সর্বমোট (Total):</span>
+        <span>৳${total.toFixed(2)}</span>
+      </div>
+    </div>
+
+    <hr class="divider" />
+    <p>আমাদের সাথে কেনাকাটা করার জন্য ধন্যবাদ!</p>
+    <a href="${STORE_URL}" class="btn" style="color: white !important;">🛍️ আরও শপ করুন</a>
+  `;
+
+  try {
+    const transporter = createTransporter();
+    await transporter.sendMail({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `🛍️ ${STORE_NAME} - অর্ডার রশিদ (Order Confirmation #${orderId})`,
+      html: emailTemplate(content),
+    });
+    console.log(`[EmailService] Order confirmation email sent to: ${email}`);
+    return true;
+  } catch (err) {
+    console.error('[EmailService] Failed to send order confirmation email:', err);
     return false;
   }
 };

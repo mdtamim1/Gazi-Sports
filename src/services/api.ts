@@ -4,7 +4,7 @@ const isLocalDev = window.location.hostname === 'localhost' || window.location.h
 
 const API_BASE = isLocalDev
   ? `${window.location.protocol}//${window.location.hostname}:5000/api/v1`
-  : (import.meta.env.VITE_API_URL || 'https://api.tamimglobal.com/api/v1');
+  : (import.meta.env.VITE_API_URL || 'https://api.gazisports.com/api/v1');
 
 // Build helper for authorization token header injection
 const getAuthHeaders = (): Record<string, string> => {

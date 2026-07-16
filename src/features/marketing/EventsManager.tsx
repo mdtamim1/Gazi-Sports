@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Plus, Trash2, Calendar, Image, FileText, Gift, Sparkles, CheckCircle2, Video, HelpCircle, AlertCircle, Upload } from 'lucide-react';
 import { fetchEventsFromBackend, createEventInBackend, deleteEventFromBackend } from '../../services/api';
+import { convertToWebP } from '../../utils/imageCdn';
 import '../storefront-manager/storefront-manager.css';
 
 interface EventData {
@@ -315,14 +316,15 @@ export default function EventsManager() {
                     type="file" 
                     accept="image/*" 
                     style={{ display: 'none' }} 
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setImageUrl(reader.result as string);
-                        };
-                        reader.readAsDataURL(file);
+                        try {
+                          const webpBase64 = await convertToWebP(file);
+                          setImageUrl(webpBase64);
+                        } catch (err) {
+                          alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+                        }
                       }
                     }} 
                   />

@@ -7,6 +7,7 @@ import { sendOrderToBackend, fetchProductByIdFromBackend, fetchChatHistory, vali
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { OptimizedImage } from '../components/layout/OptimizedImage';
 import { SEOMeta } from '../components/layout/SEOMeta';
+import { getWebSocketUrl } from '../utils/storefrontUtils';
 import './storefront-pdp.css';
 import './storefront-checkout.css';
 import './storefront-account.css';
@@ -261,10 +262,7 @@ export default function ProductDetails() {
           loadChatsLocal();
         }
 
-        const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const wsHost = isLocalDev ? 'localhost:5000' : 'api.tamimglobal.com';
-        const wsUrl = `${wsProto}//${wsHost}/ws/chat`;
+        const wsUrl = getWebSocketUrl();
 
         try {
           const ws = new WebSocket(wsUrl);
