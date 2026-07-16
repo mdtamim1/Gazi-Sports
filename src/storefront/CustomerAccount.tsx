@@ -1342,7 +1342,7 @@ export default function CustomerAccount() {
                       <div key={product.id} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px', border: '1px solid var(--sf-border)', borderRadius: '8px', background: 'var(--sf-bg-card)' }}>
                         <img src={product.image} alt={product.name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
                         <div style={{ flexGrow: 1 }}>
-                          <Link to={`/product/${product.id}`} style={{ textDecoration: 'none', color: 'var(--sf-text-primary)', fontWeight: 700 }}>{product.name}</Link>
+                          <Link to={`/product/${product.slug || product.id}`} style={{ textDecoration: 'none', color: 'var(--sf-text-primary)', fontWeight: 700 }}>{product.name}</Link>
                           <div style={{ color: 'var(--sf-accent)', fontWeight: 800, marginTop: '4px' }}>৳{product.price}</div>
                         </div>
                         <div style={{ display: 'flex', gap: '8px' }}>
@@ -1382,7 +1382,7 @@ export default function CustomerAccount() {
                       <div key={item.product.id} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px', border: '1px solid var(--sf-border)', borderRadius: '8px', background: 'var(--sf-bg-card)' }}>
                         <img src={item.product.image} alt={item.product.name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
                         <div style={{ flexGrow: 1 }}>
-                          <Link to={`/product/${item.product.id}`} style={{ textDecoration: 'none', color: 'var(--sf-text-primary)', fontWeight: 700 }}>{item.product.name}</Link>
+                          <Link to={`/product/${item.product.slug || item.product.id}`} style={{ textDecoration: 'none', color: 'var(--sf-text-primary)', fontWeight: 700 }}>{item.product.name}</Link>
                           <div style={{ color: 'var(--sf-accent)', fontWeight: 800, marginTop: '4px' }}>৳{(item.product.price * item.quantity).toFixed(2)}</div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1644,7 +1644,7 @@ export default function CustomerAccount() {
                                 const productInfo = JSON.parse(msg.message.substring(14));
                                 return (
                                   <Link 
-                                    to={`/product/${productInfo.id}`} 
+                                    to={`/product/${productInfo.slug || productInfo.id}`} 
                                     style={{ 
                                       display: 'flex', 
                                       flexDirection: 'column', 
@@ -1926,7 +1926,7 @@ export default function CustomerAccount() {
                                 const productInfo = JSON.parse(msg.message.substring(14));
                                 return (
                                   <Link 
-                                    to={`/product/${productInfo.id}`} 
+                                    to={`/product/${productInfo.slug || productInfo.id}`} 
                                     style={{ 
                                       display: 'flex', 
                                       flexDirection: 'column', 

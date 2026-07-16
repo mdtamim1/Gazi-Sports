@@ -617,7 +617,7 @@ export default function StorefrontLayout() {
                               key={product.id}
                               className="store-search-suggestion-item"
                               onClick={() => {
-                                navigate(`/product/${product.id}`);
+                                navigate(`/product/${product.slug || product.id}`);
                                 setSearchQuery('');
                                 setMobileSearchOpen(false);
                               }}
@@ -866,7 +866,7 @@ export default function StorefrontLayout() {
                       <OptimizedImage src={product.image} alt={product.name} className="wishlist-item-image" width={100} height={100} />
                       <div className="wishlist-item-info">
                         <Link 
-                          to={`/product/${product.id}`} 
+                          to={`/product/${product.slug || product.id}`} 
                           className="wishlist-item-name"
                           onClick={() => setWishlistOpen(false)}
                         >

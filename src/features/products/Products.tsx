@@ -993,6 +993,43 @@ export default function Products() {
                           return `✅ সক্রিয় অপশনসমূহ: ${enabledSizes.map(s => s.label).join(', ')}`;
                         })()}
                       </div>
+
+                      {/* Option Prices Editor */}
+                      {(tempProduct.sizes || []).filter(s => s.enabled).length > 0 && (
+                        <div style={{ marginTop: '16px', borderTop: '1px dashed var(--border-secondary)', paddingTop: '16px' }}>
+                          <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            💰 Option Prices (অপশন অনুযায়ী কাস্টম দাম সেট করুন - অপশনাল)
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(185px, 1fr))', gap: '10px' }}>
+                            {(tempProduct.sizes || []).filter(s => s.enabled).map((opt) => (
+                              <div key={opt.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-secondary)', padding: '6px 10px', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--border-primary)' }}>
+                                <span style={{ fontWeight: 700, fontSize: 'var(--text-xs)', color: 'var(--text-primary)', minWidth: '60px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opt.label}</span>
+                                <input
+                                  type="number"
+                                  placeholder="Base Price"
+                                  value={opt.price || ''}
+                                  onChange={(e) => {
+                                    const val = e.target.value ? Number(e.target.value) : undefined;
+                                    const newSizes = (tempProduct.sizes || []).map(s => s.label === opt.label ? { ...s, price: val } : s);
+                                    setTempProduct({ ...tempProduct, sizes: newSizes });
+                                  }}
+                                  style={{
+                                    flex: 1,
+                                    width: '100%',
+                                    padding: '4px 8px',
+                                    borderRadius: 'var(--radius-sm)',
+                                    border: '1.5px solid var(--border-primary)',
+                                    background: 'var(--bg-primary)',
+                                    color: 'var(--text-primary)',
+                                    fontSize: 'var(--text-xs)',
+                                    outline: 'none'
+                                  }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div style={{ borderTop: '1px solid var(--border-secondary)', paddingTop: '20px' }}></div>

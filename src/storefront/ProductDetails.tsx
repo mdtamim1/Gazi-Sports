@@ -58,6 +58,63 @@ export default function ProductDetails() {
   const [selectedHeight, setSelectedHeight] = useState<string>('');
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
 
+  const getActivePrice = () => {
+    if (!product) return 0;
+    let price = product.price;
+    const selectedLabels = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean);
+    if (product.sizes && Array.isArray(product.sizes)) {
+      for (const label of selectedLabels) {
+        const match = product.sizes.find((s: any) => s.label === label && s.enabled);
+        if (match && match.price && Number(match.price) > 0) {
+          price = Number(match.price);
+          break;
+        }
+      }
+    }
+    return price;
+  };
+
+  const getMissingOptionGroup = () => {
+    if (!product) return null;
+    const SIZES    = ['S','M','L','XL','XXL','3XL'];
+    const COLORS   = ['Red','Blue','Black','White','Green','Yellow','Grey','Orange','Pink'];
+    const WEIGHTS  = ['5kg','10kg','15kg','20kg','25kg','30kg'];
+    const KGS      = ['1kg','2kg','3kg','4kg','5kg','6kg','7kg','8kg','9kg','10kg'];
+    const HEIGHTS  = ['4ft','5ft','6ft','7ft','100cm','120cm','150cm','180cm'];
+    const allPredefined = [...SIZES,...COLORS,...WEIGHTS,...KGS,...HEIGHTS];
+
+    if (!product.sizes || !Array.isArray(product.sizes)) return null;
+
+    const enabled = product.sizes.filter((s: any) => s.enabled);
+    const sizeOpts   = enabled.filter((s: any) => SIZES.includes(s.label));
+    const colorOpts  = enabled.filter((s: any) => COLORS.includes(s.label));
+    const weightOpts = enabled.filter((s: any) => WEIGHTS.includes(s.label));
+    const kgOpts     = enabled.filter((s: any) => KGS.includes(s.label));
+    const heightOpts = enabled.filter((s: any) => HEIGHTS.includes(s.label));
+    const customOpts = enabled.filter((s: any) => !allPredefined.includes(s.label));
+
+    if (sizeOpts.length > 0 && !selectedSize) {
+      return { name: 'size', label: 'সাইজ' };
+    }
+    if (colorOpts.length > 0 && !selectedColor) {
+      return { name: 'color', label: 'কালার' };
+    }
+    if (weightOpts.length > 0 && !selectedWeight) {
+      return { name: 'weight', label: 'ওজন' };
+    }
+    if (kgOpts.length > 0 && !selectedKg) {
+      return { name: 'kg', label: 'কেজি' };
+    }
+    if (heightOpts.length > 0 && !selectedHeight) {
+      return { name: 'height', label: 'উচ্চতা' };
+    }
+    if (customOpts.length > 0 && !selectedSize) {
+      return { name: 'custom', label: 'কাস্টম অপশন' };
+    }
+    return null;
+  };
+
+
   const imagesList = (product?.gallery && product.gallery.length > 0)
     ? product.gallery 
     : [product?.image].filter(Boolean) as string[];
@@ -460,7 +517,7 @@ export default function ProductDetails() {
     const deliveryCharge = shippingLocation === 'dhaka' 
       ? config.delivery.insideDhakaPrice 
       : config.delivery.outsideDhakaPrice;
-    const subtotal = product.price * buyNowQty;
+    const subtotal = getActivePrice() * buyNowQty;
     
     let discount = 0;
     if (appliedCoupon) {
@@ -516,7 +573,7 @@ export default function ProductDetails() {
         ].filter(Boolean).join(' / ') || 'Free Size',
         code: product.sku,
         quantity: buyNowQty,
-        price: product.price,
+        price: getActivePrice(),
       }],
     };
 
@@ -605,7 +662,7 @@ export default function ProductDetails() {
       if (!id) return;
       
       // Try to find the product in local config first for instant loading
-      const localProduct = config.products.find(p => String(p.id) === String(id));
+      const localProduct = config.products.find(p => String(p.id) === String(id) || (p.slug && String(p.slug) === String(id)));
       if (localProduct) {
         let reviewsList = localProduct.customerReviews || [];
         
@@ -668,7 +725,7 @@ export default function ProductDetails() {
       if (dbProduct) {
         let reviewsList = dbProduct.customerReviews || [];
         if (reviewsList.length === 0) {
-          const configFound = config.products.find(p => String(p.id) === String(id));
+          const configFound = config.products.find(p => String(p.id) === String(id) || (p.slug && String(p.slug) === String(id)));
           if (configFound && configFound.customerReviews && configFound.customerReviews.length > 0) {
             reviewsList = configFound.customerReviews;
           }
@@ -864,8 +921,8 @@ export default function ProductDetails() {
           <div className="pdp-price-row">
             <span className="pdp-price">
               {product.category && (product.category.toLowerCase() === 'jersey' || product.category.toLowerCase() === 'jerseys')
-                ? `Tk ${product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                : `৳${product.price}`
+                ? `Tk ${getActivePrice().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                : `৳${getActivePrice()}`
               }
             </span>
             {product.originalPrice && (
@@ -932,8 +989,24 @@ export default function ProductDetails() {
                 <VariantGroup label="কেজি" emoji="📦" items={kgOpts} selected={selectedKg} onSelect={setSelectedKg} />
                 <VariantGroup label="উচ্চতা" emoji="📏" items={heightOpts} selected={selectedHeight} onSelect={setSelectedHeight} />
                 <VariantGroup label="কাস্টম" emoji="✨" items={customOpts} selected={selectedSize} onSelect={setSelectedSize} />
-                {hasSizes && !selectedSize && (
+                
+                {sizeOpts.length > 0 && !selectedSize && (
                   <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে আপনার সাইজ সিলেক্ট করুন।</div>
+                )}
+                {colorOpts.length > 0 && !selectedColor && (
+                  <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে আপনার কালার সিলেক্ট করুন।</div>
+                )}
+                {weightOpts.length > 0 && !selectedWeight && (
+                  <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে আপনার ওজন সিলেক্ট করুন।</div>
+                )}
+                {kgOpts.length > 0 && !selectedKg && (
+                  <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে আপনার কেজি সিলেক্ট করুন।</div>
+                )}
+                {heightOpts.length > 0 && !selectedHeight && (
+                  <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে আপনার উচ্চতা সিলেক্ট করুন।</div>
+                )}
+                {customOpts.length > 0 && !selectedSize && (
+                  <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে কাস্টম অপশন সিলেক্ট করুন।</div>
                 )}
               </div>
             );
@@ -946,25 +1019,25 @@ export default function ProductDetails() {
 
           <div className="pdp-actions">
             <button className="store-btn store-btn-primary pdp-add-to-cart" onClick={() => {
-              const enabledSizes = product.sizes ? product.sizes.filter((s: any) => s.enabled && ['S','M','L','XL','XXL','3XL'].includes(s.label)) : [];
-              if (enabledSizes.length > 0 && !selectedSize) {
-                alert('দয়া করে প্রথমে সাইজ সিলেক্ট করুন!');
+              const missing = getMissingOptionGroup();
+              if (missing) {
+                alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
                 return;
               }
               const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
-              addToCart({ ...product, selectedSize: variantLabel });
+              addToCart({ ...product, price: getActivePrice(), selectedSize: variantLabel });
             }}>
               <ShoppingCart size={20} /> Add to Cart
             </button>
             <button 
               onClick={() => {
-                const enabledSizes = product.sizes ? product.sizes.filter((s: any) => s.enabled && ['S','M','L','XL','XXL','3XL'].includes(s.label)) : [];
-                if (enabledSizes.length > 0 && !selectedSize) {
-                  alert('দয়া করে প্রথমে সাইজ সিলেক্ট করুন!');
+                const missing = getMissingOptionGroup();
+                if (missing) {
+                  alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
                   return;
                 }
                 const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
-                const buyProduct = { ...product, selectedSize: variantLabel };
+                const buyProduct = { ...product, price: getActivePrice(), selectedSize: variantLabel };
                 navigate('/checkout', { state: { product: buyProduct, quantity: 1 } });
               }}
               className="store-btn pdp-buy-now" 
@@ -1288,7 +1361,7 @@ export default function ProductDetails() {
                 if (isJersey) {
                   const isSoldOut = !relatedProduct.inStock || (relatedProduct.stock !== undefined && relatedProduct.stock <= 0);
                   return (
-                    <Link to={`/product/${relatedProduct.id}`} key={relatedProduct.id} className="jersey-product-card" style={{ textDecoration: 'none' }}>
+                    <Link to={`/product/${relatedProduct.slug || relatedProduct.id}`} key={relatedProduct.id} className="jersey-product-card" style={{ textDecoration: 'none' }}>
                       <div className="jersey-product-image-container">
                         <OptimizedImage src={relatedProduct.image} alt={relatedProduct.name} className="jersey-product-image" width={400} height={533} />
                         <div className="jersey-badges-container">
@@ -1320,7 +1393,7 @@ export default function ProductDetails() {
 
                 const hasOptions = relatedProduct.sizes && relatedProduct.sizes.some((s: any) => s.enabled);
                 return (
-                  <Link to={`/product/${relatedProduct.id}`} key={relatedProduct.id} className="trending-product-card" style={{ textDecoration: 'none' }}>
+                  <Link to={`/product/${relatedProduct.slug || relatedProduct.id}`} key={relatedProduct.id} className="trending-product-card" style={{ textDecoration: 'none' }}>
                     <div className="trending-product-image-container">
                       <OptimizedImage src={relatedProduct.image} alt={relatedProduct.name} className="trending-product-image" width={400} height={400} />
                       {hasDiscount ? (
@@ -1406,13 +1479,13 @@ export default function ProductDetails() {
             type="button" 
             className="sticky-bar-btn buy-now" 
             onClick={() => {
-              const hasSizes = product.sizes && product.sizes.filter((s: any) => s.enabled).length > 0;
-              if (hasSizes && !selectedSize) {
-                alert('দয়া করে প্রথমে সাইজ সিলেক্ট করুন!');
+              const missing = getMissingOptionGroup();
+              if (missing) {
+                alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
                 return;
               }
               const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
-              const buyProduct = { ...product, selectedSize: variantLabel };
+              const buyProduct = { ...product, price: getActivePrice(), selectedSize: variantLabel };
               navigate('/checkout', { state: { product: buyProduct, quantity: 1 } });
             }}
           >
@@ -1422,12 +1495,13 @@ export default function ProductDetails() {
             type="button" 
             className="sticky-bar-btn add-to-cart" 
             onClick={() => {
-              const hasSizes = product.sizes && product.sizes.filter((s: any) => s.enabled).length > 0;
-              if (hasSizes && !selectedSize) {
-                alert('দয়া করে প্রথমে সাইজ সিলেক্ট করুন!');
+              const missing = getMissingOptionGroup();
+              if (missing) {
+                alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
                 return;
               }
-              addToCart({ ...product, selectedSize: selectedSize || 'Free Size' });
+              const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
+              addToCart({ ...product, price: getActivePrice(), selectedSize: variantLabel });
             }}
           >
             Add to Cart
@@ -1496,7 +1570,7 @@ export default function ProductDetails() {
                                   const productInfo = JSON.parse(msg.message.substring(14));
                                   return (
                                     <Link 
-                                      to={`/product/${productInfo.id}`} 
+                                      to={`/product/${productInfo.slug || productInfo.id}`} 
                                       onClick={() => setIsChatDrawerOpen(false)}
                                       style={{ 
                                         display: 'flex', 

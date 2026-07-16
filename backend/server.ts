@@ -196,6 +196,9 @@ app.use('/api/v1/vendors', (_req, res) => res.json({ status: 'success', data: []
 const distPath = path.resolve(__dirname, '../dist');
 app.use(express.static(distPath));
 
+// Serve static uploaded files (product images, etc.) from uploads folder
+app.use('/uploads', express.static(path.resolve(__dirname, '../../uploads')));
+
 // For all other requests that are NOT API requests, serve the index.html from dist
 app.get(/.*/, (req, res, next) => {
   if (req.path.startsWith('/api')) {

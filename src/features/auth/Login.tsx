@@ -68,7 +68,7 @@ export default function Login() {
                 <input
                   type="email"
                   className="login-input"
-                  placeholder="admin@vipcommerce.com"
+                  placeholder="gazisports24@admin.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}

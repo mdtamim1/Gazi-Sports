@@ -2,6 +2,39 @@ import { Request, Response } from 'express';
 import db from '../config/db';
 import { cacheService } from '../services/cacheService';
 import { logSecurityAction } from '../utils/auditLogger';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Helper to save base64 image as physical file with branded name
+const saveBase64Image = (base64Str: string, slug: string, suffix: string = ''): string => {
+  if (!base64Str || !base64Str.startsWith('data:image/')) {
+    return base64Str;
+  }
+  try {
+    const matches = base64Str.match(/^data:image\/([A-Za-z0-9\-+]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      return base64Str;
+    }
+    const extension = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+    const buffer = Buffer.from(matches[2], 'base64');
+    const uploadsDir = path.resolve(__dirname, '../../uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    const filename = `gazisports24-${slug}${suffix ? '-' + suffix : ''}.${extension}`;
+    const filePath = path.join(uploadsDir, filename);
+    fs.writeFileSync(filePath, buffer);
+    return `/uploads/${filename}`;
+  } catch (err) {
+    console.error('Error saving base64 image:', err);
+    return base64Str;
+  }
+};
+
 
 // Auto-migrate: ensure 'sizes' column exists in products table
 db.run(`ALTER TABLE products ADD COLUMN sizes TEXT DEFAULT '[]'`, (err) => {
@@ -72,7 +105,7 @@ export const getProductById = async (req: Request, res: Response) => {
       return res.json({ status: 'success', data: cachedProduct });
     }
 
-    db.get(`SELECT * FROM products WHERE id = ?`, [id], (err, product: any) => {
+    db.get(`SELECT * FROM products WHERE id = ? OR slug = ?`, [id, id], (err, product: any) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
@@ -81,7 +114,7 @@ export const getProductById = async (req: Request, res: Response) => {
         return res.status(404).json({ status: 'error', message: 'Product not found' });
       }
       // Fetch product gallery
-      db.all(`SELECT image_url FROM product_gallery WHERE product_id = ?`, [id], (err, galleryRows: any[]) => {
+      db.all(`SELECT image_url FROM product_gallery WHERE product_id = ?`, [product.id], (err, galleryRows: any[]) => {
         const gallery = galleryRows ? galleryRows.map(r => r.image_url) : [];
         
         let features = [];
@@ -128,6 +161,9 @@ export const getProductById = async (req: Request, res: Response) => {
 export const createProduct = (req: Request, res: Response) => {
   const { name, slug, sku, brand, category, price, original_price, image, description, stock, published, features, specs, gallery, videoUrl, photoContent, sizes } = req.body;
   const id = 'PRD-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+  const slugVal = slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+  const finalImage = saveBase64Image(image, slugVal);
 
   db.run('BEGIN TRANSACTION', (txErr) => {
     if (txErr) {
@@ -139,7 +175,7 @@ export const createProduct = (req: Request, res: Response) => {
       `INSERT INTO products (id, name, slug, sku, brand, category, price, original_price, image, description, stock, published, features, specs, video_url, photo_content, sizes)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        id, name, slug, sku, brand, category, price, original_price, image, description, stock || 0,
+        id, name, slugVal, sku, brand, category, price, original_price, finalImage, description, stock || 0,
         published ? 1 : 0, JSON.stringify(features || []), JSON.stringify(specs || []),
         videoUrl || null, photoContent || null, JSON.stringify(sizes || [])
       ],
@@ -185,8 +221,9 @@ export const createProduct = (req: Request, res: Response) => {
           let hasError = false;
           let pending = validImages.length;
 
-          validImages.forEach((img: string) => {
-            stmt.run([id, img.trim()], (runErr: any) => {
+          validImages.forEach((img: string, idx: number) => {
+            const finalGalleryImage = saveBase64Image(img, slugVal, `gallery-${idx + 1}`);
+            stmt.run([id, finalGalleryImage], (runErr: any) => {
               if (runErr) {
                 console.error('Error inserting gallery image:', runErr);
                 hasError = true;
@@ -217,115 +254,125 @@ export const updateProduct = (req: Request, res: Response) => {
   const { id } = req.params;
   const { name, price, original_price, stock, description, image, brand, category, published, features, specs, gallery, videoUrl, photoContent, sizes } = req.body;
 
-  db.run('BEGIN TRANSACTION', (txErr) => {
-    if (txErr) {
-      console.error('Failed to start transaction:', txErr);
-      return res.status(500).json({ status: 'error', message: 'Database error' });
+  db.get("SELECT name, slug FROM products WHERE id = ?", [id], (findErr, existingProd: any) => {
+    if (findErr || !existingProd) {
+      return res.status(404).json({ status: 'error', message: 'Product not found' });
     }
 
-    db.run(
-      `UPDATE products 
-       SET name = COALESCE(?, name), 
-           price = COALESCE(?, price), 
-           original_price = COALESCE(?, original_price), 
-           stock = COALESCE(?, stock), 
-           description = COALESCE(?, description), 
-           image = COALESCE(?, image),
-           brand = COALESCE(?, brand),
-           category = COALESCE(?, category),
-           published = COALESCE(?, published),
-           features = COALESCE(?, features),
-           specs = COALESCE(?, specs),
-           video_url = COALESCE(?, video_url),
-           photo_content = COALESCE(?, photo_content),
-           sizes = COALESCE(?, sizes)
-       WHERE id = ?`,
-      [
-        name, price, original_price, stock, description, image, brand, category, 
-        published === undefined ? null : (published ? 1 : 0),
-        features ? JSON.stringify(features) : null,
-        specs ? JSON.stringify(specs) : null,
-        videoUrl === undefined ? null : videoUrl,
-        photoContent === undefined ? null : photoContent,
-        sizes ? JSON.stringify(sizes) : null,
-        id
-      ],
-      function (err) {
-        if (err) {
-          console.error('Error updating product:', err);
-          db.run('ROLLBACK', (rbErr) => {
-            if (rbErr) console.error('Error rolling back transaction:', rbErr);
-          });
-          return res.status(500).json({ status: 'error', message: 'Database error' });
-        }
+    const slugVal = existingProd.slug || (name || existingProd.name).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const finalImage = image ? saveBase64Image(image, slugVal) : image;
 
-        const commitTransaction = () => {
-          db.run('COMMIT', (commitErr) => {
-            if (commitErr) {
-              console.error('Error committing transaction:', commitErr);
-              db.run('ROLLBACK', (rbErr) => {
-                if (rbErr) console.error('Error rolling back transaction:', rbErr);
-              });
-              return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
-            }
-            cacheService.delPattern('products:*').catch(console.error);
-            const actor = (req as any).user;
-            logSecurityAction(
-              actor?.id || null,
-              actor?.email || null,
-              'PRODUCT_UPDATE',
-              `Product updated: ${name || 'ID: ' + id} (ID: ${id}, Price: ৳${price || 'unchanged'}, Stock: ${stock || 'unchanged'})`,
-              req
-            );
-            res.json({ status: 'success', message: 'Product updated' });
-          });
-        };
+    db.run('BEGIN TRANSACTION', (txErr) => {
+      if (txErr) {
+        console.error('Failed to start transaction:', txErr);
+        return res.status(500).json({ status: 'error', message: 'Database error' });
+      }
 
-        if (gallery && Array.isArray(gallery)) {
-          db.run(`DELETE FROM product_gallery WHERE product_id = ?`, [id], (deleteErr) => {
-            if (deleteErr) {
-              console.error('Error deleting gallery:', deleteErr);
-              db.run('ROLLBACK', (rbErr) => {
-                if (rbErr) console.error('Error rolling back transaction:', rbErr);
-              });
-              return res.status(500).json({ status: 'error', message: 'Failed to clear old gallery' });
-            }
+      db.run(
+        `UPDATE products 
+         SET name = COALESCE(?, name), 
+             price = COALESCE(?, price), 
+             original_price = COALESCE(?, original_price), 
+             stock = COALESCE(?, stock), 
+             description = COALESCE(?, description), 
+             image = COALESCE(?, image),
+             brand = COALESCE(?, brand),
+             category = COALESCE(?, category),
+             published = COALESCE(?, published),
+             features = COALESCE(?, features),
+             specs = COALESCE(?, specs),
+             video_url = COALESCE(?, video_url),
+             photo_content = COALESCE(?, photo_content),
+             sizes = COALESCE(?, sizes)
+         WHERE id = ?`,
+        [
+          name, price, original_price, stock, description, finalImage, brand, category, 
+          published === undefined ? null : (published ? 1 : 0),
+          features ? JSON.stringify(features) : null,
+          specs ? JSON.stringify(specs) : null,
+          videoUrl === undefined ? null : videoUrl,
+          photoContent === undefined ? null : photoContent,
+          sizes ? JSON.stringify(sizes) : null,
+          id
+        ],
+        function (err) {
+          if (err) {
+            console.error('Error updating product:', err);
+            db.run('ROLLBACK', (rbErr) => {
+              if (rbErr) console.error('Error rolling back transaction:', rbErr);
+            });
+            return res.status(500).json({ status: 'error', message: 'Database error' });
+          }
 
-            const validImages = gallery.filter((img: string) => img.trim());
-            if (validImages.length === 0) {
-              return commitTransaction();
-            }
+          const commitTransaction = () => {
+            db.run('COMMIT', (commitErr) => {
+              if (commitErr) {
+                console.error('Error committing transaction:', commitErr);
+                db.run('ROLLBACK', (rbErr) => {
+                  if (rbErr) console.error('Error rolling back transaction:', rbErr);
+                });
+                return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
+              }
+              cacheService.delPattern('products:*').catch(console.error);
+              const actor = (req as any).user;
+              logSecurityAction(
+                actor?.id || null,
+                actor?.email || null,
+                'PRODUCT_UPDATE',
+                `Product updated: ${name || 'ID: ' + id} (ID: ${id}, Price: ৳${price || 'unchanged'}, Stock: ${stock || 'unchanged'})`,
+                req
+              );
+              res.json({ status: 'success', message: 'Product updated' });
+            });
+          };
 
-            const stmt = db.prepare(`INSERT INTO product_gallery (product_id, image_url) VALUES (?, ?)`);
-            let hasError = false;
-            let pending = validImages.length;
+          if (gallery && Array.isArray(gallery)) {
+            db.run(`DELETE FROM product_gallery WHERE product_id = ?`, [id], (deleteErr) => {
+              if (deleteErr) {
+                console.error('Error deleting gallery:', deleteErr);
+                db.run('ROLLBACK', (rbErr) => {
+                  if (rbErr) console.error('Error rolling back transaction:', rbErr);
+                });
+                return res.status(500).json({ status: 'error', message: 'Failed to clear old gallery' });
+              }
 
-            validImages.forEach((img: string) => {
-              stmt.run([id, img.trim()], (runErr: any) => {
-                if (runErr) {
-                  console.error('Error inserting gallery image:', runErr);
-                  hasError = true;
-                }
-                pending--;
-                if (pending === 0) {
-                  stmt.finalize((finalizeErr: any) => {
-                    if (hasError || finalizeErr) {
-                      db.run('ROLLBACK', (rbErr) => {
-                        if (rbErr) console.error('Error rolling back transaction:', rbErr);
-                      });
-                      return res.status(500).json({ status: 'error', message: 'Failed to insert gallery images' });
-                    }
-                    commitTransaction();
-                  });
-                }
+              const validImages = gallery.filter((img: string) => img.trim());
+              if (validImages.length === 0) {
+                return commitTransaction();
+              }
+
+              const stmt = db.prepare(`INSERT INTO product_gallery (product_id, image_url) VALUES (?, ?)`);
+              let hasError = false;
+              let pending = validImages.length;
+
+              validImages.forEach((img: string, idx: number) => {
+                const finalGalleryImage = saveBase64Image(img, slugVal, `gallery-${idx + 1}`);
+                stmt.run([id, finalGalleryImage], (runErr: any) => {
+                  if (runErr) {
+                    console.error('Error inserting gallery image:', runErr);
+                    hasError = true;
+                  }
+                  pending--;
+                  if (pending === 0) {
+                    stmt.finalize((finalizeErr: any) => {
+                      if (hasError || finalizeErr) {
+                        db.run('ROLLBACK', (rbErr) => {
+                          if (rbErr) console.error('Error rolling back transaction:', rbErr);
+                        });
+                        return res.status(500).json({ status: 'error', message: 'Failed to insert gallery images' });
+                      }
+                      commitTransaction();
+                    });
+                  }
+                });
               });
             });
-          });
-        } else {
-          commitTransaction();
+          } else {
+            commitTransaction();
+          }
         }
-      }
-    );
+      );
+    });
   });
 };
 

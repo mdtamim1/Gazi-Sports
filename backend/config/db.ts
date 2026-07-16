@@ -68,6 +68,7 @@ function translateSqlForMysql(sql: string): string {
   let translatedSql = sql;
   translatedSql = translatedSql.replace(/INSERT OR REPLACE/gi, 'REPLACE');
   translatedSql = translatedSql.replace(/INSERT OR IGNORE/gi, 'INSERT IGNORE');
+  translatedSql = translatedSql.replace(/CREATE INDEX IF NOT EXISTS/gi, 'CREATE INDEX');
   if (translatedSql.toUpperCase().trim() === 'BEGIN TRANSACTION') {
     translatedSql = 'START TRANSACTION';
   }
@@ -157,6 +158,7 @@ let mysqlPool: mysql.Pool | null = null;
 let pgPool: pg.Pool | null = null;
 
 function connectDatabase() {
+  const maxPoolSize = parseInt(process.env.DB_POOL_MAX || '25', 10);
   if (DB_TYPE === 'sqlite') {
     const dbPath = process.env.DATABASE_PATH || path.resolve(__dirname, '../../database/database.sqlite');
     const dbDir = path.dirname(dbPath);
@@ -179,7 +181,7 @@ function connectDatabase() {
       user: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'beauty_elegance',
-      connectionLimit: 10,
+      connectionLimit: maxPoolSize,
       multipleStatements: true
     });
     console.log('🔌 Connected to MySQL database pool.');
@@ -190,7 +192,7 @@ function connectDatabase() {
       pgPool = new pg.Pool({
         connectionString,
         ssl: process.env.DB_SSL === 'true' || connectionString.includes('sslmode=require') ? { rejectUnauthorized: false } : false,
-        max: 10
+        max: maxPoolSize
       });
     } else {
       pgPool = new pg.Pool({
@@ -199,7 +201,7 @@ function connectDatabase() {
         user: process.env.DB_USER || 'postgres',
         password: process.env.DB_PASSWORD || '',
         database: process.env.DB_NAME || 'beauty_elegance',
-        max: 10
+        max: maxPoolSize
       });
     }
     console.log('🔌 Connected to PostgreSQL database pool.');
@@ -754,12 +756,12 @@ function initializeDatabase() {
             db.get("SELECT id FROM roles WHERE name = 'Super Admin'", (err, roleRow: any) => {
               if (roleRow) {
                 const roleId = roleRow.id;
-                db.get("SELECT id FROM employees WHERE email = 'admin@vipcommerce.com'", (err, empRow) => {
+                db.get("SELECT id FROM employees WHERE email = 'gazisports24@admin.com'", (err, empRow) => {
                   if (!empRow) {
-                    // Admin password: admin123
+                    // Admin password: GAZI2424
                     db.run(`
                       INSERT INTO employees (id, role_id, first_name, last_name, email, password_hash, status, department)
-                      VALUES ('EMP-001', ?, 'Super', 'Admin', 'admin@vipcommerce.com', '$2b$10$dT13c2LnpixQIRx7Bx/CtOqFOvNeS00tUBecfTZZ1lxBWXJpyYOHa', 'active', 'Management')
+                      VALUES ('EMP-001', ?, 'Super', 'Admin', 'gazisports24@admin.com', '$2b$10$H7tGY4yKRhUtFp9CEQesmunrUbgdeylCocwTj.aV4Z/ufnQYhkeK.', 'active', 'Management')
                     `, [roleId]);
                   }
                 });
@@ -783,37 +785,43 @@ function initializeDatabase() {
         }
       });
     });
-    // Seed default products with full details (gallery, features, specs)
-    db.run("DELETE FROM products WHERE id LIKE 'PRD-00%'", (err) => {
-      if (err) console.error('Error deleting default products:', err);
-      db.run("DELETE FROM product_gallery WHERE product_id LIKE 'PRD-00%'", (err) => {
-        if (err) console.error('Error deleting default gallery:', err);
-        
+
+    if (process.env.SEED_DATABASE === 'true') {
+      db.get("SELECT COUNT(*) as count FROM products WHERE id LIKE 'PRD-00%'", (err, row: any) => {
+        if (err) {
+          console.error('Error checking product seed existence:', err);
+          return;
+        }
+        if (row && row.count > 0) {
+          console.log('✔ Default products already seeded.');
+          return;
+        }
+
         const stmt = db.prepare(`
-          INSERT INTO products (id, name, slug, sku, brand, category, price, original_price, rating, reviews, image, in_stock, published, description, stock, features, specs)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `);
+        INSERT INTO products (id, name, slug, sku, brand, category, price, original_price, rating, reviews, image, in_stock, published, description, stock, features, specs)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      seedProducts.forEach((p: any) => {
+        stmt.run([
+          p.id, p.name, p.slug, p.sku, p.brand, p.category, p.price, p.original_price, p.rating, p.reviews, p.image, p.in_stock, p.published, p.description, p.stock,
+          JSON.stringify(p.features || []), JSON.stringify(p.specs || [])
+        ]);
+      });
+      stmt.finalize(() => {
+        console.log('🌱 Seeded 8 default products with features/specs into the database.');
+        
+        // Seed default products galleries
         seedProducts.forEach((p: any) => {
-          stmt.run([
-            p.id, p.name, p.slug, p.sku, p.brand, p.category, p.price, p.original_price, p.rating, p.reviews, p.image, p.in_stock, p.published, p.description, p.stock,
-            JSON.stringify(p.features || []), JSON.stringify(p.specs || [])
-          ]);
+          if (p.gallery && Array.isArray(p.gallery)) {
+            p.gallery.forEach((imgUrl: string) => {
+              db.run(`INSERT OR IGNORE INTO product_gallery (product_id, image_url) VALUES (?, ?)`, [p.id, imgUrl]);
+            });
+          }
         });
-        stmt.finalize(() => {
-          console.log('🌱 Seeded 8 default products with features/specs into the database.');
-          
-          // Seed default products galleries
-          seedProducts.forEach((p: any) => {
-            if (p.gallery && Array.isArray(p.gallery)) {
-              p.gallery.forEach((imgUrl: string) => {
-                db.run(`INSERT OR IGNORE INTO product_gallery (product_id, image_url) VALUES (?, ?)`, [p.id, imgUrl]);
-              });
-            }
-          });
-          console.log('🖼️ Seeded default product galleries.');
-        });
+        console.log('🖼️ Seeded default product galleries.');
       });
     });
+  }
 
     // Seed default coupons if none exist
     db.get("SELECT COUNT(*) as count FROM coupons", (err, row: any) => {
@@ -1121,10 +1129,10 @@ function initializeDatabase() {
       }
     });
 
-    // Seed default blog posts if none exist
-    db.get("SELECT COUNT(*) as count FROM blog_posts", (err, row: any) => {
-      if (!err && row && row.count === 0) {
-        const defaultBlogs = [
+    if (process.env.SEED_DATABASE === 'true') {
+      db.get("SELECT COUNT(*) as count FROM blog_posts", (err, row: any) => {
+        if (!err && row && row.count === 0) {
+          const defaultBlogs = [
           {
             id: 'blog-1',
             title: '৫টি সহজ উপায়ে আপনার স্কিন গ্লোয়িং ও হেলদি রাখুন',
@@ -1196,6 +1204,29 @@ function initializeDatabase() {
         });
       }
     });
+  }
+
+    // ---- DATABASE INDEXING FOR PERFORMANCE OPTIMIZATION ----
+    const createIndex = (name: string, sql: string) => {
+      db.run(sql, (err) => {
+        if (err) {
+          const errMsg = String(err).toLowerCase();
+          if (!errMsg.includes('already exists') && !errMsg.includes('duplicate')) {
+            console.warn(`⚠️ Warning: Could not create index ${name}: ${err.message}`);
+          }
+        }
+      });
+    };
+
+    createIndex('idx_products_category', 'CREATE INDEX IF NOT EXISTS idx_products_category ON products (category)');
+    createIndex('idx_products_published', 'CREATE INDEX IF NOT EXISTS idx_products_published ON products (published)');
+    createIndex('idx_products_slug', 'CREATE INDEX IF NOT EXISTS idx_products_slug ON products (slug)');
+    createIndex('idx_orders_email', 'CREATE INDEX IF NOT EXISTS idx_orders_email ON orders (email)');
+    createIndex('idx_orders_created_at', 'CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders (created_at DESC)');
+    createIndex('idx_customer_coupons_email', 'CREATE INDEX IF NOT EXISTS idx_customer_coupons_email ON customer_coupons (customer_email)');
+    createIndex('idx_order_items_order_id', 'CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items (order_id)');
+    createIndex('idx_support_messages_customer', 'CREATE INDEX IF NOT EXISTS idx_support_messages_customer ON support_messages (customer_id)');
+    createIndex('idx_security_logs_created_at', 'CREATE INDEX IF NOT EXISTS idx_security_logs_created_at ON security_audit_logs (created_at DESC)');
 
     console.log('✅ Database Schema verification & seeding completed.');
   });

@@ -126,7 +126,8 @@ export interface ProductConfig {
   revenue?: number;
   videoUrl?: string;
   photoContent?: string;
-  sizes?: { label: string; enabled: boolean }[];
+  sizes?: { label: string; enabled: boolean; price?: number }[];
+  slug?: string;
 }
 
 export interface MiddleBannerConfig {

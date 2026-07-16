@@ -245,7 +245,7 @@ export default function CampaignPage() {
                   </div>
                   <div className="product-card-details">
                     <StarRating rating={product.rating || 4.5} />
-                    <Link to={`/product/${product.id}`} className="product-card-title">
+                    <Link to={`/product/${product.slug || product.id}`} className="product-card-title">
                       {product.name}
                     </Link>
                     <div className="product-card-footer">
