@@ -379,7 +379,7 @@ export default function Orders() {
                 </tr>
               </thead>
               <tbody>
-                ${formProducts.map(p => `
+                ${formProducts.map((p: any) => `
                   <tr>
                     <td style="font-family: monospace; font-size: 12px; color: #475569;">${p.code || 'N/A'}</td>
                     <td><strong>${p.name}</strong></td>
@@ -572,7 +572,7 @@ export default function Orders() {
                 </tr>
               </thead>
               <tbody>
-                ${(order.productsList || []).map(p => `
+                ${(order.productsList || []).map((p: any) => `
                   <tr>
                     <td style="font-family: monospace; font-size: 12px; color: #475569;">${p.code || 'N/A'}</td>
                     <td><strong>${p.name}</strong></td>
@@ -1165,7 +1165,7 @@ export default function Orders() {
                     <td>
                       {order.productsList && order.productsList.length > 0 ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxWidth: '200px' }}>
-                          {order.productsList.map((p, idx) => (
+                          {order.productsList.map((p: any, idx: number) => (
                             <div key={idx} style={{ fontSize: '11px', color: 'var(--text-primary)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={`${p.name} (x${p.quantity})`}>
                               {p.name} <span style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>x{p.quantity}</span>
                             </div>
@@ -1550,7 +1550,7 @@ export default function Orders() {
                     {/* Suggestions list */}
                     {showSuggestions && productSearch && (
                       <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10, background: '#1f2937', border: '1px solid #374151', borderRadius: '4px', marginTop: '4px', maxHeight: '150px', overflowY: 'auto' }}>
-                        {(products.length > 0 ? products : DEMO_PRODUCTS).filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase())).map((p, idx) => (
+                        {(products.length > 0 ? products : DEMO_PRODUCTS).filter((p: any) => p.name.toLowerCase().includes(productSearch.toLowerCase())).map((p: any, idx: number) => (
                           <div
                             key={idx}
                             onClick={() => addProductToOrder(p)}
@@ -1585,7 +1585,7 @@ export default function Orders() {
                             <td colSpan={7} style={{ textAlign: 'center', padding: '32px', color: '#64748b' }}>No products added to this order yet.</td>
                           </tr>
                         ) : (
-                          formProducts.map((p, idx) => (
+                          formProducts.map((p: any, idx: number) => (
                             <tr key={idx} style={{ borderBottom: '1px solid #1e293b' }}>
                               <td style={{ padding: '6px' }}>
                                 <input type="text" value={p.color || ''} onChange={(e) => updateProductRow(idx, 'color', e.target.value)} style={{ width: '100%', background: 'transparent', border: 'none', color: '#fff' }} />
