@@ -28,6 +28,11 @@ export default function RegisterEmployee() {
   const googleBtnRef = useRef<HTMLDivElement>(null);
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
+  const passwordRef = useRef('');
+  const confirmPasswordRef = useRef('');
+  passwordRef.current = password;
+  confirmPasswordRef.current = confirmPassword;
+
   // Step 1: Verify invitation token
   useEffect(() => {
     if (!token) {
@@ -90,15 +95,18 @@ export default function RegisterEmployee() {
 
   // Google OAuth callback → register + login
   const handleGoogleResponse = async (response: any) => {
-    if (!password) {
+    const currentPassword = passwordRef.current;
+    const currentConfirmPassword = confirmPasswordRef.current;
+
+    if (!currentPassword) {
       setSubmitError('দয়া করে একটি পাসওয়ার্ড তৈরি করুন।');
       return;
     }
-    if (password.length < 6) {
+    if (currentPassword.length < 6) {
       setSubmitError('পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে।');
       return;
     }
-    if (password !== confirmPassword) {
+    if (currentPassword !== currentConfirmPassword) {
       setSubmitError('পাসওয়ার্ড দুটি মিলছে না।');
       return;
     }
@@ -107,7 +115,7 @@ export default function RegisterEmployee() {
     setSubmitError('');
     setSubmitSuccess('');
 
-    const res = await googleRegisterEmployee(token, response.credential, undefined, password);
+    const res = await googleRegisterEmployee(token, response.credential, undefined, currentPassword);
     setGoogleLoading(false);
 
     if (res.status === 'success' && res.data) {
