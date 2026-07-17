@@ -4,14 +4,7 @@ import { generateOrders, updateOrderStatus, addOrder, formatCurrency, formatDate
 import { fetchOrdersFromBackend, updateOrderStatusInBackend, createOrderFromAdminInBackend, updateOrderInBackend, validateCouponCode, fetchProductsFromBackend, syncOrdersInBackend, assignOrderInBackend, fetchActiveEmployees, fetchOrderHistory } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
-const DEMO_PRODUCTS = [
-  { sku: 'ST-EPB-001', name: 'Wireless Earbuds Pro Max', price: 129.99 },
-  { sku: 'LW-BAG-002', name: 'Premium Leather Crossbody Bag', price: 89.99 },
-  { sku: 'TG-SW-005', name: 'Smart Watch Ultra Series 5', price: 349.99 },
-  { sku: 'NG-FS-004', name: 'Organic Face Serum Collection', price: 45.99 },
-  { sku: 'VP-M-032', name: '4K OLED Gaming Monitor 32"', price: 699.99 },
-  { sku: 'AS-RS-006', name: 'Running Shoes X Carbon Pro', price: 159.99 },
-];
+const DEMO_PRODUCTS: any[] = [];
 
 const statusConfig: Record<string, { class: string; icon: any }> = {
   pending: { class: 'badge-warning', icon: Clock },
