@@ -513,7 +513,7 @@ export default function Orders() {
     if (!printWindow) return;
 
     const invoicesHTML = shippedOrders.map((order) => {
-      const subtotal = (order.productsList || []).reduce((sum, p) => sum + (p.price * p.quantity), 0);
+      const subtotal = (order.productsList || []).reduce((sum: number, p: any) => sum + (p.price * p.quantity), 0);
       const total = subtotal + (order.deliveryCharge || 60) - (order.discount || 0);
       const paidAmount = order.paidAmount || 0;
       const netPayable = total - paidAmount;
