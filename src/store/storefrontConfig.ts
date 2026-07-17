@@ -162,32 +162,7 @@ export interface StorefrontConfig {
 // DEFAULT VALUES (matching current hardcoded content)
 // ============================================================
 
-const DEFAULT_BANNERS: BannerSlide[] = [
-  {
-    id: 1,
-    title: "Buy Best Gym and Sports Equipment",
-    subtitle: "Discover premium gym and sports equipment at our online shop - from fitness machines to training gear, everything you need to stay active and healthy.",
-    gradient: "linear-gradient(135deg, #111111 0%, #222222 50%, #000000 100%)",
-    image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1200&q=80",
-    tag: "Sports passion",
-    offer: "Special Sale",
-    buttonText: "SHOP NOW",
-    buttonLink: "/collection/fitness-item",
-    enabled: true,
-  },
-  {
-    id: 2,
-    title: "Premium Quality Sports Shoes",
-    subtitle: "Run faster, jump higher, and look stylish with our elite collection of athletic and casual sports footwear.",
-    gradient: "linear-gradient(135deg, #1f1f1f 0%, #2e2e2e 50%, #111111 100%)",
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=80",
-    tag: "Shoes Collection",
-    offer: "Up to 30% OFF",
-    buttonText: "EXPLORE NOW",
-    buttonLink: "/collection/sports-shoes",
-    enabled: true,
-  }
-];
+const DEFAULT_BANNERS: BannerSlide[] = [];
 
 const DEFAULT_ANNOUNCEMENTS: AnnouncementItem[] = [
   { id: 1, text: "🎉 গাজী স্পোর্টস মানেই শক্তি, খেলা আর আনন্দ! সকল পণ্যের ওপর বিশেষ ছাড়!", enabled: true },
@@ -195,13 +170,7 @@ const DEFAULT_ANNOUNCEMENTS: AnnouncementItem[] = [
   { id: 3, text: "📞 যেকোনো প্রয়োজনে কল বা হোয়াটসঅ্যাপ করুন: ০১৩২১৮৩২৬০৫", enabled: true }
 ];
 
-const DEFAULT_CATEGORIES: CategoryConfig[] = [
-  { id: 1, name: 'Fitness Item', icon: 'Dumbbell', count: 120, published: true, sortOrder: 1 },
-  { id: 2, name: 'Sports Game', icon: 'Gamepad', count: 85, published: true, sortOrder: 2 },
-  { id: 3, name: 'Sports Shoes', icon: 'Watch', count: 95, published: true, sortOrder: 3 },
-  { id: 4, name: 'Sports wear', icon: 'Shirt', count: 140, published: true, sortOrder: 4 },
-  { id: 5, name: 'Jersey', icon: 'Shirt', count: 0, published: true, sortOrder: 5 },
-];
+const DEFAULT_CATEGORIES: CategoryConfig[] = [];
 
 const DEFAULT_NAV_LINKS: NavLinkItem[] = [
   { id: 1, label: 'Home', url: '/', enabled: true },
@@ -281,113 +250,7 @@ const DEFAULT_NEWSLETTER: NewsletterConfig = {
   placeholderText: 'Enter your email address',
 };
 
-const DEFAULT_PRODUCTS: ProductConfig[] = [
-  {
-    id: 1, name: 'Hex Dumbbells Set (20kg)', category: 'Fitness Item', brand: 'PowerGym', sku: 'SSX-HEX-001',
-    price: 3500, originalPrice: 4200, rating: 4.8, reviews: 340,
-    image: 'https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?auto=format&fit=crop&w=600&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?auto=format&fit=crop&w=600&q=80',
-      'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?auto=format&fit=crop&w=600&q=80'
-    ],
-    badge: 'sale', inStock: true, published: true,
-    description: 'High-quality hex dumbbells perfect for a home gym. Features premium cast iron plates and rubberized coating to protect your flooring.',
-    features: ['Solid cast iron core','Anti-roll hex design','Knurled chrome grip for safety','Rubber coating reduces noise'],
-    specs: [{name:'Total Weight',value:'20kg (10kg x 2)'},{name:'Material',value:'Cast Iron & Rubber'},{name:'Handle Type',value:'Knurled'}],
-    customerReviews: [],
-    relatedProducts: [2, 7]
-  },
-  {
-    id: 2, name: '4-Wheels AB Roller for Core Strength', category: 'Fitness Item', brand: 'FitMax', sku: 'SSX-ABR-002',
-    price: 1200, originalPrice: 1800, rating: 4.7, reviews: 180,
-    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=80'
-    ],
-    badge: 'sale', inStock: true, published: true,
-    description: 'Stabilized 4-wheels AB roller designed to build core strength and burn fat. Includes a comfortable knee pad.',
-    features: ['4-wheel design for max stability','Comfortable foam grip handles','Silent wheels protect floors','Includes knee foam mat'],
-    specs: [{name:'Wheels Count',value:'4'},{name:'Max Weight Cap',value:'150kg'},{name:'Includes',value:'Knee Pad'}],
-    customerReviews: [],
-    relatedProducts: [1, 7]
-  },
-  {
-    id: 3, name: 'Professional Match Football (Size 5)', category: 'Sports Game', brand: 'Puma', sku: 'SSX-FTB-003',
-    price: 1500, originalPrice: 2000, rating: 4.6, reviews: 120,
-    image: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?auto=format&fit=crop&w=600&q=80',
-    gallery: ['https://images.unsplash.com/photo-1519415943484-9fa1873496d4?auto=format&fit=crop&w=600&q=80'],
-    badge: 'sale', inStock: true, published: true,
-    description: 'Top-tier match football featuring textured casing for excellent flight control and shape retention.',
-    features: ['Premium textured casing for flight stability','High-density rubber bladder for air retention','Durable panels for longevity'],
-    specs: [{name:'Size',value:'Official Size 5'},{name:'Weight',value:'420-440g'},{name:'Material',value:'PU Leather'}],
-    customerReviews: [],
-    relatedProducts: [4, 8]
-  },
-  {
-    id: 4, name: 'Professional Carbon Fiber Badminton Racket', category: 'Sports Game', brand: 'Yonex', sku: 'SSX-BAD-004',
-    price: 2800, originalPrice: 3500, rating: 4.8, reviews: 98,
-    image: 'https://images.unsplash.com/photo-1687360441372-757f8b2b6835?auto=format&fit=crop&w=600&q=80',
-    gallery: ['https://images.unsplash.com/photo-1687360441372-757f8b2b6835?auto=format&fit=crop&w=600&q=80'],
-    badge: 'sale', inStock: true, published: true,
-    description: 'Aerodynamic carbon fiber badminton racket designed for swift swing speed and heavy smash power.',
-    features: ['Full carbon graphite frame','Aerodynamic nanotechnology','Isometric head shape for sweet spot expansion'],
-    specs: [{name:'Frame Material',value:'High Modulus Graphite'},{name:'Weight',value:'83g'},{name:'Grip Size',value:'G4'}],
-    customerReviews: [],
-    relatedProducts: [3, 8]
-  },
-  {
-    id: 5, name: 'Breathable Mesh Running Shoes', category: 'Sports Shoes', brand: 'AeroStep', sku: 'SSX-SH-005',
-    price: 4500, originalPrice: 6000, rating: 4.9, reviews: 220,
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80'
-    ],
-    badge: 'sale', inStock: true, published: true,
-    description: 'High performance running shoes featuring responsive cushioning and breathable mesh for peak training performance.',
-    features: ['Engineered breathable mesh upper','Bounce cushion midsole for energy return','High traction rubber outsole'],
-    specs: [{name:'Activity',value:'Running / Jogging'},{name:'Weight',value:'290g'},{name:'Warranty',value:'6 Months'}],
-    customerReviews: [],
-    relatedProducts: [6]
-  },
-  {
-    id: 6, name: 'Dri-FIT Athletic Jersey', category: 'Sports wear', brand: 'Adidas', sku: 'SSX-JRS-006',
-    price: 1200, originalPrice: 1600, rating: 4.6, reviews: 156,
-    image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=600&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=600&q=80'
-    ],
-    badge: 'sale', inStock: true, published: true,
-    description: 'Stay cool and dry during intense play with this sweat-wicking lightweight training jersey.',
-    features: ['Dri-FIT moisture wicking technology','Atheletic fit design','100% Recycled polyester'],
-    specs: [{name:'Material',value:'Polyester'},{name:'Fit',value:'Slim Fit'},{name:'Wash',value:'Machine Wash Cold'}],
-    customerReviews: [],
-    relatedProducts: [5]
-  },
-  {
-    id: 7, name: 'Non-Slip 8mm Yoga Mat', category: 'Fitness Item', brand: 'FlexiFit', sku: 'SSX-YOG-007',
-    price: 950, originalPrice: 1500, rating: 4.7, reviews: 112,
-    image: 'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?auto=format&fit=crop&w=600&q=80',
-    gallery: ['https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?auto=format&fit=crop&w=600&q=80'],
-    badge: 'sale', inStock: true, published: true,
-    description: 'Extra thick 8mm TPE yoga mat featuring a non-slip textured alignment line pattern to keep posture correct.',
-    features: ['High-density 8mm thick TPE material','Non-slip textured double side','Posture alignment marks','Eco-friendly non-toxic material'],
-    specs: [{name:'Thickness',value:'8mm'},{name:'Material',value:'TPE'},{name:'Dimensions',value:'183cm x 61cm'}],
-    customerReviews: [],
-    relatedProducts: [1, 2]
-  },
-  {
-    id: 8, name: 'Kids Adjustable Basketball Hoop Set', category: 'Sports Game', brand: 'KidSports', sku: 'SSX-BBH-008',
-    price: 3200, originalPrice: 4500, rating: 4.5, reviews: 89,
-    image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=600&q=80',
-    gallery: ['https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=600&q=80'],
-    badge: 'sale', inStock: true, published: true,
-    description: 'Height-adjustable basketball hoop system perfect for indoor/outdoor kid fun and sports development.',
-    features: ['Adjustable height stand','Sturdy backboard and steel rim','Water/Sand fillable base for stability'],
-    specs: [{name:'Max Height',value:'7 Feet'},{name:'Suitable Age',value:'3-10 Years'},{name:'Material',value:'Steel & Durable ABS'}],
-    customerReviews: [],
-    relatedProducts: [3, 4]
-  }
-];
+const DEFAULT_PRODUCTS: ProductConfig[] = [];
 
 // ============================================================
 // STORAGE KEY
@@ -415,9 +278,9 @@ function getDefaultConfig(): StorefrontConfig {
     delivery: { ...DEFAULT_DELIVERY },
     newsletter: { ...DEFAULT_NEWSLETTER },
     products: DEFAULT_PRODUCTS,
-    mostSellingProductIds: ['PRD-001', 'PRD-002', 'PRD-003'],
-    trendingProductIds: ['PRD-004', 'PRD-005', 'PRD-006'],
-    newArrivalProductIds: ['PRD-007', 'PRD-008', 'PRD-001', 'PRD-002'],
+    mostSellingProductIds: [],
+    trendingProductIds: [],
+    newArrivalProductIds: [],
     middleBannerImage: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1200&q=80',
     middleBannerLink: '/collection/all',
     middleBannerEnabled: true,
@@ -615,15 +478,15 @@ async function syncWithBackend() {
         let serverConfig = res.data;
         serverConfig = migrateConfig(serverConfig);
 
-        // Merge with defaults to handle any new fields
-        const defaults = getDefaultConfig();
+        // Merge with current in-memory config to keep any loaded products/state
+        const current = _config || getDefaultConfig();
         serverConfig = {
-          ...defaults,
+          ...current,
           ...serverConfig,
-          contactInfo: { ...defaults.contactInfo, ...serverConfig.contactInfo },
-          branding: { ...defaults.branding, ...serverConfig.branding },
-          delivery: { ...defaults.delivery, ...serverConfig.delivery },
-          newsletter: { ...defaults.newsletter, ...serverConfig.newsletter },
+          contactInfo: { ...current.contactInfo, ...serverConfig.contactInfo },
+          branding: { ...current.branding, ...serverConfig.branding },
+          delivery: { ...current.delivery, ...serverConfig.delivery },
+          newsletter: { ...current.newsletter, ...serverConfig.newsletter },
         };
 
         _config = serverConfig;
