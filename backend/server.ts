@@ -87,11 +87,11 @@ const getBaseDomain = (urlStr: string): string => {
     }
     return hostname;
   } catch (e) {
-    return 'gazisports.com';
+    return 'gazisports24.com';
   }
 };
 
-const storeBaseDomain = getBaseDomain(process.env.STORE_URL || 'https://gazisports.com');
+const storeBaseDomain = getBaseDomain(process.env.STORE_URL || 'https://gazisports24.com');
 
 const connectSrcOrigins = [
   "'self'",

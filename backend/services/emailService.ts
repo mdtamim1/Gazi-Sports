@@ -12,7 +12,7 @@ const createTransporter = () => {
 };
 
 const STORE_NAME = process.env.STORE_NAME || 'Gazi Sports';
-const STORE_URL = process.env.STORE_URL || 'https://gazisports.com';
+const STORE_URL = process.env.STORE_URL || 'https://gazisports24.com';
 const STORE_LOGO = `${STORE_URL}/logo.png`;
 const FROM_EMAIL = `"${STORE_NAME}" <${process.env.EMAIL_USER}>`;
 

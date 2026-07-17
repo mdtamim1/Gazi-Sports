@@ -417,7 +417,7 @@ export const getFacebookFeed = (req: Request, res: Response) => {
       console.error(err);
       return res.status(500).send('Database error');
     }
-    const domain = process.env.STORE_URL || 'https://gazisports.com';
+    const domain = process.env.STORE_URL || 'https://gazisports24.com';
     const storeName = process.env.STORE_NAME || 'Gazi Sports';
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">\n`;

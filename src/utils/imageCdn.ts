@@ -26,7 +26,7 @@ export const getOptimizedImageUrl = (src: string, width?: number, height?: numbe
   
   // Determine frontend deployment base for image origin proxying
   const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  let backendBase = 'https://api.gazisports.com';
+  let backendBase = 'https://api.gazisports24.com';
   
   if (isLocalDev) {
     backendBase = `${window.location.protocol}//${window.location.hostname}:5000`;
