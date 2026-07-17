@@ -4,6 +4,6 @@ import { authenticateToken, requireRole } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/stats', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff']), getDashboardStats);
+router.get('/stats', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff', 'Moderator']), getDashboardStats);
 
 export default router;

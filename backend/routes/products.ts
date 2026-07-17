@@ -7,8 +7,8 @@ const router = Router();
 router.get('/', getProducts);
 router.get('/facebook-feed', getFacebookFeed);
 router.get('/:id', getProductById);
-router.post('/', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff']), createProduct);
-router.put('/:id', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff']), updateProduct);
+router.post('/', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff', 'Moderator']), createProduct);
+router.put('/:id', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff', 'Moderator']), updateProduct);
 router.delete('/:id', authenticateToken, requireRole(['Super Admin', 'Admin']), deleteProduct);
 
 export default router;

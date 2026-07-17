@@ -14,7 +14,7 @@ router.get('/:id', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staf
 router.get('/:id/history', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff', 'Moderator']), getOrderHistory);
 
 // Admin can manage orders
-router.put('/:id', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff']), updateOrder);
+router.put('/:id', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff', 'Moderator']), updateOrder);
 router.put('/:id/status', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff', 'Moderator']), updateOrderStatus);
 
 // Order sync and assignment (Admin only)
