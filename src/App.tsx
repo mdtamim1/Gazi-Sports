@@ -37,34 +37,34 @@ const LoadingFallback = () => (
   </div>
 );
 
-// Dynamic Lazy Loaded Components
-const Login = lazy(() => import('./features/auth/Login'));
-const Dashboard = lazy(() => import('./features/dashboard/Dashboard'));
-const Orders = lazy(() => import('./features/orders/Orders'));
-const Products = lazy(() => import('./features/products/Products'));
-const Marketing = lazy(() => import('./features/marketing/Marketing'));
-const Employees = lazy(() => import('./features/employees/Employees'));
-const StorefrontManager = lazy(() => import('./features/storefront-manager/StorefrontManager'));
-const RegisterEmployee = lazy(() => import('./features/employees/RegisterEmployee'));
-const SecurityLogs = lazy(() => import('./features/security/SecurityLogs'));
-const Inbox = lazy(() => import('./features/chats/Inbox'));
-const BlogManager = lazy(() => import('./features/blogs/BlogManager'));
-const EventsManager = lazy(() => import('./features/marketing/EventsManager'));
+// Static Loaded Components
+import Login from './features/auth/Login';
+import Dashboard from './features/dashboard/Dashboard';
+import Orders from './features/orders/Orders';
+import Products from './features/products/Products';
+import Marketing from './features/marketing/Marketing';
+import Employees from './features/employees/Employees';
+import StorefrontManager from './features/storefront-manager/StorefrontManager';
+import RegisterEmployee from './features/employees/RegisterEmployee';
+import SecurityLogs from './features/security/SecurityLogs';
+import Inbox from './features/chats/Inbox';
+import BlogManager from './features/blogs/BlogManager';
+import EventsManager from './features/marketing/EventsManager';
 
-const StorefrontLayout = lazy(() => import('./storefront/StorefrontLayout'));
-const StorefrontHome = lazy(() => import('./storefront/StorefrontHome'));
-const ProductDetails = lazy(() => import('./storefront/ProductDetails'));
-const Checkout = lazy(() => import('./storefront/Checkout'));
-const CollectionPage = lazy(() => import('./storefront/CollectionPage'));
-const CustomPage = lazy(() => import('./storefront/CustomPage'));
-const CustomerAccount = lazy(() => import('./storefront/CustomerAccount'));
-const CampaignPage = lazy(() => import('./storefront/CampaignPage'));
-const PrivacyPolicy = lazy(() => import('./storefront/PrivacyPolicy'));
-const TermsOfService = lazy(() => import('./storefront/TermsOfService'));
-const AboutUs = lazy(() => import('./storefront/AboutUs'));
-const BlogList = lazy(() => import('./storefront/BlogList'));
-const BlogDetails = lazy(() => import('./storefront/BlogDetails'));
-const EventsPage = lazy(() => import('./storefront/EventsPage'));
+import StorefrontLayout from './storefront/StorefrontLayout';
+import StorefrontHome from './storefront/StorefrontHome';
+import ProductDetails from './storefront/ProductDetails';
+import Checkout from './storefront/Checkout';
+import CollectionPage from './storefront/CollectionPage';
+import CustomPage from './storefront/CustomPage';
+import CustomerAccount from './storefront/CustomerAccount';
+import CampaignPage from './storefront/CampaignPage';
+import PrivacyPolicy from './storefront/PrivacyPolicy';
+import TermsOfService from './storefront/TermsOfService';
+import AboutUs from './storefront/AboutUs';
+import BlogList from './storefront/BlogList';
+import BlogDetails from './storefront/BlogDetails';
+import EventsPage from './storefront/EventsPage';
 
 // Guard wrapper to protect admin routes
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
