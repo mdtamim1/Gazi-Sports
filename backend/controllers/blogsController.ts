@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import db from '../config/db';
 import { cacheService } from '../services/cacheService';
+import { generateSitemap } from '../utils/sitemap';
 
 // Fetch all blogs (public)
 export const getBlogs = async (req: Request, res: Response) => {
@@ -95,6 +96,7 @@ export const createBlog = (req: Request, res: Response) => {
         message: 'Blog post created successfully',
         data: { id }
       });
+      generateSitemap().catch(console.error);
     }
   );
 };
@@ -130,6 +132,7 @@ export const updateBlog = (req: Request, res: Response) => {
         status: 'success',
         message: 'Blog post updated successfully'
       });
+      generateSitemap().catch(console.error);
     }
   );
 };
@@ -151,5 +154,6 @@ export const deleteBlog = (req: Request, res: Response) => {
       status: 'success',
       message: 'Blog post deleted successfully'
     });
+    generateSitemap().catch(console.error);
   });
 };

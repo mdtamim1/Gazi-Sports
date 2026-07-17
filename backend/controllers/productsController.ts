@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import db from '../config/db';
 import { cacheService } from '../services/cacheService';
 import { logSecurityAction } from '../utils/auditLogger';
+import { generateSitemap } from '../utils/sitemap';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -207,6 +208,7 @@ export const createProduct = (req: Request, res: Response) => {
               req
             );
             res.json({ status: 'success', message: 'Product created', data: { id } });
+            generateSitemap().catch(console.error);
           });
         };
 
@@ -323,6 +325,7 @@ export const updateProduct = (req: Request, res: Response) => {
                 req
               );
               res.json({ status: 'success', message: 'Product updated' });
+              generateSitemap().catch(console.error);
             });
           };
 
@@ -394,6 +397,7 @@ export const deleteProduct = (req: Request, res: Response) => {
       req
     );
     res.json({ status: 'success', message: 'Product deleted' });
+    generateSitemap().catch(console.error);
   });
 };
 

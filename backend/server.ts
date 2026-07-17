@@ -11,7 +11,7 @@ import { createServer } from 'http';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+import { generateSitemap } from './utils/sitemap';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -228,6 +228,7 @@ server.listen(PORT, () => {
   console.log(`🚀 VIP Admin API Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`📂 API Base: http://localhost:${PORT}/api/v1`);
+  setTimeout(generateSitemap, 3000);
 });
 
 export default app;

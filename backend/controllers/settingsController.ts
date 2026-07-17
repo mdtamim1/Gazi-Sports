@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import db from '../config/db';
 import { logSecurityAction } from '../utils/auditLogger';
+import { generateSitemap } from '../utils/sitemap';
 
 const keyMapToCamel: Record<string, string> = {
   site_name: 'siteName',
@@ -242,6 +243,7 @@ export const updateStorefrontSettings = (req: Request, res: Response) => {
         req
       );
       res.json({ status: 'success', message: 'Storefront settings updated successfully' });
+      generateSitemap().catch(console.error);
     }
   );
 };
