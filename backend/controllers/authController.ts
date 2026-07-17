@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import db from '../config/db';
 import { logSecurityAction } from '../utils/auditLogger';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-premium-jwt-secret-key-1283';
 // Short-lived pre-auth token secret (different from main JWT)
