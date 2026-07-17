@@ -767,12 +767,12 @@ function initializeDatabase() {
             db.get("SELECT id FROM roles WHERE name = 'Super Admin'", (err, roleRow: any) => {
               if (roleRow) {
                 const roleId = roleRow.id;
-                db.get("SELECT id FROM employees WHERE email = 'gazisports24@admin.com'", (err, empRow) => {
+                db.get("SELECT id FROM employees WHERE email = 'gazisports24@gmail.com'", (err, empRow) => {
                   if (!empRow) {
                     // Admin password: GAZI2424
                     db.run(`
                       INSERT INTO employees (id, role_id, first_name, last_name, email, password_hash, status, department)
-                      VALUES ('EMP-001', ?, 'Super', 'Admin', 'gazisports24@admin.com', '$2b$10$H7tGY4yKRhUtFp9CEQesmunrUbgdeylCocwTj.aV4Z/ufnQYhkeK.', 'active', 'Management')
+                      VALUES ('EMP-001', ?, 'Super', 'Admin', 'gazisports24@gmail.com', '$2b$10$H7tGY4yKRhUtFp9CEQesmunrUbgdeylCocwTj.aV4Z/ufnQYhkeK.', 'active', 'Management')
                     `, [roleId]);
                   }
                 });
