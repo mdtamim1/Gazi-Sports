@@ -542,9 +542,8 @@ export const registerInvitedEmployee = async (req: Request, res: Response) => {
               });
             }
           );
-        );
+        });
       });
-    });
     }
   );
 };
