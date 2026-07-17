@@ -109,7 +109,7 @@ ${xmlUrls}
 </urlset>`;
 
     // Save to the root dist directory
-    const distSitemapPath = path.resolve(__dirname, '../../../dist/sitemap.xml');
+    const distSitemapPath = path.resolve(__dirname, '../../dist/sitemap.xml');
     
     // Ensure dist directory exists
     const distDir = path.dirname(distSitemapPath);
