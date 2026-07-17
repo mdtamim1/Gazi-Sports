@@ -151,13 +151,20 @@ function AdminLayout() {
 
 export default function App() {
   const [config] = useStorefrontConfig();
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
     const loadProducts = async () => {
-      const dbProducts = await fetchProductsFromBackend();
-      if (dbProducts !== null) {
-        const currentConfig = getStorefrontConfig();
-        setStorefrontConfigLocally({ ...currentConfig, products: dbProducts });
+      try {
+        const dbProducts = await fetchProductsFromBackend();
+        if (dbProducts !== null) {
+          const currentConfig = getStorefrontConfig();
+          setStorefrontConfigLocally({ ...currentConfig, products: dbProducts });
+        }
+      } catch (e) {
+        console.error('Failed to load storefront products:', e);
+      } finally {
+        setLoadingProducts(false);
       }
     };
     loadProducts();
@@ -189,6 +196,14 @@ export default function App() {
         </Suspense>
       </AuthProvider>
     );
+  }
+
+  const isAdminPath = window.location.pathname.startsWith('/admin') ||
+                      window.location.pathname.startsWith('/login') ||
+                      window.location.pathname.startsWith('/register-employee');
+
+  if (loadingProducts && !isAdminPath) {
+    return <LoadingFallback />;
   }
 
   return (
