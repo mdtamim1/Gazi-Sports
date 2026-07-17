@@ -212,6 +212,17 @@ function connectDatabase() {
 const db: DBWrapper = {
   run(sql: string, ...args: any[]): void {
     const { params, cb } = parseArgs(args);
+
+    if (DB_TYPE === 'mysql' || DB_TYPE === 'postgres') {
+      const upperSql = sql.toUpperCase().trim();
+      if (upperSql === 'BEGIN TRANSACTION' || upperSql === 'BEGIN' || upperSql === 'COMMIT' || upperSql === 'ROLLBACK') {
+        if (cb) {
+          setTimeout(() => cb.call({ lastID: undefined, changes: 0 }, null), 0);
+        }
+        return;
+      }
+    }
+
     if (sql.toUpperCase().includes('CREATE TABLE')) {
       if (DB_TYPE === 'mysql') sql = translateSchemaForMysql(sql);
       else if (DB_TYPE === 'postgres') sql = translateSchemaForPostgres(sql);

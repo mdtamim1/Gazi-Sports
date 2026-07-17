@@ -10,13 +10,13 @@ interface SEOMetaProps {
 
 export const SEOMeta: React.FC<SEOMetaProps> = ({
   title,
-  description = 'Gazi Sports - Premium Sports, Fitness & Lifestyle Products Store.',
+  description = 'Gazi Sports 24 - Premium Sports, Fitness & Lifestyle Products Store.',
   image = 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
   slug = ''
 }) => {
   const domain = window.location.origin;
   const url = slug ? `${domain}/${slug}` : domain;
-  const fullTitle = `${title} | Gazi Sports`;
+  const fullTitle = `${title} | Gazi Sports 24`;
 
   return (
     <Helmet>

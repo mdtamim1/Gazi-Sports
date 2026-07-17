@@ -98,7 +98,7 @@ export default function Orders() {
     const loadOrders = async () => {
       setIsLoading(true);
       const dbOrders = await fetchOrdersFromBackend();
-      if (dbOrders && dbOrders.length > 0) {
+      if (dbOrders !== null) {
         setOrders(dbOrders);
       } else {
         // Fallback to localStorage orders (which generateOrders returns)
@@ -141,7 +141,7 @@ export default function Orders() {
       setSyncMessage(result.message || 'Orders synced!');
       // Reload orders to show assignments
       const dbOrders = await fetchOrdersFromBackend();
-      if (dbOrders && dbOrders.length > 0) {
+      if (dbOrders !== null) {
         setOrders(dbOrders);
       }
       // Also refresh active employees list
@@ -188,7 +188,7 @@ export default function Orders() {
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [editingOrder, setEditingOrder] = useState<typeof orders[0] | null>(null);
 
-  const [formStoreName, setFormStoreName] = useState('GAZI SPORTS');
+  const [formStoreName, setFormStoreName] = useState('GAZI SPORTS 24');
   const [formInvoice, setFormInvoice] = useState('');
   const [formCustomerName, setFormCustomerName] = useState('');
   const [formCustomerPhone, setFormCustomerPhone] = useState('');
@@ -237,7 +237,7 @@ export default function Orders() {
 
   const openCreateModal = () => {
     setModalMode('create');
-    setFormStoreName('GAZI SPORTS');
+    setFormStoreName('GAZI SPORTS 24');
     setFormInvoice(`TR${Math.floor(1000000 + Math.random() * 9000000)}`);
     setFormCustomerName('');
     setFormCustomerPhone('');
@@ -264,7 +264,7 @@ export default function Orders() {
   const openEditModal = async (order: typeof orders[0]) => {
     setModalMode('edit');
     setEditingOrder(order);
-    setFormStoreName(order.storeName || 'GAZI SPORTS');
+    setFormStoreName(order.storeName || 'GAZI SPORTS 24');
     setFormInvoice(order.id);
     setFormCustomerName(order.customer);
     setFormCustomerPhone(order.email || order.phone || '');
@@ -531,7 +531,7 @@ export default function Orders() {
             <table class="header-table">
               <tr>
                 <td>
-                  <h1 class="store-name">${order.storeName || 'GAZI SPORTS'}</h1>
+                  <h1 class="store-name">${order.storeName || 'GAZI SPORTS 24'}</h1>
                   <div style="font-size: 13px; color: #64748b; margin-top: 5px;">Reliable & Premium Shopping</div>
                 </td>
                 <td>
@@ -787,7 +787,7 @@ export default function Orders() {
     }
 
     const dbOrders = await fetchOrdersFromBackend();
-    if (dbOrders && dbOrders.length > 0) {
+    if (dbOrders !== null) {
       setOrders(dbOrders);
     } else {
       setOrders([...generateOrders()]);
@@ -1388,8 +1388,7 @@ export default function Orders() {
                     <div className="form-group">
                       <label className="form-label" style={{ color: '#94a3b8' }}>STORE NAME</label>
                       <select value={formStoreName} onChange={(e) => setFormStoreName(e.target.value)} className="form-select" style={{ background: '#111827', border: '1px solid #1e293b', color: '#fff' }}>
-                        <option value="GAZI SPORTS">GAZI SPORTS</option>
-                        <option value="STORE 2">STORE 2</option>
+                        <option value="GAZI SPORTS 24">GAZI SPORTS 24</option>
                       </select>
                     </div>
                     <div className="form-group">

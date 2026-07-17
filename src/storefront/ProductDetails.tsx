@@ -681,28 +681,6 @@ export default function ProductDetails() {
           }
         } catch (e) {}
 
-        // Fallback sample reviews if empty so customer reviews section is never blank
-        if (reviewsList.length === 0) {
-          reviewsList = [
-            {
-              id: 101,
-              user: 'ফারহানা শারমিন',
-              rating: 5,
-              date: new Date(Date.now() - 3 * 86400000).toISOString(),
-              comment: 'প্রোডাক্টটি অসাধারণ! ছবি ও ডেসক্রিপশনের সাথে ১০০% হুবহু মিল পেয়েছি। প্যাকেজিংও খুব সুন্দর ছিল।',
-              helpful: 0
-            },
-            {
-              id: 102,
-              user: 'তানজিনা আক্তার',
-              rating: 5,
-              date: new Date(Date.now() - 7 * 86400000).toISOString(),
-              comment: 'খুবই প্রিমিয়াম কোয়ালিটি। ১ দিনের মধ্যেই ডেলিভারি পেয়েছি। ধন্যবাদ বিউটি অ্যান্ড এলিগেন্স!',
-              helpful: 0
-            }
-          ];
-        }
-
         const finalProduct = {
           ...localProduct,
           customerReviews: reviewsList,
@@ -724,12 +702,6 @@ export default function ProductDetails() {
 
       if (dbProduct) {
         let reviewsList = dbProduct.customerReviews || [];
-        if (reviewsList.length === 0) {
-          const configFound = config.products.find(p => String(p.id) === String(id) || (p.slug && String(p.slug) === String(id)));
-          if (configFound && configFound.customerReviews && configFound.customerReviews.length > 0) {
-            reviewsList = configFound.customerReviews;
-          }
-        }
 
         // Local storage reviews
         try {
@@ -745,28 +717,6 @@ export default function ProductDetails() {
             }
           }
         } catch (e) {}
-
-        // Fallback sample reviews if empty so customer reviews section is never blank
-        if (reviewsList.length === 0) {
-          reviewsList = [
-            {
-              id: 101,
-              user: 'ফারহানা শারমিন',
-              rating: 5,
-              date: new Date(Date.now() - 3 * 86400000).toISOString(),
-              comment: 'প্রোডাক্টটি অসাধারণ! ছবি ও ডেসক্রিপশনের সাথে ১০০% হুবহু মিল পেয়েছি। প্যাকেজিংও খুব সুন্দর ছিল।',
-              helpful: 0
-            },
-            {
-              id: 102,
-              user: 'তানজিনা আক্তার',
-              rating: 5,
-              date: new Date(Date.now() - 7 * 86400000).toISOString(),
-              comment: 'খুবই প্রিমিয়াম কোয়ালিটি। ১ দিনের মধ্যেই ডেলিভারি পেয়েছি। ধন্যবাদ বিউটি অ্যান্ড এলিগেন্স!',
-              helpful: 0
-            }
-          ];
-        }
 
         const finalProduct = {
           ...dbProduct,
@@ -990,24 +940,23 @@ export default function ProductDetails() {
                 <VariantGroup label="উচ্চতা" emoji="📏" items={heightOpts} selected={selectedHeight} onSelect={setSelectedHeight} />
                 <VariantGroup label="কাস্টম" emoji="✨" items={customOpts} selected={selectedSize} onSelect={setSelectedSize} />
                 
-                {sizeOpts.length > 0 && !selectedSize && (
-                  <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে আপনার সাইজ সিলেক্ট করুন।</div>
-                )}
-                {colorOpts.length > 0 && !selectedColor && (
-                  <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে আপনার কালার সিলেক্ট করুন।</div>
-                )}
-                {weightOpts.length > 0 && !selectedWeight && (
-                  <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে আপনার ওজন সিলেক্ট করুন।</div>
-                )}
-                {kgOpts.length > 0 && !selectedKg && (
-                  <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে আপনার কেজি সিলেক্ট করুন।</div>
-                )}
-                {heightOpts.length > 0 && !selectedHeight && (
-                  <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে আপনার উচ্চতা সিলেক্ট করুন।</div>
-                )}
-                {customOpts.length > 0 && !selectedSize && (
-                  <div className="pdp-variant-warn">⚠️ অর্ডার করতে দয়া করে কাস্টম অপশন সিলেক্ট করুন।</div>
-                )}
+                {(() => {
+                  const missingGroups: string[] = [];
+                  if (sizeOpts.length > 0 && !selectedSize) missingGroups.push('সাইজ');
+                  if (colorOpts.length > 0 && !selectedColor) missingGroups.push('কালার');
+                  if (weightOpts.length > 0 && !selectedWeight) missingGroups.push('ওজন');
+                  if (kgOpts.length > 0 && !selectedKg) missingGroups.push('কেজি');
+                  if (heightOpts.length > 0 && !selectedHeight) missingGroups.push('উচ্চতা');
+                  if (customOpts.length > 0 && !selectedSize) missingGroups.push('কাস্টম অপশন');
+
+                  if (missingGroups.length === 0) return null;
+
+                  return (
+                    <div className="pdp-variant-warn">
+                      ⚠️ অর্ডার করতে দয়া করে আপনার {missingGroups.join(', ')} সিলেক্ট করুন।
+                    </div>
+                  );
+                })()}
               </div>
             );
           })()}

@@ -155,7 +155,7 @@ export default function App() {
   useEffect(() => {
     const loadProducts = async () => {
       const dbProducts = await fetchProductsFromBackend();
-      if (dbProducts && dbProducts.length > 0) {
+      if (dbProducts !== null) {
         const currentConfig = getStorefrontConfig();
         setStorefrontConfigLocally({ ...currentConfig, products: dbProducts });
       }

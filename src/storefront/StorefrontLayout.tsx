@@ -35,7 +35,7 @@ const CustomLogo = () => (
   <div className="store-custom-logo">
     <div className="logo-main">
       <span className="logo-word-1">GAZI</span>
-      <span className="logo-word-2">SPORTS <RunnerIcon /></span>
+      <span className="logo-word-2">SPORTS 24 <RunnerIcon /></span>
     </div>
     <div className="logo-sub">PLAY HARD SHOP SMART</div>
   </div>
@@ -751,7 +751,18 @@ export default function StorefrontLayout() {
             ))}
           </div>
           <div className="store-footer-bottom">
-            <span>{branding.copyrightText}</span>
+            <span>
+              {branding.copyrightText}{' '}
+              | Designed & developed by{' '}
+              <a 
+                href="https://tamim-lab.netlify.app/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={{ color: '#6366f1', textDecoration: 'underline', fontWeight: '500' }}
+              >
+                Tamim Labs
+              </a>
+            </span>
             <span>
               {(branding.paymentMethodsText || '').split('•').map((method, i) => (
                 <span key={i} className="footer-payment-badge">{method.trim()}</span>

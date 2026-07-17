@@ -49,7 +49,7 @@ export default function Login() {
             <div className="login-logo">
               <img src="/favicon.png" alt="TG" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }} />
             </div>
-            <h1 className="login-title">Gazi Sports</h1>
+            <h1 className="login-title">Gazi Sports 24</h1>
             <p className="login-subtitle">Control Center Portal</p>
           </div>
 
@@ -106,7 +106,17 @@ export default function Login() {
           </form>
 
           <div className="login-footer">
-             <p>© 2026 Gazi Sports. All rights reserved.</p>
+             <p>
+               © 2026 Gazi Sports. All rights reserved. | Designed & developed by{' '}
+               <a 
+                 href="https://tamim-lab.netlify.app/" 
+                 target="_blank" 
+                 rel="noopener noreferrer" 
+                 style={{ color: '#818cf8', textDecoration: 'underline' }}
+               >
+                 Tamim Labs
+               </a>
+             </p>
             <p style={{ marginTop: '4px', fontSize: '10px', color: 'var(--text-muted)' }}>
               Authorized Administrative Staff Only
             </p>

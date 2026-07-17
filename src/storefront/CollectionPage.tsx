@@ -102,8 +102,8 @@ export default function CollectionPage() {
   const [localSearch, setLocalSearch] = useState('');
   const [priceFilterMin, setPriceFilterMin] = useState(0);
   const [appliedPriceMin, setAppliedPriceMin] = useState(0);
-  const [priceFilterMax, setPriceFilterMax] = useState(20000);
-  const [appliedPriceMax, setAppliedPriceMax] = useState(20000);
+  const [priceFilterMax, setPriceFilterMax] = useState(30000);
+  const [appliedPriceMax, setAppliedPriceMax] = useState(30000);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
 
   const products = config.products.filter(p => p.published);
@@ -181,8 +181,8 @@ export default function CollectionPage() {
     setSelectedBrands([]);
     setPriceFilterMin(0);
     setAppliedPriceMin(0);
-    setPriceFilterMax(20000);
-    setAppliedPriceMax(20000);
+    setPriceFilterMax(30000);
+    setAppliedPriceMax(30000);
     const container = document.querySelector('.storefront-scroll-container');
     if (container) container.scrollTop = 0;
     window.scrollTo(0, 0);
@@ -226,7 +226,7 @@ export default function CollectionPage() {
 
   const isPromoCollection = !!(navLink.timerEnabled && navLink.timerEndDate);
 
-  const hasActiveFilters = selectedBrands.length > 0 || appliedPriceMin > 0 || appliedPriceMax < 20000 || localSearch;
+  const hasActiveFilters = selectedBrands.length > 0 || appliedPriceMin > 0 || appliedPriceMax < 30000 || localSearch;
 
   const renderProductCard = (product: any) => {
     const isJersey = product.category && (product.category.toLowerCase() === 'jersey' || product.category.toLowerCase() === 'jerseys');
@@ -341,7 +341,7 @@ export default function CollectionPage() {
           <div className="fsp-section-title">Price Range</div>
           <div className="price-slider-wrapper-v2">
             <DualRangeSlider
-              min={0} max={20000}
+              min={0} max={30000}
               valueMin={priceFilterMin} valueMax={priceFilterMax}
               onChangeMin={setPriceFilterMin} onChangeMax={setPriceFilterMax}
             />
@@ -383,8 +383,8 @@ export default function CollectionPage() {
         )}
 
         {/* Clear All */}
-        {(selectedBrands.length > 0 || appliedPriceMin > 0 || appliedPriceMax < 20000) && (
-          <button className="fsp-clear-btn" onClick={() => { setSelectedBrands([]); setPriceFilterMin(0); setAppliedPriceMin(0); setPriceFilterMax(20000); setAppliedPriceMax(20000); }}>
+        {(selectedBrands.length > 0 || appliedPriceMin > 0 || appliedPriceMax < 30000) && (
+          <button className="fsp-clear-btn" onClick={() => { setSelectedBrands([]); setPriceFilterMin(0); setAppliedPriceMin(0); setPriceFilterMax(30000); setAppliedPriceMax(30000); }}>
             Clear All Filters
           </button>
         )}
@@ -445,14 +445,14 @@ export default function CollectionPage() {
                 <button onClick={() => setSelectedBrands(selectedBrands.filter(b => b !== brand))}><X size={10} /></button>
               </span>
             ))}
-            {(appliedPriceMin > 0 || appliedPriceMax < 20000) && (
+            {(appliedPriceMin > 0 || appliedPriceMax < 30000) && (
               <span className="splayd-active-badge">
                 ৳{appliedPriceMin.toLocaleString()} – ৳{appliedPriceMax.toLocaleString()}
-                <button onClick={() => { setPriceFilterMin(0); setAppliedPriceMin(0); setPriceFilterMax(20000); setAppliedPriceMax(20000); }}><X size={10} /></button>
+                <button onClick={() => { setPriceFilterMin(0); setAppliedPriceMin(0); setPriceFilterMax(30000); setAppliedPriceMax(30000); }}><X size={10} /></button>
               </span>
             )}
             {hasActiveFilters && (
-              <button className="splayd-clear-btn" onClick={() => { setSelectedBrands([]); setPriceFilterMin(0); setAppliedPriceMin(0); setPriceFilterMax(20000); setAppliedPriceMax(20000); setLocalSearch(''); }}>
+              <button className="splayd-clear-btn" onClick={() => { setSelectedBrands([]); setPriceFilterMin(0); setAppliedPriceMin(0); setPriceFilterMax(30000); setAppliedPriceMax(30000); setLocalSearch(''); }}>
                 Clear all
               </button>
             )}

@@ -252,11 +252,11 @@ const DEFAULT_CONTACT_INFO: ContactInfo = {
 };
 
 const DEFAULT_BRANDING: StoreBranding = {
-  storeName: 'Gazi Sports',
+  storeName: 'Gazi Sports 24',
   logoTextPrimary: 'Tamim',
   logoTextSecondary: 'Global',
-  footerDescription: 'Gazi Sports মানেই শক্তি, খেলা আর আনন্দ আমাদের কাছে পাবেন Gym Equipment, Sports Item ও Kids Sports Products —পুরো পরিবারের জন্য।',
-  copyrightText: '© 2026 Gazi Sports. All rights reserved.',
+  footerDescription: 'Gazi Sports 24 মানেই শক্তি, খেলা আর আনন্দ আমাদের কাছে পাবেন Gym Equipment, Sports Item ও Kids Sports Products —পুরো পরিবারের জন্য।',
+  copyrightText: '© 2026 Gazi Sports 24. All rights reserved.',
   paymentMethodsText: 'Cash on Delivery • BKash • Rocket • Visa • Mastercard',
 };
 
@@ -294,9 +294,7 @@ const DEFAULT_PRODUCTS: ProductConfig[] = [
     description: 'High-quality hex dumbbells perfect for a home gym. Features premium cast iron plates and rubberized coating to protect your flooring.',
     features: ['Solid cast iron core','Anti-roll hex design','Knurled chrome grip for safety','Rubber coating reduces noise'],
     specs: [{name:'Total Weight',value:'20kg (10kg x 2)'},{name:'Material',value:'Cast Iron & Rubber'},{name:'Handle Type',value:'Knurled'}],
-    customerReviews: [
-      {id:101,user:'Asif R.',rating:5,date:'2026-05-12',comment:'Very good quality dumbbells. Highly recommended!',helpful:8}
-    ],
+    customerReviews: [],
     relatedProducts: [2, 7]
   },
   {
@@ -543,15 +541,15 @@ function migrateConfig(parsed: any): any {
     }));
   }
 
-  // Auto-migrate branding to Gazi Sports if it was previously Tamim Global or Sports Core
+  // Auto-migrate branding to Gazi Sports 24 if it was previously Tamim Global or Sports Core
   if (parsed.branding) {
     const storeName = parsed.branding.storeName || '';
-    if (storeName === 'Tamim Global' || storeName === 'Sports Core' || storeName === 'SportScoreX') {
-      parsed.branding.storeName = 'Gazi Sports';
+    if (storeName === 'Tamim Global' || storeName === 'Sports Core' || storeName === 'SportScoreX' || storeName === 'Gazi Sports') {
+      parsed.branding.storeName = 'Gazi Sports 24';
       parsed.branding.logoTextPrimary = 'Gazi';
-      parsed.branding.logoTextSecondary = 'Sports';
-      parsed.branding.footerDescription = 'Gazi Sports মানেই শক্তি, খেলা আর আনন্দ আমাদের কাছে পাবেন Gym Equipment, Sports Item ও Kids Sports Products —পুরো পরিবারের জন্য।';
-      parsed.branding.copyrightText = '© 2026 Gazi Sports. All rights reserved.';
+      parsed.branding.logoTextSecondary = 'Sports 24';
+      parsed.branding.footerDescription = 'Gazi Sports 24 মানেই শক্তি, খেলা আর আনন্দ আমাদের কাছে পাবেন Gym Equipment, Sports Item ও Kids Sports Products —পুরো পরিবারের জন্য।';
+      parsed.branding.copyrightText = '© 2026 Gazi Sports 24. All rights reserved.';
     }
   }
 

@@ -96,7 +96,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </div>
         {!collapsed && (
           <div className="sidebar-brand">
-            <span className="sidebar-brand-name">Gazi Sports</span>
+            <span className="sidebar-brand-name">Gazi Sports 24</span>
             <span className="sidebar-brand-tag">{user?.role || 'Super Admin'}</span>
           </div>
         )}
