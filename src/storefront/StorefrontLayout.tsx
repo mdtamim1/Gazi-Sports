@@ -206,6 +206,7 @@ export default function StorefrontLayout() {
   const location = useLocation();
   const isHome = location.pathname === '/';
   const isProductPage = location.pathname.startsWith('/product/');
+  const hasBanners = config.banners && config.banners.some(b => b.enabled);
 
   // Load active campaigns from localStorage
   const [activeCampaigns, setActiveCampaigns] = useState<any[]>([]);
@@ -232,7 +233,7 @@ export default function StorefrontLayout() {
       const st = container.scrollTop;
       
       // Update scrolled state for transparent header
-      if (isHome) {
+      if (isHome && hasBanners) {
         setScrolled(st > 50);
       } else {
         setScrolled(true);
@@ -250,7 +251,7 @@ export default function StorefrontLayout() {
       lastScrollTopRef.current = st;
     };
 
-    if (!isHome) {
+    if (!isHome || !hasBanners) {
       setScrolled(true);
     } else {
       setScrolled(container.scrollTop > 50);
@@ -258,7 +259,7 @@ export default function StorefrontLayout() {
 
     container.addEventListener('scroll', handleScroll, { passive: true });
     return () => container.removeEventListener('scroll', handleScroll);
-  }, [isHome]);
+  }, [isHome, hasBanners]);
 
   // Scroll restoration and reset bottom nav on route changes
   useEffect(() => {
@@ -429,7 +430,7 @@ export default function StorefrontLayout() {
 
   return (
     <div className="storefront">
-      <div className={`store-sticky-header-container ${isHome && !scrolled ? 'header-transparent' : ''}`}>
+      <div className={`store-sticky-header-container ${isHome && !scrolled && hasBanners ? 'header-transparent' : ''}`}>
         {/* ---- Header ---- */}
         <header className="store-header">
           {!mobileSearchOpen ? (
