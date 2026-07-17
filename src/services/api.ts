@@ -13,6 +13,7 @@ const getAuthHeaders = (): Record<string, string> => {
 };
 
 // Login admin employee via backend
+// Step 1: Email + Password → returns pre-auth token (not full access)
 export const loginToBackend = async (email: string, password: string): Promise<any> => {
   try {
     const response = await fetch(`${API_BASE}/auth/login`, {
@@ -26,6 +27,35 @@ export const loginToBackend = async (email: string, password: string): Promise<a
   } catch (e) {
     console.error('Failed to connect to authentication server:', e);
     return { status: 'error', message: 'Authentication server is offline or unreachable.' };
+  }
+};
+
+// Step 2: Google ID Token verification → returns full JWT
+export const verifyGoogleStep = async (preAuthToken: string, googleIdToken: string): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE}/auth/verify-google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ preAuthToken, googleIdToken }),
+    });
+    return await response.json();
+  } catch (e) {
+    console.error('Failed to verify Google token:', e);
+    return { status: 'error', message: 'Google verification failed. Server unreachable.' };
+  }
+};
+
+// Accept moderator invitation using Google OAuth
+export const googleRegisterEmployee = async (token: string, googleIdToken: string, name?: string): Promise<any> => {
+  try {
+    const res = await fetch(`${API_BASE}/employees/invite/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, googleIdToken, name }),
+    });
+    return await res.json();
+  } catch (e) {
+    return { status: 'error', message: 'সার্ভারে সংযোগ করা যাচ্ছে না।' };
   }
 };
 

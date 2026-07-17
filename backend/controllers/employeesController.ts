@@ -1,7 +1,23 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import db from '../config/db';
 import { logSecurityAction } from '../utils/auditLogger';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'super-premium-jwt-secret-key-1283';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+const verifyGoogleIdToken = async (idToken: string): Promise<string | null> => {
+  try {
+    const ticket = await googleClient.verifyIdToken({ idToken, audience: GOOGLE_CLIENT_ID });
+    const payload = ticket.getPayload();
+    return payload?.email?.toLowerCase().trim() || null;
+  } catch (err) {
+    return null;
+  }
+};
 
 // Get all employees
 export const getEmployees = (req: Request, res: Response) => {
@@ -406,70 +422,116 @@ export const verifyInvitationToken = (req: Request, res: Response) => {
   );
 };
 
-// Public: register employee using invitation token
-export const registerInvitedEmployee = (req: Request, res: Response) => {
-  const { token, name, password } = req.body;
+// Public: register employee using invitation token + Google OAuth
+// The invited email MUST match the Google account used to accept
+export const registerInvitedEmployee = async (req: Request, res: Response) => {
+  const { token, googleIdToken, name } = req.body;
 
-  if (!token || !name || !password) {
-    return res.status(400).json({ status: 'error', message: 'Token, Name, and Password are required' });
+  if (!token || !googleIdToken) {
+    return res.status(400).json({ status: 'error', message: 'Token and Google ID token are required' });
+  }
+
+  // Verify Google token and get email
+  const googleEmail = await verifyGoogleIdToken(googleIdToken);
+  if (!googleEmail) {
+    return res.status(401).json({ status: 'error', message: 'Google verification failed. Invalid or expired Google token.' });
   }
 
   db.get(
-    `SELECT i.*, r.name as role_name 
+    `SELECT i.*, r.name as role_name, r.permissions as role_permissions
      FROM employee_invitations i 
      JOIN roles r ON i.role_id = r.id 
      WHERE i.token = ?`,
     [token],
     (err, invite: any) => {
       if (err || !invite) {
-        return res.status(400).json({ status: 'error', message: 'Invalid token' });
+        return res.status(400).json({ status: 'error', message: 'Invalid invitation token' });
       }
 
       if (invite.status !== 'pending') {
-        return res.status(400).json({ status: 'error', message: 'Token already used' });
+        return res.status(400).json({ status: 'error', message: 'এই invitation টোকেনটি ইতিমধ্যে ব্যবহার করা হয়েছে।' });
       }
 
       const expiry = new Date(invite.expires_at).getTime();
       if (expiry < Date.now()) {
-        return res.status(400).json({ status: 'error', message: 'Invitation has expired' });
+        return res.status(400).json({ status: 'error', message: 'Invitation link has expired. Please request a new invitation.' });
       }
 
-      // Hash password
-      bcrypt.hash(password, 10, (err, hash) => {
-        if (err) {
-          return res.status(500).json({ status: 'error', message: 'Password hashing failed' });
-        }
-
-        const parts = name.trim().split(' ');
-        const first_name = parts[0] || '';
-        const last_name = parts.slice(1).join(' ') || '';
-        const employeeId = `EMP-${Date.now()}`;
-
-        // Begin transaction-like sequence in serialized SQLite
-        db.serialize(() => {
-          // Insert employee
-          db.run(
-            `INSERT INTO employees (id, role_id, first_name, last_name, email, password_hash, status, department)
-             VALUES (?, ?, ?, ?, ?, ?, 'active', 'Operations')`,
-            [employeeId, invite.role_id, first_name, last_name, invite.email, hash],
-            (err) => {
-              if (err) {
-                console.error('Error creating invited employee:', err);
-                return res.status(500).json({ status: 'error', message: 'Failed to create employee record' });
-              }
-
-              // Update invitation status
-              db.run(
-                `UPDATE employee_invitations SET status = 'accepted' WHERE id = ?`,
-                [invite.id],
-                (err) => {
-                  if (err) console.error('Error updating invitation status:', err);
-                  res.json({ status: 'success', message: 'Registration complete! You can now log in.' });
-                }
-              );
-            }
-          );
+      // Critical check: Google email must exactly match the invited email
+      if (googleEmail !== invite.email.toLowerCase().trim()) {
+        return res.status(403).json({
+          status: 'error',
+          message: `আপনাকে ${invite.email} দিয়ে Google sign-in করতে হবে। অন্য Gmail দিয়ে accept করা যাবে না।`,
         });
+      }
+
+      // Use provided name or derive from Google email
+      const displayName = (name || googleEmail.split('@')[0]).trim();
+      const parts = displayName.split(' ');
+      const first_name = parts[0] || displayName;
+      const last_name = parts.slice(1).join(' ') || '';
+      const employeeId = `EMP-${Date.now()}`;
+
+      db.serialize(() => {
+        // Insert employee (no password_hash needed — Google OAuth only)
+        db.run(
+          `INSERT INTO employees (id, role_id, first_name, last_name, email, password_hash, status, department)
+           VALUES (?, ?, ?, ?, ?, NULL, 'active', 'Operations')`,
+          [employeeId, invite.role_id, first_name, last_name, invite.email],
+          function (insertErr) {
+            if (insertErr) {
+              console.error('Error creating invited employee:', insertErr);
+              return res.status(500).json({ status: 'error', message: 'Failed to create employee record' });
+            }
+
+            // Mark invitation as accepted
+            db.run(
+              `UPDATE employee_invitations SET status = 'accepted' WHERE id = ?`,
+              [invite.id],
+              (updateErr) => {
+                if (updateErr) console.error('Error updating invitation status:', updateErr);
+              }
+            );
+
+            // Issue JWT so they are immediately logged in
+            let permissions: string[] = [];
+            try {
+              if (invite.role_permissions) permissions = JSON.parse(invite.role_permissions);
+            } catch (e) {}
+
+            const jwtToken = jwt.sign(
+              {
+                id: employeeId,
+                email: invite.email,
+                role: invite.role_name,
+                name: `${first_name} ${last_name}`.trim(),
+                permissions,
+              },
+              JWT_SECRET,
+              { expiresIn: '8h' }
+            );
+
+            logSecurityAction(employeeId, invite.email, 'EMPLOYEE_REGISTERED',
+              `Employee registered via Google OAuth: ${invite.email} as ${invite.role_name}`, req);
+
+            res.json({
+              status: 'success',
+              message: 'Registration complete! Welcome aboard.',
+              data: {
+                token: jwtToken,
+                user: {
+                  id: employeeId,
+                  email: invite.email,
+                  name: `${first_name} ${last_name}`.trim(),
+                  role: invite.role_name,
+                  department: 'Operations',
+                  avatar: first_name.substring(0, 1) + (last_name.substring(0, 1) || ''),
+                  permissions,
+                },
+              },
+            });
+          }
+        );
       });
     }
   );

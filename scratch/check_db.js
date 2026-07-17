@@ -1,33 +1,29 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+import pg from 'pg';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const dbPath = path.join(__dirname, '../database/database.sqlite');
-console.log('DB path:', dbPath);
+const { Client } = pg;
 
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Error opening database:', err);
-    return;
-  }
-  console.log('Database opened successfully');
-});
+async function check() {
+  const client = new Client({
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432'),
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'password',
+    database: process.env.DB_NAME || 'postgres',
+  });
+  await client.connect();
+  console.log('Connected to Postgres.');
 
-db.all("SELECT setting_key, setting_value FROM system_settings WHERE setting_key = 'storefront_config'", [], (err, rows) => {
-  if (err) {
-    console.error('Error executing query:', err);
-    return;
-  }
-  if (rows && rows.length > 0) {
-    const val = rows[0].setting_value;
-    try {
-      const config = JSON.parse(val);
-      console.log('NAV LINKS:');
-      console.log(JSON.stringify(config.navLinks, null, 2));
-    } catch (e) {
-      console.error('Error parsing JSON:', e);
-    }
-  } else {
-    console.log('No storefront_config row found');
-  }
-  db.close();
-});
+  const emps = await client.query("SELECT id, first_name, last_name, email, status FROM employees");
+  console.log('=== EMPLOYEES ===');
+  console.log(emps.rows);
+
+  const orders = await client.query("SELECT id, status, assigned_to, assigned_name FROM orders");
+  console.log('=== ORDERS ===');
+  console.log(orders.rows);
+
+  await client.end();
+}
+
+check().catch(console.error);

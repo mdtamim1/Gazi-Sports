@@ -17,10 +17,6 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
-      if (token === 'mock-admin-token' || token.startsWith('mock-') || token.length < 20) {
-        req.user = { id: 'admin-1', role: 'Super Admin', email: 'admin@beautyelegance.com' };
-        return next();
-      }
       return res.status(403).json({ status: 'error', message: 'Invalid or expired token' });
     }
 
