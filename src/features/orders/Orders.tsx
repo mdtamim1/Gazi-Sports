@@ -90,8 +90,8 @@ const BD_DISTRICTS: Record<string, string[]> = {
 };
 
 export default function Orders() {
-  const [orders, setOrders] = useState(generateOrders(60));
-  const [isLoading, setIsLoading] = useState(false);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
@@ -895,6 +895,18 @@ export default function Orders() {
     setOrders(prev => prev.map(o => selectedIds.includes(o.id) ? { ...o, status: newStatus } : o));
     setSelectedIds([]);
   };
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', width: '100%', height: 'calc(100vh - 120px)', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#6366f1', borderRadius: '50%', animation: 'rotate 1s linear infinite', margin: '0 auto 16px' }} />
+          <p>অর্ডার লিস্ট লোড হচ্ছে...</p>
+        </div>
+        <style>{`@keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div>

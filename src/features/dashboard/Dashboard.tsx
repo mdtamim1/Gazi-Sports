@@ -51,7 +51,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function Dashboard() {
   const [dbData, setDbData] = useState<any | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [liveOrders, setLiveOrders] = useState<any[]>([]);
   const [revenueTab, setRevenueTab] = useState<'daily' | 'monthly'>('monthly');
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -241,6 +241,18 @@ export default function Dashboard() {
     link.click();
     document.body.removeChild(link);
   };
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', width: '100%', height: 'calc(100vh - 120px)', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#6366f1', borderRadius: '50%', animation: 'rotate 1s linear infinite', margin: '0 auto 16px' }} />
+          <p>ড্যাশবোর্ড লোড হচ্ছে...</p>
+        </div>
+        <style>{`@keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div>
