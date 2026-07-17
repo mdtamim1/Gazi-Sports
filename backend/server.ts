@@ -169,6 +169,37 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), version: '1.0.0' });
 });
 
+app.get('/api/health/db-check', (_req, res) => {
+  const check = (query: string): Promise<number> => {
+    return new Promise((resolve) => {
+      db.get(query, [], (err, row: any) => {
+        if (err || !row) resolve(-1);
+        else resolve(row.count !== undefined ? Number(row.count) : (row.COUNT !== undefined ? Number(row.COUNT) : 0));
+      });
+    });
+  };
+
+  Promise.all([
+    check("SELECT COUNT(*) as count FROM products"),
+    check("SELECT COUNT(*) as count FROM orders"),
+    check("SELECT COUNT(*) as count FROM customers"),
+    check("SELECT COUNT(*) as count FROM blog_posts"),
+    check("SELECT COUNT(*) as count FROM support_messages")
+  ]).then(([products, orders, customers, blogs, messages]) => {
+    res.json({
+      status: 'ok',
+      dbConnected: products !== -1,
+      counts: {
+        products,
+        orders,
+        customers,
+        blogs,
+        messages
+      }
+    });
+  });
+});
+
 // ========================================
 // API ROUTES (v1)
 // ========================================
