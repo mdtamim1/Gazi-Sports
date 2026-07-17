@@ -22,6 +22,8 @@ export default function RegisterEmployee() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const googleBtnRef = useRef<HTMLDivElement>(null);
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
@@ -88,11 +90,24 @@ export default function RegisterEmployee() {
 
   // Google OAuth callback → register + login
   const handleGoogleResponse = async (response: any) => {
+    if (!password) {
+      setSubmitError('দয়া করে একটি পাসওয়ার্ড তৈরি করুন।');
+      return;
+    }
+    if (password.length < 6) {
+      setSubmitError('পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে।');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setSubmitError('পাসওয়ার্ড দুটি মিলছে না।');
+      return;
+    }
+
     setGoogleLoading(true);
     setSubmitError('');
     setSubmitSuccess('');
 
-    const res = await googleRegisterEmployee(token, response.credential);
+    const res = await googleRegisterEmployee(token, response.credential, undefined, password);
     setGoogleLoading(false);
 
     if (res.status === 'success' && res.data) {
@@ -181,6 +196,32 @@ export default function RegisterEmployee() {
           </div>
         )}
 
+        {/* Password inputs */}
+        {!submitSuccess && (
+          <>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', color: '#9ca3af', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>পাসওয়ার্ড তৈরি করুন</label>
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="পাসওয়ার্ড দিন (অন্তত ৬ অক্ষরের)"
+                style={{ width: '100%', height: '40px', padding: '8px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', color: '#9ca3af', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>পাসওয়ার্ড নিশ্চিত করুন</label>
+              <input 
+                type="password" 
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="পাসওয়ার্ডটি আবার টাইপ করুন"
+                style={{ width: '100%', height: '40px', padding: '8px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+          </>
+        )}
+
         {/* Google Sign-In Button */}
         {!submitSuccess && (
           googleLoading ? (
@@ -191,7 +232,7 @@ export default function RegisterEmployee() {
           ) : (
             <div style={{ width: '100%' }}>
               <p style={{ fontSize: '12px', color: '#64748b', textAlign: 'center', marginBottom: '12px', margin: '0 0 12px 0' }}>
-                নিচের বাটনে ক্লিক করে Google account দিয়ে invitation accept করুন
+                পাসওয়ার্ড পূরণ করে নিচের বাটনে ক্লিক করে Google দিয়ে invitation accept করুন
               </p>
               <div ref={googleBtnRef} id="google-invite-btn" style={{ display: 'flex', justifyContent: 'center' }} />
             </div>

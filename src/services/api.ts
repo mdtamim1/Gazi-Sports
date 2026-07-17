@@ -46,12 +46,12 @@ export const verifyGoogleStep = async (preAuthToken: string, googleIdToken: stri
 };
 
 // Accept moderator invitation using Google OAuth
-export const googleRegisterEmployee = async (token: string, googleIdToken: string, name?: string): Promise<any> => {
+export const googleRegisterEmployee = async (token: string, googleIdToken: string, name?: string, password?: string): Promise<any> => {
   try {
     const res = await fetch(`${API_BASE}/employees/invite/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, googleIdToken, name }),
+      body: JSON.stringify({ token, googleIdToken, name, password }),
     });
     return await res.json();
   } catch (e) {
