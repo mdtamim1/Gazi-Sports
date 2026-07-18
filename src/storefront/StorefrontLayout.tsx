@@ -484,7 +484,15 @@ export default function StorefrontLayout() {
                         </button>
                         {shopDropdownOpen && (
                           <div className="store-nav-dropdown-menu">
-                            {categories.map(cat => {
+                            <Link
+                              to="/collection/all"
+                              className="store-dropdown-item"
+                              style={{ fontWeight: 600, borderBottom: '1px solid var(--sf-border, #e5e5e5)' }}
+                              onClick={() => setShopDropdownOpen(false)}
+                            >
+                              🛍️ All Products
+                            </Link>
+                            {categories.length > 0 ? categories.map(cat => {
                               const categorySlug = cat.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
                               return (
                                 <Link
@@ -496,7 +504,15 @@ export default function StorefrontLayout() {
                                   {cat.name}
                                 </Link>
                               );
-                            })}
+                            }) : (
+                              <Link
+                                to="/collection/fitness-item"
+                                className="store-dropdown-item"
+                                onClick={() => setShopDropdownOpen(false)}
+                              >
+                                Fitness Items
+                              </Link>
+                            )}
                           </div>
                         )}
                       </div>
@@ -964,22 +980,44 @@ export default function StorefrontLayout() {
                             marginBottom: '8px'
                           }}
                         >
-                          {categories.map(cat => {
-                            const categorySlug = cat.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-                            return (
+                          <Link
+                              to="/collection/all"
+                              className="mobile-menu-dropdown-item"
+                              style={{ fontWeight: 600 }}
+                              onClick={() => {
+                                setMobileShopDropdownOpen(false);
+                                setMobileMenuOpen(false);
+                              }}
+                            >
+                              🛍️ All Products
+                            </Link>
+                            {categories.length > 0 ? categories.map(cat => {
+                              const categorySlug = cat.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                              return (
+                                <Link
+                                  key={cat.id}
+                                  to={`/collection/${categorySlug}`}
+                                  className="mobile-menu-dropdown-item"
+                                  onClick={() => {
+                                    setMobileShopDropdownOpen(false);
+                                    setMobileMenuOpen(false);
+                                  }}
+                                >
+                                  {cat.name}
+                                </Link>
+                              );
+                            }) : (
                               <Link
-                                key={cat.id}
-                                to={`/collection/${categorySlug}`}
+                                to="/collection/fitness-item"
                                 className="mobile-menu-dropdown-item"
                                 onClick={() => {
                                   setMobileShopDropdownOpen(false);
                                   setMobileMenuOpen(false);
                                 }}
                               >
-                                {cat.name}
+                                Fitness Items
                               </Link>
-                            );
-                          })}
+                            )}
                         </div>
                       )}
                     </div>
