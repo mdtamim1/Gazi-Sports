@@ -316,80 +316,18 @@ export default function StorefrontHome() {
         title="Premium Gym & Sports Equipment Store" 
         description="Gazi Sports is your one-stop shop for gym accessories, sports items, and activewear. Explore premium quality gear at best prices in Bangladesh." 
       />
-      {/* ---- Hero Full-Width Carousel ---- */}
-      {!configReady ? (
-        /* Skeleton placeholder — same height as banner, no flash */
-        <section className="hero-carousel-fullscreen" style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.15)', animation: 'pulse 1.5s ease-in-out infinite' }}>
-            <div style={{ width: '280px', height: '32px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', margin: '0 auto 16px' }} />
-            <div style={{ width: '180px', height: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', margin: '0 auto 24px' }} />
-            <div style={{ width: '120px', height: '44px', background: 'rgba(255,255,255,0.08)', borderRadius: '24px', margin: '0 auto' }} />
-          </div>
-        </section>
-      ) : banners.length > 0 ? (
-        <section 
-          className="hero-carousel-fullscreen"
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-        >
-          <div className="fullscreen-slides" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-            {banners.map((banner) => (
-              <div 
-                key={banner.id} 
-                className={`fullscreen-slide ${banner.image ? 'has-image' : ''}`} 
-                style={{ 
-                  background: banner.image 
-                    ? `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.75)), url(${banner.image}) center/cover no-repeat`
-                    : banner.gradient 
-                }}
-              >
-                <div className="fullscreen-slide-inner">
-                  <div className="slide-content-left" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-                    <span className="slide-badge">
-                      <Zap size={14} /> {banner.tag}
-                    </span>
-                    <h1>{banner.title}</h1>
-                    <p>{banner.subtitle}</p>
-                    <div className="slide-action-row">
-                      <span className="slide-offer-highlight">{banner.offer}</span>
-                      <button 
-                        className="store-btn store-btn-white"
-                        onClick={() => {
-                          if (banner.buttonLink.startsWith('#')) {
-                            document.getElementById(banner.buttonLink.slice(1))?.scrollIntoView({ behavior: 'smooth' });
-                          } else {
-                            window.location.href = banner.buttonLink;
-                          }
-                        }}
-                      >
-                        {banner.buttonText}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="slide-visual-right">
-                    {!banner.image && (
-                      <>
-                        <div className="slide-glowing-circle" />
-                        <div className="slide-visual-badge">{banner.offer}</div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="fullscreen-dots">
-            {banners.map((_, idx) => (
-              <span 
-                key={idx} 
-                className={`fullscreen-dot ${currentSlide === idx ? 'active' : ''}`}
-                onClick={() => setCurrentSlide(idx)}
-              />
-            ))}
-          </div>
-        </section>
-      ) : null}
+      {/* ---- Hero Full-Width Banner (Permanent) ---- */}
+      <section className="hero-carousel-fullscreen">
+        <div className="fullscreen-slides">
+          <div 
+            className="fullscreen-slide has-image" 
+            style={{ 
+              background: `url(/assets/main-banner.webp) center/cover no-repeat`,
+              width: '100%'
+            }}
+          />
+        </div>
+      </section>
 
       {/* ---- Announcement Bar Removed ---- */}
 
