@@ -4491,13 +4491,15 @@
 /* Centered Header Layout Grid */
 .store-header-inner-grid {
   display: grid;
-  grid-template-columns: 80px 1fr 80px;
+  grid-template-columns: 56px 1fr auto;
   align-items: center;
   width: 100%;
   max-width: var(--sf-max-width);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 12px;
   height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .store-header-left {

@@ -805,7 +805,7 @@ export default function ProductDetails() {
           <div className="pdp-main-image-container">
             <div 
               className="pdp-main-image-track"
-              style={{ transform: `translate3d(-${activeIdx * 100}%, 0, 0)` }}
+              style={{ transform: `translateX(-${activeIdx * 100}%)` }}
             >
               {imagesList.map((img: string, i: number) => (
                 <div 
@@ -862,7 +862,7 @@ export default function ProductDetails() {
                 className={`pdp-thumbnail ${activeIdx === i ? 'active' : ''}`}
                 onClick={() => setActiveIdx(i)}
               >
-                <OptimizedImage src={img} alt={`Thumbnail ${i+1}`} width={100} height={100} />
+                <OptimizedImage src={img} alt={`Thumbnail ${i+1}`} width={200} height={200} />
               </button>
             ))}
           </div>
