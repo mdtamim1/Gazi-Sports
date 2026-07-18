@@ -461,10 +461,15 @@ export const updateProduct = async (req: Request, res: Response) => {
 export const deleteProduct = (req: Request, res: Response) => {
   const rawId = Array.isArray(req.params.id) ? req.params.id[0] : (req.params.id || '');
   const id = String(rawId);
+
+  // Build alternate ID forms:
+  // If numeric 1-8 → also try PRD-00X
+  // If PRD-00X (legacy seeded) → also try numeric
+  // If PRD-XXXXXX (new random) → just use as-is, no altId needed
   let altId = id;
-  if (id.startsWith('PRD-00')) {
+  if (/^PRD-00[1-8]$/.test(id)) {
     altId = String(parseInt(id.replace('PRD-00', '')));
-  } else if (/^\d+$/.test(id)) {
+  } else if (/^[1-8]$/.test(id)) {
     altId = `PRD-00${id}`;
   }
 
@@ -472,11 +477,14 @@ export const deleteProduct = (req: Request, res: Response) => {
     if (galleryErr) {
       console.error('Error deleting product gallery:', galleryErr);
     }
-    db.run(`DELETE FROM products WHERE id = ? OR id = ? OR sku = ?`, [id, altId, id], function (err) {
+    db.run(`DELETE FROM products WHERE id = ? OR id = ?`, [id, altId], function (err) {
       if (err) {
         console.error('Error deleting product:', err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
       }
+
+      console.log(`[DELETE] Product ${id} — rows deleted: ${this.changes}`);
+
       // Invalidate cache thoroughly
       cacheService.delPattern('products:*').catch(console.error);
       cacheService.del('products:all').catch(console.error);
@@ -488,10 +496,10 @@ export const deleteProduct = (req: Request, res: Response) => {
         actor?.id || null,
         actor?.email || null,
         'PRODUCT_DELETE',
-        `Product deleted: ID: ${id} / ${altId}`,
+        `Product deleted: ID: ${id} (${this.changes} rows affected)`,
         req
       );
-      res.json({ status: 'success', message: 'Product deleted' });
+      res.json({ status: 'success', message: 'Product deleted', changes: this.changes });
       generateSitemap().catch(console.error);
     });
   });

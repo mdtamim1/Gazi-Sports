@@ -59,17 +59,23 @@ export default function Products() {
   // Delete Product
   const handleDeleteProduct = async (prod: ProductConfig) => {
     if (confirm(`Are you sure you want to delete "${prod.name}"?`)) {
+      // Optimistically remove from local state immediately (before API call)
+      const listWithoutDeleted = products.filter(p => String(p.id) !== String(prod.id));
+      setConfig(prev => ({ ...prev, products: listWithoutDeleted }));
+
       const result = await deleteProductFromBackend(prod.id);
       if (result.success) {
-        // Optimistically remove from local state immediately
-        const list = products.filter(p => String(p.id) !== String(prod.id));
-        setConfig(prev => ({ ...prev, products: list }));
-
+        // Refetch from backend to sync any server-side state
         const fresh = await fetchProductsFromBackend();
         if (fresh) {
-          setConfig(prev => ({ ...prev, products: fresh }));
+          // Only update if backend confirms product is truly gone
+          const freshWithoutDeleted = fresh.filter(p => String(p.id) !== String(prod.id));
+          setConfig(prev => ({ ...prev, products: freshWithoutDeleted }));
         }
+        // If refetch fails, keep the optimistic removal from above
       } else {
+        // Backend delete failed — restore the product back
+        setConfig(prev => ({ ...prev, products: products }));
         alert(`Failed to delete product: ${result.message || 'Unknown error'}`);
       }
     }

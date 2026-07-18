@@ -289,21 +289,18 @@ export const fetchOrderHistory = async (orderId: string): Promise<any[]> => {
 };
 
 // Helper to map backend ID (like "PRD-001") to frontend ID (like 1)
+// For legacy seeded products PRD-001..PRD-008, strip to numeric. For all others pass through.
 export const toFrontendId = (backendId: string | number): string | number => {
-  if (typeof backendId === 'string' && backendId.startsWith('PRD-00')) {
+  if (typeof backendId === 'string' && /^PRD-00[1-8]$/.test(backendId)) {
     const num = parseInt(backendId.replace('PRD-00', ''));
-    if (!isNaN(num) && num >= 1 && num <= 8) {
-      return num;
-    }
+    if (!isNaN(num)) return num;
   }
   return backendId;
 };
 
-// Helper to map frontend ID (like 1) to backend ID (like "PRD-001")
+// Helper to map frontend ID to backend ID
+// For legacy numeric IDs 1-8, convert to PRD-001..PRD-008. All others pass through as-is.
 export const toBackendId = (frontendId: string | number): string => {
-  if (typeof frontendId === 'number' && frontendId >= 1 && frontendId <= 8) {
-    return `PRD-00${frontendId}`;
-  }
   const strId = String(frontendId);
   if (/^[1-8]$/.test(strId)) {
     return `PRD-00${strId}`;
@@ -466,8 +463,9 @@ export const updateProductInBackend = async (id: string | number, productData: a
 // Delete a product from backend SQLite
 export const deleteProductFromBackend = async (id: string | number): Promise<{ success: boolean; message?: string }> => {
   try {
-    const backendId = toBackendId(id);
-    const response = await fetch(`${API_BASE}/products/${backendId}`, {
+    // Pass the raw ID — backend handles both numeric and PRD-XXX formats
+    const rawId = String(id);
+    const response = await fetch(`${API_BASE}/products/${encodeURIComponent(rawId)}`, {
       method: 'DELETE',
       headers: {
         ...getAuthHeaders(),
