@@ -459,9 +459,10 @@ export const updateProduct = async (req: Request, res: Response) => {
 };
 
 export const deleteProduct = (req: Request, res: Response) => {
-  const { id } = req.params;
+  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : (req.params.id || '');
+  const id = String(rawId);
   let altId = id;
-  if (typeof id === 'string' && id.startsWith('PRD-00')) {
+  if (id.startsWith('PRD-00')) {
     altId = String(parseInt(id.replace('PRD-00', '')));
   } else if (/^\d+$/.test(id)) {
     altId = `PRD-00${id}`;
