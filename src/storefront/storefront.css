@@ -4866,6 +4866,11 @@
   align-items: center;
 }
 
+.store-custom-logo .logo-num-24 {
+  color: #facc15;
+  font-weight: 950;
+}
+
 .store-sticky-header-container.header-transparent .store-custom-logo .logo-main {
   color: #ffffff;
 }
@@ -4892,17 +4897,29 @@
   .desktop-only {
     display: none !important;
   }
-  
+
+  /* Center logo in mobile header */
+  .store-header-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .store-custom-logo {
+    align-items: center;
+  }
+
   .store-custom-logo .logo-main {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
   }
   .store-custom-logo .logo-word-1,
   .store-custom-logo .logo-word-2 {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
   }
   .store-custom-logo .logo-sub {
-    font-size: 0.45rem;
-    letter-spacing: 0.18em;
+    font-size: 0.42rem;
+    letter-spacing: 0.16em;
+    text-align: center;
   }
 }
 

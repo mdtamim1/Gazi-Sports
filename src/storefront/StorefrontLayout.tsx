@@ -13,21 +13,21 @@ interface CartItem {
   quantity: number;
 }
 
-const RunnerIcon = () => (
-  <svg 
-    viewBox="0 0 24 24" 
-    width="22" 
-    height="22" 
-    fill="currentColor" 
-    style={{ 
-      color: 'var(--sf-accent)', 
-      marginLeft: '4px', 
-      display: 'inline-block', 
+const SportsBoltIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width="20"
+    height="20"
+    fill="currentColor"
+    style={{
+      color: '#facc15',
+      marginLeft: '5px',
+      display: 'inline-block',
       verticalAlign: 'middle',
-      transform: 'scaleX(-1)'
+      flexShrink: 0
     }}
   >
-    <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 21.5c-.1.5.2 1 .7 1.1.5.1 1-.2 1.1-.7l2.8-12.2 2.9 2.9V21c0 .6.4 1 1 1s1-.4 1-1v-8.8c0-.3-.1-.5-.3-.7l-3.3-3.3 1.2-5.9c.7 1.2 2 2 3.5 2 .6 0 1-.4 1-1s-.4-1-1-1c-1.8 0-3.3-1.2-3.8-2.9-.2-.7-.8-1.2-1.6-1.2h-.4c-.7 0-1.3.4-1.6 1L6.2 10H3c-.6 0-1 .4-1 1s.4 1 1 1h3.7c.5 0 .9-.3 1.1-.7l2-2.4z"/>
+    <path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/>
   </svg>
 );
 
@@ -35,7 +35,11 @@ const CustomLogo = () => (
   <div className="store-custom-logo">
     <div className="logo-main">
       <span className="logo-word-1">GAZI</span>
-      <span className="logo-word-2">SPORTS 24 <RunnerIcon /></span>
+      <span className="logo-word-2">
+        SPORTS
+        <span className="logo-num-24"> 24</span>
+        <SportsBoltIcon />
+      </span>
     </div>
     <div className="logo-sub">PLAY HARD SHOP SMART</div>
   </div>
