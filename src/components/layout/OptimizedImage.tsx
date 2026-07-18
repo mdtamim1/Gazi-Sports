@@ -48,7 +48,6 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
         style={{
           width: '100%',
           height: '100%',
-          objectFit: style?.objectFit || 'cover',
           opacity: isLoaded ? 1 : 0,
           transition: 'opacity 0.3s ease-in-out',
           display: 'block',

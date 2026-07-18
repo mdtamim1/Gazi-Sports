@@ -68,7 +68,7 @@ export const getOptimizedImageUrl = (src: string, width?: number, height?: numbe
  * Compresses an image file on the client side using Canvas API and converts it to WebP format.
  * Returns a Base64 WebP string.
  */
-export const convertToWebP = (file: File, quality = 0.8): Promise<string> => {
+export const convertToWebP = (file: File, quality = 0.92): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (event) => {
