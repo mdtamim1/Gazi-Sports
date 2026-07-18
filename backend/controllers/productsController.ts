@@ -460,11 +460,18 @@ export const updateProduct = async (req: Request, res: Response) => {
 
 export const deleteProduct = (req: Request, res: Response) => {
   const { id } = req.params;
-  db.run(`DELETE FROM product_gallery WHERE product_id = ?`, [id], (galleryErr) => {
+  let altId = id;
+  if (typeof id === 'string' && id.startsWith('PRD-00')) {
+    altId = String(parseInt(id.replace('PRD-00', '')));
+  } else if (/^\d+$/.test(id)) {
+    altId = `PRD-00${id}`;
+  }
+
+  db.run(`DELETE FROM product_gallery WHERE product_id = ? OR product_id = ?`, [id, altId], (galleryErr) => {
     if (galleryErr) {
       console.error('Error deleting product gallery:', galleryErr);
     }
-    db.run(`DELETE FROM products WHERE id = ?`, [id], function (err) {
+    db.run(`DELETE FROM products WHERE id = ? OR id = ? OR sku = ?`, [id, altId, id], function (err) {
       if (err) {
         console.error('Error deleting product:', err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
@@ -473,13 +480,14 @@ export const deleteProduct = (req: Request, res: Response) => {
       cacheService.delPattern('products:*').catch(console.error);
       cacheService.del('products:all').catch(console.error);
       cacheService.del(`products:id:${id}`).catch(console.error);
+      cacheService.del(`products:id:${altId}`).catch(console.error);
 
       const actor = (req as any).user;
       logSecurityAction(
         actor?.id || null,
         actor?.email || null,
         'PRODUCT_DELETE',
-        `Product deleted: ID: ${id}`,
+        `Product deleted: ID: ${id} / ${altId}`,
         req
       );
       res.json({ status: 'success', message: 'Product deleted' });
