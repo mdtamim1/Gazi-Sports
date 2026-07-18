@@ -584,7 +584,11 @@ export function resetStorefrontConfig(): void {
 import { useState as useStateReact, useEffect as useEffectReact } from 'react';
 
 /** React hook to read and reactively update storefront config */
-export function useStorefrontConfig(): [StorefrontConfig, (config: StorefrontConfig) => void, boolean] {
+export function useStorefrontConfig(): [
+  StorefrontConfig, 
+  (config: StorefrontConfig | ((prev: StorefrontConfig) => StorefrontConfig)) => void, 
+  boolean
+] {
   const [config, setConfigState] = useStateReact<StorefrontConfig>(() => loadConfig());
   const [configReady, setConfigReady] = useStateReact<boolean>(() => _synced);
 
@@ -603,15 +607,16 @@ export function useStorefrontConfig(): [StorefrontConfig, (config: StorefrontCon
     };
   }, []);
 
-  const setConfig = (newConfig: StorefrontConfig) => {
-    saveConfig(newConfig);
+  const setConfig = (newConfig: StorefrontConfig | ((prev: StorefrontConfig) => StorefrontConfig)) => {
+    const nextConfig = typeof newConfig === 'function' ? newConfig(loadConfig()) : newConfig;
+    saveConfig(nextConfig);
     fetch(`${API_BASE}/settings/storefront`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         ...getAuthHeaders(),
       },
-      body: JSON.stringify(newConfig),
+      body: JSON.stringify(nextConfig),
     }).catch(e => console.warn("Failed to save config to backend:", e));
   };
 
