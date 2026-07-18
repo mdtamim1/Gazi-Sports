@@ -40,6 +40,7 @@ dotenv.config();
 
 import { rateLimit } from 'express-rate-limit';
 
+// @ts-ignore
 import compression from 'compression';
 
 const app = express();
