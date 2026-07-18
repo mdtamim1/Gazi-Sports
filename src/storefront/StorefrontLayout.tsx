@@ -13,21 +13,21 @@ interface CartItem {
   quantity: number;
 }
 
-const SportsBoltIcon = () => (
+const AdidasStyleIcon = () => (
   <svg
     viewBox="0 0 24 24"
-    width="20"
-    height="20"
+    width="22"
+    height="18"
     fill="currentColor"
     style={{
-      color: '#facc15',
+      color: '#ef4444',
       marginLeft: '5px',
       display: 'inline-block',
       verticalAlign: 'middle',
       flexShrink: 0
     }}
   >
-    <path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/>
+    <path d="M2 19h3.5l4-7H6l-4 7zm6 0h3.5l5.5-10H13.5L8 19zm6 0h3.5L23 5h-3.5L14 19z" />
   </svg>
 );
 
@@ -37,8 +37,8 @@ const CustomLogo = () => (
       <span className="logo-word-1">GAZI</span>
       <span className="logo-word-2">
         SPORTS
-        <span className="logo-num-24"> 24</span>
-        <SportsBoltIcon />
+        <span className="logo-num-24" style={{ color: '#ef4444' }}> 24</span>
+        <AdidasStyleIcon />
       </span>
     </div>
     <div className="logo-sub">PLAY HARD SHOP SMART</div>
@@ -52,6 +52,16 @@ export default function StorefrontLayout() {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const { customer } = useCustomerAuth();
 
+  // Helper function to map custom pages to clean slug-based URLs
+  const getPageSlugUrl = (link: any) => {
+    const labelLower = (link.label || '').toLowerCase().trim();
+    if (labelLower === 'privacy policy') return '/privacy-policy';
+    if (labelLower === 'terms of service' || labelLower === 'terms and service') return '/terms-of-service';
+    if (labelLower === 'about us' || labelLower === 'about') return '/about-us';
+    const slug = labelLower.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    return `/page/${slug || link.id}`;
+  };
+
   // Filter enabled announcements
   const announcements = config.announcements.filter(a => a.enabled);
   // Filter enabled nav links and dynamically normalize collection links
@@ -59,7 +69,7 @@ export default function StorefrontLayout() {
     .filter(n => n.enabled && !['offers', 'offer', 'deals', 'deal'].includes((n.label || '').toLowerCase()))
     .map(link => {
       if (link.customPageContent) {
-        return { ...link, url: `/page/${link.id}` };
+        return { ...link, url: getPageSlugUrl(link) };
       }
       let url = link.url;
       if (url.startsWith('/store/')) {
@@ -90,15 +100,7 @@ export default function StorefrontLayout() {
       ...col,
       links: col.links.filter(l => l.enabled).map(link => {
       if (link.customPageContent) {
-        const labelLower = (link.label || '').toLowerCase();
-        if (labelLower === 'privacy policy') {
-          return { ...link, url: '/privacy-policy' };
-        } else if (labelLower === 'terms of service' || labelLower === 'terms and service') {
-          return { ...link, url: '/terms-of-service' };
-        } else if (labelLower === 'about us' || labelLower === 'about') {
-          return { ...link, url: '/about-us' };
-        }
-        return { ...link, url: `/page/${link.id}` };
+        return { ...link, url: getPageSlugUrl(link) };
       }
       let url = link.url;
       if (url.startsWith('/store/')) {
@@ -237,7 +239,7 @@ export default function StorefrontLayout() {
       const st = container.scrollTop;
       
       // Update scrolled state for transparent header
-      if (isHome && hasBanners) {
+      if (isHome) {
         setScrolled(st > 50);
       } else {
         setScrolled(true);
@@ -255,7 +257,7 @@ export default function StorefrontLayout() {
       lastScrollTopRef.current = st;
     };
 
-    if (!isHome || !hasBanners) {
+    if (!isHome) {
       setScrolled(true);
     } else {
       setScrolled(container.scrollTop > 50);
@@ -263,7 +265,7 @@ export default function StorefrontLayout() {
 
     container.addEventListener('scroll', handleScroll, { passive: true });
     return () => container.removeEventListener('scroll', handleScroll);
-  }, [isHome, hasBanners]);
+  }, [isHome]);
 
   // Scroll restoration and reset bottom nav on route changes
   useEffect(() => {
@@ -434,7 +436,7 @@ export default function StorefrontLayout() {
 
   return (
     <div className="storefront">
-      <div className={`store-sticky-header-container ${isHome && !scrolled && hasBanners ? 'header-transparent' : ''}`}>
+      <div className={`store-sticky-header-container ${isHome && !scrolled ? 'header-transparent' : ''}`}>
         {/* ---- Header ---- */}
         <header className="store-header">
           {!mobileSearchOpen ? (

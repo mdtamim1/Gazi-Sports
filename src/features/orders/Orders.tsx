@@ -944,7 +944,6 @@ export default function Orders() {
               )}
             </div>
           )}
-          <button className="btn btn-secondary"><FileText size={16} /> Bulk Process</button>
           <button className="btn btn-primary" onClick={openCreateModal}><Plus size={16} /> Create Order</button>
         </div>
       </div>

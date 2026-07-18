@@ -9,6 +9,6 @@ router.get('/facebook-feed', getFacebookFeed);
 router.get('/:id', getProductById);
 router.post('/', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff', 'Moderator']), createProduct);
 router.put('/:id', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff', 'Moderator']), updateProduct);
-router.delete('/:id', authenticateToken, requireRole(['Super Admin', 'Admin']), deleteProduct);
+router.delete('/:id', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff', 'Moderator']), deleteProduct);
 
 export default router;

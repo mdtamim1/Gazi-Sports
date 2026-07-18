@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
 import db from '../config/db';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const getSecurityLogs = (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
@@ -64,4 +70,21 @@ export const getSecurityLogs = (req: Request, res: Response) => {
       });
     });
   });
+};
+
+// Generate and stream an on-demand database backup file (Super Admin Only)
+export const downloadDatabaseBackup = (req: Request, res: Response) => {
+  try {
+    const dbPath = process.env.DATABASE_PATH || path.resolve(__dirname, '../../database/database.sqlite');
+    if (!fs.existsSync(dbPath)) {
+      return res.status(404).json({ status: 'error', message: 'Database backup file not found' });
+    }
+    const backupName = `gazisports24-backup-${new Date().toISOString().split('T')[0]}.sqlite`;
+    res.setHeader('Content-Disposition', `attachment; filename="${backupName}"`);
+    res.setHeader('Content-Type', 'application/x-sqlite3');
+    fs.createReadStream(dbPath).pipe(res);
+  } catch (err) {
+    console.error('Error generating database backup:', err);
+    res.status(500).json({ status: 'error', message: 'Failed to generate database backup' });
+  }
 };

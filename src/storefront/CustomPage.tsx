@@ -3,6 +3,14 @@ import { ChevronRight, ArrowLeft } from 'lucide-react';
 import { useStorefrontConfig } from '../store/storefrontConfig';
 import { replaceContactInfo, formatPageContent } from '../utils/storefrontUtils';
 
+const slugify = (text: string) => {
+  return (text || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
+
 export default function CustomPage() {
   const { id } = useParams<{ id: string }>();
   const [config] = useStorefrontConfig();
@@ -12,7 +20,19 @@ export default function CustomPage() {
     ...config.navLinks,
     ...config.footerColumns.flatMap(col => col.links),
   ];
-  const activeLink = allLinks.find(link => link.id === Number(id));
+  
+  const paramId = (id || '').toLowerCase().trim();
+
+  const activeLink = allLinks.find(link => {
+    if (!link) return false;
+    const linkSlug = slugify(link.label || '');
+    return (
+      String(link.id) === paramId ||
+      linkSlug === paramId ||
+      (link.url && link.url.toLowerCase().endsWith(`/${paramId}`)) ||
+      (link.url && link.url.toLowerCase() === `/page/${paramId}`)
+    );
+  });
 
   if (!activeLink || !activeLink.customPageContent) {
     return (

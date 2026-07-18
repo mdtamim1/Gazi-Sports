@@ -40,8 +40,14 @@ dotenv.config();
 
 import { rateLimit } from 'express-rate-limit';
 
+import compression from 'compression';
+
 const app = express();
 app.set('trust proxy', 1);
+
+// Enable GZIP compression for all HTTP responses (reduces payload by ~70%)
+app.use(compression());
+
 const server = createServer(app);
 const PORT = process.env.PORT || 5000;
 
@@ -223,12 +229,23 @@ app.use('/api/v1/customers', customerRoutes);
 app.use('/api/v1/vendors', (_req, res) => res.json({ status: 'success', data: [] }));
 
 
-// Serve static assets from Vite build folder
+// Serve static assets from Vite build folder with HTTP maxAge caching for hashed JS/CSS files
 const distPath = path.resolve(__dirname, '../dist');
-app.use(express.static(distPath));
+app.use(express.static(distPath, {
+  maxAge: '1y',
+  immutable: true,
+  setHeaders: (res, filepath) => {
+    if (filepath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }
+}));
 
-// Serve static uploaded files (product images, etc.) from uploads folder
-app.use('/uploads', express.static(path.resolve(__dirname, '../../uploads')));
+// Serve static uploaded files (product images, etc.) from uploads folder with 30-day caching
+app.use('/uploads', express.static(path.resolve(__dirname, '../../uploads'), {
+  maxAge: '30d',
+  etag: true
+}));
 
 // For all other requests that are NOT API requests, serve the index.html from dist
 app.get(/.*/, (req, res, next) => {

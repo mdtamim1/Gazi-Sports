@@ -1316,7 +1316,8 @@ input, textarea, select {
   margin-bottom: var(--space-2);
 }
 
-.form-input {
+.form-input,
+.form-control {
   width: 100%;
   height: 42px;
   background: var(--bg-input);
@@ -1328,12 +1329,14 @@ input, textarea, select {
   transition: all var(--transition-fast);
 }
 
-.form-input:focus {
+.form-input:focus,
+.form-control:focus {
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px var(--accent-primary-glow);
 }
 
-.form-input::placeholder {
+.form-input::placeholder,
+.form-control::placeholder {
   color: var(--text-muted);
 }
 
@@ -1365,13 +1368,45 @@ input, textarea, select {
   font-size: var(--text-sm);
   color: var(--text-primary);
   cursor: pointer;
-  appearance: none;
   transition: all var(--transition-fast);
 }
 
 .form-select:focus {
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px var(--accent-primary-glow);
+}
+
+/* ---- Fix Invisible Dropdown Option Text across all Browsers ---- */
+select option,
+.form-control option,
+.form-select option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  padding: 10px 14px;
+}
+
+select option:hover,
+select option:focus,
+select option:active,
+select option:checked,
+.form-control option:checked,
+.form-select option:checked {
+  background-color: #1e293b !important;
+  color: #818cf8 !important;
+}
+
+html.light-theme select option,
+html.light-theme .form-control option,
+html.light-theme .form-select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html.light-theme select option:checked,
+html.light-theme .form-control option:checked,
+html.light-theme .form-select option:checked {
+  background-color: #f1f5f9 !important;
+  color: #6366f1 !important;
 }
 
 .form-checkbox {

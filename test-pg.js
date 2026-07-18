@@ -13,15 +13,11 @@ const client = new pg.Client({
 
 client.connect()
   .then(() => {
-    return client.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public'");
+    return client.query("SELECT id, name, slug, sku, published FROM products");
   })
   .then((res) => {
-    console.log('Tables found in database:');
-    if (res.rows.length === 0) {
-      console.log('None (Clean Database)');
-    } else {
-      res.rows.forEach(r => console.log('- ' + r.tablename));
-    }
+    console.log('Products found in DB:');
+    res.rows.forEach(p => console.log(`Product: ID=${p.id}, Name="${p.name}", Slug="${p.slug}", Published=${p.published}`));
     client.end();
     process.exit(0);
   })

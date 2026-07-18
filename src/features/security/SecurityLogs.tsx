@@ -167,6 +167,7 @@ export default function SecurityLogs() {
                 className="form-control"
                 value={actionType}
                 onChange={(e) => setActionType(e.target.value)}
+                style={{ backgroundColor: 'var(--bg-input, #0f172a)', color: 'var(--text-primary, #f8fafc)' }}
               >
                 <option value="">All Actions</option>
                 <option value="LOGIN_SUCCESS">Login Success</option>

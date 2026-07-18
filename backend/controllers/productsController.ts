@@ -243,82 +243,91 @@ export const getProductById = async (req: Request, res: Response) => {
 };
 
 export const createProduct = async (req: Request, res: Response) => {
-  const { name, slug, sku, brand, category, price, original_price, image, description, stock, published, features, specs, gallery, videoUrl, photoContent, sizes } = req.body;
-  const id = 'PRD-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-  const slugVal = slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  try {
+    const { name, slug, sku, brand, category, price, original_price, image, description, stock, published, features, specs, gallery, videoUrl, photoContent, sizes } = req.body;
+    const id = 'PRD-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    const slugVal = (slug && String(slug).trim()) || (name ? String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : '') || ('prd-' + Date.now().toString(36));
+    const skuVal = (sku && String(sku).trim()) || ('SKU-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 5).toUpperCase());
+    const categoryVal = (category && String(category).trim()) || 'Fitness Item';
+    const rawImage = image || 'https://picsum.photos/seed/' + id + '/600/600';
 
-  // Process main image — handles base64, external URL, or already local
-  const finalImage = await processImageUrl(image, slugVal);
+    // Process main image — handles base64, external URL, or already local
+    const finalImage = await processImageUrl(rawImage, slugVal);
 
-  // Process gallery images in parallel
-  let processedGallery: string[] = [];
-  if (gallery && Array.isArray(gallery)) {
-    const validImages = (gallery as string[]).filter((img) => img && img.trim());
-    processedGallery = await Promise.all(
-      validImages.map((img, idx) => processImageUrl(img, slugVal, `gallery-${idx + 1}`))
-    );
-  }
-
-  db.run('BEGIN TRANSACTION', (txErr) => {
-    if (txErr) {
-      console.error('Failed to start transaction:', txErr);
-      return res.status(500).json({ status: 'error', message: 'Database error' });
+    // Process gallery images in parallel
+    let processedGallery: string[] = [];
+    if (gallery && Array.isArray(gallery)) {
+      const validImages = (gallery as string[]).filter((img) => img && img.trim());
+      processedGallery = await Promise.all(
+        validImages.map((img, idx) => processImageUrl(img, slugVal, `gallery-${idx + 1}`))
+      );
     }
 
-    db.run(
-      `INSERT INTO products (id, name, slug, sku, brand, category, price, original_price, image, description, stock, published, features, specs, video_url, photo_content, sizes)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id, name, slugVal, sku, brand, category, price, original_price, finalImage, description, stock || 0,
-        published ? 1 : 0, JSON.stringify(features || []), JSON.stringify(specs || []),
-        videoUrl || null, photoContent || null, JSON.stringify(sizes || [])
-      ],
-      function (err) {
-        if (err) {
-          console.error('Error inserting product:', err);
-          db.run('ROLLBACK', (rbErr) => { if (rbErr) console.error('Error rolling back transaction:', rbErr); });
-          return res.status(500).json({ status: 'error', message: err.message });
-        }
-
-        const commitTransaction = () => {
-          db.run('COMMIT', (commitErr) => {
-            if (commitErr) {
-              console.error('Error committing transaction:', commitErr);
-              db.run('ROLLBACK', (rbErr) => { if (rbErr) console.error('Error rolling back transaction:', rbErr); });
-              return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
-            }
-            cacheService.delPattern('products:*').catch(console.error);
-            const actor = (req as any).user;
-            logSecurityAction(actor?.id || null, actor?.email || null, 'PRODUCT_CREATE',
-              `Product created: ${name} (SKU: ${sku}, ID: ${id}, Price: ৳${price})`, req);
-            res.json({ status: 'success', message: 'Product created', data: { id } });
-            generateSitemap().catch(console.error);
-          });
-        };
-
-        if (processedGallery.length === 0) return commitTransaction();
-
-        const stmt = db.prepare(`INSERT INTO product_gallery (product_id, image_url) VALUES (?, ?)`);
-        let hasError = false;
-        let pending = processedGallery.length;
-        processedGallery.forEach((finalGalleryImage) => {
-          stmt.run([id, finalGalleryImage], (runErr: any) => {
-            if (runErr) { console.error('Error inserting gallery image:', runErr); hasError = true; }
-            pending--;
-            if (pending === 0) {
-              stmt.finalize((finalizeErr: any) => {
-                if (hasError || finalizeErr) {
-                  db.run('ROLLBACK', (rbErr) => { if (rbErr) console.error(rbErr); });
-                  return res.status(500).json({ status: 'error', message: 'Failed to insert gallery images' });
-                }
-                commitTransaction();
-              });
-            }
-          });
-        });
+    db.run('BEGIN TRANSACTION', (txErr) => {
+      if (txErr) {
+        console.error('Failed to start transaction:', txErr);
+        return res.status(500).json({ status: 'error', message: 'Database error' });
       }
-    );
-  });
+
+      db.run(
+        `INSERT INTO products (id, name, slug, sku, brand, category, price, original_price, image, description, stock, published, features, specs, video_url, photo_content, sizes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id, name || 'New Product', slugVal, skuVal, brand || '', categoryVal, Number(price) || 0, original_price ? Number(original_price) : null, finalImage, description || '', Number(stock) || 0,
+          published ? 1 : 0, JSON.stringify(features || []), JSON.stringify(specs || []),
+          videoUrl || null, photoContent || null, JSON.stringify(sizes || [])
+        ],
+        function (err) {
+          if (err) {
+            console.error('Error inserting product:', err);
+            db.run('ROLLBACK', (rbErr) => { if (rbErr) console.error('Error rolling back transaction:', rbErr); });
+            return res.status(500).json({ status: 'error', message: err.message });
+          }
+
+          const commitTransaction = () => {
+            db.run('COMMIT', (commitErr) => {
+              if (commitErr) {
+                console.error('Error committing transaction:', commitErr);
+                db.run('ROLLBACK', (rbErr) => { if (rbErr) console.error('Error rolling back transaction:', rbErr); });
+                return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
+              }
+              cacheService.delPattern('products:*').catch(console.error);
+              cacheService.del('products:all').catch(console.error);
+              const actor = (req as any).user;
+              logSecurityAction(actor?.id || null, actor?.email || null, 'PRODUCT_CREATE',
+                `Product created: ${name} (SKU: ${skuVal}, ID: ${id}, Price: ৳${price})`, req);
+              res.json({ status: 'success', message: 'Product created', data: { id } });
+              generateSitemap().catch(console.error);
+            });
+          };
+
+          if (processedGallery.length === 0) return commitTransaction();
+
+          const stmt = db.prepare(`INSERT INTO product_gallery (product_id, image_url) VALUES (?, ?)`);
+          let hasError = false;
+          let pending = processedGallery.length;
+          processedGallery.forEach((finalGalleryImage) => {
+            stmt.run([id, finalGalleryImage], (runErr: any) => {
+              if (runErr) { console.error('Error inserting gallery image:', runErr); hasError = true; }
+              pending--;
+              if (pending === 0) {
+                stmt.finalize((finalizeErr: any) => {
+                  if (hasError || finalizeErr) {
+                    db.run('ROLLBACK', (rbErr) => { if (rbErr) console.error(rbErr); });
+                    return res.status(500).json({ status: 'error', message: 'Failed to insert gallery images' });
+                  }
+                  commitTransaction();
+                });
+              }
+            });
+          });
+        }
+      );
+    });
+  } catch (err: any) {
+    console.error('Unexpected error in createProduct:', err);
+    res.status(500).json({ status: 'error', message: err.message || 'Server error' });
+  }
 };
 
 export const updateProduct = async (req: Request, res: Response) => {
@@ -395,6 +404,8 @@ export const updateProduct = async (req: Request, res: Response) => {
                 return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
               }
               cacheService.delPattern('products:*').catch(console.error);
+              cacheService.del('products:all').catch(console.error);
+              cacheService.del(`products:id:${id}`).catch(console.error);
               const actor = (req as any).user;
               logSecurityAction(
                 actor?.id || null,
@@ -449,23 +460,31 @@ export const updateProduct = async (req: Request, res: Response) => {
 
 export const deleteProduct = (req: Request, res: Response) => {
   const { id } = req.params;
-  db.run(`DELETE FROM products WHERE id = ?`, [id], function (err) {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ status: 'error', message: 'Database error' });
+  db.run(`DELETE FROM product_gallery WHERE product_id = ?`, [id], (galleryErr) => {
+    if (galleryErr) {
+      console.error('Error deleting product gallery:', galleryErr);
     }
-    // Invalidate cache
-    cacheService.delPattern('products:*').catch(console.error);
-    const actor = (req as any).user;
-    logSecurityAction(
-      actor?.id || null,
-      actor?.email || null,
-      'PRODUCT_DELETE',
-      `Product deleted: ID: ${id}`,
-      req
-    );
-    res.json({ status: 'success', message: 'Product deleted' });
-    generateSitemap().catch(console.error);
+    db.run(`DELETE FROM products WHERE id = ?`, [id], function (err) {
+      if (err) {
+        console.error('Error deleting product:', err);
+        return res.status(500).json({ status: 'error', message: 'Database error' });
+      }
+      // Invalidate cache thoroughly
+      cacheService.delPattern('products:*').catch(console.error);
+      cacheService.del('products:all').catch(console.error);
+      cacheService.del(`products:id:${id}`).catch(console.error);
+
+      const actor = (req as any).user;
+      logSecurityAction(
+        actor?.id || null,
+        actor?.email || null,
+        'PRODUCT_DELETE',
+        `Product deleted: ID: ${id}`,
+        req
+      );
+      res.json({ status: 'success', message: 'Product deleted' });
+      generateSitemap().catch(console.error);
+    });
   });
 };
 

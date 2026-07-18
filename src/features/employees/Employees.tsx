@@ -14,6 +14,9 @@ import {
   toggleEmployeeStatusInBackend 
 } from '../../services/api';
 
+import { useAuth } from '../../context/AuthContext';
+import { Link as RouterLink } from 'react-router-dom';
+
 const roleColors: Record<string, string> = {
   'Super Admin': 'badge-purple',
   'Admin': 'badge-primary',
@@ -40,12 +43,30 @@ const availableModules = [
 
 
 export default function Employees() {
+  const { user } = useAuth();
+  const hasAccess = user?.role === 'Super Admin' || user?.role === 'Admin' || user?.permissions?.includes('employees');
+
   const [activeTab, setActiveTab] = useState('directory');
   const [employees, setEmployees] = useState<any[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
   const [invitations, setInvitations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
+
+  if (!hasAccess) {
+    return (
+      <div style={{ padding: '64px 24px', textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔒</div>
+        <h2 style={{ color: 'var(--text-primary)', marginBottom: '8px', fontSize: '1.5rem', fontWeight: 700 }}>Access Restricted</h2>
+        <p style={{ color: 'var(--text-tertiary)', marginBottom: '24px', fontSize: '0.9rem', lineHeight: 1.5 }}>
+          আপনার অ্যাকাউন্ট থেকে এমপ্লয়ি ম্যানেজমেন্ট সেকশনে অ্যাক্সেস করার অনুমতি নেই।
+        </p>
+        <RouterLink to="/admin" className="btn btn-primary">
+          Back to Dashboard
+        </RouterLink>
+      </div>
+    );
+  }
 
   // Modals state
   const [showRoleModal, setShowRoleModal] = useState(false);

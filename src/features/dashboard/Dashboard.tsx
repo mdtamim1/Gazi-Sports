@@ -273,10 +273,10 @@ export default function Dashboard() {
             <Activity size={16} />
             Export Report
           </button>
-          <Link to="/store" className="btn btn-primary" style={{ textDecoration: 'none' }}>
+          <a href="/" target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             <Globe size={16} />
             View Store
-          </Link>
+          </a>
         </div>
       </div>
 

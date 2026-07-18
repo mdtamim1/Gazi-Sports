@@ -35,13 +35,13 @@ export default function Products() {
   }, [config.categories]);
 
   // Reorder single stock item (+20 units)
-  const handleReorder = async (prodId: number) => {
-    const found = products.find(p => p.id === prodId);
+  const handleReorder = async (prodId: string | number) => {
+    const found = products.find(p => String(p.id) === String(prodId));
     if (!found) return;
     const newStock = (found.stock ?? 0) + 20;
 
     const list = products.map(p => {
-      if (p.id === prodId) {
+      if (String(p.id) === String(prodId)) {
         return { ...p, stock: newStock, inStock: true };
       }
       return p;
@@ -58,15 +58,19 @@ export default function Products() {
 
   // Delete Product
   const handleDeleteProduct = async (prod: ProductConfig) => {
-    if (confirm(`Are you sure you want to delete ${prod.name}?`)) {
-      // Optimistically remove from local state immediately
-      const list = products.filter(p => p.id !== prod.id);
-      setConfig(prev => ({ ...prev, products: list }));
+    if (confirm(`Are you sure you want to delete "${prod.name}"?`)) {
+      const result = await deleteProductFromBackend(prod.id);
+      if (result.success) {
+        // Optimistically remove from local state immediately
+        const list = products.filter(p => String(p.id) !== String(prod.id));
+        setConfig(prev => ({ ...prev, products: list }));
 
-      await deleteProductFromBackend(prod.id);
-      const fresh = await fetchProductsFromBackend();
-      if (fresh) {
-        setConfig(prev => ({ ...prev, products: fresh }));
+        const fresh = await fetchProductsFromBackend();
+        if (fresh) {
+          setConfig(prev => ({ ...prev, products: fresh }));
+        }
+      } else {
+        alert(`Failed to delete product: ${result.message || 'Unknown error'}`);
       }
     }
   };
@@ -75,12 +79,13 @@ export default function Products() {
   // Simulated Bulk Upload
   const handleBulkUpload = (e: React.FormEvent) => {
     e.preventDefault();
-    const startId = Math.max(0, ...products.map(p => p.id));
+    const numericIds = products.map(p => Number(p.id)).filter(n => !isNaN(n));
+    const startId = numericIds.length > 0 ? Math.max(0, ...numericIds) : 0;
     const bulkItems: ProductConfig[] = [
       {
         id: startId + 1,
         name: 'Bulk Product A',
-        sku: 'BLK-A',
+        sku: 'BLK-A-' + Date.now(),
         category: categoryNames[0] || 'Electronics',
         brand: 'BulkBrand',
         price: 120,
@@ -104,7 +109,7 @@ export default function Products() {
       {
         id: startId + 2,
         name: 'Bulk Product B',
-        sku: 'BLK-B',
+        sku: 'BLK-B-' + Date.now(),
         category: categoryNames[0] || 'Electronics',
         brand: 'BulkBrand',
         price: 85,
@@ -230,7 +235,8 @@ export default function Products() {
 
   // Open Add Editor
   const openAddEditor = () => {
-    const nextId = Math.max(0, ...products.map(p => p.id)) + 1;
+    const numericIds = products.map(p => Number(p.id)).filter(n => !isNaN(n));
+    const nextId = (numericIds.length > 0 ? Math.max(0, ...numericIds) : 0) + 1;
     setSizesInput('');
     setColorsInput('');
     setWeightsInput('');
@@ -240,14 +246,14 @@ export default function Products() {
     setTempProduct({
       id: nextId,
       name: '',
-      sku: '',
-      category: categoryNames[0] || 'Electronics',
+      sku: 'SKU-' + Date.now().toString(36).toUpperCase(),
+      category: categoryNames[0] || 'Fitness Item',
       brand: '',
       price: 0,
       originalPrice: null,
       rating: 4.5,
       reviews: 0,
-      image: 'https://picsum.photos/seed/new-prod/600/600',
+      image: 'https://picsum.photos/seed/' + Date.now() + '/600/600',
       gallery: [],
       badge: null,
       inStock: true,
@@ -279,11 +285,9 @@ export default function Products() {
       return;
     }
 
-    if (!tempProduct.sku || !tempProduct.sku.trim()) {
-      alert("Product SKU is required! Please go to the 'Basic Info' tab and enter a SKU.");
-      setEditorTab('basic');
-      return;
-    }
+    const skuVal = tempProduct.sku && tempProduct.sku.trim()
+      ? tempProduct.sku.trim()
+      : 'SKU-' + Date.now().toString(36).toUpperCase();
 
     if (tempProduct.price === undefined || tempProduct.price === null || isNaN(tempProduct.price)) {
       alert("Product Price is required! Please go to the 'Basic Info' tab and enter a price.");
@@ -292,31 +296,42 @@ export default function Products() {
     }
 
     const slugVal = tempProduct.slug || tempProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const productWithSlug = { ...tempProduct, slug: slugVal };
-
-    let updatedList: ProductConfig[];
-    if (isAdding) {
-      updatedList = [...products, productWithSlug];
-    } else {
-      updatedList = products.map(p => p.id === productWithSlug.id ? productWithSlug : p);
-    }
-
-    setConfig({ ...config, products: updatedList });
-    setTempProduct(null);
+    const productWithSlug = { ...tempProduct, sku: skuVal, slug: slugVal };
 
     try {
       if (isAdding) {
-        await createProductInBackend(productWithSlug);
+        const res = await createProductInBackend(productWithSlug);
+        if (res.status === 'error') {
+          alert(`Failed to publish product: ${res.message || 'Unknown error'}`);
+          return;
+        }
+        if (res.data && res.data.id) {
+          productWithSlug.id = res.data.id;
+        }
       } else {
-        await updateProductInBackend(productWithSlug.id, productWithSlug);
+        const success = await updateProductInBackend(productWithSlug.id, productWithSlug);
+        if (!success) {
+          alert("Failed to update product in backend.");
+          return;
+        }
       }
 
       const fresh = await fetchProductsFromBackend();
       if (fresh) {
-        setConfig({ ...config, products: fresh });
+        setConfig(prev => ({ ...prev, products: fresh }));
+      } else {
+        let updatedList: ProductConfig[];
+        if (isAdding) {
+          updatedList = [...products, productWithSlug];
+        } else {
+          updatedList = products.map(p => String(p.id) === String(productWithSlug.id) ? productWithSlug : p);
+        }
+        setConfig(prev => ({ ...prev, products: updatedList }));
       }
-    } catch (err) {
+      setTempProduct(null);
+    } catch (err: any) {
       console.error("Backend synchronisation error:", err);
+      alert(`Error saving product: ${err.message || 'Network error'}`);
     }
   };
 

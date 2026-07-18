@@ -7,47 +7,37 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '../../context/AuthContext';
-import { fetchOrdersFromBackend } from '../../services/api';
 
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
 }
 
-
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const { user } = useAuth();
   const location = useLocation();
-  const [ordersCount, setOrdersCount] = useState(0);
+
+  // Calculate unread customer messages for Inbox
+  const [unreadChatsCount, setUnreadChatsCount] = useState(0);
 
   useEffect(() => {
-    const loadActualOrdersCount = async () => {
-      try {
-        const dbOrders = await fetchOrdersFromBackend();
-        if (dbOrders) {
-          setOrdersCount(dbOrders.length);
+    const calculateUnread = () => {
+      const storedChats = localStorage.getItem('storefront_chats');
+      if (storedChats) {
+        try {
+          const chats = JSON.parse(storedChats);
+          const unread = chats.filter((c: any) => c.sender === 'customer' && !c.read);
+          setUnreadChatsCount(unread.length);
+        } catch (e) {
+          setUnreadChatsCount(0);
         }
-      } catch (e) {
-        console.error('Failed to load actual orders count in sidebar:', e);
       }
     };
 
-    loadActualOrdersCount();
-
-    window.addEventListener('storage', loadActualOrdersCount);
-    return () => window.removeEventListener('storage', loadActualOrdersCount);
+    calculateUnread();
+    window.addEventListener('storage', calculateUnread);
+    return () => window.removeEventListener('storage', calculateUnread);
   }, [location.pathname]);
-
-  // Calculate unread customer messages
-  const storedChats = localStorage.getItem('storefront_chats');
-  let unreadChatsCount = 0;
-  if (storedChats) {
-    try {
-      const chats = JSON.parse(storedChats);
-      const unread = chats.filter((c: any) => c.sender === 'customer' && !c.read);
-      unreadChatsCount = unread.length;
-    } catch (e) {}
-  }
 
   const navSections = [
     {
@@ -59,7 +49,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
     {
       title: 'Management',
       items: [
-        { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/admin/orders', badge: ordersCount > 0 ? String(ordersCount) : '', badgeType: 'warning' },
+        { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/admin/orders', badge: '', badgeType: '' },
         { id: 'products', label: 'Products', icon: Package, path: '/admin/products', badge: '', badgeType: '' },
         { id: 'storefront', label: 'Storefront', icon: Store, path: '/admin/storefront-manager', badge: '', badgeType: '' },
         { id: 'blogs', label: 'Blog Posts', icon: BookOpen, path: '/admin/blogs', badge: '', badgeType: '' },
@@ -146,7 +136,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </nav>
 
       <div className="sidebar-footer">
-        <Link to="/admin/employees" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', width: '100%' }}>
+        <Link to={(user?.role === 'Super Admin' || user?.role === 'Admin' || user?.permissions?.includes('employees')) ? '/admin/employees' : '/admin'} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', width: '100%' }}>
           <div className="sidebar-user" style={{ width: '100%' }}>
             <div className="sidebar-user-avatar">
               {user?.avatar || (user?.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'SA')}

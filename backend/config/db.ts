@@ -958,9 +958,13 @@ function initializeDatabase() {
     createIndex('idx_products_category', 'CREATE INDEX IF NOT EXISTS idx_products_category ON products (category)');
     createIndex('idx_products_published', 'CREATE INDEX IF NOT EXISTS idx_products_published ON products (published)');
     createIndex('idx_products_slug', 'CREATE INDEX IF NOT EXISTS idx_products_slug ON products (slug)');
+    createIndex('idx_products_in_stock', 'CREATE INDEX IF NOT EXISTS idx_products_in_stock ON products (in_stock)');
     createIndex('idx_orders_email', 'CREATE INDEX IF NOT EXISTS idx_orders_email ON orders (email)');
+    createIndex('idx_orders_status', 'CREATE INDEX IF NOT EXISTS idx_orders_status ON orders (status)');
     createIndex('idx_orders_created_at', 'CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders (created_at DESC)');
     createIndex('idx_customer_coupons_email', 'CREATE INDEX IF NOT EXISTS idx_customer_coupons_email ON customer_coupons (customer_email)');
+    createIndex('idx_coupons_code', 'CREATE INDEX IF NOT EXISTS idx_coupons_code ON coupons (code)');
+    createIndex('idx_coupons_status', 'CREATE INDEX IF NOT EXISTS idx_coupons_status ON coupons (status)');
     createIndex('idx_order_items_order_id', 'CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items (order_id)');
     createIndex('idx_support_messages_customer', 'CREATE INDEX IF NOT EXISTS idx_support_messages_customer ON support_messages (customer_id)');
     createIndex('idx_security_logs_created_at', 'CREATE INDEX IF NOT EXISTS idx_security_logs_created_at ON security_audit_logs (created_at DESC)');

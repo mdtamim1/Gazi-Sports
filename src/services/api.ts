@@ -289,7 +289,7 @@ export const fetchOrderHistory = async (orderId: string): Promise<any[]> => {
 };
 
 // Helper to map backend ID (like "PRD-001") to frontend ID (like 1)
-export const toFrontendId = (backendId: string): string | number => {
+export const toFrontendId = (backendId: string | number): string | number => {
   if (typeof backendId === 'string' && backendId.startsWith('PRD-00')) {
     const num = parseInt(backendId.replace('PRD-00', ''));
     if (!isNaN(num) && num >= 1 && num <= 8) {
@@ -301,11 +301,14 @@ export const toFrontendId = (backendId: string): string | number => {
 
 // Helper to map frontend ID (like 1) to backend ID (like "PRD-001")
 export const toBackendId = (frontendId: string | number): string => {
-  const num = Number(frontendId);
-  if (!isNaN(num) && num >= 1 && num <= 8) {
-    return `PRD-00${num}`;
+  if (typeof frontendId === 'number' && frontendId >= 1 && frontendId <= 8) {
+    return `PRD-00${frontendId}`;
   }
-  return String(frontendId);
+  const strId = String(frontendId);
+  if (/^[1-8]$/.test(strId)) {
+    return `PRD-00${strId}`;
+  }
+  return strId;
 };
 
 // Map backend product schema (snake_case) to frontend product schema (camelCase)
@@ -382,11 +385,11 @@ export const createProductInBackend = async (productData: any): Promise<any> => 
   try {
     const backendProduct = {
       name: productData.name,
-      slug: productData.slug || productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      slug: productData.slug || (productData.name ? productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : ''),
       sku: productData.sku,
       brand: productData.brand || '',
-      category: productData.category,
-      price: Number(productData.price),
+      category: productData.category || 'Fitness Item',
+      price: Number(productData.price || 0),
       original_price: productData.originalPrice ? Number(productData.originalPrice) : null,
       image: productData.image,
       description: productData.description || '',
@@ -408,11 +411,14 @@ export const createProductInBackend = async (productData: any): Promise<any> => 
       },
       body: JSON.stringify(backendProduct),
     });
-    if (!response.ok) return { status: 'error', message: 'HTTP error' };
-    return await response.json();
-  } catch (e) {
+    const result = await response.json().catch(() => null);
+    if (!response.ok) {
+      return { status: 'error', message: result?.message || `HTTP ${response.status}` };
+    }
+    return result || { status: 'success' };
+  } catch (e: any) {
     console.warn('Failed to save product to backend:', e);
-    return { status: 'error', message: 'Network error' };
+    return { status: 'error', message: e.message || 'Network error' };
   }
 };
 
@@ -458,7 +464,7 @@ export const updateProductInBackend = async (id: string | number, productData: a
 };
 
 // Delete a product from backend SQLite
-export const deleteProductFromBackend = async (id: string | number): Promise<boolean> => {
+export const deleteProductFromBackend = async (id: string | number): Promise<{ success: boolean; message?: string }> => {
   try {
     const backendId = toBackendId(id);
     const response = await fetch(`${API_BASE}/products/${backendId}`, {
@@ -467,12 +473,14 @@ export const deleteProductFromBackend = async (id: string | number): Promise<boo
         ...getAuthHeaders(),
       },
     });
-    if (!response.ok) return false;
-    const result = await response.json();
-    return result.status === 'success';
-  } catch (e) {
+    const result = await response.json().catch(() => null);
+    if (!response.ok) {
+      return { success: false, message: result?.message || `HTTP ${response.status}` };
+    }
+    return { success: result?.status === 'success', message: result?.message };
+  } catch (e: any) {
     console.warn(`Failed to delete product ${id} from backend:`, e);
-    return false;
+    return { success: false, message: e.message || 'Network error' };
   }
 };
 

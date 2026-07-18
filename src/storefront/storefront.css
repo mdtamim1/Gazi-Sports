@@ -115,6 +115,96 @@
   color: #ffffff;
 }
 
+/* ---- Header Layout & Center Logo Positioning ---- */
+.store-header-inner-grid {
+  max-width: var(--sf-max-width);
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.store-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+  flex: 1;
+}
+
+.store-header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  padding-left: 20px; /* Shift logo slightly to the right */
+}
+
+.store-header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  z-index: 2;
+  flex: 1;
+}
+
+.store-custom-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  text-decoration: none;
+}
+
+.logo-main {
+  display: flex;
+  align-items: center;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: var(--sf-text-primary);
+}
+
+.logo-word-1,
+.logo-word-2 {
+  color: #000000;
+  transition: color 0.3s ease;
+}
+
+.logo-num-24 {
+  color: #ef4444 !important;
+  font-weight: 900;
+  margin-left: 3px;
+}
+
+.logo-sub {
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #666666;
+  margin-top: 2px;
+  transition: color 0.3s ease;
+}
+
+/* Transparent Header Styling Overrides */
+.store-sticky-header-container.header-transparent .logo-word-1,
+.store-sticky-header-container.header-transparent .logo-word-2 {
+  color: #ffffff !important;
+}
+
+.store-sticky-header-container.header-transparent .logo-sub {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
 .store-header {
   position: sticky;
   top: 0;
