@@ -59,16 +59,18 @@ export default function Products() {
   // Delete Product
   const handleDeleteProduct = async (prod: ProductConfig) => {
     if (confirm(`Are you sure you want to delete ${prod.name}?`)) {
+      // Optimistically remove from local state immediately
       const list = products.filter(p => p.id !== prod.id);
-      setConfig({ ...config, products: list });
+      setConfig(prev => ({ ...prev, products: list }));
 
       await deleteProductFromBackend(prod.id);
       const fresh = await fetchProductsFromBackend();
       if (fresh) {
-        setConfig({ ...config, products: fresh });
+        setConfig(prev => ({ ...prev, products: fresh }));
       }
     }
   };
+
 
   // Simulated Bulk Upload
   const handleBulkUpload = (e: React.FormEvent) => {
