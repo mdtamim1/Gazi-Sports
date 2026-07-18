@@ -13,35 +13,18 @@ interface CartItem {
   quantity: number;
 }
 
-const AdidasStyleIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    width="22"
-    height="18"
-    fill="currentColor"
-    style={{
-      color: '#ef4444',
-      marginLeft: '5px',
-      display: 'inline-block',
-      verticalAlign: 'middle',
-      flexShrink: 0
-    }}
-  >
-    <path d="M2 19h3.5l4-7H6l-4 7zm6 0h3.5l5.5-10H13.5L8 19zm6 0h3.5L23 5h-3.5L14 19z" />
-  </svg>
-);
-
 const CustomLogo = () => (
   <div className="store-custom-logo">
-    <div className="logo-main">
-      <span className="logo-word-1">GAZI</span>
-      <span className="logo-word-2">
-        SPORTS
-        <span className="logo-num-24" style={{ color: '#ef4444' }}> 24</span>
-        <AdidasStyleIcon />
-      </span>
+    <div className="logo-line-1">GAZI</div>
+    <div className="logo-line-2">
+      <span className="logo-word-sports">SPORTS</span>
+      <span className="logo-num-24">24</span>
     </div>
-    <div className="logo-sub">PLAY HARD SHOP SMART</div>
+    <div className="logo-line-3">
+      <span className="logo-dash">—</span>
+      <span className="logo-sub-text">PLAY HARD SHOP SMART</span>
+      <span className="logo-dash">—</span>
+    </div>
   </div>
 );
 
