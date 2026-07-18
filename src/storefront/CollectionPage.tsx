@@ -232,11 +232,12 @@ export default function CollectionPage() {
     const isJersey = product.category && (product.category.toLowerCase() === 'jersey' || product.category.toLowerCase() === 'jerseys');
     const hasDiscount = product.originalPrice && product.originalPrice > product.price;
     const discountPercent = hasDiscount ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+    const productSlug = product.slug || product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
     if (isJersey) {
       const isSoldOut = !product.inStock || (product.stock !== undefined && product.stock <= 0);
       return (
-        <Link to={`/product/${product.slug || product.id}`} key={product.id} className="jersey-product-card" style={{ textDecoration: 'none' }}>
+        <Link to={`/product/${productSlug}`} key={product.id} className="jersey-product-card" style={{ textDecoration: 'none' }}>
           <div className="jersey-product-image-container">
             <OptimizedImage src={product.image} alt={product.name} className="jersey-product-image" width={400} height={533} />
             <button 
@@ -275,7 +276,7 @@ export default function CollectionPage() {
 
     const hasOptions = product.sizes && product.sizes.some((s: any) => s.enabled);
     return (
-      <Link to={`/product/${product.slug || product.id}`} key={product.id} className="trending-product-card" style={{ textDecoration: 'none' }}>
+      <Link to={`/product/${productSlug}`} key={product.id} className="trending-product-card" style={{ textDecoration: 'none' }}>
         <div className="trending-product-image-container">
           <OptimizedImage src={product.image} alt={product.name} className="trending-product-image" width={400} height={400} />
           <button 

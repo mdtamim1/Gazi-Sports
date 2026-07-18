@@ -109,7 +109,28 @@
   display: flex;
   gap: 16px;
   overflow-x: auto;
+  flex-wrap: nowrap;
+  max-width: 100%;
   padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pdp-thumbnails::-webkit-scrollbar {
+  height: 6px;
+}
+
+.pdp-thumbnails::-webkit-scrollbar-track {
+  background: var(--sf-bg-light);
+  border-radius: var(--sf-radius-sm);
+}
+
+.pdp-thumbnails::-webkit-scrollbar-thumb {
+  background: var(--sf-border);
+  border-radius: var(--sf-radius-sm);
+}
+
+.pdp-thumbnails::-webkit-scrollbar-thumb:hover {
+  background: var(--sf-border-hover);
 }
 
 .pdp-thumbnail {

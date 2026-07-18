@@ -291,11 +291,14 @@ export default function Products() {
       return;
     }
 
+    const slugVal = tempProduct.slug || tempProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const productWithSlug = { ...tempProduct, slug: slugVal };
+
     let updatedList: ProductConfig[];
     if (isAdding) {
-      updatedList = [...products, tempProduct];
+      updatedList = [...products, productWithSlug];
     } else {
-      updatedList = products.map(p => p.id === tempProduct.id ? tempProduct : p);
+      updatedList = products.map(p => p.id === productWithSlug.id ? productWithSlug : p);
     }
 
     setConfig({ ...config, products: updatedList });
@@ -303,9 +306,9 @@ export default function Products() {
 
     try {
       if (isAdding) {
-        await createProductInBackend(tempProduct);
+        await createProductInBackend(productWithSlug);
       } else {
-        await updateProductInBackend(tempProduct.id, tempProduct);
+        await updateProductInBackend(productWithSlug.id, productWithSlug);
       }
 
       const fresh = await fetchProductsFromBackend();

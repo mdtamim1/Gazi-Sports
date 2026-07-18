@@ -116,44 +116,63 @@ export const getProducts = async (req: Request, res: Response) => {
       return res.json({ status: 'success', data: cachedData });
     }
 
-    db.all(`SELECT * FROM products`, [], (err, rows) => {
+    db.all(`SELECT * FROM products`, [], (err, rows: any[]) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
       }
-      const parsedRows = (rows || []).map((row: any) => {
-        let features = [];
-        let specs = [];
-        let sizes = [];
-        try {
-          if (row.features) features = JSON.parse(row.features);
-        } catch (e) {
-          console.error(`Error parsing features for product ${row.id}:`, e);
-        }
-        try {
-          if (row.specs) specs = JSON.parse(row.specs);
-        } catch (e) {
-          console.error(`Error parsing specs for product ${row.id}:`, e);
-        }
-        try {
-          if (row.sizes) sizes = JSON.parse(row.sizes);
-        } catch (e) {
-          console.error(`Error parsing sizes for product ${row.id}:`, e);
-        }
-        return {
-          ...row,
-          features,
-          specs,
-          sizes,
-          published: row.published === 1,
-          in_stock: row.in_stock === 1,
-          video_url: row.video_url || null,
-          photo_content: row.photo_content || null
-        };
-      });
+      if (!rows || rows.length === 0) {
+        return res.json({ status: 'success', data: [] });
+      }
 
-      cacheService.set(cacheKey, parsedRows, 300).catch(console.error);
-      res.json({ status: 'success', data: parsedRows });
+      // Fetch all gallery images to match with products
+      db.all(`SELECT * FROM product_gallery`, [], (galleryErr, galleryRows: any[]) => {
+        const galleryMap: Record<number, string[]> = {};
+        if (!galleryErr && galleryRows) {
+          galleryRows.forEach(row => {
+            if (!galleryMap[row.product_id]) {
+              galleryMap[row.product_id] = [];
+            }
+            galleryMap[row.product_id].push(row.image_url);
+          });
+        }
+
+        const parsedRows = rows.map((row: any) => {
+          let features = [];
+          let specs = [];
+          let sizes = [];
+          try {
+            if (row.features) features = JSON.parse(row.features);
+          } catch (e) {
+            console.error(`Error parsing features for product ${row.id}:`, e);
+          }
+          try {
+            if (row.specs) specs = JSON.parse(row.specs);
+          } catch (e) {
+            console.error(`Error parsing specs for product ${row.id}:`, e);
+          }
+          try {
+            if (row.sizes) sizes = JSON.parse(row.sizes);
+          } catch (e) {
+            console.error(`Error parsing sizes for product ${row.id}:`, e);
+          }
+          const gallery = galleryMap[row.id] || [];
+          return {
+            ...row,
+            features,
+            specs,
+            sizes,
+            published: row.published === 1,
+            in_stock: row.in_stock === 1,
+            gallery: gallery.length > 0 ? gallery : [row.image],
+            video_url: row.video_url || null,
+            photo_content: row.photo_content || null
+          };
+        });
+
+        cacheService.set(cacheKey, parsedRows, 300).catch(console.error);
+        res.json({ status: 'success', data: parsedRows });
+      });
     });
   } catch (err) {
     console.error(err);
