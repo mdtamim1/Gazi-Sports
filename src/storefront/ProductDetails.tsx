@@ -76,22 +76,36 @@ export default function ProductDetails() {
 
   const getMissingOptionGroup = () => {
     if (!product) return null;
-    const SIZES    = ['S','M','L','XL','XXL','3XL'];
-    const COLORS   = ['Red','Blue','Black','White','Green','Yellow','Grey','Orange','Pink'];
-    const WEIGHTS  = ['5kg','10kg','15kg','20kg','25kg','30kg'];
-    const KGS      = ['1kg','2kg','3kg','4kg','5kg','6kg','7kg','8kg','9kg','10kg'];
-    const HEIGHTS  = ['4ft','5ft','6ft','7ft','100cm','120cm','150cm','180cm'];
-    const allPredefined = [...SIZES,...COLORS,...WEIGHTS,...KGS,...HEIGHTS];
+    const SIZES_KEYS = ['s', 'm', 'l', 'xl', 'xxl', '3xl', '4xl', '5xl', '6xl', 'free size'];
+    const COLORS_KEYS = ['red', 'blue', 'black', 'white', 'green', 'yellow', 'grey', 'orange', 'pink', 'purple', 'navy', 'maroon', 'brown', 'gold', 'silver', 'beige', 'cream', 'olive', 'রং', 'লাল', 'নীল', 'কালো', 'সাদা', 'সবুজ', 'হলুদ', 'ধূসর', 'কমলা', 'গোলাপী'];
 
     if (!product.sizes || !Array.isArray(product.sizes)) return null;
 
     const enabled = product.sizes.filter((s: any) => s.enabled);
-    const sizeOpts   = enabled.filter((s: any) => SIZES.includes(s.label));
-    const colorOpts  = enabled.filter((s: any) => COLORS.includes(s.label));
-    const weightOpts = enabled.filter((s: any) => WEIGHTS.includes(s.label));
-    const kgOpts     = enabled.filter((s: any) => KGS.includes(s.label));
-    const heightOpts = enabled.filter((s: any) => HEIGHTS.includes(s.label));
-    const customOpts = enabled.filter((s: any) => !allPredefined.includes(s.label));
+    const sizeOpts = enabled.filter((s: any) => {
+      const label = s.label.toLowerCase().trim();
+      return SIZES_KEYS.includes(label);
+    });
+    const colorOpts = enabled.filter((s: any) => {
+      const label = s.label.toLowerCase().trim();
+      return COLORS_KEYS.includes(label);
+    });
+    const weightOpts = enabled.filter((s: any) => {
+      const label = s.label.toLowerCase().trim();
+      return label.endsWith('kg') || label.endsWith('gm') || label.endsWith('g') || label.endsWith('lbs') || label.includes('kg') || label.includes('gm');
+    });
+    const heightOpts = enabled.filter((s: any) => {
+      const label = s.label.toLowerCase().trim();
+      return label.endsWith('ft') || label.endsWith('cm') || label.endsWith('inch') || label.endsWith('inches') || label.includes('ft') || label.includes('cm') || label.includes('inch');
+    });
+    const customOpts = enabled.filter((s: any) => {
+      const label = s.label.toLowerCase().trim();
+      const isPredefined = SIZES_KEYS.includes(label) || 
+                           COLORS_KEYS.includes(label) || 
+                           label.endsWith('kg') || label.endsWith('gm') || label.endsWith('g') || label.endsWith('lbs') || label.includes('kg') || label.includes('gm') ||
+                           label.endsWith('ft') || label.endsWith('cm') || label.endsWith('inch') || label.endsWith('inches') || label.includes('ft') || label.includes('cm') || label.includes('inch');
+      return !isPredefined;
+    });
 
     if (sizeOpts.length > 0 && !selectedSize) {
       return { name: 'size', label: 'সাইজ' };
@@ -101,9 +115,6 @@ export default function ProductDetails() {
     }
     if (weightOpts.length > 0 && !selectedWeight) {
       return { name: 'weight', label: 'ওজন' };
-    }
-    if (kgOpts.length > 0 && !selectedKg) {
-      return { name: 'kg', label: 'কেজি' };
     }
     if (heightOpts.length > 0 && !selectedHeight) {
       return { name: 'height', label: 'উচ্চতা' };
@@ -888,20 +899,34 @@ export default function ProductDetails() {
 
           {/* ====== Variant Selectors ====== */}
           {product.sizes && product.sizes.filter((s: any) => s.enabled).length > 0 && (() => {
-            const SIZES    = ['S','M','L','XL','XXL','3XL'];
-            const COLORS   = ['Red','Blue','Black','White','Green','Yellow','Grey','Orange','Pink'];
-            const WEIGHTS  = ['5kg','10kg','15kg','20kg','25kg','30kg'];
-            const KGS      = ['1kg','2kg','3kg','4kg','5kg','6kg','7kg','8kg','9kg','10kg'];
-            const HEIGHTS  = ['4ft','5ft','6ft','7ft','100cm','120cm','150cm','180cm'];
-            const allPredefined = [...SIZES,...COLORS,...WEIGHTS,...KGS,...HEIGHTS];
+            const SIZES_KEYS = ['s', 'm', 'l', 'xl', 'xxl', '3xl', '4xl', '5xl', '6xl', 'free size'];
+            const COLORS_KEYS = ['red', 'blue', 'black', 'white', 'green', 'yellow', 'grey', 'orange', 'pink', 'purple', 'navy', 'maroon', 'brown', 'gold', 'silver', 'beige', 'cream', 'olive', 'রং', 'লাল', 'নীল', 'কালো', 'সাদা', 'সবুজ', 'হলুদ', 'ধূসর', 'কমলা', 'গোলাপী'];
 
             const enabled = product.sizes.filter((s: any) => s.enabled);
-            const sizeOpts   = enabled.filter((s: any) => SIZES.includes(s.label));
-            const colorOpts  = enabled.filter((s: any) => COLORS.includes(s.label));
-            const weightOpts = enabled.filter((s: any) => WEIGHTS.includes(s.label));
-            const kgOpts     = enabled.filter((s: any) => KGS.includes(s.label));
-            const heightOpts = enabled.filter((s: any) => HEIGHTS.includes(s.label));
-            const customOpts = enabled.filter((s: any) => !allPredefined.includes(s.label));
+            const sizeOpts = enabled.filter((s: any) => {
+              const label = s.label.toLowerCase().trim();
+              return SIZES_KEYS.includes(label);
+            });
+            const colorOpts = enabled.filter((s: any) => {
+              const label = s.label.toLowerCase().trim();
+              return COLORS_KEYS.includes(label);
+            });
+            const weightOpts = enabled.filter((s: any) => {
+              const label = s.label.toLowerCase().trim();
+              return label.endsWith('kg') || label.endsWith('gm') || label.endsWith('g') || label.endsWith('lbs') || label.includes('kg') || label.includes('gm');
+            });
+            const heightOpts = enabled.filter((s: any) => {
+              const label = s.label.toLowerCase().trim();
+              return label.endsWith('ft') || label.endsWith('cm') || label.endsWith('inch') || label.endsWith('inches') || label.includes('ft') || label.includes('cm') || label.includes('inch');
+            });
+            const customOpts = enabled.filter((s: any) => {
+              const label = s.label.toLowerCase().trim();
+              const isPredefined = SIZES_KEYS.includes(label) || 
+                                   COLORS_KEYS.includes(label) || 
+                                   label.endsWith('kg') || label.endsWith('gm') || label.endsWith('g') || label.endsWith('lbs') || label.includes('kg') || label.includes('gm') ||
+                                   label.endsWith('ft') || label.endsWith('cm') || label.endsWith('inch') || label.endsWith('inches') || label.includes('ft') || label.includes('cm') || label.includes('inch');
+              return !isPredefined;
+            });
 
             const VariantGroup = ({
               label, emoji, items, selected, onSelect
@@ -929,14 +954,11 @@ export default function ProductDetails() {
               );
             };
 
-            const hasSizes = sizeOpts.length > 0;
-
             return (
               <div className="pdp-variants-container">
                 <VariantGroup label="সাইজ" emoji="📐" items={sizeOpts} selected={selectedSize} onSelect={setSelectedSize} />
                 <VariantGroup label="কালার" emoji="🎨" items={colorOpts} selected={selectedColor} onSelect={setSelectedColor} />
                 <VariantGroup label="ওজন" emoji="⚖️" items={weightOpts} selected={selectedWeight} onSelect={setSelectedWeight} />
-                <VariantGroup label="কেজি" emoji="📦" items={kgOpts} selected={selectedKg} onSelect={setSelectedKg} />
                 <VariantGroup label="উচ্চতা" emoji="📏" items={heightOpts} selected={selectedHeight} onSelect={setSelectedHeight} />
                 <VariantGroup label="কাস্টম" emoji="✨" items={customOpts} selected={selectedSize} onSelect={setSelectedSize} />
                 
@@ -945,7 +967,6 @@ export default function ProductDetails() {
                   if (sizeOpts.length > 0 && !selectedSize) missingGroups.push('সাইজ');
                   if (colorOpts.length > 0 && !selectedColor) missingGroups.push('কালার');
                   if (weightOpts.length > 0 && !selectedWeight) missingGroups.push('ওজন');
-                  if (kgOpts.length > 0 && !selectedKg) missingGroups.push('কেজি');
                   if (heightOpts.length > 0 && !selectedHeight) missingGroups.push('উচ্চতা');
                   if (customOpts.length > 0 && !selectedSize) missingGroups.push('কাস্টম অপশন');
 

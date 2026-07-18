@@ -35,7 +35,7 @@ const StarRating = ({ rating }: { rating: number }) => (
 
 export default function StorefrontHome() {
   const { addToCart, toggleWishlist, wishlist, searchQuery } = useOutletContext<any>();
-  const [config] = useStorefrontConfig();
+  const [config, , configReady] = useStorefrontConfig();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showCampaignsModal, setShowCampaignsModal] = useState(false);
@@ -317,7 +317,16 @@ export default function StorefrontHome() {
         description="Gazi Sports is your one-stop shop for gym accessories, sports items, and activewear. Explore premium quality gear at best prices in Bangladesh." 
       />
       {/* ---- Hero Full-Width Carousel ---- */}
-      {banners.length > 0 && (
+      {!configReady ? (
+        /* Skeleton placeholder — same height as banner, no flash */
+        <section className="hero-carousel-fullscreen" style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.15)', animation: 'pulse 1.5s ease-in-out infinite' }}>
+            <div style={{ width: '280px', height: '32px', background: 'rgba(255,255,255,0.08)', borderRadius: '8px', margin: '0 auto 16px' }} />
+            <div style={{ width: '180px', height: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', margin: '0 auto 24px' }} />
+            <div style={{ width: '120px', height: '44px', background: 'rgba(255,255,255,0.08)', borderRadius: '24px', margin: '0 auto' }} />
+          </div>
+        </section>
+      ) : banners.length > 0 ? (
         <section 
           className="hero-carousel-fullscreen"
           onTouchStart={onTouchStart}
@@ -380,7 +389,7 @@ export default function StorefrontHome() {
             ))}
           </div>
         </section>
-      )}
+      ) : null}
 
       {/* ---- Announcement Bar Removed ---- */}
 
@@ -395,7 +404,7 @@ export default function StorefrontHome() {
       <section className="store-section" id="categories" style={{ paddingTop: 0, paddingBottom: '24px' }}>
         <div className="store-section-header" style={{ justifyContent: 'center', textAlign: 'center', marginBottom: '24px' }}>
           <div>
-            <h2 className="store-section-title" style={{ fontSize: '1.4rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em' }}>— FEATURED CATEGORIES —</h2>
+            <h2 className="store-section-title" style={{ fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em' }}>— Featured Categories —</h2>
           </div>
         </div>
         <div className="categories-grid">

@@ -42,7 +42,10 @@ export const getOptimizedImageUrl = (src: string, width?: number, height?: numbe
   
   const cdnUrl = IMAGE_CDN_ENDPOINT;
   if (!cdnUrl) {
-    return `${backendBase}${cleanPath}`;
+    if (isLocalDev) {
+      return `${backendBase}${cleanPath}`;
+    }
+    return cleanPath;
   }
 
   // Build query/path options for sizing/formatting

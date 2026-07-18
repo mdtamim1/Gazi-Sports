@@ -22,6 +22,11 @@ export default function Products() {
   const [isAdding, setIsAdding] = useState(false);
   const [editorTab, setEditorTab] = useState<'basic' | 'inventory' | 'media' | 'features'>('basic');
   const [customOptionInput, setCustomOptionInput] = useState('');
+  const [sizesInput, setSizesInput] = useState('');
+  const [colorsInput, setColorsInput] = useState('');
+  const [weightsInput, setWeightsInput] = useState('');
+  const [heightsInput, setHeightsInput] = useState('');
+  const [customInput, setCustomInput] = useState('');
 
   const perPage = viewMode === 'list' ? 12 : 8;
 
@@ -126,6 +131,40 @@ export default function Products() {
 
   // Open Edit Editor
   const openEditEditor = (prod: ProductConfig) => {
+    const prodSizes = prod.sizes || [];
+    
+    // Group them
+    const SIZES_KEYS = ['s', 'm', 'l', 'xl', 'xxl', '3xl', '4xl', '5xl', '6xl', 'free size'];
+    const COLORS_KEYS = ['red', 'blue', 'black', 'white', 'green', 'yellow', 'grey', 'orange', 'pink', 'purple', 'navy', 'maroon', 'brown', 'gold', 'silver', 'beige', 'cream', 'olive', 'রং', 'লাল', 'নীল', 'কালো', 'সাদা', 'সবুজ', 'হলুদ', 'ধূসর', 'কমলা', 'গোলাপী'];
+
+    const sizesArr: string[] = [];
+    const colorsArr: string[] = [];
+    const weightsArr: string[] = [];
+    const heightsArr: string[] = [];
+    const customArr: string[] = [];
+
+    prodSizes.forEach(s => {
+      if (!s.enabled) return;
+      const labelLower = s.label.toLowerCase().trim();
+      if (SIZES_KEYS.includes(labelLower)) {
+        sizesArr.push(s.label);
+      } else if (COLORS_KEYS.includes(labelLower)) {
+        colorsArr.push(s.label);
+      } else if (labelLower.endsWith('kg') || labelLower.endsWith('gm') || labelLower.endsWith('g') || labelLower.endsWith('lbs') || labelLower.includes('kg') || labelLower.includes('gm')) {
+        weightsArr.push(s.label);
+      } else if (labelLower.endsWith('ft') || labelLower.endsWith('cm') || labelLower.endsWith('inch') || labelLower.endsWith('inches') || labelLower.includes('ft') || labelLower.includes('cm') || labelLower.includes('inch')) {
+        heightsArr.push(s.label);
+      } else {
+        customArr.push(s.label);
+      }
+    });
+
+    setSizesInput(sizesArr.join(', '));
+    setColorsInput(colorsArr.join(', '));
+    setWeightsInput(weightsArr.join(', '));
+    setHeightsInput(heightsArr.join(', '));
+    setCustomInput(customArr.join(', '));
+
     setTempProduct({
       ...prod,
       stock: prod.stock ?? 20,
@@ -136,7 +175,39 @@ export default function Products() {
     setEditorTab('basic');
   };
 
-  const toggleOption = (label: string) => {
+  const handleOptionsChange = (
+    newSizes: string,
+    newColors: string,
+    newWeights: string,
+    newHeights: string,
+    newCustom: string
+  ) => {
+    if (!tempProduct) return;
+    const prevSizesMap = new Map((tempProduct.sizes || []).map(s => [s.label, s]));
+    const parseInput = (text: string) => text.split(',').map(s => s.trim()).filter(Boolean);
+    
+    const allLabels = [
+      ...parseInput(newSizes),
+      ...parseInput(newColors),
+      ...parseInput(newWeights),
+      ...parseInput(newHeights),
+      ...parseInput(newCustom)
+    ];
+    
+    const uniqueLabels = Array.from(new Set(allLabels));
+    const finalSizes = uniqueLabels.map(label => {
+      const prev = prevSizesMap.get(label);
+      return {
+        label,
+        enabled: true,
+        price: prev ? prev.price : undefined
+      };
+    });
+    
+    setTempProduct({ ...tempProduct, sizes: finalSizes });
+  };
+
+  const toggleSizeOption = (label: string) => {
     if (!tempProduct) return;
     const currentSizes = tempProduct.sizes || [];
     const exists = currentSizes.some(s => s.label === label);
@@ -147,27 +218,23 @@ export default function Products() {
       newSizes = [...currentSizes, { label, enabled: true }];
     }
     setTempProduct({ ...tempProduct, sizes: newSizes });
-  };
 
-  const handleAddCustomOption = () => {
-    if (!customOptionInput.trim() || !tempProduct) return;
-    const label = customOptionInput.trim();
-    const currentSizes = tempProduct.sizes || [];
-    const exists = currentSizes.some(s => s.label === label);
-    if (!exists) {
-      setTempProduct({ ...tempProduct, sizes: [...currentSizes, { label, enabled: true }] });
-    } else {
-      setTempProduct({
-        ...tempProduct,
-        sizes: currentSizes.map(s => s.label === label ? { ...s, enabled: true } : s)
-      });
-    }
-    setCustomOptionInput('');
+    // Sync sizesInput
+    const enabledSizes = newSizes.filter(s => s.enabled);
+    const SIZES_KEYS = ['s', 'm', 'l', 'xl', 'xxl', '3xl', '4xl', '5xl', '6xl', 'free size'];
+    const sizesArr = enabledSizes.filter(s => SIZES_KEYS.includes(s.label.toLowerCase().trim())).map(s => s.label);
+    setSizesInput(sizesArr.join(', '));
   };
 
   // Open Add Editor
   const openAddEditor = () => {
     const nextId = Math.max(0, ...products.map(p => p.id)) + 1;
+    setSizesInput('');
+    setColorsInput('');
+    setWeightsInput('');
+    setHeightsInput('');
+    setCustomInput('');
+
     setTempProduct({
       id: nextId,
       name: '',
@@ -193,14 +260,7 @@ export default function Products() {
       stock: 10,
       sold: 0,
       revenue: 0,
-      sizes: [
-        { label: 'S', enabled: false },
-        { label: 'M', enabled: false },
-        { label: 'L', enabled: false },
-        { label: 'XL', enabled: false },
-        { label: 'XXL', enabled: false },
-        { label: '3XL', enabled: false },
-      ],
+      sizes: [],
     });
     setIsAdding(true);
     setEditorTab('basic');
@@ -531,7 +591,7 @@ export default function Products() {
                             return (
                               <div 
                                 key={label} 
-                                onClick={() => toggleOption(label)}
+                                onClick={() => toggleSizeOption(label)}
                                 style={{
                                   display: 'flex',
                                   alignItems: 'center',
@@ -737,255 +797,81 @@ export default function Products() {
                         কাস্টমার প্রোডাক্ট ভিউ পেজে এই অপশনগুলো থেকে সিলেক্ট করে কার্ট বা অর্ডার করতে পারবে।
                       </p>
 
-                      {/* 1. Standard Sizes */}
-                      <div>
-                        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sizes (সাইজসমূহ)</div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                          {['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((label) => {
-                            const isEnabled = tempProduct.sizes ? tempProduct.sizes.some(s => s.label === label && s.enabled) : false;
-                            return (
-                              <button
-                                type="button"
-                                key={label}
-                                onClick={() => toggleOption(label)}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  width: '55px',
-                                  height: '36px',
-                                  borderRadius: 'var(--radius-md)',
-                                  border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
-                                  background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
-                                  color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
-                                  fontWeight: 700,
-                                  cursor: 'pointer',
-                                  transition: 'all 0.15s ease',
-                                }}
-                              >
-                                {label}
-                              </button>
-                            );
-                          })}
-                        </div>
+                      {/* 1. Colors Input */}
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Colors (রংসমূহ - কমা দিয়ে লিখুন)</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={colorsInput}
+                          onChange={(e) => {
+                            setColorsInput(e.target.value);
+                            handleOptionsChange(sizesInput, e.target.value, weightsInput, heightsInput, customInput);
+                          }}
+                          placeholder="e.g. Red, Black, White"
+                        />
                       </div>
 
-                      {/* 2. Colors */}
-                      <div>
-                        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Colors (রংসমূহ)</div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                          {['Red', 'Blue', 'Black', 'White', 'Green', 'Yellow', 'Grey', 'Orange', 'Pink'].map((label) => {
-                            const isEnabled = tempProduct.sizes ? tempProduct.sizes.some(s => s.label === label && s.enabled) : false;
-                            return (
-                              <button
-                                type="button"
-                                key={label}
-                                onClick={() => toggleOption(label)}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  padding: '0 12px',
-                                  height: '36px',
-                                  borderRadius: 'var(--radius-md)',
-                                  border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
-                                  background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
-                                  color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
-                                  fontWeight: 700,
-                                  cursor: 'pointer',
-                                  transition: 'all 0.15s ease',
-                                }}
-                              >
-                                {label}
-                              </button>
-                            );
-                          })}
-                        </div>
+                      {/* 2. Weights Input */}
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Weights (ওজনসমূহ - কমা দিয়ে লিখুন)</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={weightsInput}
+                          onChange={(e) => {
+                            setWeightsInput(e.target.value);
+                            handleOptionsChange(sizesInput, colorsInput, e.target.value, heightsInput, customInput);
+                          }}
+                          placeholder="e.g. 2.5kg, 5kg, 10kg, 15kg"
+                        />
                       </div>
 
-                      {/* 3. Weight Options */}
-                      <div>
-                        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Weights (ওজনসমূহ)</div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                          {['5kg', '10kg', '15kg', '20kg', '25kg', '30kg'].map((label) => {
-                            const isEnabled = tempProduct.sizes ? tempProduct.sizes.some(s => s.label === label && s.enabled) : false;
-                            return (
-                              <button
-                                type="button"
-                                key={label}
-                                onClick={() => toggleOption(label)}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  width: '65px',
-                                  height: '36px',
-                                  borderRadius: 'var(--radius-md)',
-                                  border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
-                                  background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
-                                  color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
-                                  fontWeight: 700,
-                                  cursor: 'pointer',
-                                  transition: 'all 0.15s ease',
-                                }}
-                              >
-                                {label}
-                              </button>
-                            );
-                          })}
-                        </div>
+                      {/* 3. Sizes Input */}
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sizes (সাইজসমূহ - কমা দিয়ে লিখুন)</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={sizesInput}
+                          onChange={(e) => {
+                            setSizesInput(e.target.value);
+                            handleOptionsChange(e.target.value, colorsInput, weightsInput, heightsInput, customInput);
+                          }}
+                          placeholder="e.g. S, M, L, XL, XXL"
+                        />
                       </div>
 
-                      {/* 4. KG Options */}
-                      <div>
-                        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>KGs (কেজিসমূহ)</div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                          {['1kg', '2kg', '3kg', '4kg', '5kg', '6kg', '7kg', '8kg', '9kg', '10kg'].map((label) => {
-                            const isEnabled = tempProduct.sizes ? tempProduct.sizes.some(s => s.label === label && s.enabled) : false;
-                            return (
-                              <button
-                                type="button"
-                                key={label}
-                                onClick={() => toggleOption(label)}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  width: '65px',
-                                  height: '36px',
-                                  borderRadius: 'var(--radius-md)',
-                                  border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
-                                  background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
-                                  color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
-                                  fontWeight: 700,
-                                  cursor: 'pointer',
-                                  transition: 'all 0.15s ease',
-                                }}
-                              >
-                                {label}
-                              </button>
-                            );
-                          })}
-                        </div>
+                      {/* 4. Heights Input */}
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Heights / Dimensions (উচ্চতা/সাইজ - কমা দিয়ে লিখুন)</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={heightsInput}
+                          onChange={(e) => {
+                            setHeightsInput(e.target.value);
+                            handleOptionsChange(sizesInput, colorsInput, weightsInput, e.target.value, customInput);
+                          }}
+                          placeholder="e.g. 4ft, 5ft, 100cm"
+                        />
                       </div>
 
-                      {/* 5. Height Options */}
-                      <div>
-                        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Heights/Dimensions (উচ্চতা/সাইজ)</div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                          {['4ft', '5ft', '6ft', '7ft', '100cm', '120cm', '150cm', '180cm'].map((label) => {
-                            const isEnabled = tempProduct.sizes ? tempProduct.sizes.some(s => s.label === label && s.enabled) : false;
-                            return (
-                              <button
-                                type="button"
-                                key={label}
-                                onClick={() => toggleOption(label)}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  padding: '0 12px',
-                                  height: '36px',
-                                  borderRadius: 'var(--radius-md)',
-                                  border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
-                                  background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
-                                  color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
-                                  fontWeight: 700,
-                                  cursor: 'pointer',
-                                  transition: 'all 0.15s ease',
-                                }}
-                              >
-                                {label}
-                              </button>
-                            );
-                          })}
-                        </div>
+                      {/* 5. Custom Options Input */}
+                      <div className="form-group">
+                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Custom Options (অন্যান্য অপশন - কমা দিয়ে লিখুন)</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={customInput}
+                          onChange={(e) => {
+                            setCustomInput(e.target.value);
+                            handleOptionsChange(sizesInput, colorsInput, weightsInput, heightsInput, e.target.value);
+                          }}
+                          placeholder="e.g. Free Size, 12-inch, Heavy Duty"
+                        />
                       </div>
-
-                      {/* 6. Dynamic Custom Options */}
-                      {(() => {
-                        const predefined = [
-                          'S', 'M', 'L', 'XL', 'XXL', '3XL',
-                          'Red', 'Blue', 'Black', 'White', 'Green', 'Yellow', 'Grey', 'Orange', 'Pink',
-                          '5kg', '10kg', '15kg', '20kg', '25kg', '30kg',
-                          '1kg', '2kg', '3kg', '4kg', '5kg', '6kg', '7kg', '8kg', '9kg', '10kg',
-                          '4ft', '5ft', '6ft', '7ft', '100cm', '120cm', '150cm', '180cm'
-                        ];
-                        const customSizes = (tempProduct.sizes || []).filter(s => !predefined.includes(s.label));
-                        if (customSizes.length === 0) return null;
-                        return (
-                          <div>
-                            <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Created Custom Options (কাস্টম অপশনসমূহ)</div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                              {customSizes.map((s) => {
-                                const isEnabled = s.enabled;
-                                return (
-                                  <button
-                                    type="button"
-                                    key={s.label}
-                                    onClick={() => toggleOption(s.label)}
-                                    style={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      padding: '0 12px',
-                                      height: '36px',
-                                      borderRadius: 'var(--radius-md)',
-                                      border: isEnabled ? '2px solid var(--accent-primary)' : '1.5px solid var(--border-primary)',
-                                      background: isEnabled ? 'rgba(99, 102, 241, 0.1)' : 'var(--bg-primary)',
-                                      color: isEnabled ? 'var(--accent-primary)' : 'var(--text-tertiary)',
-                                      fontWeight: 700,
-                                      cursor: 'pointer',
-                                      transition: 'all 0.15s ease',
-                                    }}
-                                  >
-                                    {s.label}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })()}
-
-                      {/* 7. Custom Options Input */}
-                      <div>
-                        <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Custom Option (অন্যান্য কাস্টম অপশন যুক্ত করুন)</div>
-                        <div style={{ display: 'flex', gap: '10px', maxWidth: '360px' }}>
-                          <input
-                            type="text"
-                            className="form-input"
-                            value={customOptionInput}
-                            onChange={(e) => setCustomOptionInput(e.target.value)}
-                            placeholder="e.g. 2.5kg, Purple, XL-Long"
-                            style={{ flex: 1 }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                handleAddCustomOption();
-                              }
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={handleAddCustomOption}
-                            style={{
-                              padding: '0 16px',
-                              background: 'var(--accent-primary)',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: 'var(--radius-md)',
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                              transition: 'opacity 0.15s ease',
-                            }}
-                          >
-                            Add
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Active Options Summary */}
+                      {/* Options Summary */}
                       <div style={{ marginTop: '8px', fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>
                         {(() => {
                           const enabledSizes = (tempProduct.sizes || []).filter(s => s.enabled);

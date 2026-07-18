@@ -372,7 +372,7 @@ function migrateConfig(parsed: any): any {
       })
       .filter((link: any) => {
         const labelLower = (link.label || '').toLowerCase();
-        const keep = labelLower !== 'shop' && labelLower !== 'shop all' && labelLower !== 'offers' && labelLower !== 'offer' && labelLower !== 'deals' && labelLower !== 'deal';
+        const keep = labelLower !== 'offers' && labelLower !== 'offer' && labelLower !== 'deals' && labelLower !== 'deal';
         if (!keep) migrated = true;
         return keep;
       });
@@ -466,9 +466,15 @@ const getAuthHeaders = (): Record<string, string> => {
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 };
 
+// Track whether at least one backend sync has completed
+let _synced = false;
+
 async function syncWithBackend() {
   // Skip fetch if cache is still fresh (within TTL)
-  if (_config && (Date.now() - _cacheTimestamp) < CACHE_TTL_MS) return;
+  if (_config && (Date.now() - _cacheTimestamp) < CACHE_TTL_MS) {
+    _synced = true;
+    return;
+  }
 
   try {
     const response = await fetch(`${API_BASE}/settings/storefront`);
@@ -491,11 +497,14 @@ async function syncWithBackend() {
 
         _config = serverConfig;
         _cacheTimestamp = Date.now();
+        _synced = true;
         _listeners.forEach(fn => fn());
       }
     }
   } catch (err) {
     console.warn('⚠️ Failed to sync storefront config from backend — using cached defaults:', err);
+    _synced = true; // still mark ready so UI doesn't stay blank forever
+    _listeners.forEach(fn => fn()); // notify listeners even on failure
   }
 }
 
@@ -575,8 +584,9 @@ export function resetStorefrontConfig(): void {
 import { useState as useStateReact, useEffect as useEffectReact } from 'react';
 
 /** React hook to read and reactively update storefront config */
-export function useStorefrontConfig(): [StorefrontConfig, (config: StorefrontConfig) => void] {
+export function useStorefrontConfig(): [StorefrontConfig, (config: StorefrontConfig) => void, boolean] {
   const [config, setConfigState] = useStateReact<StorefrontConfig>(() => loadConfig());
+  const [configReady, setConfigReady] = useStateReact<boolean>(() => _synced);
 
   useEffectReact(() => {
     // One-time cleanup: remove stale localStorage config from older versions
@@ -585,6 +595,7 @@ export function useStorefrontConfig(): [StorefrontConfig, (config: StorefrontCon
     syncWithBackend();
     const unsubscribe = subscribeToConfig(() => {
       setConfigState({ ...loadConfig() });
+      setConfigReady(_synced);
     });
 
     return () => {
@@ -604,7 +615,7 @@ export function useStorefrontConfig(): [StorefrontConfig, (config: StorefrontCon
     }).catch(e => console.warn("Failed to save config to backend:", e));
   };
 
-  return [config, setConfig];
+  return [config, setConfig, configReady];
 }
 
 /** React hook for a specific config section */
