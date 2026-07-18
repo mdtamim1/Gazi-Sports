@@ -79,8 +79,8 @@ export const cacheService = {
     } catch (err) {
       console.error(`Error reading key "${key}" from Redis:`, err);
     }
-    // Fallback to memory
-    return memoryCache.get(key) as T;
+    // No fallback to in-memory cache to prevent data desynchronization between PM2 instances
+    return null;
   },
 
   /**
@@ -93,13 +93,10 @@ export const cacheService = {
         await redisClient.set(key, serialized, {
           EX: ttlSeconds
         });
-        return;
       }
     } catch (err) {
       console.error(`Error writing key "${key}" to Redis:`, err);
     }
-    // Fallback to memory
-    memoryCache.set(key, value, ttlSeconds);
   },
 
   /**
@@ -109,12 +106,10 @@ export const cacheService = {
     try {
       if (isRedisConnected && redisClient) {
         await redisClient.del(key);
-        return;
       }
     } catch (err) {
       console.error(`Error deleting key "${key}" from Redis:`, err);
     }
-    memoryCache.del(key);
   },
 
   /**
@@ -127,12 +122,10 @@ export const cacheService = {
         if (keys.length > 0) {
           await redisClient.del(keys);
         }
-        return;
       }
     } catch (err) {
       console.error(`Error deleting pattern "${pattern}" from Redis:`, err);
     }
-    memoryCache.delPattern(pattern);
   },
 
   /**

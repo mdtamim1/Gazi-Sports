@@ -489,6 +489,7 @@ async function syncWithBackend() {
         serverConfig = {
           ...current,
           ...serverConfig,
+          products: current.products, // Preserve current loaded products list from the database products table
           contactInfo: { ...current.contactInfo, ...serverConfig.contactInfo },
           branding: { ...current.branding, ...serverConfig.branding },
           delivery: { ...current.delivery, ...serverConfig.delivery },
