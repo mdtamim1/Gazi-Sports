@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import https from 'https';
 
 // ---- Nodemailer transporter (Supports dynamic SMTP config) ----
 const createTransporter = () => {
@@ -34,6 +35,75 @@ const STORE_NAME = process.env.STORE_NAME || 'Gazi Sports';
 const STORE_URL = process.env.STORE_URL || 'https://gazisports24.com';
 const STORE_LOGO = `${STORE_URL}/logo.png`;
 const FROM_EMAIL = `"${STORE_NAME}" <${process.env.EMAIL_USER}>`;
+
+const sendMailHelper = async (to: string, subject: string, html: string): Promise<boolean> => {
+  const emailPass = process.env.EMAIL_PASS || '';
+  
+  if (emailPass.startsWith('xkeysib-')) {
+    console.log('[EmailService] Detected Brevo API Key. Sending email via Brevo Web API...');
+    return new Promise((resolve) => {
+      const data = JSON.stringify({
+        sender: {
+          name: STORE_NAME,
+          email: process.env.EMAIL_USER || 'orders@gazisports24.com',
+        },
+        to: [
+          {
+            email: to,
+          },
+        ],
+        subject: subject,
+        htmlContent: html,
+      });
+
+      const options = {
+        hostname: 'api.brevo.com',
+        port: 443,
+        path: '/v3/smtp/email',
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': emailPass,
+          'content-type': 'application/json',
+          'content-length': Buffer.byteLength(data),
+        },
+      };
+
+      const req = https.request(options, (res) => {
+        let responseData = '';
+        res.on('data', (chunk) => {
+          responseData += chunk;
+        });
+        res.on('end', () => {
+          if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+            resolve(true);
+          } else {
+            console.error(`[EmailService] API Send Fail: Status ${res.statusCode}, Body: ${responseData}`);
+            resolve(false);
+          }
+        });
+      });
+
+      req.on('error', (e) => {
+        console.error('[EmailService] API request error:', e);
+        resolve(false);
+      });
+
+      req.write(data);
+      req.end();
+    });
+  }
+
+  // Fallback to Nodemailer SMTP
+  const transporter = createTransporter();
+  await transporter.sendMail({
+    from: FROM_EMAIL,
+    to,
+    subject,
+    html,
+  });
+  return true;
+};
 
 // ---- HTML email base template ----
 const emailTemplate = (content: string) => `
@@ -107,15 +177,11 @@ export const sendWelcomeEmail = async (email: string): Promise<boolean> => {
   `;
 
   try {
-    const transporter = createTransporter();
-    await transporter.sendMail({
-      from: FROM_EMAIL,
-      to: email,
-      subject: `🎉 ${STORE_NAME}-এ স্বাগতম! আপনার সাবস্ক্রিপশন সফল`,
-      html: emailTemplate(content),
-    });
-    console.log(`[EmailService] Welcome email sent to: ${email}`);
-    return true;
+    const success = await sendMailHelper(email, `🎉 ${STORE_NAME}-এ স্বাগতম! আপনার সাবস্ক্রিপশন সফল`, emailTemplate(content));
+    if (success) {
+      console.log(`[EmailService] Welcome email sent to: ${email}`);
+    }
+    return success;
   } catch (err) {
     console.error('[EmailService] Failed to send welcome email:', err);
     return false;
@@ -201,15 +267,11 @@ export const sendOrderConfirmationEmail = async (
   `;
 
   try {
-    const transporter = createTransporter();
-    await transporter.sendMail({
-      from: FROM_EMAIL,
-      to: email,
-      subject: `🛍️ ${STORE_NAME} - অর্ডার রশিদ (Order Confirmation #${orderId})`,
-      html: emailTemplate(content),
-    });
-    console.log(`[EmailService] Order confirmation email sent to: ${email}`);
-    return true;
+    const success = await sendMailHelper(email, `🛍️ ${STORE_NAME} - অর্ডার রশিদ (Order Confirmation #${orderId})`, emailTemplate(content));
+    if (success) {
+      console.log(`[EmailService] Order confirmation email sent to: ${email}`);
+    }
+    return success;
   } catch (err) {
     console.error('[EmailService] Failed to send order confirmation email:', err);
     return false;
