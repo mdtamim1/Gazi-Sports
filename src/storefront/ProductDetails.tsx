@@ -1051,39 +1051,68 @@ export default function ProductDetails() {
             );
           })()}
 
-          <div className="pdp-stock-status">
-            <CheckCircle size={20} color="var(--sf-success)" />
-            <span>In Stock and ready to ship</span>
-          </div>
+          {(() => {
+            const isOutOfStock = product.inStock === false || (product.stock !== undefined && product.stock <= 0);
+            return (
+              <>
+                <div className="pdp-stock-status" style={{ color: isOutOfStock ? 'var(--sf-danger)' : 'var(--sf-success)' }}>
+                  {isOutOfStock ? (
+                    <>
+                      <X size={20} color="var(--sf-danger)" />
+                      <span style={{ fontWeight: 600 }}>স্টক আউট (Out of Stock)</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={20} color="var(--sf-success)" />
+                      <span>In Stock and ready to ship</span>
+                    </>
+                  )}
+                </div>
 
-          <div className="pdp-actions">
-            <button className="store-btn store-btn-primary pdp-add-to-cart" onClick={() => {
-              const missing = getMissingOptionGroup();
-              if (missing) {
-                alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
-                return;
-              }
-              const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
-              addToCart({ ...product, price: getActivePrice(), selectedSize: variantLabel });
-            }}>
-              <ShoppingCart size={20} /> Add to Cart
-            </button>
-            <button 
-              onClick={() => {
-                const missing = getMissingOptionGroup();
-                if (missing) {
-                  alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
-                  return;
-                }
-                const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
-                const buyProduct = { ...product, price: getActivePrice(), selectedSize: variantLabel };
-                navigate('/checkout', { state: { product: buyProduct, quantity: 1 } });
-              }}
-              className="store-btn pdp-buy-now" 
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: 'none' }}
-            >
-              Buy Now
-            </button>
+                <div className="pdp-actions">
+                  <button 
+                    disabled={isOutOfStock}
+                    className="store-btn store-btn-primary pdp-add-to-cart" 
+                    style={{ 
+                      opacity: isOutOfStock ? 0.6 : 1, 
+                      cursor: isOutOfStock ? 'not-allowed' : 'pointer' 
+                    }}
+                    onClick={() => {
+                      const missing = getMissingOptionGroup();
+                      if (missing) {
+                        alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
+                        return;
+                      }
+                      const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
+                      addToCart({ ...product, price: getActivePrice(), selectedSize: variantLabel });
+                    }}
+                  >
+                    <ShoppingCart size={20} /> {isOutOfStock ? 'স্টক আউট' : 'Add to Cart'}
+                  </button>
+                  <button 
+                    disabled={isOutOfStock}
+                    onClick={() => {
+                      const missing = getMissingOptionGroup();
+                      if (missing) {
+                        alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
+                        return;
+                      }
+                      const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
+                      const buyProduct = { ...product, price: getActivePrice(), selectedSize: variantLabel };
+                      navigate('/checkout', { state: { product: buyProduct, quantity: 1 } });
+                    }}
+                    className="store-btn pdp-buy-now" 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      cursor: isOutOfStock ? 'not-allowed' : 'pointer', 
+                      border: 'none',
+                      opacity: isOutOfStock ? 0.6 : 1
+                    }}
+                  >
+                    {isOutOfStock ? 'স্টক আউট' : 'Buy Now'}
+                  </button>
             <div className="pdp-action-icons">
               <button 
                 className={`pdp-icon-btn ${wishlist.includes(product.id) ? 'active' : ''}`}
@@ -1097,6 +1126,9 @@ export default function ProductDetails() {
               </button>
             </div>
           </div>
+              </>
+            );
+          })()}
 
           <div className="pdp-contact-actions">
             {config.contactInfo.whatsappNumber && (
@@ -1514,37 +1546,48 @@ export default function ProductDetails() {
           <span>মেসেঞ্জার</span>
         </a>
         <div className="sticky-bar-actions">
-          <button 
-            type="button" 
-            className="sticky-bar-btn buy-now" 
-            onClick={() => {
-              const missing = getMissingOptionGroup();
-              if (missing) {
-                alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
-                return;
-              }
-              const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
-              const buyProduct = { ...product, price: getActivePrice(), selectedSize: variantLabel };
-              navigate('/checkout', { state: { product: buyProduct, quantity: 1 } });
-            }}
-          >
-            Buy Now
-          </button>
-          <button 
-            type="button" 
-            className="sticky-bar-btn add-to-cart" 
-            onClick={() => {
-              const missing = getMissingOptionGroup();
-              if (missing) {
-                alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
-                return;
-              }
-              const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
-              addToCart({ ...product, price: getActivePrice(), selectedSize: variantLabel });
-            }}
-          >
-            Add to Cart
-          </button>
+          {(() => {
+            const isOutOfStock = product.inStock === false || (product.stock !== undefined && product.stock <= 0);
+            return (
+              <>
+                <button 
+                  disabled={isOutOfStock}
+                  type="button" 
+                  className="sticky-bar-btn buy-now" 
+                  style={{ opacity: isOutOfStock ? 0.6 : 1, cursor: isOutOfStock ? 'not-allowed' : 'pointer' }}
+                  onClick={() => {
+                    const missing = getMissingOptionGroup();
+                    if (missing) {
+                      alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
+                      return;
+                    }
+                    const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
+                    const buyProduct = { ...product, price: getActivePrice(), selectedSize: variantLabel };
+                    navigate('/checkout', { state: { product: buyProduct, quantity: 1 } });
+                  }}
+                >
+                  {isOutOfStock ? 'স্টক আউট' : 'Buy Now'}
+                </button>
+                <button 
+                  disabled={isOutOfStock}
+                  type="button" 
+                  className="sticky-bar-btn add-to-cart" 
+                  style={{ opacity: isOutOfStock ? 0.6 : 1, cursor: isOutOfStock ? 'not-allowed' : 'pointer' }}
+                  onClick={() => {
+                    const missing = getMissingOptionGroup();
+                    if (missing) {
+                      alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
+                      return;
+                    }
+                    const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
+                    addToCart({ ...product, price: getActivePrice(), selectedSize: variantLabel });
+                  }}
+                >
+                  {isOutOfStock ? 'স্টক আউট' : 'Add to Cart'}
+                </button>
+              </>
+            );
+          })()}
         </div>
       </div>
 

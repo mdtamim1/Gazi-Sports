@@ -161,6 +161,7 @@ export default function StorefrontHome() {
       );
     }
 
+    const isSoldOut = !product.inStock || (product.stock !== undefined && product.stock <= 0);
     const hasOptions = product.sizes && product.sizes.some((s: any) => s.enabled);
     return (
       <Link to={`/product/${productSlug}`} key={product.id} className="trending-product-card" style={{ textDecoration: 'none' }}>
@@ -182,7 +183,9 @@ export default function StorefrontHome() {
               color={wishlist.some((id: any) => String(id) === String(product.id)) ? "var(--sf-danger)" : "currentColor"} 
             />
           </button>
-          {hasDiscount ? (
+          {isSoldOut ? (
+            <span className="trending-product-badge sold-out" style={{ background: '#ef4444' }}>স্টক আউট</span>
+          ) : hasDiscount ? (
             <span className="trending-product-badge">
               -{discountPercent}%
             </span>
@@ -205,7 +208,11 @@ export default function StorefrontHome() {
             </span>
           </div>
           <div className="trending-product-action-container">
-            {hasOptions ? (
+            {isSoldOut ? (
+              <span className="trending-product-action-btn disabled" style={{ background: '#f1f5f9', color: 'var(--sf-text-tertiary)', border: '1px solid var(--sf-border)', cursor: 'not-allowed', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                স্টক আউট
+              </span>
+            ) : hasOptions ? (
               <span className="trending-product-action-btn">
                 <List size={14} style={{ marginRight: '6px', display: 'inline-block', verticalAlign: 'middle' }} /> Select options
               </span>

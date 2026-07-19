@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { useOutletContext, Link, useNavigate } from 'react-router-dom';
 import { 
@@ -750,7 +750,7 @@ export default function CustomerAccount() {
         </button>
 
         <button 
-          onClick={() => setIsChatOpen(true)}
+          onClick={() => setActiveTab('chat')}
           className="account-mobile-chat-trigger-btn"
         >
           <MessageSquare size={16} />
@@ -853,7 +853,7 @@ export default function CustomerAccount() {
           <div style={{ padding: '10px', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(99, 102, 241, 0.03) 100%)', border: '1px dashed var(--sf-accent)', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--sf-accent)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>কাস্টমার সাপোর্ট</div>
             <button 
-              onClick={() => { setIsChatOpen(true); setIsMobileDrawerOpen(false); }}
+              onClick={() => { setActiveTab('chat'); setIsMobileDrawerOpen(false); }}
               style={{ width: '100%', padding: '10px 12px', background: 'linear-gradient(135deg, var(--sf-accent) 0%, var(--sf-accent-hover) 100%)', color: 'white', border: 'none', borderRadius: '6px', textAlign: 'left', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s', fontSize: '0.85rem', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)' }}
             >
               <MessageSquare size={16} /> 24/7 লাইভ চ্যাট সাহায্য

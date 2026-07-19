@@ -56,6 +56,27 @@ export default function Products() {
     }
   };
 
+  // Set single product stock to 0 and out of stock
+  const handleSetOutOfStock = async (prodId: string | number) => {
+    const found = products.find(p => String(p.id) === String(prodId));
+    if (!found) return;
+
+    const list = products.map(p => {
+      if (String(p.id) === String(prodId)) {
+        return { ...p, stock: 0, inStock: false };
+      }
+      return p;
+    });
+    setConfig({ ...config, products: list });
+    alert(`Product "${found.name}" is now set Out of Stock!`);
+
+    await updateProductInBackend(prodId, { ...found, stock: 0, inStock: false });
+    const fresh = await fetchProductsFromBackend();
+    if (fresh) {
+      setConfig({ ...config, products: fresh });
+    }
+  };
+
   // Delete Product
   const handleDeleteProduct = async (prod: ProductConfig) => {
     if (confirm(`Are you sure you want to delete "${prod.name}"?`)) {
@@ -303,7 +324,8 @@ export default function Products() {
     }
 
     const slugVal = tempProduct.slug || tempProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const productWithSlug = { ...tempProduct, sku: skuVal, slug: slugVal };
+    const isActuallyInStock = (tempProduct.stock !== undefined && tempProduct.stock !== null) ? (tempProduct.stock > 0 ? tempProduct.inStock : false) : tempProduct.inStock;
+    const productWithSlug = { ...tempProduct, sku: skuVal, slug: slugVal, inStock: isActuallyInStock };
 
     try {
       if (isAdding) {
@@ -354,8 +376,12 @@ export default function Products() {
       );
     }
     if (statusFilter !== 'all') {
-      const isPublished = statusFilter === 'active';
-      result = result.filter(p => p.published === isPublished);
+      if (statusFilter === 'outofstock') {
+        result = result.filter(p => p.inStock === false || (p.stock !== undefined && p.stock <= 0));
+      } else {
+        const isPublished = statusFilter === 'active';
+        result = result.filter(p => p.published === isPublished);
+      }
     }
 
     // Sort
@@ -421,11 +447,12 @@ export default function Products() {
                 placeholder="Search SKU, name..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
             </div>
             {/* Status Filter */}
-            <select className="form-select" style={{ height: '34px', width: '110px', fontSize: 'var(--text-xs)' }}
+            <select className="form-select" style={{ height: '34px', width: '130px', fontSize: 'var(--text-xs)' }}
               value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}>
               <option value="all">All Status</option>
               <option value="active">Active</option>
               <option value="draft">Draft</option>
+              <option value="outofstock">Out of Stock</option>
             </select>
             {/* Sorter */}
             <select className="form-select" style={{ height: '34px', width: '120px', fontSize: 'var(--text-xs)' }}
@@ -482,9 +509,13 @@ export default function Products() {
                           <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: stock > 10 ? 'var(--color-success)' : stock > 0 ? 'var(--color-warning)' : 'var(--color-danger)' }} />
                           <span style={{ color: stock < 10 ? 'var(--color-warning)' : 'inherit', fontWeight: stock < 10 ? 600 : 'normal' }}>{stock}</span>
                         </span>
-                        {stock < 10 && (
-                          <button className="btn btn-ghost btn-sm" style={{ padding: '0 4px', height: '22px', fontSize: '10px', color: 'var(--accent-primary-hover)' }} title="Quick Reorder 20 Items" onClick={() => handleReorder(product.id)}>
-                            <RefreshCw size={10} /> Reorder
+                        {stock > 0 && product.inStock !== false ? (
+                          <button className="btn btn-ghost btn-sm" style={{ padding: '0 4px', height: '22px', fontSize: '10px', color: 'var(--color-danger)' }} title="Set Out of Stock" onClick={() => handleSetOutOfStock(product.id)}>
+                            Stock Out
+                          </button>
+                        ) : (
+                          <button className="btn btn-ghost btn-sm" style={{ padding: '0 4px', height: '22px', fontSize: '10px', color: 'var(--color-success)' }} title="Quick Reorder 20 Items" onClick={() => handleReorder(product.id)}>
+                            <RefreshCw size={10} /> Reorder (+20)
                           </button>
                         )}
                       </div>
