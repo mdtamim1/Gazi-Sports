@@ -8,6 +8,8 @@ const NGINX_CONFIG = `server {
     root /var/www/gazisports/dist;
     index index.html;
 
+    client_max_body_size 50M;
+
     # Serve uploaded product images
     location /uploads/ {
         alias /var/www/gazisports/uploads/;
@@ -44,6 +46,8 @@ const NGINX_CONFIG = `server {
 
 server {
     server_name api.gazisports24.com;
+
+    client_max_body_size 50M;
 
     location / {
         proxy_pass http://127.0.0.1:5000;

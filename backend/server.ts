@@ -155,8 +155,8 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 app.use(morgan('dev'));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Disable caching for all API responses to prevent browser caching of dynamic settings/data
 app.use('/api', (req, res, next) => {
