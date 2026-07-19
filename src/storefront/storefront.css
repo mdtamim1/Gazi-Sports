@@ -69,7 +69,8 @@
 /* ---- Store Header / Navbar ---- */
 .store-sticky-header-container {
   width: 100%;
-  z-index: 100;
+  position: relative;
+  z-index: 1010;
   transition: all 0.3s ease;
 }
 
@@ -239,7 +240,7 @@
 .store-header {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1010;
   height: var(--sf-header-height);
   backdrop-filter: blur(18px) saturate(180%);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
@@ -5139,20 +5140,34 @@
   }
   
   .store-header-left {
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  .store-header-left .store-header-btn {
     display: none !important;
   }
   
   .store-header-center {
-    justify-content: flex-start !important;
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    justify-content: center !important;
     flex-shrink: 0;
+    z-index: 5 !important;
   }
   
-  .store-header-nav {
+  .store-header-nav-left,
+  .store-header-nav-right {
     display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
   }
   
   .store-header-right {
-    gap: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
   }
 }
 

@@ -32,9 +32,47 @@ export default function ProductDetails() {
   const [config, setConfig] = useStorefrontConfig();
   const navigate = useNavigate();
   
-  const [product, setProduct] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const getInitialProduct = () => {
+    if (!id) return null;
+    const localProduct = config.products.find(p => String(p.id) === String(id) || (p.slug && String(p.slug) === String(id)));
+    if (localProduct) {
+      let reviewsList = localProduct.customerReviews || [];
+      try {
+        const storedReviews = localStorage.getItem(`product_reviews_${localProduct.id}`);
+        if (storedReviews) {
+          const parsed = JSON.parse(storedReviews);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const merged = [...parsed];
+            reviewsList.forEach((r: any) => {
+              if (!merged.some(m => m.id === r.id)) merged.push(r);
+            });
+            reviewsList = merged;
+          }
+        }
+      } catch (e) {}
+
+      return {
+        ...localProduct,
+        customerReviews: reviewsList,
+        reviews: reviewsList.length
+      };
+    }
+    return null;
+  };
+
+  const initialProduct = getInitialProduct();
+  const [product, setProduct] = useState<any>(initialProduct);
+  const [loading, setLoading] = useState(!initialProduct);
   const [activeIdx, setActiveIdx] = useState(0);
+
+  const [prevId, setPrevId] = useState(id);
+  if (id !== prevId) {
+    setPrevId(id);
+    const newInitial = getInitialProduct();
+    setProduct(newInitial);
+    setLoading(!newInitial);
+    setActiveIdx(0);
+  }
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
   
   const { customer, login, register, updateCustomerProfile } = useCustomerAuth();

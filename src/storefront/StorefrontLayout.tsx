@@ -73,6 +73,97 @@ export default function StorefrontLayout() {
       return { ...link, url };
     });
 
+  // Split links into left and right groups around centered logo
+  const allNavLinks = [...navLinks, { id: 99999, label: 'Events', url: '/events' }];
+  const halfLength = Math.ceil(allNavLinks.length / 2);
+  const leftNavLinks = allNavLinks.slice(0, halfLength);
+  const rightNavLinks = allNavLinks.slice(halfLength);
+
+  const renderNavLink = (link: any) => {
+    const isShop = 
+      (link.label || '').toLowerCase().includes('shop') || 
+      (link.label || '').toLowerCase().includes('shоp') || 
+      (link.url || '').toLowerCase().endsWith('fitness-item') ||
+      link.id === 3;
+    if (isShop) {
+      return (
+        <div key={link.id} className="store-nav-shop-wrapper" ref={shopDropdownRef} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <Link 
+            to={link.url} 
+            className="store-nav-link"
+            style={{ paddingRight: '4px' }}
+          >
+            {link.label}
+          </Link>
+          <button 
+            className="store-nav-dropdown-btn" 
+            onClick={(e) => {
+              e.preventDefault();
+              setShopDropdownOpen(!shopDropdownOpen);
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '4px 6px',
+              color: 'inherit',
+              display: 'flex',
+              alignItems: 'center',
+              transition: 'transform 0.2s ease',
+              transform: shopDropdownOpen ? 'rotate(180deg)' : 'none',
+              marginLeft: '-6px'
+            }}
+            title="View Categories"
+          >
+            <ChevronDown size={14} />
+          </button>
+          {shopDropdownOpen && (
+            <div className="store-nav-dropdown-menu">
+              <Link
+                to="/collection/all"
+                className="store-dropdown-item"
+                style={{ fontWeight: 600, borderBottom: '1px solid var(--sf-border, #e5e5e5)' }}
+                onClick={() => setShopDropdownOpen(false)}
+              >
+                🛍️ All Products
+              </Link>
+              {categories.length > 0 ? categories.map(cat => {
+                const categorySlug = cat.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                return (
+                  <Link
+                    key={cat.id}
+                    to={`/collection/${categorySlug}`}
+                    className="store-dropdown-item"
+                    onClick={() => setShopDropdownOpen(false)}
+                  >
+                    {cat.name}
+                  </Link>
+                );
+              }) : (
+                <Link
+                  to="/collection/fitness-item"
+                  className="store-dropdown-item"
+                  onClick={() => setShopDropdownOpen(false)}
+                >
+                  Fitness Items
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+    return (
+      <Link 
+        key={link.id} 
+        to={link.url} 
+        className="store-nav-link"
+      >
+        {link.label}
+      </Link>
+    );
+  };
+
   // Branding
   const branding = config.branding;
 
@@ -265,23 +356,7 @@ export default function StorefrontLayout() {
     }
     window.scrollTo(0, 0);
 
-    // Timed fallbacks to handle lazy layout rendering and image size shifts
-    const t1 = setTimeout(() => {
-      if (container) container.scrollTop = 0;
-      window.scrollTo(0, 0);
-    }, 50);
-
-    const t2 = setTimeout(() => {
-      if (container) container.scrollTop = 0;
-      window.scrollTo(0, 0);
-    }, 150);
-
     setBottomNavVisible(true);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
   }, [location.pathname, location.search]);
 
   useEffect(() => {
@@ -424,7 +499,7 @@ export default function StorefrontLayout() {
         <header className="store-header">
           {!mobileSearchOpen ? (
             <div className="store-header-inner-grid">
-              {/* Left Action: Menu Toggle */}
+              {/* Left Action: Menu Toggle & Left Nav Links */}
               <div className="store-header-left">
                 <button 
                   className="store-header-btn" 
@@ -433,6 +508,11 @@ export default function StorefrontLayout() {
                 >
                   <Menu size={22} style={{ color: 'var(--sf-accent)' }} />
                 </button>
+                
+                {/* Left Desktop Menu Links */}
+                <nav className="store-header-nav-left desktop-only">
+                  {leftNavLinks.map(renderNavLink)}
+                </nav>
               </div>
 
               {/* Center: Logo */}
@@ -442,99 +522,13 @@ export default function StorefrontLayout() {
                 </Link>
               </div>
 
-              {/* Desktop Menu Links */}
-              <nav className="store-header-nav desktop-only">
-                {navLinks.map(link => {
-                  const isShop = 
-                    (link.label || '').toLowerCase().includes('shop') || 
-                    (link.label || '').toLowerCase().includes('shоp') || 
-                    (link.url || '').toLowerCase().endsWith('fitness-item') ||
-                    link.id === 3;
-                  if (isShop) {
-                    return (
-                      <div key={link.id} className="store-nav-shop-wrapper" ref={shopDropdownRef} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                        <Link 
-                          to={link.url} 
-                          className="store-nav-link"
-                          style={{ paddingRight: '4px' }}
-                        >
-                          {link.label}
-                        </Link>
-                        <button 
-                          className="store-nav-dropdown-btn" 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setShopDropdownOpen(!shopDropdownOpen);
-                          }}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            padding: '4px 6px',
-                            color: 'inherit',
-                            display: 'flex',
-                            alignItems: 'center',
-                            transition: 'transform 0.2s ease',
-                            transform: shopDropdownOpen ? 'rotate(180deg)' : 'none',
-                            marginLeft: '-6px'
-                          }}
-                          title="View Categories"
-                        >
-                          <ChevronDown size={14} />
-                        </button>
-                        {shopDropdownOpen && (
-                          <div className="store-nav-dropdown-menu">
-                            <Link
-                              to="/collection/all"
-                              className="store-dropdown-item"
-                              style={{ fontWeight: 600, borderBottom: '1px solid var(--sf-border, #e5e5e5)' }}
-                              onClick={() => setShopDropdownOpen(false)}
-                            >
-                              🛍️ All Products
-                            </Link>
-                            {categories.length > 0 ? categories.map(cat => {
-                              const categorySlug = cat.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-                              return (
-                                <Link
-                                  key={cat.id}
-                                  to={`/collection/${categorySlug}`}
-                                  className="store-dropdown-item"
-                                  onClick={() => setShopDropdownOpen(false)}
-                                >
-                                  {cat.name}
-                                </Link>
-                              );
-                            }) : (
-                              <Link
-                                to="/collection/fitness-item"
-                                className="store-dropdown-item"
-                                onClick={() => setShopDropdownOpen(false)}
-                              >
-                                Fitness Items
-                              </Link>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }
-                  return (
-                    <Link 
-                      key={link.id} 
-                      to={link.url} 
-                      className="store-nav-link"
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
-                <Link to="/events" className="store-nav-link">
-                  Events
-                </Link>
-              </nav>
-
-              {/* Right Action: Search, Profile, Wishlist & Cart */}
+              {/* Right Action: Right Nav Links & Search, Profile, Wishlist & Cart */}
               <div className="store-header-right">
+                {/* Right Desktop Menu Links */}
+                <nav className="store-header-nav-right desktop-only" style={{ marginRight: '8px' }}>
+                  {rightNavLinks.map(renderNavLink)}
+                </nav>
+
                 <button 
                   className="store-header-btn" 
                   onClick={() => setMobileSearchOpen(true)}
