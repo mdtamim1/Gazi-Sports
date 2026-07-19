@@ -5,25 +5,26 @@ const createTransporter = () => {
   const host = process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = parseInt(process.env.SMTP_PORT || '587', 10);
   const secure = process.env.SMTP_SECURE === 'true'; // true for port 465, false for 587
+  const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
 
   // If using Gmail, use Nodemailer's built-in Gmail helper
   if (host.includes('gmail.com')) {
     return nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
+        user: smtpUser,
         pass: process.env.EMAIL_PASS,
       },
     });
   }
 
-  // Custom SMTP server configuration (e.g., Zoho Mail, cPanel)
+  // Custom SMTP server configuration (e.g., Brevo, Zoho Mail, cPanel)
   return nodemailer.createTransport({
     host,
     port,
     secure,
     auth: {
-      user: process.env.EMAIL_USER,
+      user: smtpUser,
       pass: process.env.EMAIL_PASS,
     },
   });
