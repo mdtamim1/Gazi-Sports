@@ -93,7 +93,7 @@ function DualRangeSlider({ min, max, valueMin, valueMax, onChangeMin, onChangeMa
 export default function CollectionPage() {
   const { slug } = useParams<{ slug: string }>();
   const { addToCart, toggleWishlist, wishlist, searchQuery } = useOutletContext<any>();
-  const [config] = useStorefrontConfig();
+  const [config, , configReady] = useStorefrontConfig();
 
   // Filter & Sort State
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -187,6 +187,23 @@ export default function CollectionPage() {
     if (container) container.scrollTop = 0;
     window.scrollTo(0, 0);
   }, [slug]);
+
+  if (!configReady) {
+    return (
+      <div className="collection-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
+        <div style={{ textAlign: 'center', color: 'var(--sf-text-tertiary)' }}>
+          <div className="loading-spinner" style={{ border: '3px solid #f3f3f3', borderTop: '3px solid var(--sf-accent)', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
+          <p>লোড হচ্ছে...</p>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
 
   if (!navLink) {
     return (

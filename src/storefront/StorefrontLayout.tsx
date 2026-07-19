@@ -1069,7 +1069,7 @@ export default function StorefrontLayout() {
       {/* Bottom Nav Removed */}
 
       {/* ---- WhatsApp Floating Chat Button ---- */}
-      {config.contactInfo.whatsappNumber && !location.pathname.startsWith('/account') && (
+      {config.contactInfo.whatsappNumber && (
         <a 
           href={`https://wa.me/${config.contactInfo.whatsappNumber}`}
           className="whatsapp-floating-btn"

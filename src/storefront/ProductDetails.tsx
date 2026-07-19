@@ -29,7 +29,7 @@ const StarRating = ({ rating }: { rating: number }) => (
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   const { addToCart, toggleWishlist, wishlist } = useOutletContext<StorefrontContext>();
-  const [config, setConfig] = useStorefrontConfig();
+  const [config, setConfig, configReady] = useStorefrontConfig();
   const navigate = useNavigate();
   
   const getInitialProduct = () => {
@@ -735,6 +735,10 @@ export default function ProductDetails() {
     let active = true;
     const loadProduct = async () => {
       if (!id) return;
+      if (!configReady) {
+        setLoading(true);
+        return;
+      }
       
       // Try to find the product in local config first for instant loading
       const localProduct = config.products.find(p => String(p.id) === String(id) || (p.slug && String(p.slug) === String(id)));
@@ -816,7 +820,7 @@ export default function ProductDetails() {
     return () => {
       active = false;
     };
-  }, [id, config.products]);
+  }, [id, config.products, configReady]);
 
   if (loading) {
     return (
