@@ -325,35 +325,15 @@ export default function CustomerAccount() {
       const custPhone = (customer.phone || '').replace(/[^0-9]/g, '');
       const cacheKey = `customer_orders_${custEmail || custPhone}`;
 
-      // 1. Fetch directly from customer backend route & general orders
-      const backendCustomerOrders = await fetchCustomerOrdersFromBackend(customer.email, customer.phone);
-      const generalOrders = await fetchOrdersFromBackend();
-      
-      // 2. Fetch local storage orders (Admin local edits & offline fallback)
-      let localOrderList: any[] = [];
-      try {
-        const storedOrderList = localStorage.getItem('orderList');
-        if (storedOrderList) localOrderList = JSON.parse(storedOrderList);
-      } catch (e) {}
-
-      let cachedOrders: any[] = [];
-      try {
-        const storedCache = localStorage.getItem(cacheKey);
-        if (storedCache) cachedOrders = JSON.parse(storedCache);
-      } catch (e) {}
-
-      const mockFallback = getOrders() || [];
-
       // Helper matcher function
       const isOrderForCustomer = (o: any) => {
         if (!o) return false;
         const oEmail = (o.email || '').toLowerCase().trim();
         const oPhone = (o.phone || '').replace(/[^0-9]/g, '');
 
-        const emailMatch = Boolean(custEmail && (oEmail === custEmail || oPhone === custEmail));
-        const phoneMatch = Boolean(custPhone && custPhone.length >= 6 && (
-          oPhone === custPhone || 
-          oEmail === custPhone || 
+        const emailMatch = Boolean(custEmail && oEmail && oEmail === custEmail);
+        const phoneMatch = Boolean(custPhone && custPhone.length >= 6 && oPhone && (
+          oPhone === custPhone ||
           (oPhone.length >= 10 && custPhone.endsWith(oPhone.slice(-10))) ||
           (custPhone.length >= 10 && oPhone.endsWith(custPhone.slice(-10)))
         ));
@@ -361,28 +341,22 @@ export default function CustomerAccount() {
         return emailMatch || phoneMatch;
       };
 
+      // 1. Fetch directly from backend (real database - highest priority)
+      const backendCustomerOrders = await fetchCustomerOrdersFromBackend(customer.email, customer.phone);
+      const generalOrders = await fetchOrdersFromBackend();
+
+      // Combine and deduplicate backend results by order id
       const matchedMap = new Map<string, any>();
 
-      // Base layer: mock & old local cache
-      [...mockFallback, ...cachedOrders].forEach((o: any) => {
+      // Process general orders first (lower priority)
+      (generalOrders || []).forEach((o: any) => {
         if (o && o.id && isOrderForCustomer(o)) {
           matchedMap.set(String(o.id), o);
         }
       });
 
-      // Layer 2: Admin local edits from orderList
-      localOrderList.forEach((o: any) => {
-        if (o && o.id && isOrderForCustomer(o)) {
-          const existing = matchedMap.get(String(o.id)) || {};
-          matchedMap.set(String(o.id), {
-            ...existing,
-            ...o
-          });
-        }
-      });
-
-      // Layer 3: Direct Backend DB Orders (HIGHEST PRIORITY - Overwrites status & courier with live database values)
-      [...(generalOrders || []), ...(backendCustomerOrders || [])].forEach((o: any) => {
+      // Process customer-specific orders (higher priority — overwrites with fresher data)
+      (backendCustomerOrders || []).forEach((o: any) => {
         if (o && o.id && isOrderForCustomer(o)) {
           const existing = matchedMap.get(String(o.id)) || {};
           matchedMap.set(String(o.id), {
@@ -394,21 +368,54 @@ export default function CustomerAccount() {
         }
       });
 
-      const finalOrders = Array.from(matchedMap.values()).sort((a: any, b: any) => {
+      // If backend returned results, use them directly (no localStorage/mock mixing)
+      if (matchedMap.size > 0) {
+        const finalOrders = Array.from(matchedMap.values()).sort((a: any, b: any) => {
+          const dateA = new Date(a.date || a.created_at || 0).getTime();
+          const dateB = new Date(b.date || b.created_at || 0).getTime();
+          return dateB - dateA;
+        });
+        localStorage.setItem(cacheKey, JSON.stringify(finalOrders));
+        setOrders(finalOrders as any[]);
+        return;
+      }
+
+      // 2. Fallback: backend returned nothing — try localStorage cache (no mock data)
+      let cachedOrders: any[] = [];
+      try {
+        const storedCache = localStorage.getItem(cacheKey);
+        if (storedCache) cachedOrders = JSON.parse(storedCache);
+      } catch (e) {}
+
+      let localOrderList: any[] = [];
+      try {
+        const storedOrderList = localStorage.getItem('orderList');
+        if (storedOrderList) localOrderList = JSON.parse(storedOrderList);
+      } catch (e) {}
+
+      const fallbackMap = new Map<string, any>();
+      [...cachedOrders, ...localOrderList].forEach((o: any) => {
+        if (o && o.id && isOrderForCustomer(o)) {
+          const existing = fallbackMap.get(String(o.id)) || {};
+          fallbackMap.set(String(o.id), { ...existing, ...o });
+        }
+      });
+
+      const fallbackOrders = Array.from(fallbackMap.values()).sort((a: any, b: any) => {
         const dateA = new Date(a.date || a.created_at || 0).getTime();
         const dateB = new Date(b.date || b.created_at || 0).getTime();
         return dateB - dateA;
       });
 
-      // Save updated persistent cache
-      localStorage.setItem(cacheKey, JSON.stringify(finalOrders));
-      setOrders(finalOrders as any[]);
+      setOrders(fallbackOrders as any[]);
     } catch (e) {
       console.error('Error loading customer orders:', e);
     } finally {
       setLoadingOrders(false);
     }
   };
+
+
 
   // Sync state & localStorage
   const syncChatData = (updated: ChatMessage[]) => {
