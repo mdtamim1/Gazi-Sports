@@ -2,8 +2,11 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { Server } from 'http';
 import db from '../config/db';
 
+export let wssInstance: WebSocketServer | null = null;
+
 export const initChatSocket = (server: Server) => {
   const wss = new WebSocketServer({ noServer: true });
+  wssInstance = wss;
 
   // Handle upgrade requests
   server.on('upgrade', (request, socket, head) => {

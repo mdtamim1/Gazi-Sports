@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { useOutletContext, Link, useNavigate } from 'react-router-dom';
 import { 
@@ -533,55 +533,62 @@ export default function CustomerAccount() {
 
     if (isRegister) {
       if (!authName || !authEmail || !authPassword || !authPhone) {
-        setAuthError('à¦¦à§Ÿà¦¾ à¦•à¦°à§‡ à¦¸à¦¬à¦—à§à¦²à§‹ à¦˜à¦° à¦ªà§‚à¦°à¦£ à¦•à¦°à§à¦¨à¥¤');
+        setAuthError('à¦¦à§Ÿà¦¾ à¦•à¦°à§‡ à¦¸à¦¬à¦—à§ à¦²à§‹ à¦˜à¦° à¦ªà§‚à¦°à¦£ à¦•à¦°à§ à¦¨à¥¤');
         return;
       }
       const res = await register(authName, authEmail, authPassword, authPhone);
       if (!res.success) {
-        setAuthError(res.error || 'à¦¨à¦¿à¦¬à¦¨à§à¦§à¦¨ à¦¬à§à¦¯à¦°à§à¦¥ à¦¹à§Ÿà§‡à¦›à§‡à¥¤');
+        setAuthError(res.error || 'à¦¨à¦¿à¦¬à¦¨à§ à¦§à¦¨ à¦¬à§ à¦¯à¦°à§ à¦¥ à¦¹à§Ÿà§‡à¦›à§‡à¥¤');
       } else {
-        setAuthSuccess('à¦…à§à¦¯à¦¾à¦•à¦¾à¦‰à¦¨à§à¦Ÿ à¦¤à§ˆà¦°à¦¿ à¦¸à¦«à¦² à¦¹à§Ÿà§‡à¦›à§‡!');
+        setAuthSuccess('à¦…à§ à¦¯à¦¾à¦•à¦¾à¦‰à¦¨à§ à¦Ÿ à¦¤à§ˆà¦°à¦¿ à¦¸à¦«à¦² à¦¹à§Ÿà§‡à¦›à§‡!');
       }
     } else {
       if (!authEmail || !authPassword) {
-        setAuthError('à¦‡à¦®à§‡à¦‡à¦² à¦“ à¦ªà¦¾à¦¸à¦“à§Ÿà¦¾à¦°à§à¦¡ à¦ªà§à¦°à¦¦à¦¾à¦¨ à¦•à¦°à§à¦¨à¥¤');
+        setAuthError('à¦‡à¦®à§‡à¦‡à¦² à¦“ à¦ªà¦¾à¦¸à¦“à§Ÿà¦¾à¦°à§ à¦¡ à¦ªà§ à¦°à¦¦à¦¾à¦¨ à¦•à¦°à§ à¦¨à¥¤');
         return;
       }
       const res = await login(authEmail, authPassword);
       if (!res.success) {
-        setAuthError(res.error || 'à¦²à¦—à¦‡à¦¨ à¦¬à§à¦¯à¦°à§à¦¥ à¦¹à§Ÿà§‡à¦›à§‡à¥¤');
+        setAuthError(res.error || 'à¦²à¦—à¦‡à¦¨ à¦¬à§ à¦¯à¦°à§ à¦¥ à¦¹à§Ÿà§‡à¦›à§‡à¥¤');
       }
     }
   };
 
 
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customer || !inputMessage.trim()) return;
+
+    const msgText = inputMessage.trim();
+    setInputMessage('');
 
     const newMessage: ChatMessage = {
       id: `msg-${Date.now()}`,
       customerId: customer.id,
       customerName: customer.name,
       sender: 'customer',
-      message: inputMessage.trim(),
+      message: msgText,
       timestamp: new Date().toISOString(),
       read: false
     };
 
+    // Optimistically update UI
+    const storedChats = localStorage.getItem('storefront_chats');
+    let allChats: ChatMessage[] = [];
+    try { allChats = storedChats ? JSON.parse(storedChats) : []; } catch (e) {}
+    syncChatData([...allChats, newMessage]);
+
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      // WebSocket connected — send through WS (backend saves to DB and broadcasts)
       socketRef.current.send(JSON.stringify({
         type: 'message',
         customerId: customer.id,
         customerName: customer.name,
         sender: 'customer',
-        message: inputMessage.trim()
+        message: msgText
       }));
     } else {
-      // Fallback local storage update
-      const storedChats = localStorage.getItem('storefront_chats');
-      let allChats: ChatMessage[] = [];
       if (storedChats) {
         try {
           allChats = JSON.parse(storedChats);
