@@ -32,6 +32,7 @@ export default function Checkout() {
   
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
   const [customerNote, setCustomerNote] = useState('');
   const [shippingLocation, setShippingLocation] = useState<'dhaka' | 'outside'>('dhaka');
@@ -54,6 +55,7 @@ export default function Checkout() {
   
   const [nameEdited, setNameEdited] = useState(false);
   const [phoneEdited, setPhoneEdited] = useState(false);
+  const [emailEdited, setEmailEdited] = useState(false);
   const [addressEdited, setAddressEdited] = useState(false);
 
   const handleApplyCoupon = async (e: React.FormEvent) => {
@@ -105,6 +107,7 @@ export default function Checkout() {
   // Update form fields dynamically if customer logs in or state changes
   useEffect(() => {
     if (customer) {
+      if (!emailEdited) setCustomerEmail(customer.email || '');
       if (customer.addresses && customer.addresses.length > 0) {
         const defaultAddr = customer.addresses.find(a => a.isDefault) || customer.addresses[0];
         if (defaultAddr) {
@@ -123,7 +126,7 @@ export default function Checkout() {
       if (!phoneEdited) setCustomerPhone(customer.phone || '');
       if (!addressEdited) setCustomerAddress(customer.address || '');
     }
-  }, [customer, nameEdited, phoneEdited, addressEdited]);
+  }, [customer, nameEdited, phoneEdited, addressEdited, emailEdited]);
 
   const handleSelectAddress = (addr: any) => {
     setSelectedAddressId(addr.id);
@@ -181,7 +184,7 @@ export default function Checkout() {
 
     const orderData = {
       customer: customerName,
-      email: customer?.email || customerPhone, // Use logged in email or fallback to phone
+      email: customerEmail || customer?.email || '', // Use custom email, logged in email, or empty
       amount: total,
       items: items.reduce((acc, item) => acc + item.quantity, 0),
       paymentMethod: paymentMethod === 'bkash' ? 'bKash (Send Money)' : paymentMethod === 'nagad' ? 'Nagad (Send Money)' : 'Cash on Delivery',
@@ -447,6 +450,11 @@ export default function Checkout() {
             <div className="form-group full-width">
               <label className="form-label">মোবাইল নম্বর (Phone Number) <span>*</span></label>
               <input type="tel" className="form-input" placeholder="যেমন: ০১৭XXXXXXXX" required value={customerPhone} onChange={(e) => { setCustomerPhone(e.target.value); setPhoneEdited(true); setSelectedAddressId(''); }} />
+            </div>
+
+            <div className="form-group full-width">
+              <label className="form-label">ইমেইল ঠিকানা (Email Address) <span style={{ color: '#94a3b8', fontWeight: 'normal', fontSize: '0.78rem' }}>(অপশনাল)</span></label>
+              <input type="email" className="form-input" placeholder="যেমন: example@gmail.com (অর্ডার রশিদ মেইলে পেতে চাইলে)" value={customerEmail} onChange={(e) => { setCustomerEmail(e.target.value); setEmailEdited(true); }} />
             </div>
 
             <div className="form-group full-width">

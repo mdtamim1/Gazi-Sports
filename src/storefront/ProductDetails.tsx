@@ -84,6 +84,7 @@ export default function ProductDetails() {
   const [trxId, setTrxId] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
   const [customerNote, setCustomerNote] = useState('');
   const [shippingLocation, setShippingLocation] = useState<'dhaka' | 'outside'>('dhaka');
@@ -250,6 +251,7 @@ export default function ProductDetails() {
 
   const [nameEdited, setNameEdited] = useState(false);
   const [phoneEdited, setPhoneEdited] = useState(false);
+  const [emailEdited, setEmailEdited] = useState(false);
   const [addressEdited, setAddressEdited] = useState(false);
 
   // Coupon states
@@ -609,7 +611,7 @@ export default function ProductDetails() {
 
     const orderData = {
       customer: customerName,
-      email: customer?.email || customerPhone,
+      email: customerEmail || customer?.email || '', // Use custom email, logged in email, or empty
       amount: total,
       items: buyNowQty,
       paymentMethod: paymentMethod === 'bkash' ? 'bKash (Send Money)' : paymentMethod === 'nagad' ? 'Nagad (Send Money)' : 'Cash on Delivery',
@@ -672,6 +674,7 @@ export default function ProductDetails() {
     setCheckoutSuccess(false);
     setCustomerName('');
     setCustomerPhone('');
+    setCustomerEmail('');
     setCustomerAddress('');
     setCustomerNote('');
     setPaymentMethod('cod');
@@ -686,6 +689,7 @@ export default function ProductDetails() {
     setSelectedAddressId('');
     setNameEdited(false);
     setPhoneEdited(false);
+    setEmailEdited(false);
     setAddressEdited(false);
     setPromoCodeInput('');
     setAppliedCoupon(null);
@@ -696,6 +700,7 @@ export default function ProductDetails() {
   // Auto-populate checkout details when modal opens or customer loads
   useEffect(() => {
     if (isCheckoutOpen && customer) {
+      if (!emailEdited) setCustomerEmail(customer.email || '');
       if (customer.addresses && customer.addresses.length > 0) {
         const defaultAddr = customer.addresses.find(a => a.isDefault) || customer.addresses[0];
         if (defaultAddr) {
@@ -714,7 +719,7 @@ export default function ProductDetails() {
       if (!phoneEdited) setCustomerPhone(customer.phone || '');
       if (!addressEdited) setCustomerAddress(customer.address || '');
     }
-  }, [isCheckoutOpen, customer, nameEdited, phoneEdited, addressEdited]);
+  }, [isCheckoutOpen, customer, nameEdited, phoneEdited, addressEdited, emailEdited]);
 
   const handleSelectAddress = (addr: any) => {
     setSelectedAddressId(addr.id);

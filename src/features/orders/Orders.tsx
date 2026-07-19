@@ -185,6 +185,7 @@ export default function Orders() {
   const [formInvoice, setFormInvoice] = useState('');
   const [formCustomerName, setFormCustomerName] = useState('');
   const [formCustomerPhone, setFormCustomerPhone] = useState('');
+  const [formCustomerEmail, setFormCustomerEmail] = useState('');
   const [formCustomerAddress, setFormCustomerAddress] = useState('');
   const [formCourier, setFormCourier] = useState('Pathao');
   const [formStatus, setFormStatus] = useState<typeof orders[0]['status']>('processing');
@@ -234,6 +235,7 @@ export default function Orders() {
     setFormInvoice(`TR${Math.floor(1000000 + Math.random() * 9000000)}`);
     setFormCustomerName('');
     setFormCustomerPhone('');
+    setFormCustomerEmail('');
     setFormCustomerAddress('');
     setFormCourier('Pathao');
     setFormStatus('processing');
@@ -260,7 +262,8 @@ export default function Orders() {
     setFormStoreName(order.storeName || 'GAZI SPORTS 24');
     setFormInvoice(order.id);
     setFormCustomerName(order.customer);
-    setFormCustomerPhone(order.email || order.phone || '');
+    setFormCustomerPhone(order.phone || '');
+    setFormCustomerEmail(order.email || '');
     setFormCustomerAddress(order.address || '');
     setFormCourier(order.courier || 'Pathao');
     setFormStatus(order.status);
@@ -736,7 +739,7 @@ export default function Orders() {
 
     const orderData = {
       customer: formCustomerName,
-      email: formCustomerPhone,
+      email: formCustomerEmail,
       amount: amount,
       items: itemsCount,
       paymentMethod: formPaymentType === 'cod' ? 'Cash on Delivery' : formPaymentType.toUpperCase(),
@@ -1401,7 +1404,7 @@ export default function Orders() {
                     </div>
                   </div>
 
-                  <div className="grid-2">
+                  <div className="grid-3">
                     <div className="form-group">
                       <label className="form-label" style={{ color: '#94a3b8' }}>CUSTOMER NAME <span>*</span></label>
                       <input type="text" value={formCustomerName} onChange={(e) => setFormCustomerName(e.target.value)} required className="form-input" placeholder="Enter Name" style={{ background: '#111827', border: '1px solid #1e293b', color: '#fff' }} />
@@ -1409,6 +1412,10 @@ export default function Orders() {
                     <div className="form-group">
                       <label className="form-label" style={{ color: '#94a3b8' }}>CUSTOMER PHONE <span>*</span></label>
                       <input type="text" value={formCustomerPhone} onChange={(e) => setFormCustomerPhone(e.target.value)} required className="form-input" placeholder="Enter Phone" style={{ background: '#111827', border: '1px solid #1e293b', color: '#fff' }} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" style={{ color: '#94a3b8' }}>CUSTOMER EMAIL</label>
+                      <input type="text" value={formCustomerEmail} onChange={(e) => setFormCustomerEmail(e.target.value)} className="form-input" placeholder="Enter Email (Optional)" style={{ background: '#111827', border: '1px solid #1e293b', color: '#fff' }} />
                     </div>
                   </div>
 
