@@ -213,7 +213,8 @@ export default function Products() {
       return {
         label,
         enabled: true,
-        price: prev ? prev.price : undefined
+        price: prev ? prev.price : undefined,
+        originalPrice: prev ? (prev as any).originalPrice : undefined
       };
     });
     
@@ -912,31 +913,58 @@ export default function Products() {
                           <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             💰 Option Prices (অপশন অনুযায়ী কাস্টম দাম সেট করুন - অপশনাল)
                           </div>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(185px, 1fr))', gap: '10px' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
                             {(tempProduct.sizes || []).filter(s => s.enabled).map((opt) => (
-                              <div key={opt.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-secondary)', padding: '6px 10px', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--border-primary)' }}>
-                                <span style={{ fontWeight: 700, fontSize: 'var(--text-xs)', color: 'var(--text-primary)', minWidth: '60px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opt.label}</span>
-                                <input
-                                  type="number"
-                                  placeholder="Base Price"
-                                  value={opt.price || ''}
-                                  onChange={(e) => {
-                                    const val = e.target.value ? Number(e.target.value) : undefined;
-                                    const newSizes = (tempProduct.sizes || []).map(s => s.label === opt.label ? { ...s, price: val } : s);
-                                    setTempProduct({ ...tempProduct, sizes: newSizes });
-                                  }}
-                                  style={{
-                                    flex: 1,
-                                    width: '100%',
-                                    padding: '4px 8px',
-                                    borderRadius: 'var(--radius-sm)',
-                                    border: '1.5px solid var(--border-primary)',
-                                    background: 'var(--bg-primary)',
-                                    color: 'var(--text-primary)',
-                                    fontSize: 'var(--text-xs)',
-                                    outline: 'none'
-                                  }}
-                                />
+                              <div key={opt.label} style={{ display: 'flex', flexDirection: 'column', gap: '6px', background: 'var(--bg-secondary)', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--border-primary)' }}>
+                                <span style={{ fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-primary)', paddingBottom: '4px', marginBottom: '2px' }}>{opt.label}</span>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <label style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 600 }}>Discounted Price (৳)</label>
+                                    <input
+                                      type="number"
+                                      placeholder="৳ Price"
+                                      value={opt.price || ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value ? Number(e.target.value) : undefined;
+                                        const newSizes = (tempProduct.sizes || []).map(s => s.label === opt.label ? { ...s, price: val } : s);
+                                        setTempProduct({ ...tempProduct, sizes: newSizes });
+                                      }}
+                                      style={{
+                                        width: '100%',
+                                        padding: '4px 8px',
+                                        borderRadius: 'var(--radius-sm)',
+                                        border: '1.5px solid var(--border-primary)',
+                                        background: 'var(--bg-primary)',
+                                        color: 'var(--text-primary)',
+                                        fontSize: 'var(--text-xs)',
+                                        outline: 'none'
+                                      }}
+                                    />
+                                  </div>
+                                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <label style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 600 }}>Original Price (৳)</label>
+                                    <input
+                                      type="number"
+                                      placeholder="৳ Regular"
+                                      value={opt.originalPrice || ''}
+                                      onChange={(e) => {
+                                        const val = e.target.value ? Number(e.target.value) : undefined;
+                                        const newSizes = (tempProduct.sizes || []).map(s => s.label === opt.label ? { ...s, originalPrice: val } : s);
+                                        setTempProduct({ ...tempProduct, sizes: newSizes });
+                                      }}
+                                      style={{
+                                        width: '100%',
+                                        padding: '4px 8px',
+                                        borderRadius: 'var(--radius-sm)',
+                                        border: '1.5px solid var(--border-primary)',
+                                        background: 'var(--bg-primary)',
+                                        color: 'var(--text-primary)',
+                                        fontSize: 'var(--text-xs)',
+                                        outline: 'none'
+                                      }}
+                                    />
+                                  </div>
+                                </div>
                               </div>
                             ))}
                           </div>

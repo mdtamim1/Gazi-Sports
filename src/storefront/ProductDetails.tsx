@@ -74,6 +74,27 @@ export default function ProductDetails() {
     return price;
   };
 
+  const getActiveOriginalPrice = () => {
+    if (!product) return null;
+    let originalPrice = product.originalPrice;
+    const selectedLabels = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean);
+    if (product.sizes && Array.isArray(product.sizes)) {
+      for (const label of selectedLabels) {
+        const match = product.sizes.find((s: any) => s.label === label && s.enabled);
+        if (match) {
+          if (match.originalPrice && Number(match.originalPrice) > 0) {
+            originalPrice = Number(match.originalPrice);
+            break;
+          } else if (match.price && Number(match.price) > 0) {
+            originalPrice = (product.originalPrice && product.originalPrice > Number(match.price)) ? product.originalPrice : null;
+            break;
+          }
+        }
+      }
+    }
+    return originalPrice;
+  };
+
   const getMissingOptionGroup = () => {
     if (!product) return null;
     const SIZES_KEYS = ['s', 'm', 'l', 'xl', 'xxl', '3xl', '4xl', '5xl', '6xl', 'free size'];
@@ -825,7 +846,7 @@ export default function ProductDetails() {
             </div>
             {product.badge && (
               <span className={`pdp-badge ${product.badge}`}>
-                {product.badge === 'sale' ? `Sale! -${Math.round((1 - product.price / (product.originalPrice || product.price)) * 100)}%` : 'NEW'}
+                {product.badge === 'sale' ? `Sale! -${Math.round((1 - getActivePrice() / (getActiveOriginalPrice() || getActivePrice())) * 100)}%` : 'NEW'}
               </span>
             )}
             {imagesList.length > 1 && (
@@ -887,11 +908,11 @@ export default function ProductDetails() {
                 : `৳${getActivePrice()}`
               }
             </span>
-            {product.originalPrice && (
+            {getActiveOriginalPrice() && (
               <span className="pdp-original-price">
                 {product.category && (product.category.toLowerCase() === 'jersey' || product.category.toLowerCase() === 'jerseys')
-                  ? `Tk ${product.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                  : `৳${product.originalPrice}`
+                  ? `Tk ${getActiveOriginalPrice()!.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : `৳${getActiveOriginalPrice()}`
                 }
               </span>
             )}

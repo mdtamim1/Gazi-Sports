@@ -25,7 +25,6 @@ import './storefront-manager.css';
 // ============================================================
 const TABS = [
   { id: 'banners', label: 'Banners & Promos', icon: Image },
-  { id: 'announcements', label: 'Announcements', icon: Megaphone },
   { id: 'categories', label: 'Categories', icon: Grid3X3 },
   { id: 'navigation', label: 'Navigation', icon: Link2 },
   { id: 'featured', label: 'Homepage Collections', icon: ShoppingBag },
@@ -103,7 +102,6 @@ export default function StorefrontManager() {
 
       {/* Tab Content */}
       {activeTab === 'banners' && <BannersSection config={config} updateConfig={updateConfig} />}
-      {activeTab === 'announcements' && <AnnouncementsSection config={config} updateConfig={updateConfig} />}
       {activeTab === 'categories' && <CategoriesSection config={config} updateConfig={updateConfig} />}
       {activeTab === 'navigation' && <NavigationSection config={config} updateConfig={updateConfig} />}
       {activeTab === 'featured' && <FeaturedCollectionsSection config={config} updateConfig={updateConfig} />}

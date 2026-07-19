@@ -126,7 +126,7 @@ export interface ProductConfig {
   revenue?: number;
   videoUrl?: string;
   photoContent?: string;
-  sizes?: { label: string; enabled: boolean; price?: number }[];
+  sizes?: { label: string; enabled: boolean; price?: number; originalPrice?: number }[];
   slug?: string;
 }
 
