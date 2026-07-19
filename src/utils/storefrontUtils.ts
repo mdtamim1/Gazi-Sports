@@ -83,23 +83,13 @@ export function formatPageContent(text: string): string {
 export function getWebSocketUrl(): string {
   const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  let wsHost = 'api.tamimglobal.com';
 
   if (isLocalDev) {
-    wsHost = 'localhost:5000';
-  } else {
-    // Attempt to extract host from custom VITE_API_URL env variable if present
-    const envApiUrl = import.meta.env.VITE_API_URL;
-    if (envApiUrl) {
-      try {
-        const urlObj = new URL(envApiUrl);
-        wsHost = urlObj.host;
-      } catch (e) {
-        console.warn('VITE_API_URL is invalid, using default ws host:', e);
-      }
-    }
+    return `${wsProto}//localhost:5000/ws/chat`;
   }
 
-  return `${wsProto}//${wsHost}/ws/chat`;
+  // In production: use the same host as the current page (nginx proxies /ws/chat to backend)
+  return `${wsProto}//${window.location.host}/ws/chat`;
 }
+
 
