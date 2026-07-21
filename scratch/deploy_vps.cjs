@@ -8,7 +8,7 @@ conn.on('ready', () => {
   console.log('✅ SSH Connection Established successfully!');
   console.log('🚀 Executing deployment commands on /var/www/gazisports...');
   
-  const cmd = 'cd /var/www/gazisports && git stash && git pull origin master && npm install && npm run build && node backend/scripts/compress_existing.js && pm2 restart gazi-sports-backend';
+  const cmd = 'cd /var/www/gazisports && git stash && git pull origin master && npm install --include=optional --force && npm run build && node backend/scripts/compress_existing.js && pm2 restart gazi-sports-backend';
   
   conn.exec(cmd, (err, stream) => {
     if (err) {

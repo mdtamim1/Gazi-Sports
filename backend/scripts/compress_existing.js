@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import sharp from 'sharp';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -8,7 +7,22 @@ const __dirname = path.dirname(__filename);
 
 const uploadsDir = path.resolve(__dirname, '../../uploads');
 
+async function getSharp() {
+  try {
+    const mod = await import('sharp');
+    return mod.default || mod;
+  } catch (e) {
+    console.warn('Sharp module not available for standalone compression script:', e.message);
+    return null;
+  }
+}
+
 async function compressAll() {
+  const sharp = await getSharp();
+  if (!sharp) {
+    console.log('Skipping standalone image compression as sharp is unavailable.');
+    return;
+  }
   if (!fs.existsSync(uploadsDir)) {
     console.log('No uploads directory found at:', uploadsDir);
     return;

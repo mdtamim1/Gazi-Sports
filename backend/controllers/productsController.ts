@@ -8,10 +8,27 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import https from 'https';
 import http from 'http';
-import sharp from 'sharp';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Dynamic sharp loader to avoid top-level ESM module initialization crashes
+let _sharpInstance: any = null;
+let _sharpFailed = false;
+
+const getSharp = async () => {
+  if (_sharpFailed) return null;
+  if (_sharpInstance) return _sharpInstance;
+  try {
+    const mod = await import('sharp');
+    _sharpInstance = mod.default || mod;
+    return _sharpInstance;
+  } catch (e) {
+    console.warn('Sharp module not available or failed initialization, using raw file fallback:', e);
+    _sharpFailed = true;
+    return null;
+  }
+};
 
 // Helper to ensure uploads directory exists and return its path
 const getUploadsDir = (): string => {
@@ -29,6 +46,8 @@ const buildBrandedFilename = (slug: string, suffix: string, extension: string): 
 // Compress image buffer to WebP (max 1000px, 78% quality) and save to disk
 const compressAndSaveBuffer = async (buffer: Buffer, slug: string, suffix: string = ''): Promise<string> => {
   try {
+    const sharp = await getSharp();
+    if (!sharp) return '';
     const uploadsDir = getUploadsDir();
     const filename = buildBrandedFilename(slug, suffix, 'webp');
     const filePath = path.join(uploadsDir, filename);

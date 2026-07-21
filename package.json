@@ -65,5 +65,8 @@
     "globals": "^17.6.0",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12"
+  },
+  "optionalDependencies": {
+    "@img/sharp-linux-x64": "^0.35.3"
   }
 }
