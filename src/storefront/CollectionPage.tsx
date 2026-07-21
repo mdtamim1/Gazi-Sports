@@ -172,7 +172,30 @@ export default function CollectionPage() {
     categoryNames = Array.from(new Set(products.map(p => p.category)));
   }
 
-  const uniqueCategories = ['All', ...categoryNames];
+  // Only show categories that have products in this collection
+  let uniqueCategories: string[] = [];
+  if (isAllProductsPage) {
+    uniqueCategories = ['All', ...categoryNames];
+  } else {
+    const categoriesInCollection = Array.from(
+      new Set(collectionProducts.map(p => p.category).filter(Boolean))
+    ) as string[];
+    // Align with category names from categoriesConfig to preserve order
+    const filteredCategoryNames = categoryNames.filter((cat: string) => 
+      categoriesInCollection.some((c: string) => c.toLowerCase() === cat.toLowerCase())
+    );
+    // Fallback if not configured in categoryNames
+    const extraCategories = categoriesInCollection.filter((c: string) =>
+      !filteredCategoryNames.some((cat: string) => cat.toLowerCase() === c.toLowerCase())
+    );
+    const finalCategories = [...filteredCategoryNames, ...extraCategories];
+
+    if (finalCategories.length > 1) {
+      uniqueCategories = ['All', ...finalCategories];
+    } else {
+      uniqueCategories = finalCategories;
+    }
+  }
 
   useEffect(() => {
     setSelectedCategory('All');
@@ -441,12 +464,13 @@ export default function CollectionPage() {
       )}
 
       {/* Category Pill Bar */}
-      {uniqueCategories.length > 1 && (
+      {uniqueCategories.length > 0 && (
         <div className="collection-cat-pill-bar">
           {uniqueCategories.map(cat => {
             const count = cat === 'All' ? collectionProducts.length : collectionProducts.filter(p => p.category === cat).length;
+            const isActive = selectedCategory === cat || uniqueCategories.length === 1;
             return (
-              <button key={cat} className={`collection-cat-pill${selectedCategory === cat ? ' active' : ''}`} onClick={() => setSelectedCategory(cat)}>
+              <button key={cat} className={`collection-cat-pill${isActive ? ' active' : ''}`} onClick={() => setSelectedCategory(cat)}>
                 {cat}<span className="collection-cat-pill-count">{count}</span>
               </button>
             );

@@ -1111,7 +1111,7 @@ export default function ProductDetails() {
                       opacity: isOutOfStock ? 0.6 : 1
                     }}
                   >
-                    {isOutOfStock ? 'স্টক আউট' : 'Buy Now'}
+                    {isOutOfStock ? 'স্টক আউট' : 'Order Now'}
                   </button>
             <div className="pdp-action-icons">
               <button 
@@ -1566,7 +1566,7 @@ export default function ProductDetails() {
                     navigate('/checkout', { state: { product: buyProduct, quantity: 1 } });
                   }}
                 >
-                  {isOutOfStock ? 'স্টক আউট' : 'Buy Now'}
+                  {isOutOfStock ? 'স্টক আউট' : 'Order Now'}
                 </button>
                 <button 
                   disabled={isOutOfStock}
