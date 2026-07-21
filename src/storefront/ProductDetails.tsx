@@ -886,6 +886,7 @@ export default function ProductDetails() {
                     className="pdp-main-image" 
                     width={800} 
                     height={800} 
+                    priority={i === 0}
                     style={{ objectFit: 'contain' }}
                   />
                 </div>

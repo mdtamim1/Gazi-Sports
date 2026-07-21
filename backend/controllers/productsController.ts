@@ -6,12 +6,12 @@ import { generateSitemap } from '../utils/sitemap';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import https from 'https';
+import http from 'http';
+import sharp from 'sharp';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-import https from 'https';
-import http from 'http';
 
 // Helper to ensure uploads directory exists and return its path
 const getUploadsDir = (): string => {
@@ -26,14 +26,34 @@ const getUploadsDir = (): string => {
 const buildBrandedFilename = (slug: string, suffix: string, extension: string): string =>
   `gazisports24-${slug}${suffix ? '-' + suffix : ''}.${extension}`;
 
-// Save base64 image as branded file
-const saveBase64Image = (base64Str: string, slug: string, suffix: string = ''): string => {
+// Compress image buffer to WebP (max 1000px, 78% quality) and save to disk
+const compressAndSaveBuffer = async (buffer: Buffer, slug: string, suffix: string = ''): Promise<string> => {
+  try {
+    const uploadsDir = getUploadsDir();
+    const filename = buildBrandedFilename(slug, suffix, 'webp');
+    const filePath = path.join(uploadsDir, filename);
+    await sharp(buffer)
+      .resize(1000, 1000, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 78, effort: 4 })
+      .toFile(filePath);
+    return `/uploads/${filename}`;
+  } catch (err) {
+    console.error('Error compressing image with sharp:', err);
+    return '';
+  }
+};
+
+// Save base64 image as branded WebP file
+const saveBase64Image = async (base64Str: string, slug: string, suffix: string = ''): Promise<string> => {
   if (!base64Str || !base64Str.startsWith('data:image/')) return base64Str;
   try {
     const matches = base64Str.match(/^data:image\/([A-Za-z0-9\-+]+);base64,(.+)$/);
     if (!matches || matches.length !== 3) return base64Str;
-    const extension = matches[1] === 'jpeg' ? 'jpg' : matches[1];
     const buffer = Buffer.from(matches[2], 'base64');
+    const compressedUrl = await compressAndSaveBuffer(buffer, slug, suffix);
+    if (compressedUrl) return compressedUrl;
+
+    const extension = matches[1] === 'jpeg' ? 'jpg' : matches[1];
     const uploadsDir = getUploadsDir();
     const filename = buildBrandedFilename(slug, suffix, extension);
     fs.writeFileSync(path.join(uploadsDir, filename), buffer);
@@ -44,7 +64,7 @@ const saveBase64Image = (base64Str: string, slug: string, suffix: string = ''): 
   }
 };
 
-// Download external URL and save as branded file (async)
+// Download external URL and save as branded WebP file (async)
 const downloadAndSaveUrl = (url: string, slug: string, suffix: string = ''): Promise<string> => {
   return new Promise((resolve) => {
     try {
@@ -54,23 +74,32 @@ const downloadAndSaveUrl = (url: string, slug: string, suffix: string = ''): Pro
           console.warn(`Failed to download image (status ${response.statusCode}): ${url}`);
           return resolve(url);
         }
-        const contentType = response.headers['content-type'] || 'image/jpeg';
-        const extMap: Record<string, string> = {
-          'image/jpeg': 'jpg', 'image/jpg': 'jpg', 'image/png': 'png',
-          'image/webp': 'webp', 'image/gif': 'gif', 'image/avif': 'avif',
-        };
-        const extension = extMap[contentType.split(';')[0].trim()] || 'jpg';
-        const uploadsDir = getUploadsDir();
-        const filename = buildBrandedFilename(slug, suffix, extension);
-        const filePath = path.join(uploadsDir, filename);
-        const fileStream = fs.createWriteStream(filePath);
-        response.pipe(fileStream);
-        fileStream.on('finish', () => {
-          fileStream.close();
-          resolve(`/uploads/${filename}`);
+        const chunks: Buffer[] = [];
+        response.on('data', (chunk) => chunks.push(chunk));
+        response.on('end', async () => {
+          try {
+            const buffer = Buffer.concat(chunks);
+            const compressedUrl = await compressAndSaveBuffer(buffer, slug, suffix);
+            if (compressedUrl) return resolve(compressedUrl);
+
+            const contentType = response.headers['content-type'] || 'image/jpeg';
+            const extMap: Record<string, string> = {
+              'image/jpeg': 'jpg', 'image/jpg': 'jpg', 'image/png': 'png',
+              'image/webp': 'webp', 'image/gif': 'gif', 'image/avif': 'avif',
+            };
+            const extension = extMap[contentType.split(';')[0].trim()] || 'jpg';
+            const uploadsDir = getUploadsDir();
+            const filename = buildBrandedFilename(slug, suffix, extension);
+            const filePath = path.join(uploadsDir, filename);
+            fs.writeFileSync(filePath, buffer);
+            resolve(`/uploads/${filename}`);
+          } catch (err) {
+            console.error('Error processing downloaded image buffer:', err);
+            resolve(url);
+          }
         });
-        fileStream.on('error', (err) => {
-          console.error('Error writing downloaded image:', err);
+        response.on('error', (err) => {
+          console.error('Error reading downloaded image stream:', err);
           resolve(url);
         });
       }).on('error', (err) => {
@@ -88,7 +117,7 @@ const downloadAndSaveUrl = (url: string, slug: string, suffix: string = ''): Pro
 const processImageUrl = async (imageVal: string, slug: string, suffix: string = ''): Promise<string> => {
   if (!imageVal) return imageVal;
   // Already a branded upload on our server — no need to re-process
-  if (imageVal.startsWith('/uploads/gazisports24-')) return imageVal;
+  if (imageVal.startsWith('/uploads/gazisports24-') && imageVal.endsWith('.webp')) return imageVal;
   // Base64 image
   if (imageVal.startsWith('data:image/')) return saveBase64Image(imageVal, slug, suffix);
   // External HTTP/HTTPS URL — download and rename
