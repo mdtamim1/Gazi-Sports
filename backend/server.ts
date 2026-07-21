@@ -10,9 +10,11 @@ import morgan from 'morgan';
 import { createServer } from 'http';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { generateSitemap, getSitemapXML } from './utils/sitemap';
 import { generateGoogleMerchantFeed } from './utils/googleMerchantFeed';
+import { injectSeoToHtml } from './utils/seoInjector';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -282,12 +284,25 @@ app.get(['/google-merchant.xml', '/merchant-feed.xml', '/api/v1/google-merchant.
   }
 });
 
-// For all other requests that are NOT API requests, serve the index.html from dist
-app.get(/.*/, (req, res, next) => {
+// For all other requests that are NOT API requests, serve the index.html from dist with Server-Side SEO Injection
+const indexHtmlPath = path.resolve(distPath, 'index.html');
+app.get(/.*/, async (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next(); // pass it to API error handler
   }
-  res.sendFile(path.resolve(distPath, 'index.html'));
+
+  try {
+    if (fs.existsSync(indexHtmlPath)) {
+      const template = fs.readFileSync(indexHtmlPath, 'utf8');
+      const injectedHtml = await injectSeoToHtml(template, req.path);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      return res.send(injectedHtml);
+    }
+  } catch (err) {
+    console.error('Error serving injected index.html:', err);
+  }
+
+  res.sendFile(indexHtmlPath);
 });
 
 // ========================================
