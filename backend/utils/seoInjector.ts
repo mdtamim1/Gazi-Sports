@@ -9,35 +9,39 @@ export async function injectSeoToHtml(htmlTemplate: string, reqPath: string): Pr
     return htmlTemplate;
   }
 
-  // Extract ID or Slug from path
-  const param = decodeURIComponent(reqPath.replace('/product/', '').split('?')[0].trim());
-  if (!param) return htmlTemplate;
+  try {
+    const param = decodeURIComponent(reqPath.replace('/product/', '').split('?')[0].trim());
+    if (!param) return htmlTemplate;
 
-  return new Promise((resolve) => {
-    // Try matching by id or slug
-    const query = `
-      SELECT id, name, price, original_price, image, category, description, published, stock 
-      FROM products 
-      WHERE (id = ? OR slug = ? OR lower(name) = ? OR lower(replace(name, ' ', '-')) = ?) AND published = 1
-      LIMIT 1
-    `;
-    const cleanSlugParam = param.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-    db.get(query, [param, param, param.toLowerCase(), cleanSlugParam], (err, product: any) => {
-      if (err || !product) {
-        // Fallback search by substring matching if slug is long
-        db.get(`SELECT id, name, price, original_price, image, category, description, published, stock FROM products WHERE published = 1 LIMIT 1`, [], (_err2, fallbackProduct: any) => {
-          if (fallbackProduct) {
-            return resolve(buildInjectedHtml(htmlTemplate, fallbackProduct, domain, reqPath));
-          }
+    return new Promise((resolve) => {
+      db.all("SELECT id, name, price, original_price, image, category, description, published, stock FROM products WHERE published = 1", [], (err, rows: any[]) => {
+        if (err || !rows || rows.length === 0) {
           return resolve(htmlTemplate);
-        });
-        return;
-      }
+        }
 
-      resolve(buildInjectedHtml(htmlTemplate, product, domain, reqPath));
+        let matched = rows.find(p => String(p.id) === param || (p.slug && p.slug === param));
+        if (!matched) {
+          const cleanParam = param.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          matched = rows.find(p => {
+            const pNameSlug = (p.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            return pNameSlug === cleanParam || cleanParam.includes(pNameSlug) || pNameSlug.includes(cleanParam);
+          });
+        }
+        if (!matched) {
+          matched = rows[0];
+        }
+
+        try {
+          resolve(buildInjectedHtml(htmlTemplate, matched, domain, reqPath));
+        } catch (e) {
+          resolve(htmlTemplate);
+        }
+      });
     });
-  });
+  } catch (err) {
+    console.error('Error in injectSeoToHtml:', err);
+    return htmlTemplate;
+  }
 }
 
 function buildInjectedHtml(htmlTemplate: string, product: any, domain: string, reqPath: string): string {
