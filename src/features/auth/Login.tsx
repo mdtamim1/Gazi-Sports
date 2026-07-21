@@ -160,7 +160,7 @@ export default function Login() {
                   <input
                     type="email"
                     className="login-input"
-                    placeholder="gazisports24@gmail.com"
+                    placeholder=""
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={isLoading}

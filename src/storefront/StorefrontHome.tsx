@@ -79,28 +79,28 @@ export default function StorefrontHome() {
     return [...publishedProducts].sort(() => Math.random() - 0.5);
   }, [config.products]);
 
-  // Get trending products (exactly 6 for layout density parity with requested screenshot)
+  // Get trending products (all selected products, or fallback to first 6 published products)
   const trendingProducts = useMemo(() => {
     const ids = config.trendingProductIds || [];
     const stringIds = ids.map(String);
     const selectedList = config.products.filter(p => p.published && stringIds.includes(String(p.id)));
     
-    // If admin explicitly selected products, show them. Otherwise fall back to first 6 published products.
+    // If admin explicitly selected products, show all of them. Otherwise fall back to first 6 published products.
     if (selectedList.length > 0) {
-      return selectedList.slice(0, 6);
+      return selectedList;
     }
     return config.products.filter(p => p.published).slice(0, 6);
   }, [config.products, config.trendingProductIds]);
 
-  // Get new arrival products (exactly 4 for layout density parity with requested screenshot)
+  // Get new arrival products (all selected products, or fallback to first 4 published products)
   const newArrivalProducts = useMemo(() => {
     const ids = config.newArrivalProductIds || [];
     const stringIds = ids.map(String);
     const selectedList = config.products.filter(p => p.published && stringIds.includes(String(p.id)));
     
-    // If admin explicitly selected products, show them. Otherwise fall back to first 4 published products.
+    // If admin explicitly selected products, show all of them. Otherwise fall back to first 4 published products.
     if (selectedList.length > 0) {
-      return selectedList.slice(0, 4);
+      return selectedList;
     }
     return config.products.filter(p => p.published).slice(0, 4);
   }, [config.products, config.newArrivalProductIds]);

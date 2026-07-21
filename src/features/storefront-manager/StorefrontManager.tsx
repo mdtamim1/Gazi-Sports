@@ -1049,15 +1049,13 @@ function FooterSection({ config, updateConfig }: SectionProps) {
 // 9. MOST SELLING & TRENDING SECTION
 // ============================================================
 function FeaturedCollectionsSection({ config, updateConfig }: SectionProps) {
-  const [mostSellingQuery, setMostSellingQuery] = useState('');
   const [trendingQuery, setTrendingQuery] = useState('');
   const [newArrivalQuery, setNewArrivalQuery] = useState('');
 
-  const mostSellingIds = config.mostSellingProductIds || [];
   const trendingIds = config.trendingProductIds || [];
   const newArrivalIds = config.newArrivalProductIds || [];
 
-  const toggleProductInList = (listKey: 'mostSellingProductIds' | 'trendingProductIds' | 'newArrivalProductIds', prodId: number) => {
+  const toggleProductInList = (listKey: 'trendingProductIds' | 'newArrivalProductIds', prodId: number) => {
     const currentList = config[listKey] || [];
     const newList = currentList.includes(prodId)
       ? currentList.filter(id => id !== prodId)
@@ -1070,80 +1068,11 @@ function FeaturedCollectionsSection({ config, updateConfig }: SectionProps) {
       <div className="sfm-section-header">
         <div>
           <div className="sfm-section-title">Homepage Product Collections</div>
-          <div className="sfm-section-subtitle">Manage homepage most selling, trending, and new arrivals collections. Use search to add/remove products.</div>
+          <div className="sfm-section-subtitle">Manage homepage trending and new arrivals collections. Use search to add/remove products.</div>
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '32px' }}>
-        
-        {/* Most Selling Section */}
-        <div className="sfm-card" style={{ margin: 0 }}>
-          <div className="sfm-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div className="sfm-card-title">🔥 Most Selling Collection</div>
-            <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Selected: {mostSellingIds.length}</span>
-          </div>
-
-          <div style={{ padding: '16px' }}>
-            {/* Search Box */}
-            <div style={{ marginBottom: '16px' }}>
-              <input
-                type="text"
-                className="sfm-input"
-                style={{ width: '100%' }}
-                placeholder="Search products to add to Most Selling..."
-                value={mostSellingQuery}
-                onChange={e => setMostSellingQuery(e.target.value)}
-              />
-            </div>
-
-            {/* Catalog Grid */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', 
-              gap: '12px', 
-              maxHeight: '260px', 
-              overflowY: 'auto',
-              marginBottom: '20px',
-              paddingRight: '4px'
-            }}>
-              {config.products
-                .filter(prod => 
-                  prod.name.toLowerCase().includes(mostSellingQuery.toLowerCase()) || 
-                  prod.category.toLowerCase().includes(mostSellingQuery.toLowerCase())
-                )
-                .map(prod => {
-                  const isAdded = mostSellingIds.includes(prod.id);
-                  return (
-                    <div 
-                      key={prod.id}
-                      onClick={() => toggleProductInList('mostSellingProductIds', prod.id)}
-                      style={{ 
-                        position: 'relative', display: 'flex', flexDirection: 'column', padding: '8px', 
-                        background: isAdded ? 'rgba(233, 43, 43, 0.08)' : 'rgba(255,255,255,0.01)', 
-                        border: '1px solid ' + (isAdded ? 'var(--sf-accent, #e92b2b)' : 'rgba(255,255,255,0.05)'), 
-                        borderRadius: '8px', cursor: 'pointer', userSelect: 'none'
-                      }}
-                    >
-                      {isAdded && (
-                        <div style={{
-                          position: 'absolute', top: '4px', right: '4px', background: '#10b981', color: '#fff',
-                          width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2
-                        }}>
-                          <Check size={10} strokeWidth={3} />
-                        </div>
-                      )}
-                      <div style={{ width: '100%', height: '60px', borderRadius: '4px', overflow: 'hidden', background: 'rgba(0,0,0,0.2)', marginBottom: '6px' }}>
-                        {prod.image && <img src={prod.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-                      </div>
-                      <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: '14px', height: '28px' }}>
-                        {prod.name}
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          </div>
-        </div>
 
         {/* Trending Section */}
         <div className="sfm-card" style={{ margin: 0 }}>
