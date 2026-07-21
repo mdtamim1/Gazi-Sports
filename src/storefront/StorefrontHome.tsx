@@ -363,6 +363,8 @@ export default function StorefrontHome() {
             const categoryProducts = config.products.filter(p => p.published && p.category === cat.name);
             // Get last product image
             const lastProductImage = categoryProducts.length > 0 ? categoryProducts[categoryProducts.length - 1].image : '';
+            // Determine displayed category image (custom image if enabled, else last added product image)
+            const displayCategoryCardImage = (cat.useCustomImage && cat.image && cat.image.trim()) ? cat.image : lastProductImage;
 
             return (
               <Link 
@@ -372,8 +374,8 @@ export default function StorefrontHome() {
                 style={{ textDecoration: 'none' }}
               >
                 <div className="category-image-container">
-                  {lastProductImage ? (
-                    <OptimizedImage src={lastProductImage} alt={cat.name} className="category-card-image" width={300} height={300} />
+                  {displayCategoryCardImage ? (
+                    <OptimizedImage src={displayCategoryCardImage} alt={cat.name} className="category-card-image" width={300} height={300} />
                   ) : (
                     <div className="category-icon-fallback"><Icon size={22} /></div>
                   )}

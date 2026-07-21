@@ -149,7 +149,7 @@ export default function BlogManager() {
       <div className="header-row">
         <div>
           <h1 className="page-title">Blog Articles Manager</h1>
-          <p className="page-subtitle">Publish grooming guides, makeup tutorials, and beauty tips.</p>
+          <p className="page-subtitle">Publish sports guides, workout tutorials, and fitness tips.</p>
         </div>
         <button className="btn btn-primary" onClick={handleOpenCreate}>
           <Plus size={16} /> New Article

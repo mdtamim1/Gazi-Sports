@@ -180,13 +180,16 @@ export default function Products() {
     prodSizes.forEach(s => {
       if (!s.enabled) return;
       const labelLower = s.label.toLowerCase().trim();
+      const isWeight = labelLower.endsWith('kg') || labelLower.endsWith('gm') || labelLower.endsWith('g') || labelLower.endsWith('lbs') || labelLower.endsWith('lb') || labelLower.endsWith('k') || labelLower.includes('kg') || labelLower.includes('gm') || /^\d+(\.\d+)?\s*(kg|k|gm|g|lbs|lb)$/i.test(labelLower);
+      const isHeight = labelLower.endsWith('ft') || labelLower.endsWith('cm') || labelLower.endsWith('mm') || labelLower.endsWith('inch') || labelLower.endsWith('inches') || labelLower.endsWith('"') || labelLower.endsWith("'") || labelLower.includes('ft') || labelLower.includes('cm') || labelLower.includes('inch');
+
       if (SIZES_KEYS.includes(labelLower)) {
         sizesArr.push(s.label);
       } else if (COLORS_KEYS.includes(labelLower)) {
         colorsArr.push(s.label);
-      } else if (labelLower.endsWith('kg') || labelLower.endsWith('gm') || labelLower.endsWith('g') || labelLower.endsWith('lbs') || labelLower.includes('kg') || labelLower.includes('gm')) {
+      } else if (isWeight) {
         weightsArr.push(s.label);
-      } else if (labelLower.endsWith('ft') || labelLower.endsWith('cm') || labelLower.endsWith('inch') || labelLower.endsWith('inches') || labelLower.includes('ft') || labelLower.includes('cm') || labelLower.includes('inch')) {
+      } else if (isHeight) {
         heightsArr.push(s.label);
       } else {
         customArr.push(s.label);

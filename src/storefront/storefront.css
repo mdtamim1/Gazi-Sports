@@ -70,8 +70,9 @@
 .store-sticky-header-container {
   width: 100%;
   position: relative;
-  z-index: 1010;
+  z-index: 99999 !important;
   transition: all 0.3s ease;
+  overflow: visible !important;
 }
 
 .store-sticky-header-container.header-transparent {
@@ -5130,18 +5131,20 @@
   color: #ffffff !important;
 }
 
-/* Desktop flex layout override */
-@media (min-width: 769px) {
+/* Desktop flex layout override & responsive breakpoints */
+@media (min-width: 1024px) {
   .store-header-inner-grid {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
     grid-template-columns: none !important;
+    overflow: visible !important;
   }
   
   .store-header-left {
     display: flex !important;
     align-items: center !important;
+    overflow: visible !important;
   }
   
   .store-header-left .store-header-btn {
@@ -5161,13 +5164,33 @@
   .store-header-nav-right {
     display: flex !important;
     align-items: center !important;
-    gap: 16px !important;
+    gap: 12px !important;
+    overflow: visible !important;
+  }
+  
+  .store-header-nav-left .store-nav-link,
+  .store-header-nav-right .store-nav-link {
+    font-size: 0.875rem !important;
+    padding: 6px 10px !important;
+    white-space: nowrap !important;
   }
   
   .store-header-right {
     display: flex !important;
     align-items: center !important;
-    gap: 16px !important;
+    gap: 12px !important;
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .store-header-left .store-header-btn {
+    display: flex !important;
+  }
+  
+  .store-header-nav-left,
+  .store-header-nav-right {
+    display: none !important;
   }
 }
 
@@ -5633,11 +5656,11 @@
   position: absolute;
   top: 100%;
   left: 0;
-  z-index: 1000;
+  z-index: 999999 !important;
   background: var(--sf-bg-white, #ffffff);
   border: 1px solid var(--sf-border, #e5e5e5);
   border-radius: var(--sf-radius-md, 6px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
   min-width: 200px;
   padding: 8px 0;
   margin-top: 8px;

@@ -150,37 +150,40 @@ export default function ProductDetails() {
       const label = s.label.toLowerCase().trim();
       return COLORS_KEYS.includes(label);
     });
+    const isWeight = (l: string) => l.endsWith('kg') || l.endsWith('gm') || l.endsWith('g') || l.endsWith('lbs') || l.endsWith('lb') || l.endsWith('k') || l.includes('kg') || l.includes('gm') || /^\d+(\.\d+)?\s*(kg|k|gm|g|lbs|lb)$/i.test(l);
+    const isHeight = (l: string) => l.endsWith('ft') || l.endsWith('cm') || l.endsWith('mm') || l.endsWith('inch') || l.endsWith('inches') || l.endsWith('"') || l.endsWith("'") || l.includes('ft') || l.includes('cm') || l.includes('inch');
+
     const weightOpts = enabled.filter((s: any) => {
       const label = s.label.toLowerCase().trim();
-      return label.endsWith('kg') || label.endsWith('gm') || label.endsWith('g') || label.endsWith('lbs') || label.includes('kg') || label.includes('gm');
+      return isWeight(label);
     });
     const heightOpts = enabled.filter((s: any) => {
       const label = s.label.toLowerCase().trim();
-      return label.endsWith('ft') || label.endsWith('cm') || label.endsWith('inch') || label.endsWith('inches') || label.includes('ft') || label.includes('cm') || label.includes('inch');
+      return isHeight(label);
     });
     const customOpts = enabled.filter((s: any) => {
       const label = s.label.toLowerCase().trim();
       const isPredefined = SIZES_KEYS.includes(label) || 
                            COLORS_KEYS.includes(label) || 
-                           label.endsWith('kg') || label.endsWith('gm') || label.endsWith('g') || label.endsWith('lbs') || label.includes('kg') || label.includes('gm') ||
-                           label.endsWith('ft') || label.endsWith('cm') || label.endsWith('inch') || label.endsWith('inches') || label.includes('ft') || label.includes('cm') || label.includes('inch');
+                           isWeight(label) ||
+                           isHeight(label);
       return !isPredefined;
     });
 
     if (sizeOpts.length > 0 && !selectedSize) {
-      return { name: 'size', label: 'সাইজ' };
+      return { name: 'size', label: 'Size' };
     }
     if (colorOpts.length > 0 && !selectedColor) {
-      return { name: 'color', label: 'কালার' };
+      return { name: 'color', label: 'Color' };
     }
     if (weightOpts.length > 0 && !selectedWeight) {
-      return { name: 'weight', label: 'ওজন' };
+      return { name: 'weight', label: 'Weight' };
     }
     if (heightOpts.length > 0 && !selectedHeight) {
-      return { name: 'height', label: 'উচ্চতা' };
+      return { name: 'height', label: 'Height' };
     }
     if (customOpts.length > 0 && !selectedSize) {
-      return { name: 'custom', label: 'কাস্টম অপশন' };
+      return { name: 'custom', label: 'Option' };
     }
     return null;
   };
@@ -981,20 +984,23 @@ export default function ProductDetails() {
               const label = s.label.toLowerCase().trim();
               return COLORS_KEYS.includes(label);
             });
+            const isWeight = (l: string) => l.endsWith('kg') || l.endsWith('gm') || l.endsWith('g') || l.endsWith('lbs') || l.endsWith('lb') || l.endsWith('k') || l.includes('kg') || l.includes('gm') || /^\d+(\.\d+)?\s*(kg|k|gm|g|lbs|lb)$/i.test(l);
+            const isHeight = (l: string) => l.endsWith('ft') || l.endsWith('cm') || l.endsWith('mm') || l.endsWith('inch') || l.endsWith('inches') || l.endsWith('"') || l.endsWith("'") || l.includes('ft') || l.includes('cm') || l.includes('inch');
+
             const weightOpts = enabled.filter((s: any) => {
               const label = s.label.toLowerCase().trim();
-              return label.endsWith('kg') || label.endsWith('gm') || label.endsWith('g') || label.endsWith('lbs') || label.includes('kg') || label.includes('gm');
+              return isWeight(label);
             });
             const heightOpts = enabled.filter((s: any) => {
               const label = s.label.toLowerCase().trim();
-              return label.endsWith('ft') || label.endsWith('cm') || label.endsWith('inch') || label.endsWith('inches') || label.includes('ft') || label.includes('cm') || label.includes('inch');
+              return isHeight(label);
             });
             const customOpts = enabled.filter((s: any) => {
               const label = s.label.toLowerCase().trim();
               const isPredefined = SIZES_KEYS.includes(label) || 
                                    COLORS_KEYS.includes(label) || 
-                                   label.endsWith('kg') || label.endsWith('gm') || label.endsWith('g') || label.endsWith('lbs') || label.includes('kg') || label.includes('gm') ||
-                                   label.endsWith('ft') || label.endsWith('cm') || label.endsWith('inch') || label.endsWith('inches') || label.includes('ft') || label.includes('cm') || label.includes('inch');
+                                   isWeight(label) ||
+                                   isHeight(label);
               return !isPredefined;
             });
 
@@ -1026,19 +1032,19 @@ export default function ProductDetails() {
 
             return (
               <div className="pdp-variants-container">
-                <VariantGroup label="সাইজ" emoji="📐" items={sizeOpts} selected={selectedSize} onSelect={setSelectedSize} />
-                <VariantGroup label="কালার" emoji="🎨" items={colorOpts} selected={selectedColor} onSelect={setSelectedColor} />
-                <VariantGroup label="ওজন" emoji="⚖️" items={weightOpts} selected={selectedWeight} onSelect={setSelectedWeight} />
-                <VariantGroup label="উচ্চতা" emoji="📏" items={heightOpts} selected={selectedHeight} onSelect={setSelectedHeight} />
-                <VariantGroup label="কাস্টম" emoji="✨" items={customOpts} selected={selectedSize} onSelect={setSelectedSize} />
+                <VariantGroup label="Size" emoji="📐" items={sizeOpts} selected={selectedSize} onSelect={setSelectedSize} />
+                <VariantGroup label="Color" emoji="🎨" items={colorOpts} selected={selectedColor} onSelect={setSelectedColor} />
+                <VariantGroup label="Weight" emoji="⚖️" items={weightOpts} selected={selectedWeight} onSelect={setSelectedWeight} />
+                <VariantGroup label="Height" emoji="📏" items={heightOpts} selected={selectedHeight} onSelect={setSelectedHeight} />
+                <VariantGroup label="Option" emoji="✨" items={customOpts} selected={selectedSize} onSelect={setSelectedSize} />
                 
                 {(() => {
                   const missingGroups: string[] = [];
-                  if (sizeOpts.length > 0 && !selectedSize) missingGroups.push('সাইজ');
-                  if (colorOpts.length > 0 && !selectedColor) missingGroups.push('কালার');
-                  if (weightOpts.length > 0 && !selectedWeight) missingGroups.push('ওজন');
-                  if (heightOpts.length > 0 && !selectedHeight) missingGroups.push('উচ্চতা');
-                  if (customOpts.length > 0 && !selectedSize) missingGroups.push('কাস্টম অপশন');
+                  if (sizeOpts.length > 0 && !selectedSize) missingGroups.push('Size');
+                  if (colorOpts.length > 0 && !selectedColor) missingGroups.push('Color');
+                  if (weightOpts.length > 0 && !selectedWeight) missingGroups.push('Weight');
+                  if (heightOpts.length > 0 && !selectedHeight) missingGroups.push('Height');
+                  if (customOpts.length > 0 && !selectedSize) missingGroups.push('Option');
 
                   if (missingGroups.length === 0) return null;
 

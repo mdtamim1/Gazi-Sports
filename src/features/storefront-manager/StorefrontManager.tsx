@@ -524,7 +524,9 @@ function CategoriesSection({ config, updateConfig }: SectionProps) {
                 <div className="sfm-item-number">{idx + 1}</div>
                 <div className="sfm-item-content">
                   <div className="sfm-item-title">{cat.name}</div>
-                  <div className="sfm-item-meta">Icon: {cat.icon} • {actualCount} products • Sort #{cat.sortOrder}</div>
+                  <div className="sfm-item-meta">
+                    Image Mode: {cat.useCustomImage ? '🖼️ Custom Image Enabled' : '📦 Last Product Image (Auto)'} • {actualCount} products • Sort #{cat.sortOrder}
+                  </div>
                 </div>
                 <span className={`sfm-card-badge ${cat.published ? 'enabled' : 'disabled'}`}>
                   {cat.published ? 'Published' : 'Draft'}
@@ -553,10 +555,25 @@ function CategoriesSection({ config, updateConfig }: SectionProps) {
                       <input className="sfm-input" value={cat.name} onChange={e => update(cat.id, 'name', e.target.value)} />
                     </div>
                     <div className="sfm-form-group">
-                      <label className="sfm-label">Icon</label>
-                      <select className="sfm-select" value={cat.icon} onChange={e => update(cat.id, 'icon', e.target.value)}>
-                        {ICON_OPTIONS.map(ic => <option key={ic} value={ic}>{ic}</option>)}
-                      </select>
+                      <label className="sfm-label">Custom Category Image URL</label>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <input 
+                          className="sfm-input" 
+                          placeholder="https://example.com/category-image.jpg or /uploads/..." 
+                          value={cat.image || ''} 
+                          onChange={e => update(cat.id, 'image', e.target.value)} 
+                        />
+                        {cat.image && (
+                          <img src={cat.image} alt="Preview" style={{ width: '38px', height: '38px', borderRadius: '6px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.2)' }} />
+                        )}
+                      </div>
+                    </div>
+                    <div className="sfm-form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      <label className="sfm-label" style={{ marginBottom: 0 }}>Enable Custom Image</label>
+                      <Toggle checked={!!cat.useCustomImage} onChange={(v) => update(cat.id, 'useCustomImage', v)} />
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary, #94a3b8)', marginLeft: '4px' }}>
+                        {cat.useCustomImage ? '(Shows custom category image)' : '(Shows last added product photo)'}
+                      </span>
                     </div>
                     <div className="sfm-form-group">
                       <label className="sfm-label">Product Count (Calculated)</label>

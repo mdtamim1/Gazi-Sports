@@ -39,6 +39,8 @@ export interface CategoryConfig {
   count: number;
   published: boolean;
   sortOrder: number;
+  image?: string;
+  useCustomImage?: boolean;
 }
 
 export interface NavLinkItem {

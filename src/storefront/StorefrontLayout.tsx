@@ -73,8 +73,9 @@ export default function StorefrontLayout() {
       return { ...link, url };
     });
 
-  // Split links into left and right groups around centered logo
-  const allNavLinks = [...navLinks, { id: 99999, label: 'Events', url: '/events' }];
+  // Split links into left and right groups around centered logo (excluding duplicate My Account link)
+  const filteredNavLinks = navLinks.filter(l => !l.label.toLowerCase().includes('my account') && !l.label.toLowerCase().includes('account'));
+  const allNavLinks = [...filteredNavLinks, { id: 99999, label: 'Events', url: '/events' }];
   const halfLength = Math.ceil(allNavLinks.length / 2);
   const leftNavLinks = allNavLinks.slice(0, halfLength);
   const rightNavLinks = allNavLinks.slice(halfLength);

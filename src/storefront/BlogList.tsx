@@ -35,8 +35,8 @@ export default function BlogList() {
   return (
     <div className="pdp-container" style={{ maxWidth: '1200px', margin: '40px auto', padding: '0 20px' }}>
       <SEOMeta 
-        title="Beauty & Lifestyle Blogs" 
-        description="ত্বকের যত্ন, রূপচর্চা এবং মেকআপ টিপস নিয়ে আমাদের প্রফেশনাল বিউটি ব্লগ ও লাইফস্টাইল আর্টিকেলসমূহ পড়ুন।"
+        title="Sports & Fitness Blogs" 
+        description="ফিটনেস, শরীরচর্চা এবং খেলাধুলার সেরা টিপস নিয়ে আমাদের প্রফেশনাল স্পোর্টস ব্লগ ও হেলথ আর্টিকেলসমূহ পড়ুন।"
         slug="blogs"
       />
 
@@ -51,7 +51,7 @@ export default function BlogList() {
           fontWeight: 700, 
           letterSpacing: '0.05em' 
         }}>
-          BEAUTY & LIFESTYLE BLOG
+          SPORTS & FITNESS BLOG
         </span>
         <h1 style={{ 
           fontSize: '2.5rem', 
@@ -60,7 +60,7 @@ export default function BlogList() {
           marginTop: '15px',
           letterSpacing: '-0.02em'
         }}>
-          আমাদের সৌন্দর্য ও যত্ন বিষয়ক ব্লগপোস্ট
+          আমাদের স্পোর্টস ও ফিটনেস বিষয়ক ব্লগপোস্ট
         </h1>
         <p style={{ 
           color: 'var(--sf-text-secondary)', 
@@ -69,7 +69,7 @@ export default function BlogList() {
           fontSize: '1rem',
           lineHeight: '1.6'
         }}>
-          নিজেকে আরও আকর্ষণীয় ও সতেজ রাখতে ত্বক, মেকআপ এবং জীবনযাত্রার সহজ টিপস ও প্রফেশনাল গাইডলাইন পড়ুন।
+          নিজেকে ফিট, শক্তিশালী ও প্রাণবন্ত রাখতে খেলাধুলা, জিম এবং স্বাস্থ্যকর জীবনযাত্রার সহজ টিপস ও প্রফেশনাল গাইডলাইন পড়ুন।
         </p>
       </div>
 
