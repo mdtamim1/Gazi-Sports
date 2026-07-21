@@ -285,7 +285,14 @@ app.get(['/google-merchant.xml', '/merchant-feed.xml', '/api/v1/google-merchant.
 });
 
 // For all other requests that are NOT API requests, serve the index.html from dist with Server-Side SEO Injection
-const indexHtmlPath = path.resolve(distPath, 'index.html');
+const frontendDistDir = fs.existsSync(path.resolve(__dirname, '../../dist/index.html'))
+  ? path.resolve(__dirname, '../../dist')
+  : fs.existsSync(path.resolve(__dirname, '../dist/index.html'))
+    ? path.resolve(__dirname, '../dist')
+    : path.resolve(process.cwd(), 'dist');
+
+const indexHtmlPath = path.resolve(frontendDistDir, 'index.html');
+
 app.get(/.*/, async (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next(); // pass it to API error handler
@@ -302,7 +309,11 @@ app.get(/.*/, async (req, res, next) => {
     console.error('Error serving injected index.html:', err);
   }
 
-  res.sendFile(indexHtmlPath);
+  if (fs.existsSync(indexHtmlPath)) {
+    return res.sendFile(indexHtmlPath);
+  }
+
+  next();
 });
 
 // ========================================
