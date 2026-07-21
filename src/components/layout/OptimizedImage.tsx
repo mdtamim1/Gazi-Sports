@@ -6,6 +6,7 @@ interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
   alt: string;
   width?: number;
   height?: number;
+  priority?: boolean;
   containerClassName?: string;
   containerStyle?: React.CSSProperties;
 }
@@ -15,6 +16,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   alt,
   width,
   height,
+  priority = false,
   className,
   style,
   containerClassName = '',
@@ -42,14 +44,16 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       <img
         src={optimizedSrc}
         alt={alt}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
+        decoding="async"
+        fetchPriority={priority ? "high" : "auto"}
         onLoad={() => setIsLoaded(true)}
         className={className}
         style={{
           width: '100%',
           height: '100%',
           opacity: isLoaded ? 1 : 0,
-          transition: 'opacity 0.3s ease-in-out',
+          transition: 'opacity 0.2s ease-in-out',
           display: 'block',
           ...style
         }}

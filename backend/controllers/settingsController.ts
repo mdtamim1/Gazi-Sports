@@ -203,6 +203,7 @@ export const updateSettings = (req: Request, res: Response) => {
 };
 
 export const getStorefrontSettings = (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
   db.get(
     "SELECT setting_value FROM system_settings WHERE setting_key = 'storefront_config'",
     [],

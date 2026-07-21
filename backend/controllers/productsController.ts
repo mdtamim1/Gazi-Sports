@@ -110,6 +110,7 @@ db.run(`ALTER TABLE products ADD COLUMN sizes TEXT DEFAULT '[]'`, (err) => {
 
 export const getProducts = async (req: Request, res: Response) => {
   try {
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
     const cacheKey = 'products:all';
     const cachedData = await cacheService.get<any[]>(cacheKey);
     if (cachedData) {

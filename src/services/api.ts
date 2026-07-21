@@ -340,6 +340,21 @@ const mapProductToFrontend = (p: any): any => {
   };
 };
 
+const PRODUCTS_CACHE_KEY = 'gazi_products_cache_v1';
+
+export const getCachedProductsFromStorage = (): any[] | null => {
+  try {
+    const cached = localStorage.getItem(PRODUCTS_CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (e) {}
+  return null;
+};
+
 // Fetch all products from backend SQLite
 export const fetchProductsFromBackend = async (): Promise<any[] | null> => {
   try {
@@ -348,13 +363,17 @@ export const fetchProductsFromBackend = async (): Promise<any[] | null> => {
         ...getAuthHeaders(),
       },
     });
-    if (!response.ok) return null;
+    if (!response.ok) return getCachedProductsFromStorage();
     const result = await response.json();
-    if (result.status !== 'success' || !Array.isArray(result.data)) return null;
-    return result.data.map(mapProductToFrontend);
+    if (result.status !== 'success' || !Array.isArray(result.data)) return getCachedProductsFromStorage();
+    const mapped = result.data.map(mapProductToFrontend);
+    try {
+      localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(mapped));
+    } catch (e) {}
+    return mapped;
   } catch (e) {
-    console.warn('Backend server offline. Using mock products from config.', e);
-    return null;
+    console.warn('Backend server offline. Using cached products.', e);
+    return getCachedProductsFromStorage();
   }
 };
 

@@ -262,10 +262,13 @@ const STORAGE_KEY = 'storefront_config';
 // CONFIG MANAGER
 // ============================================================
 
+import { getCachedProductsFromStorage } from '../services/api';
+
 let _config: StorefrontConfig | null = null;
 let _listeners: Array<() => void> = [];
 
 function getDefaultConfig(): StorefrontConfig {
+  const cachedProducts = getCachedProductsFromStorage();
   return {
     banners: DEFAULT_BANNERS,
     announcements: DEFAULT_ANNOUNCEMENTS,
@@ -277,7 +280,7 @@ function getDefaultConfig(): StorefrontConfig {
     featureBadges: DEFAULT_FEATURE_BADGES,
     delivery: { ...DEFAULT_DELIVERY },
     newsletter: { ...DEFAULT_NEWSLETTER },
-    products: DEFAULT_PRODUCTS,
+    products: cachedProducts && cachedProducts.length > 0 ? cachedProducts : DEFAULT_PRODUCTS,
     mostSellingProductIds: [],
     trendingProductIds: [],
     newArrivalProductIds: [],
