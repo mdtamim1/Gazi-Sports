@@ -119,7 +119,14 @@ ${xmlUrls}
     } else {
       console.warn(`⚠ Frontend build dist directory not found at: ${distDir}. Sitemap not written.`);
     }
+
+    return xml;
   } catch (err) {
     console.error('Error generating sitemap:', err);
+    return '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://gazisports24.com/</loc></url></urlset>';
   }
+}
+
+export async function getSitemapXML(): Promise<string> {
+  return await generateSitemap();
 }

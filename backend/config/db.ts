@@ -171,6 +171,10 @@ function connectDatabase() {
         console.error('❌ Failed to connect to SQLite database:', err.message);
       } else {
         console.log('🔌 Connected to local SQLite database.');
+        // Enable WAL mode & 5s busy timeout for high-traffic concurrency & zero DB lock crashes
+        dbInstance.run("PRAGMA journal_mode = WAL;");
+        dbInstance.run("PRAGMA busy_timeout = 5000;");
+        dbInstance.run("PRAGMA synchronous = NORMAL;");
         initializeDatabase();
       }
     });

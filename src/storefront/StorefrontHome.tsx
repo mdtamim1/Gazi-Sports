@@ -321,8 +321,8 @@ export default function StorefrontHome() {
   return (
     <>
       <SEOMeta 
-        title="Premium Gym & Sports Equipment Store" 
-        description="Gazi Sports is your one-stop shop for gym accessories, sports items, and activewear. Explore premium quality gear at best prices in Bangladesh." 
+        title="Gazi Sports 24 | Premium Gym & Sports Equipment Store in Bangladesh" 
+        description="Gazi Sports 24 is the leading online store for gym accessories, sports equipment, fitness gear, and activewear at best prices in Bangladesh. Fast home delivery and Cash on Delivery." 
       />
       {/* ---- Hero Full-Width Banner (Permanent) ---- */}
       <section className="hero-carousel-fullscreen">

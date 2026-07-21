@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
 import { useStorefrontConfig } from '../store/storefrontConfig';
 import { replaceContactInfo, formatPageContent } from '../utils/storefrontUtils';
+import { SEOMeta } from '../components/layout/SEOMeta';
 
 const slugify = (text: string) => {
   return (text || '')
@@ -50,6 +51,11 @@ export default function CustomPage() {
 
   return (
     <div className="collection-page custom-page">
+      <SEOMeta 
+        title={activeLink.label} 
+        description={`Read ${activeLink.label} information on Gazi Sports 24.`}
+        slug={`page/${id}`}
+      />
       {/* Breadcrumb */}
       <nav className="collection-breadcrumb">
         <Link to="/">Home</Link>

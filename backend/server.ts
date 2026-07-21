@@ -11,7 +11,8 @@ import { createServer } from 'http';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { generateSitemap } from './utils/sitemap';
+import { generateSitemap, getSitemapXML } from './utils/sitemap';
+import { generateGoogleMerchantFeed } from './utils/googleMerchantFeed';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -251,6 +252,36 @@ app.use('/uploads', express.static(path.resolve(__dirname, '../../uploads'), {
   etag: true
 }));
 
+// Dynamic Sitemap.xml Endpoint for Google Crawler
+app.get(['/sitemap.xml', '/api/v1/sitemap.xml'], async (_req, res) => {
+  try {
+    const xml = await getSitemapXML();
+    res.header('Content-Type', 'application/xml; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.send(xml);
+  } catch (err) {
+    res.status(500).send('Error generating sitemap');
+  }
+});
+
+// Dynamic Robots.txt Endpoint for Search Engines
+app.get('/robots.txt', (_req, res) => {
+  res.header('Content-Type', 'text/plain; charset=utf-8');
+  res.send(`User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\n\nSitemap: https://gazisports24.com/sitemap.xml\n`);
+});
+
+// Dynamic Google Merchant Center / Google Shopping XML Feed Endpoint
+app.get(['/google-merchant.xml', '/merchant-feed.xml', '/api/v1/google-merchant.xml'], async (_req, res) => {
+  try {
+    const xml = await generateGoogleMerchantFeed();
+    res.header('Content-Type', 'application/xml; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.send(xml);
+  } catch (err) {
+    res.status(500).send('Error generating Google Merchant feed');
+  }
+});
+
 // For all other requests that are NOT API requests, serve the index.html from dist
 app.get(/.*/, (req, res, next) => {
   if (req.path.startsWith('/api')) {
@@ -281,6 +312,15 @@ server.listen(PORT, () => {
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`📂 API Base: http://localhost:${PORT}/api/v1`);
   setTimeout(generateSitemap, 3000);
+});
+
+// Global Process Error Handlers to prevent Node crashes
+process.on('uncaughtException', (err) => {
+  console.error('🛡️ Process Uncaught Exception Handler caught:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🛡️ Process Unhandled Promise Rejection at:', promise, 'reason:', reason);
 });
 
 export default app;

@@ -3,6 +3,7 @@ import { useParams, Link, useOutletContext } from 'react-router-dom';
 import { Star, Heart, ShoppingCart, ChevronRight, Clock, ArrowLeft, Zap, SlidersHorizontal, List, X, Search } from 'lucide-react';
 import { useStorefrontConfig } from '../store/storefrontConfig';
 import { OptimizedImage } from '../components/layout/OptimizedImage';
+import { SEOMeta } from '../components/layout/SEOMeta';
 
 interface StorefrontContext {
   addToCart: (product: any) => void;
@@ -437,6 +438,12 @@ export default function CollectionPage() {
           </button>
         )}
       </aside>
+
+      <SEOMeta 
+        title={`${navLink.label} Price in Bangladesh | Best ${navLink.label} Store`} 
+        description={`Explore top quality ${navLink.label} products at best prices in Bangladesh. Fast home delivery and cash on delivery from Gazi Sports 24.`}
+        slug={`collection/${slug}`}
+      />
 
       {/* Breadcrumb */}
       <nav className="collection-breadcrumb">
