@@ -177,22 +177,36 @@ export default function Products() {
     const heightsArr: string[] = [];
     const customArr: string[] = [];
 
-    prodSizes.forEach(s => {
+    prodSizes.forEach((s: any) => {
       if (!s.enabled) return;
-      const labelLower = s.label.toLowerCase().trim();
-      const isWeight = labelLower.endsWith('kg') || labelLower.endsWith('gm') || labelLower.endsWith('g') || labelLower.endsWith('lbs') || labelLower.endsWith('lb') || labelLower.endsWith('k') || labelLower.includes('kg') || labelLower.includes('gm') || /^\d+(\.\d+)?\s*(kg|k|gm|g|lbs|lb)$/i.test(labelLower);
-      const isHeight = labelLower.endsWith('ft') || labelLower.endsWith('cm') || labelLower.endsWith('mm') || labelLower.endsWith('inch') || labelLower.endsWith('inches') || labelLower.endsWith('"') || labelLower.endsWith("'") || labelLower.includes('ft') || labelLower.includes('cm') || labelLower.includes('inch');
-
-      if (SIZES_KEYS.includes(labelLower)) {
+      const grp = s.group;
+      if (grp === 'size') {
         sizesArr.push(s.label);
-      } else if (COLORS_KEYS.includes(labelLower)) {
+      } else if (grp === 'color') {
         colorsArr.push(s.label);
-      } else if (isWeight) {
+      } else if (grp === 'weight') {
         weightsArr.push(s.label);
-      } else if (isHeight) {
+      } else if (grp === 'height') {
         heightsArr.push(s.label);
-      } else {
+      } else if (grp === 'custom') {
         customArr.push(s.label);
+      } else {
+        // Fallback for legacy options without an explicit group property
+        const labelLower = s.label.toLowerCase().trim();
+        const isWeight = labelLower.endsWith('kg') || labelLower.endsWith('gm') || labelLower.endsWith('g') || labelLower.endsWith('lbs') || labelLower.endsWith('lb') || labelLower.includes('kg') || labelLower.includes('gm') || /^\d+(\.\d+)?\s*(kg|gm|g|lbs|lb)$/i.test(labelLower);
+        const isHeight = labelLower.endsWith('ft') || labelLower.endsWith('cm') || labelLower.endsWith('mm') || labelLower.endsWith('inch') || labelLower.endsWith('inches') || labelLower.endsWith('"') || labelLower.endsWith("'") || labelLower.includes('ft') || labelLower.includes('cm') || labelLower.includes('inch');
+
+        if (COLORS_KEYS.includes(labelLower)) {
+          colorsArr.push(s.label);
+        } else if (SIZES_KEYS.includes(labelLower)) {
+          sizesArr.push(s.label);
+        } else if (isWeight) {
+          weightsArr.push(s.label);
+        } else if (isHeight) {
+          heightsArr.push(s.label);
+        } else {
+          customArr.push(s.label);
+        }
       }
     });
 
@@ -223,24 +237,35 @@ export default function Products() {
     const prevSizesMap = new Map((tempProduct.sizes || []).map(s => [s.label, s]));
     const parseInput = (text: string) => text.split(',').map(s => s.trim()).filter(Boolean);
     
-    const allLabels = [
-      ...parseInput(newSizes),
-      ...parseInput(newColors),
-      ...parseInput(newWeights),
-      ...parseInput(newHeights),
-      ...parseInput(newCustom)
-    ];
-    
-    const uniqueLabels = Array.from(new Set(allLabels));
-    const finalSizes = uniqueLabels.map(label => {
-      const prev = prevSizesMap.get(label);
-      return {
-        label,
-        enabled: true,
-        price: prev ? prev.price : undefined,
-        originalPrice: prev ? (prev as any).originalPrice : undefined
-      };
-    });
+    const sizesSet = new Set(parseInput(newSizes));
+    const colorsSet = new Set(parseInput(newColors));
+    const weightsSet = new Set(parseInput(newWeights));
+    const heightsSet = new Set(parseInput(newHeights));
+    const customSet = new Set(parseInput(newCustom));
+
+    const finalSizes: any[] = [];
+    const addedLabels = new Set<string>();
+
+    const addGroupItems = (set: Set<string>, groupName: string) => {
+      set.forEach(label => {
+        if (addedLabels.has(label)) return;
+        addedLabels.add(label);
+        const prev = prevSizesMap.get(label);
+        finalSizes.push({
+          label,
+          group: groupName,
+          enabled: true,
+          price: prev ? prev.price : undefined,
+          originalPrice: prev ? (prev as any).originalPrice : undefined
+        });
+      });
+    };
+
+    addGroupItems(sizesSet, 'size');
+    addGroupItems(colorsSet, 'color');
+    addGroupItems(weightsSet, 'weight');
+    addGroupItems(heightsSet, 'height');
+    addGroupItems(customSet, 'custom');
     
     setTempProduct({ ...tempProduct, sizes: finalSizes });
   };
@@ -260,7 +285,7 @@ export default function Products() {
     // Sync sizesInput
     const enabledSizes = newSizes.filter(s => s.enabled);
     const SIZES_KEYS = ['s', 'm', 'l', 'xl', 'xxl', '3xl', '4xl', '5xl', '6xl', 'free size'];
-    const sizesArr = enabledSizes.filter(s => SIZES_KEYS.includes(s.label.toLowerCase().trim())).map(s => s.label);
+    const sizesArr = enabledSizes.filter(s => (s as any).group === 'size' || SIZES_KEYS.includes(s.label.toLowerCase().trim())).map(s => s.label);
     setSizesInput(sizesArr.join(', '));
   };
 

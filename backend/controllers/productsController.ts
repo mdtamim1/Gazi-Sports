@@ -156,6 +156,53 @@ db.run(`ALTER TABLE products ADD COLUMN sizes TEXT DEFAULT '[]'`, (err) => {
   }
 });
 
+// Helper to keep storefront_config inside system_settings table in sync with real products DB
+export const syncStorefrontConfigProducts = () => {
+  db.get("SELECT setting_value FROM system_settings WHERE setting_key = 'storefront_config'", [], (err, row: any) => {
+    if (err || !row || !row.setting_value) return;
+    try {
+      const config = JSON.parse(row.setting_value);
+      db.all(`SELECT * FROM products`, [], (pErr, rows: any[]) => {
+        if (pErr || !rows) return;
+        db.all(`SELECT * FROM product_gallery`, [], (gErr, galleryRows: any[]) => {
+          const galleryMap: Record<string | number, string[]> = {};
+          if (!gErr && galleryRows) {
+            galleryRows.forEach(grow => {
+              if (!galleryMap[grow.product_id]) galleryMap[grow.product_id] = [];
+              galleryMap[grow.product_id].push(grow.image_url);
+            });
+          }
+          const freshProducts = rows.map(r => {
+            let features = [], specs = [], sizes = [];
+            try { if (r.features) features = JSON.parse(r.features); } catch (e) {}
+            try { if (r.specs) specs = JSON.parse(r.specs); } catch (e) {}
+            try { if (r.sizes) sizes = JSON.parse(r.sizes); } catch (e) {}
+            const gallery = galleryMap[r.id] || [];
+            return {
+              ...r,
+              features,
+              specs,
+              sizes,
+              published: r.published === 1,
+              in_stock: r.in_stock === 1,
+              gallery: gallery,
+              videoUrl: r.video_url || null,
+              photoContent: r.photo_content || null
+            };
+          });
+          config.products = freshProducts;
+          db.run(
+            "INSERT OR REPLACE INTO system_settings (setting_key, setting_value, group_name, is_public) VALUES ('storefront_config', ?, 'storefront', 1)",
+            [JSON.stringify(config)]
+          );
+        });
+      });
+    } catch (e) {
+      console.error('Failed to sync storefront_config products:', e);
+    }
+  });
+};
+
 export const getProducts = async (req: Request, res: Response) => {
   try {
     res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
@@ -342,6 +389,7 @@ export const createProduct = async (req: Request, res: Response) => {
               }
               cacheService.delPattern('products:*').catch(console.error);
               cacheService.del('products:all').catch(console.error);
+              syncStorefrontConfigProducts();
               const actor = (req as any).user;
               logSecurityAction(actor?.id || null, actor?.email || null, 'PRODUCT_CREATE',
                 `Product created: ${name} (SKU: ${skuVal}, ID: ${id}, Price: ৳${price})`, req);
@@ -455,6 +503,7 @@ export const updateProduct = async (req: Request, res: Response) => {
               cacheService.delPattern('products:*').catch(console.error);
               cacheService.del('products:all').catch(console.error);
               cacheService.del(`products:id:${id}`).catch(console.error);
+              syncStorefrontConfigProducts();
               const actor = (req as any).user;
               logSecurityAction(
                 actor?.id || null,
@@ -539,6 +588,7 @@ export const deleteProduct = (req: Request, res: Response) => {
       cacheService.del('products:all').catch(console.error);
       cacheService.del(`products:id:${id}`).catch(console.error);
       cacheService.del(`products:id:${altId}`).catch(console.error);
+      syncStorefrontConfigProducts();
 
       const actor = (req as any).user;
       logSecurityAction(

@@ -323,7 +323,7 @@ const mapProductToFrontend = (p: any): any => {
     rating: Number(p.rating || 0),
     reviews: Number(p.reviews || 0),
     image: p.image,
-    gallery: p.gallery || [p.image],
+    gallery: Array.isArray(p.gallery) ? p.gallery : (p.gallery ? JSON.parse(p.gallery) : [p.image]),
     badge: p.badge || (p.original_price && p.price < p.original_price ? 'sale' : null),
     inStock: p.in_stock === 1 || p.in_stock === true || p.stock > 0,
     published: p.published === 1 || p.published === true,
@@ -472,6 +472,9 @@ export const updateProductInBackend = async (id: string | number, productData: a
     });
     if (!response.ok) return false;
     const result = await response.json();
+    if (result.status === 'success') {
+      try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch (err) {}
+    }
     return result.status === 'success';
   } catch (e) {
     console.warn(`Failed to update product ${id} in backend:`, e);

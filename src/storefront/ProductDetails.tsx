@@ -142,26 +142,31 @@ export default function ProductDetails() {
     if (!product.sizes || !Array.isArray(product.sizes)) return null;
 
     const enabled = product.sizes.filter((s: any) => s.enabled);
+    const isWeight = (l: string) => l.endsWith('kg') || l.endsWith('gm') || l.endsWith('g') || l.endsWith('lbs') || l.endsWith('lb') || l.includes('kg') || l.includes('gm') || /^\d+(\.\d+)?\s*(kg|gm|g|lbs|lb)$/i.test(l);
+    const isHeight = (l: string) => l.endsWith('ft') || l.endsWith('cm') || l.endsWith('mm') || l.endsWith('inch') || l.endsWith('inches') || l.endsWith('"') || l.endsWith("'") || l.includes('ft') || l.includes('cm') || l.includes('inch');
+
     const sizeOpts = enabled.filter((s: any) => {
+      if (s.group) return s.group === 'size';
       const label = s.label.toLowerCase().trim();
       return SIZES_KEYS.includes(label);
     });
     const colorOpts = enabled.filter((s: any) => {
+      if (s.group) return s.group === 'color';
       const label = s.label.toLowerCase().trim();
       return COLORS_KEYS.includes(label);
     });
-    const isWeight = (l: string) => l.endsWith('kg') || l.endsWith('gm') || l.endsWith('g') || l.endsWith('lbs') || l.endsWith('lb') || l.endsWith('k') || l.includes('kg') || l.includes('gm') || /^\d+(\.\d+)?\s*(kg|k|gm|g|lbs|lb)$/i.test(l);
-    const isHeight = (l: string) => l.endsWith('ft') || l.endsWith('cm') || l.endsWith('mm') || l.endsWith('inch') || l.endsWith('inches') || l.endsWith('"') || l.endsWith("'") || l.includes('ft') || l.includes('cm') || l.includes('inch');
-
     const weightOpts = enabled.filter((s: any) => {
+      if (s.group) return s.group === 'weight';
       const label = s.label.toLowerCase().trim();
       return isWeight(label);
     });
     const heightOpts = enabled.filter((s: any) => {
+      if (s.group) return s.group === 'height';
       const label = s.label.toLowerCase().trim();
       return isHeight(label);
     });
     const customOpts = enabled.filter((s: any) => {
+      if (s.group) return s.group === 'custom';
       const label = s.label.toLowerCase().trim();
       const isPredefined = SIZES_KEYS.includes(label) || 
                            COLORS_KEYS.includes(label) || 
@@ -984,26 +989,31 @@ export default function ProductDetails() {
             const COLORS_KEYS = ['red', 'blue', 'black', 'white', 'green', 'yellow', 'grey', 'orange', 'pink', 'purple', 'navy', 'maroon', 'brown', 'gold', 'silver', 'beige', 'cream', 'olive', 'রং', 'লাল', 'নীল', 'কালো', 'সাদা', 'সবুজ', 'হলুদ', 'ধূসর', 'কমলা', 'গোলাপী'];
 
             const enabled = product.sizes.filter((s: any) => s.enabled);
+            const isWeight = (l: string) => l.endsWith('kg') || l.endsWith('gm') || l.endsWith('g') || l.endsWith('lbs') || l.endsWith('lb') || l.includes('kg') || l.includes('gm') || /^\d+(\.\d+)?\s*(kg|gm|g|lbs|lb)$/i.test(l);
+            const isHeight = (l: string) => l.endsWith('ft') || l.endsWith('cm') || l.endsWith('mm') || l.endsWith('inch') || l.endsWith('inches') || l.endsWith('"') || l.endsWith("'") || l.includes('ft') || l.includes('cm') || l.includes('inch');
+
             const sizeOpts = enabled.filter((s: any) => {
+              if (s.group) return s.group === 'size';
               const label = s.label.toLowerCase().trim();
               return SIZES_KEYS.includes(label);
             });
             const colorOpts = enabled.filter((s: any) => {
+              if (s.group) return s.group === 'color';
               const label = s.label.toLowerCase().trim();
               return COLORS_KEYS.includes(label);
             });
-            const isWeight = (l: string) => l.endsWith('kg') || l.endsWith('gm') || l.endsWith('g') || l.endsWith('lbs') || l.endsWith('lb') || l.endsWith('k') || l.includes('kg') || l.includes('gm') || /^\d+(\.\d+)?\s*(kg|k|gm|g|lbs|lb)$/i.test(l);
-            const isHeight = (l: string) => l.endsWith('ft') || l.endsWith('cm') || l.endsWith('mm') || l.endsWith('inch') || l.endsWith('inches') || l.endsWith('"') || l.endsWith("'") || l.includes('ft') || l.includes('cm') || l.includes('inch');
-
             const weightOpts = enabled.filter((s: any) => {
+              if (s.group) return s.group === 'weight';
               const label = s.label.toLowerCase().trim();
               return isWeight(label);
             });
             const heightOpts = enabled.filter((s: any) => {
+              if (s.group) return s.group === 'height';
               const label = s.label.toLowerCase().trim();
               return isHeight(label);
             });
             const customOpts = enabled.filter((s: any) => {
+              if (s.group) return s.group === 'custom';
               const label = s.label.toLowerCase().trim();
               const isPredefined = SIZES_KEYS.includes(label) || 
                                    COLORS_KEYS.includes(label) || 
