@@ -2,11 +2,11 @@ const { Client } = require('ssh2');
 
 const conn = new Client();
 
-console.log('🔌 Connecting to VPS server 159.198.36.84 via SSH to check Nginx...');
+console.log('🔌 Connecting to VPS server 159.198.36.84 via SSH to check backend logs...');
 
 conn.on('ready', () => {
   console.log('✅ SSH Connection Established successfully!');
-  const cmd = 'nginx -T | grep -A 20 "location /uploads" || cat /etc/nginx/sites-enabled/*';
+  const cmd = 'pm2 status && curl -s -m 5 http://127.0.0.1:5000/api/v1/products | head -c 500 && echo "" && pm2 logs gazi-sports-backend --lines 40 --nostream';
   
   conn.exec(cmd, (err, stream) => {
     if (err) {
@@ -17,7 +17,7 @@ conn.on('ready', () => {
     
     let output = '';
     stream.on('close', (code, signal) => {
-      console.log(`\n📋 Nginx Config Output:\n${output}`);
+      console.log(`\n📋 VPS Logs & API Response:\n${output}`);
       conn.end();
     }).on('data', (data) => {
       output += data.toString();

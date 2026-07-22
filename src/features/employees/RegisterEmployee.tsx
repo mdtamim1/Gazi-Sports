@@ -122,7 +122,7 @@ export default function RegisterEmployee() {
       setSubmitSuccess('রেজিস্ট্রেশন সফল! Admin panel-এ প্রবেশ করা হচ্ছে...');
       // Auto-login: save token and redirect
       login(res.data.token, res.data.user);
-      setTimeout(() => navigate('/admin'), 2000);
+      setTimeout(() => navigate('/firoz-84'), 2000);
     } else {
       setSubmitError(res.message || 'Google দিয়ে verification সফল হয়নি।');
     }
@@ -151,7 +151,7 @@ export default function RegisterEmployee() {
           </div>
           <h2 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 800, marginBottom: '12px' }}>ভুল বা মেয়াদোত্তীর্ণ লিংক</h2>
           <p style={{ color: '#9ca3af', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '24px' }}>{verifyError}</p>
-          <button onClick={() => navigate('/login')} style={{ height: '42px', width: '100%', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>
+          <button onClick={() => navigate('/firoz-84')} style={{ height: '42px', width: '100%', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>
             লগইন পেজে যান
           </button>
         </div>

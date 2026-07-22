@@ -43,26 +43,26 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
     {
       title: 'Overview',
       items: [
-        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/admin', badge: '', badgeType: '' },
+        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/firoz-84', badge: '', badgeType: '' },
       ],
     },
     {
       title: 'Management',
       items: [
-        { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/admin/orders', badge: '', badgeType: '' },
-        { id: 'products', label: 'Products', icon: Package, path: '/admin/products', badge: '', badgeType: '' },
-        { id: 'storefront', label: 'Storefront', icon: Store, path: '/admin/storefront-manager', badge: '', badgeType: '' },
-        { id: 'blogs', label: 'Blog Posts', icon: BookOpen, path: '/admin/blogs', badge: '', badgeType: '' },
-        { id: 'chats', label: 'Inbox', icon: MessageSquare, path: '/admin/chats', badge: unreadChatsCount > 0 ? String(unreadChatsCount) : '', badgeType: 'danger' },
+        { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/firoz-84/orders', badge: '', badgeType: '' },
+        { id: 'products', label: 'Products', icon: Package, path: '/firoz-84/products', badge: '', badgeType: '' },
+        { id: 'storefront', label: 'Storefront', icon: Store, path: '/firoz-84/storefront-manager', badge: '', badgeType: '' },
+        { id: 'blogs', label: 'Blog Posts', icon: BookOpen, path: '/firoz-84/blogs', badge: '', badgeType: '' },
+        { id: 'chats', label: 'Inbox', icon: MessageSquare, path: '/firoz-84/chats', badge: unreadChatsCount > 0 ? String(unreadChatsCount) : '', badgeType: 'danger' },
       ],
     },
     {
       title: 'Operations',
       items: [
-        { id: 'marketing', label: 'Marketing', icon: Megaphone, path: '/admin/marketing', badge: '', badgeType: '' },
-        { id: 'events', label: 'Events', icon: Trophy, path: '/admin/events', badge: '', badgeType: '' },
-        { id: 'employees', label: 'Employees', icon: UserCog, path: '/admin/employees', badge: '', badgeType: '' },
-        { id: 'security', label: 'Security Logs', icon: ShieldAlert, path: '/admin/security', badge: '', badgeType: '' },
+        { id: 'marketing', label: 'Marketing', icon: Megaphone, path: '/firoz-84/marketing', badge: '', badgeType: '' },
+        { id: 'events', label: 'Events', icon: Trophy, path: '/firoz-84/events', badge: '', badgeType: '' },
+        { id: 'employees', label: 'Employees', icon: UserCog, path: '/firoz-84/employees', badge: '', badgeType: '' },
+        { id: 'security', label: 'Security Logs', icon: ShieldAlert, path: '/firoz-84/security', badge: '', badgeType: '' },
       ],
     },
   ];
@@ -107,8 +107,8 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
             )}
             {section.items.map((item) => {
               const Icon = item.icon;
-              const isActive = item.path === '/admin'
-                ? location.pathname === '/admin' || location.pathname === '/admin/'
+              const isActive = item.path === '/firoz-84'
+                ? location.pathname === '/firoz-84' || location.pathname === '/firoz-84/'
                 : location.pathname.startsWith(item.path);
               return (
                 <NavLink
@@ -136,7 +136,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </nav>
 
       <div className="sidebar-footer">
-        <Link to={(user?.role === 'Super Admin' || user?.role === 'Admin' || user?.permissions?.includes('employees')) ? '/admin/employees' : '/admin'} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', width: '100%' }}>
+        <Link to={(user?.role === 'Super Admin' || user?.role === 'Admin' || user?.permissions?.includes('employees')) ? '/firoz-84/employees' : '/firoz-84'} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', width: '100%' }}>
           <div className="sidebar-user" style={{ width: '100%' }}>
             <div className="sidebar-user-avatar">
               {user?.avatar || (user?.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'SA')}

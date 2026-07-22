@@ -79,7 +79,7 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
 
         <div className="topbar-divider" />
 
-        <Link to={(user?.role === 'Super Admin' || user?.role === 'Admin' || user?.permissions?.includes('employees')) ? '/admin/employees' : '/admin'} style={{ textDecoration: 'none', color: 'inherit' }} className="topbar-profile">
+        <Link to={(user?.role === 'Super Admin' || user?.role === 'Admin' || user?.permissions?.includes('employees')) ? '/firoz-84/employees' : '/firoz-84'} style={{ textDecoration: 'none', color: 'inherit' }} className="topbar-profile">
           <div className="topbar-profile-avatar">
             {user?.avatar || (user?.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'SA')}
           </div>

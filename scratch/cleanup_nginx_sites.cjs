@@ -2,11 +2,16 @@ const { Client } = require('ssh2');
 
 const conn = new Client();
 
-console.log('🔌 Connecting to VPS server 159.198.36.84 via SSH to check Nginx...');
+console.log('🔌 Connecting to VPS server 159.198.36.84 via SSH to clean up Nginx site configs...');
 
 conn.on('ready', () => {
   console.log('✅ SSH Connection Established successfully!');
-  const cmd = 'nginx -T | grep -A 20 "location /uploads" || cat /etc/nginx/sites-enabled/*';
+  
+  const cmd = `
+    ls -l /etc/nginx/sites-enabled/ /etc/nginx/conf.d/
+    rm -f /etc/nginx/sites-enabled/default /etc/nginx/conf.d/default.conf
+    nginx -t && systemctl reload nginx
+  `;
   
   conn.exec(cmd, (err, stream) => {
     if (err) {
@@ -17,7 +22,7 @@ conn.on('ready', () => {
     
     let output = '';
     stream.on('close', (code, signal) => {
-      console.log(`\n📋 Nginx Config Output:\n${output}`);
+      console.log(`\n📋 Nginx Cleanup Output (code ${code}):\n${output}`);
       conn.end();
     }).on('data', (data) => {
       output += data.toString();

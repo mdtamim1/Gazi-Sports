@@ -2,11 +2,12 @@ const { Client } = require('ssh2');
 
 const conn = new Client();
 
-console.log('🔌 Connecting to VPS server 159.198.36.84 via SSH to check Nginx...');
+console.log('🔌 Connecting to VPS server 159.198.36.84 via SSH to install sharp binary...');
 
 conn.on('ready', () => {
   console.log('✅ SSH Connection Established successfully!');
-  const cmd = 'nginx -T | grep -A 20 "location /uploads" || cat /etc/nginx/sites-enabled/*';
+  
+  const cmd = 'cd /var/www/gazisports && npm install @img/sharp-linux-x64@0.33.5 sharp@0.33.5 --save-exact && node -e "const sharp = require(\'sharp\'); console.log(\'Sharp version:\', sharp.versions);"';
   
   conn.exec(cmd, (err, stream) => {
     if (err) {
@@ -17,7 +18,7 @@ conn.on('ready', () => {
     
     let output = '';
     stream.on('close', (code, signal) => {
-      console.log(`\n📋 Nginx Config Output:\n${output}`);
+      console.log(`\n📋 Installation Output:\n${output}`);
       conn.end();
     }).on('data', (data) => {
       output += data.toString();

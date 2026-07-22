@@ -61,7 +61,7 @@ export default function Employees() {
         <p style={{ color: 'var(--text-tertiary)', marginBottom: '24px', fontSize: '0.9rem', lineHeight: 1.5 }}>
           আপনার অ্যাকাউন্ট থেকে এমপ্লয়ি ম্যানেজমেন্ট সেকশনে অ্যাক্সেস করার অনুমতি নেই।
         </p>
-        <RouterLink to="/admin" className="btn btn-primary">
+        <RouterLink to="/firoz-84" className="btn btn-primary">
           Back to Dashboard
         </RouterLink>
       </div>

@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /firoz-84
 Disallow: /admin
 Disallow: /api/
 

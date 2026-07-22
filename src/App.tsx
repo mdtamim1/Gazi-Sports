@@ -101,7 +101,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/firoz-84" replace />;
   }
 
   return <>{children}</>;
@@ -151,6 +151,8 @@ function AdminLayout() {
   );
 }
 
+const NotFound = lazy(() => import('./storefront/NotFound'));
+
 export default function App() {
   const [config] = useStorefrontConfig();
 
@@ -176,21 +178,22 @@ export default function App() {
       <AuthProvider>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
-            {/* Login Portal */}
-            <Route path="/login" element={<Login />} />
+            {/* Secret Login Portal */}
+            <Route path="/firoz-84" element={<Login />} />
+            <Route path="/firoz-84/login" element={<Login />} />
 
             {/* Employee Registration */}
             <Route path="/register-employee" element={<RegisterEmployee />} />
 
             {/* Admin Panel */}
-            <Route path="/admin/*" element={
+            <Route path="/firoz-84/*" element={
               <ProtectedRoute>
                 <AdminLayout />
               </ProtectedRoute>
             } />
 
-            {/* Catch-all redirect to Admin dashboard */}
-            <Route path="*" element={<Navigate to="/admin" replace />} />
+            {/* Catch-all redirect to Secret Admin dashboard */}
+            <Route path="*" element={<Navigate to="/firoz-84" replace />} />
           </Routes>
         </Suspense>
       </AuthProvider>
@@ -202,8 +205,9 @@ export default function App() {
       <CustomerAuthProvider>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
-            {/* Login Portal */}
-            <Route path="/login" element={<Login />} />
+            {/* Secret Admin Login Portal */}
+            <Route path="/firoz-84" element={<Login />} />
+            <Route path="/firoz-84/login" element={<Login />} />
 
             {/* Employee Registration (via Invitation) */}
             <Route path="/register-employee" element={<RegisterEmployee />} />
@@ -223,14 +227,20 @@ export default function App() {
               <Route path="privacy-policy" element={<PrivacyPolicy />} />
               <Route path="terms-of-service" element={<TermsOfService />} />
               <Route path="about-us" element={<AboutUs />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
             
-            {/* Admin Panel (all other routes protected under /admin) */}
-            <Route path="/admin/*" element={
+            {/* Secret Admin Panel */}
+            <Route path="/firoz-84/*" element={
               <ProtectedRoute>
                 <AdminLayout />
               </ProtectedRoute>
             } />
+
+            {/* Explicit 404 for old admin & login URLs */}
+            <Route path="/admin/*" element={<StorefrontLayout />}><Route path="*" element={<NotFound />} /></Route>
+            <Route path="/admin" element={<StorefrontLayout />}><Route path="*" element={<NotFound />} /></Route>
+            <Route path="/login" element={<StorefrontLayout />}><Route path="*" element={<NotFound />} /></Route>
           </Routes>
         </Suspense>
       </CustomerAuthProvider>

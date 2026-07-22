@@ -269,7 +269,7 @@ app.get(['/sitemap.xml', '/api/v1/sitemap.xml'], async (_req, res) => {
 // Dynamic Robots.txt Endpoint for Search Engines
 app.get('/robots.txt', (_req, res) => {
   res.header('Content-Type', 'text/plain; charset=utf-8');
-  res.send(`User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\n\nSitemap: https://gazisports24.com/sitemap.xml\n`);
+  res.send(`User-agent: *\nAllow: /\nDisallow: /firoz-84\nDisallow: /admin\nDisallow: /api/\n\nSitemap: https://gazisports24.com/sitemap.xml\n`);
 });
 
 // Dynamic Google Merchant Center / Google Shopping XML Feed Endpoint

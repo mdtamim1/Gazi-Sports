@@ -2,11 +2,14 @@ const { Client } = require('ssh2');
 
 const conn = new Client();
 
-console.log('🔌 Connecting to VPS server 159.198.36.84 via SSH to check Nginx...');
+console.log('🔌 Connecting to VPS server 159.198.36.84 via SSH to check Nginx configuration...');
 
 conn.on('ready', () => {
   console.log('✅ SSH Connection Established successfully!');
-  const cmd = 'nginx -T | grep -A 20 "location /uploads" || cat /etc/nginx/sites-enabled/*';
+  
+  const cmd = `
+    cat /etc/nginx/sites-enabled/* || cat /etc/nginx/conf.d/*
+  `;
   
   conn.exec(cmd, (err, stream) => {
     if (err) {

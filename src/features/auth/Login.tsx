@@ -103,7 +103,7 @@ export default function Login() {
 
     if (result.status === 'success' && result.data) {
       login(result.data.token, result.data.user);
-      navigate('/admin');
+      navigate('/firoz-84');
     } else {
       setError(result.message || 'Google verification failed.');
     }
