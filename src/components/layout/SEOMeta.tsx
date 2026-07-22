@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 interface SEOMetaProps {
   title: string;
   description?: string;
+  keywords?: string;
   image?: string;
   slug?: string;
   type?: 'website' | 'product' | 'article';
@@ -15,11 +16,15 @@ interface SEOMetaProps {
   brand?: string;
   rating?: number;
   reviewCount?: number;
+  category?: string;
+  author?: string;
+  datePublished?: string;
 }
 
 export const SEOMeta: React.FC<SEOMetaProps> = ({
   title,
   description = 'Gazi Sports 24 - Premium Sports, Fitness & Lifestyle Products Store in Bangladesh.',
+  keywords = 'Gazi Sports 24, gazisports24, gazisport24, sports gear bangladesh, gym equipment bd, cricket bat online, football shop bd',
   image = 'https://gazisports24.com/assets/main-banner.webp',
   slug = '',
   type = 'website',
@@ -29,18 +34,24 @@ export const SEOMeta: React.FC<SEOMetaProps> = ({
   sku,
   brand = 'Gazi Sports 24',
   rating = 5.0,
-  reviewCount = 12
+  reviewCount = 12,
+  category,
+  author = 'Gazi Sports 24',
+  datePublished
 }) => {
-  const domain = typeof window !== 'undefined' ? window.location.origin : 'https://gazisports24.com';
+  const baseDomain = 'https://gazisports24.com';
+  const domain = typeof window !== 'undefined' && window.location.hostname.includes('gazisport') 
+    ? window.location.origin 
+    : baseDomain;
   
-  // Construct raw URL and clean Canonical URL (stripped of query string tracking parameters like ?ref=... or ?fbclid=...)
-  const rawUrl = slug ? `${domain}/${slug.startsWith('/') ? slug.slice(1) : slug}` : domain;
+  // Construct raw URL and clean Canonical URL (stripped of tracking query params)
+  const rawUrl = slug ? `${baseDomain}/${slug.startsWith('/') ? slug.slice(1) : slug}` : baseDomain;
   const canonicalUrl = rawUrl.split('?')[0];
 
   const fullTitle = title.includes('Gazi Sports') ? title : `${title} | Gazi Sports 24`;
 
   // Format absolute image URL
-  const imageUrl = image && image.startsWith('http') ? image : `${domain}${image.startsWith('/') ? '' : '/'}${image}`;
+  const imageUrl = image && image.startsWith('http') ? image : `${baseDomain}${image.startsWith('/') ? '' : '/'}${image}`;
 
   // Schema.org JSON-LD for Google Rich Product Results
   const productSchema = type === 'product' && price ? {
@@ -70,18 +81,69 @@ export const SEOMeta: React.FC<SEOMetaProps> = ({
     }
   } : null;
 
+  // Schema.org JSON-LD for Breadcrumbs
+  const breadcrumbSchema = (type === 'product' || type === 'article') ? {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': [
+      {
+        '@type': 'ListItem',
+        'position': 1,
+        'name': 'Home',
+        'item': baseDomain
+      },
+      ...(category ? [{
+        '@type': 'ListItem',
+        'position': 2,
+        'name': category,
+        'item': `${baseDomain}/collection/${category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
+      }] : []),
+      {
+        '@type': 'ListItem',
+        'position': category ? 3 : 2,
+        'name': title,
+        'item': canonicalUrl
+      }
+    ]
+  } : null;
+
+  // Schema.org JSON-LD for Blog Articles
+  const articleSchema = type === 'article' ? {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    'headline': title,
+    'image': [imageUrl],
+    'datePublished': datePublished || new Date().toISOString(),
+    'author': {
+      '@type': 'Organization',
+      'name': author
+    },
+    'publisher': {
+      '@type': 'Organization',
+      'name': 'Gazi Sports 24',
+      'logo': {
+        '@type': 'ImageObject',
+        'url': `${baseDomain}/favicon.png`
+      }
+    },
+    'description': description
+  } : null;
+
   return (
     <Helmet>
       {/* Standard HTML Meta Tags */}
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      <meta name="theme-color" content="#16a34a" />
       
       {/* 🔗 Canonical URL Tag */}
       <link rel="canonical" href={canonicalUrl} />
 
       {/* 🌐 Facebook & WhatsApp Open Graph Meta Tags */}
       <meta property="og:site_name" content="Gazi Sports 24" />
-      <meta property="og:type" content={type === 'product' ? 'og:product' : type} />
+      <meta property="og:type" content={type === 'product' ? 'og:product' : (type === 'article' ? 'article' : 'website')} />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
@@ -116,6 +178,20 @@ export const SEOMeta: React.FC<SEOMetaProps> = ({
       {productSchema && (
         <script type="application/ld+json">
           {JSON.stringify(productSchema)}
+        </script>
+      )}
+
+      {/* 🍞 Google Breadcrumb Schema JSON-LD */}
+      {breadcrumbSchema && (
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
+      )}
+
+      {/* 📰 Google Article Schema JSON-LD */}
+      {articleSchema && (
+        <script type="application/ld+json">
+          {JSON.stringify(articleSchema)}
         </script>
       )}
     </Helmet>
