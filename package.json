@@ -11,6 +11,7 @@
     "dev": "vite",
     "backend": "tsx --watch backend/server.ts",
     "build": "tsc -b && tsc -p tsconfig.backend.json --noEmit && esbuild backend/server.ts --bundle --platform=node --format=esm --packages=external --outfile=backend/dist/server.js && vite build",
+    "deploy": "node scratch/auto_push_deploy.cjs",
     "start": "node backend/dist/server.js",
     "lint": "eslint .",
     "preview": "vite preview"
