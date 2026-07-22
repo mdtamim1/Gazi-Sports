@@ -68,43 +68,19 @@ const BlogList = lazy(() => import('./storefront/BlogList'));
 const BlogDetails = lazy(() => import('./storefront/BlogDetails'));
 const EventsPage = lazy(() => import('./storefront/EventsPage'));
 
-// Guard wrapper to protect admin routes
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+// Secret Admin Portal Wrapper (Renders Login if unauthenticated, AdminLayout if authenticated)
+function SecretAdminPortal() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div style={{
-        display: 'flex',
-        width: '100vw',
-        height: '100vh',
-        background: '#0a0e1a',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{
-          width: '32px',
-          height: '32px',
-          border: '3px solid rgba(99, 102, 241, 0.2)',
-          borderTopColor: '#6366f1',
-          borderRadius: '50%',
-          animation: 'rotate 1s linear infinite'
-        }} />
-        <style>{`
-          @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
-      </div>
-    );
+    return <LoadingFallback />;
   }
 
   if (!user) {
-    return <Navigate to="/firoz-84" replace />;
+    return <Login />;
   }
 
-  return <>{children}</>;
+  return <AdminLayout />;
 }
 
 function AdminLayout() {
@@ -143,6 +119,7 @@ function AdminLayout() {
               <Route path="blogs" element={<BlogManager />} />
               <Route path="events" element={<EventsManager />} />
               <Route path="security" element={<SecurityLogs />} />
+              <Route path="*" element={<Navigate to="/firoz-84" replace />} />
             </Routes>
           </Suspense>
         </main>
@@ -178,19 +155,12 @@ export default function App() {
       <AuthProvider>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
-            {/* Secret Login Portal */}
-            <Route path="/firoz-84" element={<Login />} />
-            <Route path="/firoz-84/login" element={<Login />} />
-
             {/* Employee Registration */}
             <Route path="/register-employee" element={<RegisterEmployee />} />
 
-            {/* Admin Panel */}
-            <Route path="/firoz-84/*" element={
-              <ProtectedRoute>
-                <AdminLayout />
-              </ProtectedRoute>
-            } />
+            {/* Secret Admin Portal */}
+            <Route path="/firoz-84/*" element={<SecretAdminPortal />} />
+            <Route path="/firoz-84" element={<SecretAdminPortal />} />
 
             {/* Catch-all redirect to Secret Admin dashboard */}
             <Route path="*" element={<Navigate to="/firoz-84" replace />} />
@@ -205,10 +175,6 @@ export default function App() {
       <CustomerAuthProvider>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
-            {/* Secret Admin Login Portal */}
-            <Route path="/firoz-84" element={<Login />} />
-            <Route path="/firoz-84/login" element={<Login />} />
-
             {/* Employee Registration (via Invitation) */}
             <Route path="/register-employee" element={<RegisterEmployee />} />
 
@@ -230,12 +196,9 @@ export default function App() {
               <Route path="*" element={<NotFound />} />
             </Route>
             
-            {/* Secret Admin Panel */}
-            <Route path="/firoz-84/*" element={
-              <ProtectedRoute>
-                <AdminLayout />
-              </ProtectedRoute>
-            } />
+            {/* Secret Admin Portal & Panel */}
+            <Route path="/firoz-84/*" element={<SecretAdminPortal />} />
+            <Route path="/firoz-84" element={<SecretAdminPortal />} />
 
             {/* Explicit 404 for old admin & login URLs */}
             <Route path="/admin/*" element={<StorefrontLayout />}><Route path="*" element={<NotFound />} /></Route>
