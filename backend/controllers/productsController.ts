@@ -205,14 +205,30 @@ export const syncStorefrontConfigProducts = () => {
 
 export const getProducts = async (req: Request, res: Response) => {
   try {
-    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+    res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
     const cacheKey = 'products:all';
     const cachedData = await cacheService.get<any[]>(cacheKey);
     if (cachedData) {
       return res.json({ status: 'success', data: cachedData });
     }
 
-    db.all(`SELECT * FROM products`, [], (err, rows: any[]) => {
+    // Single LEFT JOIN query: fetch products + gallery images in one DB round-trip
+    // Excludes heavy columns (description, photo_content) to keep list payload small
+    const query = `
+      SELECT
+        p.id, p.name, p.slug, p.sku, p.brand, p.category,
+        p.price, p.original_price, p.image, p.rating, p.reviews,
+        p.badge, p.in_stock, p.published, p.stock, p.sold, p.revenue,
+        p.features, p.specs, p.sizes, p.video_url,
+        p.created_at, p.updated_at,
+        GROUP_CONCAT(g.image_url) AS gallery_urls
+      FROM products p
+      LEFT JOIN product_gallery g ON g.product_id = p.id
+      GROUP BY p.id
+      ORDER BY p.id DESC
+    `;
+
+    db.all(query, [], (err, rows: any[]) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
@@ -221,54 +237,49 @@ export const getProducts = async (req: Request, res: Response) => {
         return res.json({ status: 'success', data: [] });
       }
 
-      // Fetch all gallery images to match with products
-      db.all(`SELECT * FROM product_gallery`, [], (galleryErr, galleryRows: any[]) => {
-        const galleryMap: Record<number, string[]> = {};
-        if (!galleryErr && galleryRows) {
-          galleryRows.forEach(row => {
-            if (!galleryMap[row.product_id]) {
-              galleryMap[row.product_id] = [];
-            }
-            galleryMap[row.product_id].push(row.image_url);
-          });
-        }
+      const parsedRows = rows.map((row: any) => {
+        let features = [];
+        let specs = [];
+        let sizes = [];
+        try { if (row.features) features = JSON.parse(row.features); } catch (e) {}
+        try { if (row.specs) specs = JSON.parse(row.specs); } catch (e) {}
+        try { if (row.sizes) sizes = JSON.parse(row.sizes); } catch (e) {}
 
-        const parsedRows = rows.map((row: any) => {
-          let features = [];
-          let specs = [];
-          let sizes = [];
-          try {
-            if (row.features) features = JSON.parse(row.features);
-          } catch (e) {
-            console.error(`Error parsing features for product ${row.id}:`, e);
-          }
-          try {
-            if (row.specs) specs = JSON.parse(row.specs);
-          } catch (e) {
-            console.error(`Error parsing specs for product ${row.id}:`, e);
-          }
-          try {
-            if (row.sizes) sizes = JSON.parse(row.sizes);
-          } catch (e) {
-            console.error(`Error parsing sizes for product ${row.id}:`, e);
-          }
-          const gallery = galleryMap[row.id] || [];
-          return {
-            ...row,
-            features,
-            specs,
-            sizes,
-            published: row.published === 1,
-            in_stock: row.in_stock === 1,
-            gallery: gallery.length > 0 ? gallery : [row.image],
-            video_url: row.video_url || null,
-            photo_content: row.photo_content || null
-          };
-        });
+        // Parse gallery from GROUP_CONCAT result
+        const gallery = row.gallery_urls
+          ? row.gallery_urls.split(',').filter(Boolean)
+          : [row.image];
 
-        cacheService.set(cacheKey, parsedRows, 300).catch(console.error);
-        res.json({ status: 'success', data: parsedRows });
+        return {
+          id: row.id,
+          name: row.name,
+          slug: row.slug,
+          sku: row.sku,
+          brand: row.brand,
+          category: row.category,
+          price: row.price,
+          original_price: row.original_price,
+          image: row.image,
+          rating: row.rating,
+          reviews: row.reviews,
+          badge: row.badge,
+          in_stock: row.in_stock === 1,
+          published: row.published === 1,
+          stock: row.stock,
+          sold: row.sold,
+          revenue: row.revenue,
+          features,
+          specs,
+          sizes,
+          video_url: row.video_url || null,
+          created_at: row.created_at,
+          updated_at: row.updated_at,
+          gallery,
+        };
       });
+
+      cacheService.set(cacheKey, parsedRows, 600).catch(console.error);
+      res.json({ status: 'success', data: parsedRows });
     });
   } catch (err) {
     console.error(err);

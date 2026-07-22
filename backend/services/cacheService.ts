@@ -68,47 +68,49 @@ if (process.env.REDIS_ENABLED !== 'false') {
 
 export const cacheService = {
   /**
-   * Get value from cache
+   * Get value from cache (Redis first, in-memory fallback)
    */
   async get<T>(key: string): Promise<T | null> {
-    try {
-      if (isRedisConnected && redisClient) {
+    // Try Redis first
+    if (isRedisConnected && redisClient) {
+      try {
         const data = await redisClient.get(key);
-        return data ? JSON.parse(data) : null;
+        if (data !== null) return JSON.parse(data) as T;
+      } catch (err) {
+        console.error(`Error reading key "${key}" from Redis:`, err);
       }
-    } catch (err) {
-      console.error(`Error reading key "${key}" from Redis:`, err);
     }
-    // No fallback to in-memory cache to prevent data desynchronization between PM2 instances
-    return null;
+    // Fallback to in-memory cache (used when Redis is unavailable)
+    return memoryCache.get(key) as T | null;
   },
 
   /**
-   * Set value in cache
+   * Set value in cache (Redis + in-memory fallback)
    */
   async set(key: string, value: any, ttlSeconds: number = DEFAULT_TTL): Promise<void> {
     const serialized = JSON.stringify(value);
-    try {
-      if (isRedisConnected && redisClient) {
-        await redisClient.set(key, serialized, {
-          EX: ttlSeconds
-        });
+    // Always write to in-memory cache as fast fallback
+    memoryCache.set(key, value, ttlSeconds);
+    if (isRedisConnected && redisClient) {
+      try {
+        await redisClient.set(key, serialized, { EX: ttlSeconds });
+      } catch (err) {
+        console.error(`Error writing key "${key}" to Redis:`, err);
       }
-    } catch (err) {
-      console.error(`Error writing key "${key}" to Redis:`, err);
     }
   },
 
   /**
-   * Delete specific key from cache
+   * Delete specific key from cache (Redis + in-memory)
    */
   async del(key: string): Promise<void> {
-    try {
-      if (isRedisConnected && redisClient) {
+    memoryCache.del(key);
+    if (isRedisConnected && redisClient) {
+      try {
         await redisClient.del(key);
+      } catch (err) {
+        console.error(`Error deleting key "${key}" from Redis:`, err);
       }
-    } catch (err) {
-      console.error(`Error deleting key "${key}" from Redis:`, err);
     }
   },
 
@@ -116,15 +118,16 @@ export const cacheService = {
    * Delete keys matching a pattern (e.g. "products:*")
    */
   async delPattern(pattern: string): Promise<void> {
-    try {
-      if (isRedisConnected && redisClient) {
+    memoryCache.delPattern(pattern);
+    if (isRedisConnected && redisClient) {
+      try {
         const keys = await redisClient.keys(pattern);
         if (keys.length > 0) {
           await redisClient.del(keys);
         }
+      } catch (err) {
+        console.error(`Error deleting pattern "${pattern}" from Redis:`, err);
       }
-    } catch (err) {
-      console.error(`Error deleting pattern "${pattern}" from Redis:`, err);
     }
   },
 

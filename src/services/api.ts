@@ -340,41 +340,99 @@ const mapProductToFrontend = (p: any): any => {
   };
 };
 
-const PRODUCTS_CACHE_KEY = 'gazi_products_cache_v1';
+const PRODUCTS_CACHE_KEY = 'gazi_products_cache_v2';
+const PRODUCTS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes freshness
+
+// Module-level in-memory cache — survives page navigation within same session
+let _memProductsCache: any[] | null = null;
+let _memProductsCacheAt: number = 0;
+
+interface ProductsCache {
+  data: any[];
+  ts: number;
+}
 
 export const getCachedProductsFromStorage = (): any[] | null => {
+  // Check in-memory cache first (fastest)
+  if (_memProductsCache && (Date.now() - _memProductsCacheAt) < PRODUCTS_CACHE_TTL_MS) {
+    return _memProductsCache;
+  }
   try {
-    const cached = localStorage.getItem(PRODUCTS_CACHE_KEY);
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+    const raw = localStorage.getItem(PRODUCTS_CACHE_KEY);
+    if (raw) {
+      const parsed: ProductsCache = JSON.parse(raw);
+      if (Array.isArray(parsed.data) && parsed.data.length > 0) {
+        // Populate in-memory cache from localStorage
+        _memProductsCache = parsed.data;
+        _memProductsCacheAt = parsed.ts || 0;
+        return parsed.data;
       }
     }
   } catch (e) {}
   return null;
 };
 
-// Fetch all products from backend SQLite
-export const fetchProductsFromBackend = async (): Promise<any[] | null> => {
+const isCacheFresh = (): boolean => {
+  // In-memory fresh check
+  if (_memProductsCache && (Date.now() - _memProductsCacheAt) < PRODUCTS_CACHE_TTL_MS) return true;
+  // localStorage timestamp check
   try {
-    const response = await fetch(`${API_BASE}/products`, {
-      headers: {
-        ...getAuthHeaders(),
-      },
-    });
-    if (!response.ok) return getCachedProductsFromStorage();
-    const result = await response.json();
-    if (result.status !== 'success' || !Array.isArray(result.data)) return getCachedProductsFromStorage();
-    const mapped = result.data.map(mapProductToFrontend);
-    try {
-      localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(mapped));
-    } catch (e) {}
-    return mapped;
-  } catch (e) {
-    console.warn('Backend server offline. Using cached products.', e);
-    return getCachedProductsFromStorage();
+    const raw = localStorage.getItem(PRODUCTS_CACHE_KEY);
+    if (raw) {
+      const parsed: ProductsCache = JSON.parse(raw);
+      if (Array.isArray(parsed.data) && parsed.data.length > 0 && parsed.ts) {
+        return (Date.now() - parsed.ts) < PRODUCTS_CACHE_TTL_MS;
+      }
+    }
+  } catch (e) {}
+  return false;
+};
+
+const saveProductsToCache = (products: any[]): void => {
+  _memProductsCache = products;
+  _memProductsCacheAt = Date.now();
+  try {
+    const payload: ProductsCache = { data: products, ts: Date.now() };
+    localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(payload));
+  } catch (e) {}
+};
+
+// Fetch all products from backend SQLite
+// Uses stale-while-revalidate: returns cached immediately, refreshes in background
+export const fetchProductsFromBackend = async (): Promise<any[] | null> => {
+  const stale = getCachedProductsFromStorage();
+
+  // If cache is fresh, return immediately without any network request
+  if (stale && isCacheFresh()) {
+    return stale;
   }
+
+  // Perform background fetch (or foreground if no cache)
+  const doFetch = async (): Promise<any[] | null> => {
+    try {
+      const response = await fetch(`${API_BASE}/products`, {
+        headers: { ...getAuthHeaders() },
+      });
+      if (!response.ok) return null;
+      const result = await response.json();
+      if (result.status !== 'success' || !Array.isArray(result.data)) return null;
+      const mapped = result.data.map(mapProductToFrontend);
+      saveProductsToCache(mapped);
+      return mapped;
+    } catch (e) {
+      console.warn('Backend server offline. Using cached products.', e);
+      return null;
+    }
+  };
+
+  if (stale) {
+    // Stale cache exists — return it immediately and refresh in the background
+    doFetch().catch(() => {});
+    return stale;
+  }
+
+  // No cache at all — wait for fetch
+  return doFetch();
 };
 
 // Fetch a single product by ID from backend SQLite
@@ -473,6 +531,9 @@ export const updateProductInBackend = async (id: string | number, productData: a
     if (!response.ok) return false;
     const result = await response.json();
     if (result.status === 'success') {
+      // Clear both in-memory and localStorage cache
+      _memProductsCache = null;
+      _memProductsCacheAt = 0;
       try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch (err) {}
     }
     return result.status === 'success';
@@ -496,6 +557,12 @@ export const deleteProductFromBackend = async (id: string | number): Promise<{ s
     const result = await response.json().catch(() => null);
     if (!response.ok) {
       return { success: false, message: result?.message || `HTTP ${response.status}` };
+    }
+    if (result?.status === 'success') {
+      // Clear both in-memory and localStorage cache
+      _memProductsCache = null;
+      _memProductsCacheAt = 0;
+      try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch (err) {}
     }
     return { success: result?.status === 'success', message: result?.message };
   } catch (e: any) {
