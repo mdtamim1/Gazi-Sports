@@ -218,9 +218,9 @@ export const getProducts = async (req: Request, res: Response) => {
       SELECT
         p.id, p.name, p.slug, p.sku, p.brand, p.category,
         p.price, p.original_price, p.image, p.rating, p.reviews,
-        p.badge, p.in_stock, p.published, p.stock, p.sold, p.revenue,
+        p.in_stock, p.published, p.stock, p.sold, p.revenue,
         p.features, p.specs, p.sizes, p.video_url,
-        p.created_at, p.updated_at,
+        p.created_at,
         GROUP_CONCAT(g.image_url) AS gallery_urls
       FROM products p
       LEFT JOIN product_gallery g ON g.product_id = p.id
@@ -262,7 +262,7 @@ export const getProducts = async (req: Request, res: Response) => {
           image: row.image,
           rating: row.rating,
           reviews: row.reviews,
-          badge: row.badge,
+          badge: (row.original_price && row.price < row.original_price) ? 'SALE' : null,
           in_stock: row.in_stock === 1,
           published: row.published === 1,
           stock: row.stock,
@@ -273,7 +273,7 @@ export const getProducts = async (req: Request, res: Response) => {
           sizes,
           video_url: row.video_url || null,
           created_at: row.created_at,
-          updated_at: row.updated_at,
+          updated_at: row.created_at,
           gallery,
         };
       });

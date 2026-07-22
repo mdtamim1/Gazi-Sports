@@ -96,6 +96,9 @@ function translateSqlForPostgres(sql: string, params: any[] = []): { sql: string
   translatedSql = translatedSql.replace(/strftime\('%Y',\s*'now',\s*'localtime'\)/gi, "TO_CHAR(CURRENT_DATE, 'YYYY')");
   translatedSql = translatedSql.replace(/strftime\('%H',\s*created_at,\s*'localtime'\)/gi, "TO_CHAR(created_at, 'HH24')");
 
+  // Translate GROUP_CONCAT(expr) to STRING_AGG(expr::text, ',') for PostgreSQL
+  translatedSql = translatedSql.replace(/GROUP_CONCAT\((.*?)\)/gi, "STRING_AGG($1::text, ',')");
+
   // Replace SQLite upserts
   if (translatedSql.toUpperCase().includes('INSERT OR REPLACE INTO SYSTEM_SETTINGS')) {
     translatedSql = translatedSql.replace(/INSERT OR REPLACE INTO/gi, 'INSERT INTO');
