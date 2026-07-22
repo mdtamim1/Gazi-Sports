@@ -1543,7 +1543,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
-  z-index: 200;
+  z-index: 100000 !important;
   animation: fadeIn 0.2s ease;
 }
 
@@ -1552,9 +1552,10 @@
   top: 0;
   right: 0;
   width: 420px;
+  max-width: 90vw;
   height: 100vh;
   background: white;
-  z-index: 201;
+  z-index: 100001 !important;
   display: flex;
   flex-direction: column;
   box-shadow: -8px 0 30px rgba(0, 0, 0, 0.15);
@@ -3703,7 +3704,7 @@
   inset: 0;
   background: var(--sf-bg-overlay);
   backdrop-filter: blur(4px);
-  z-index: 1000;
+  z-index: 100000 !important;
   animation: sfm-fadeIn 0.25s ease;
 }
 
@@ -3715,7 +3716,7 @@
   width: 280px;
   max-width: 80%;
   background: var(--sf-bg-white);
-  z-index: 1001;
+  z-index: 100001 !important;
   box-shadow: var(--sf-shadow-xl);
   display: flex;
   flex-direction: column;
