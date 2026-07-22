@@ -200,10 +200,11 @@ export default function App() {
             <Route path="/firoz-84/*" element={<SecretAdminPortal />} />
             <Route path="/firoz-84" element={<SecretAdminPortal />} />
 
-            {/* Explicit 404 for old admin & login URLs */}
-            <Route path="/admin/*" element={<StorefrontLayout />}><Route path="*" element={<NotFound />} /></Route>
-            <Route path="/admin" element={<StorefrontLayout />}><Route path="*" element={<NotFound />} /></Route>
-            <Route path="/login" element={<StorefrontLayout />}><Route path="*" element={<NotFound />} /></Route>
+            {/* Standalone Full-Screen 404 Security Pages */}
+            <Route path="/admin/*" element={<NotFound />} />
+            <Route path="/admin" element={<NotFound />} />
+            <Route path="/login" element={<NotFound />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </CustomerAuthProvider>
