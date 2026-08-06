@@ -565,7 +565,7 @@ export const syncOrders = (req: Request, res: Response) => {
       }
 
       if (assignees.length === 0) {
-        return res.status(400).json({ status: 'error', message: 'কোনো active moderator পাওয়া যায়নি এবং admin তথ্যও পাওয়া যায়নি।' });
+        return res.status(400).json({ status: 'error', message: 'No active moderator found and admin info is also unavailable.' });
       }
 
       // Step 2: Get orders in 'pending_sync' status
@@ -579,7 +579,7 @@ export const syncOrders = (req: Request, res: Response) => {
           }
 
           if (!unsyncedOrders || unsyncedOrders.length === 0) {
-            return res.json({ status: 'success', message: 'কোনো সিঙ্ক করার মত অর্ডার নেই (No unsynced orders found)', data: { assigned: 0 } });
+            return res.json({ status: 'success', message: 'No unsynced orders found to sync', data: { assigned: 0 } });
           }
 
           // Step 3: Assign and update status inside a transaction
@@ -633,7 +633,7 @@ export const syncOrders = (req: Request, res: Response) => {
                       cacheService.del('dashboard:stats').catch(console.error);
                       res.json({
                         status: 'success',
-                        message: `${totalOrders} টি নতুন অর্ডার সফলভাবে সিঙ্ক হয়েছে এবং ${assignees.length} জন employee এর মধ্যে বন্টন হয়েছে।`,
+                        message: `${totalOrders} new order(s) synced successfully and distributed among ${assignees.length} employee(s).`,
                         data: {
                           assigned: totalOrders,
                           employees: assignees.map(m => `${m.first_name} ${m.last_name}`.trim())

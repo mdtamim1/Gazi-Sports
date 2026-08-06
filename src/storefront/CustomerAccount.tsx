@@ -103,7 +103,7 @@ export default function CustomerAccount() {
   // Saved Address Form/Modal states
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<any | null>(null);
-  const [addressLabel, setAddressLabel] = useState('বাসা (Home)');
+  const [addressLabel, setAddressLabel] = useState('Home');
   const [addressName, setAddressName] = useState('');
   const [addressPhone, setAddressPhone] = useState('');
   const [addressDetail, setAddressDetail] = useState('');
@@ -112,7 +112,7 @@ export default function CustomerAccount() {
 
   const resetAddressForm = () => {
     setEditingAddress(null);
-    setAddressLabel('বাসা (Home)');
+    setAddressLabel('Home');
     setAddressName('');
     setAddressPhone('');
     setAddressDetail('');
@@ -144,19 +144,19 @@ export default function CustomerAccount() {
     setAddressError('');
 
     if (!addressLabel.trim()) {
-      setAddressError('লেবেল (যেমন: বাসা, অফিস) খালি রাখা যাবে না।');
+      setAddressError('Label (e.g. Home, Office) cannot be empty.');
       return;
     }
     if (!addressName.trim()) {
-      setAddressError('নাম খালি রাখা যাবে না।');
+      setAddressError('Name cannot be empty.');
       return;
     }
     if (!addressPhone.trim()) {
-      setAddressError('মোবাইল নম্বর খালি রাখা যাবে না।');
+      setAddressError('Mobile number cannot be empty.');
       return;
     }
     if (!addressDetail.trim()) {
-      setAddressError('বিস্তারিত ঠিকানা খালি রাখা যাবে না।');
+      setAddressError('Detailed address cannot be empty.');
       return;
     }
 
@@ -176,7 +176,7 @@ export default function CustomerAccount() {
       }
       resetAddressForm();
     } catch (err) {
-      setAddressError('ঠিকানা সংরক্ষণ করতে সমস্যা হয়েছে।');
+      setAddressError('Failed to save address.');
     }
   };
 
@@ -218,12 +218,12 @@ export default function CustomerAccount() {
               if (response.credential) {
                 const res = await googleLogin(response.credential);
                 if (res.success) {
-                  setAuthSuccess('গুগল দিয়ে লগইন সফল হয়েছে!');
+                  setAuthSuccess('Google login successful!');
                 } else {
-                  setAuthError(res.error || 'গুগল লগইন ব্যর্থ হয়েছে।');
+                  setAuthError(res.error || 'Google login failed.');
                 }
               } else {
-                setAuthError('গুগল থেকে কোনো ভ্যালিড ক্রেডেনশিয়াল পাওয়া যায়নি।');
+                setAuthError('No valid credential found from Google.');
               }
             },
           });
@@ -286,7 +286,7 @@ export default function CustomerAccount() {
         syncChatData([...allChats, newMessage]);
       }
     } catch (err) {
-      alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+      alert('Failed to convert image.');
     }
   };
 
@@ -296,11 +296,11 @@ export default function CustomerAccount() {
     setProfileSuccess('');
 
     if (!profileName.trim()) {
-      setProfileError('নাম খালি রাখা যাবে না।');
+      setProfileError('Name cannot be empty.');
       return;
     }
     if (!profilePhone.trim()) {
-      setProfileError('মোবাইল নম্বর খালি রাখা যাবে না।');
+      setProfileError('Mobile number cannot be empty.');
       return;
     }
 
@@ -310,9 +310,9 @@ export default function CustomerAccount() {
         phone: profilePhone.trim(),
         address: profileAddress.trim()
       });
-      setProfileSuccess('আপনার প্রোফাইল তথ্য সফলভাবে আপডেট করা হয়েছে!');
+      setProfileSuccess('Your profile info has been updated successfully!');
     } catch (err) {
-      setProfileError('প্রোফাইল আপডেট করতে সমস্যা হয়েছে।');
+      setProfileError('Failed to update profile.');
     }
   };
 
@@ -533,23 +533,23 @@ export default function CustomerAccount() {
 
     if (isRegister) {
       if (!authName || !authEmail || !authPassword || !authPhone) {
-        setAuthError('দয়া করে সবগুলো ঘর পূরণ করুন।');
+        setAuthError('Please fill in all the fields.');
         return;
       }
       const res = await register(authName, authEmail, authPassword, authPhone);
       if (!res.success) {
-        setAuthError(res.error || 'নিবন্ধন ব্যর্থ হয়েছে।');
+        setAuthError(res.error || 'Registration failed.');
       } else {
-        setAuthSuccess('অ্যাকাউন্ট তৈরি সফল হয়েছে!');
+        setAuthSuccess('Account created successfully!');
       }
     } else {
       if (!authEmail || !authPassword) {
-        setAuthError('ইমেইল ও পাসওয়ার্ড প্রদান করুন।');
+        setAuthError('Please provide email and password.');
         return;
       }
       const res = await login(authEmail, authPassword);
       if (!res.success) {
-        setAuthError(res.error || 'লগইন ব্যর্থ হয়েছে।');
+        setAuthError(res.error || 'Login failed.');
       }
     }
   };
@@ -612,10 +612,10 @@ export default function CustomerAccount() {
   // Order tracking status helper
   const getTrackingSteps = (status: string) => {
     const steps = [
-      { key: 'placed', label: 'অর্ডার প্লেসড', desc: 'অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে', icon: Clock },
-      { key: 'processing', label: 'প্রসেসিং', desc: 'প্যাকেজিং ও ভেরিফিকেশন চলছে', icon: RefreshCw },
-      { key: 'shipped', label: 'কুরিয়ারে পাঠানো হয়েছে', desc: 'পণ্যটি কুরিয়ারে হস্তান্তর করা হয়েছে', icon: Truck },
-      { key: 'delivered', label: 'ডেলিভার্ড', desc: 'অর্ডারটি আপনার কাছে পৌঁছে গেছে', icon: CheckCircle2 }
+      { key: 'placed', label: 'Order Placed', desc: 'Order received successfully', icon: Clock },
+      { key: 'processing', label: 'Processing', desc: 'Packaging and verification in progress', icon: RefreshCw },
+      { key: 'shipped', label: 'Shipped', desc: 'Product handed over to courier', icon: Truck },
+      { key: 'delivered', label: 'Delivered', desc: 'Order delivered to you', icon: CheckCircle2 }
     ];
 
     const lowerStatus = (status || '').toLowerCase().trim();
@@ -637,10 +637,10 @@ export default function CustomerAccount() {
               <User size={24} />
             </div>
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--sf-text-primary)' }}>
-              {isRegister ? 'নতুন অ্যাকাউন্ট তৈরি করুন' : 'কাস্টমার অ্যাকাউন্টে লগইন'}
+              {isRegister ? 'Create New Account' : 'Customer Login'}
             </h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--sf-text-tertiary)', marginTop: '4px' }}>
-              {isRegister ? 'সহজ ট্র্যাকিং ও চ্যাট সাপোর্ট পেতে অ্যাকাউন্ট তৈরি করুন' : 'অর্ডার ট্র্যাক এবং কাস্টমার সাপোর্টে যোগাযোগ করতে লগইন করুন'}
+              {isRegister ? 'Create an account for easy tracking & chat support' : 'Login to track orders and contact customer support'}
             </p>
           </div>
 
@@ -660,35 +660,35 @@ export default function CustomerAccount() {
             {isRegister && (
               <>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>আপনার নাম *</label>
-                  <input type="text" required value={authName} onChange={e => setAuthName(e.target.value)} style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a' }} placeholder="যেমন: মো: রহিম" />
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Your Name *</label>
+                  <input type="text" required value={authName} onChange={e => setAuthName(e.target.value)} style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a' }} placeholder="e.g. John Doe" />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>মোবাইল নম্বর *</label>
-                  <input type="tel" required value={authPhone} onChange={e => setAuthPhone(e.target.value)} style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a' }} placeholder="যেমন: ০১৭XXXXXXXX" />
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Mobile Number *</label>
+                  <input type="tel" required value={authPhone} onChange={e => setAuthPhone(e.target.value)} style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a' }} placeholder="e.g. 017XXXXXXXX" />
                 </div>
               </>
             )}
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>ইমেইল ঠিকানা *</label>
-              <input type="email" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a' }} placeholder="যেমন: example@gmail.com" />
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Email Address *</label>
+              <input type="email" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a' }} placeholder="e.g. example@gmail.com" />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>পাসওয়ার্ড *</label>
-              <input type="password" required value={authPassword} onChange={e => setAuthPassword(e.target.value)} style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a' }} placeholder="পাসওয়ার্ড দিন" />
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Password *</label>
+              <input type="password" required value={authPassword} onChange={e => setAuthPassword(e.target.value)} style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a' }} placeholder="Enter Password" />
             </div>
 
             <button type="submit" style={{ width: '100%', height: '44px', background: 'var(--sf-text-primary)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '8px' }}>
-              {isRegister ? 'অ্যাকাউন্ট তৈরি করুন' : 'লগইন করুন'} <ArrowRight size={16} />
+              {isRegister ? 'Create Account' : 'Login'} <ArrowRight size={16} />
             </button>
           </form>
 
           {/* OR Divider */}
           <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', gap: '10px' }}>
             <div style={{ flex: 1, height: '1px', background: 'var(--sf-border)' }} />
-            <span style={{ fontSize: '0.78rem', color: 'var(--sf-text-tertiary)', fontWeight: 600 }}>অথবা</span>
+            <span style={{ fontSize: '0.78rem', color: 'var(--sf-text-tertiary)', fontWeight: 600 }}>OR</span>
             <div style={{ flex: 1, height: '1px', background: 'var(--sf-border)' }} />
           </div>
 
@@ -708,16 +708,16 @@ export default function CustomerAccount() {
           <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.85rem', color: 'var(--sf-text-secondary)' }}>
             {isRegister ? (
               <>
-                অলরেডি একটি অ্যাকাউন্ট আছে?{' '}
+                Already have an account?{' '}
                 <button onClick={() => { setIsRegister(false); setAuthError(''); }} style={{ background: 'none', border: 'none', color: 'var(--sf-accent)', fontWeight: 700, cursor: 'pointer', padding: 0 }}>
-                  লগইন করুন
+                  Login
                 </button>
               </>
             ) : (
               <>
-                কোনো অ্যাকাউন্ট নেই?{' '}
+                No account?{' '}
                 <button onClick={() => { setIsRegister(true); setAuthError(''); }} style={{ background: 'none', border: 'none', color: 'var(--sf-accent)', fontWeight: 700, cursor: 'pointer', padding: 0 }}>
-                  অ্যাকাউন্ট তৈরি করুন
+                  Create Account
                 </button>
               </>
             )}
@@ -731,11 +731,11 @@ export default function CustomerAccount() {
     <div className="account-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--sf-text-primary)' }}>কাস্টমার পোর্টাল</h2>
-          <p style={{ fontSize: '0.88rem', color: 'var(--sf-text-tertiary)' }}>স্বাগতম, {customer.name}!</p>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--sf-text-primary)' }}>Customer Portal</h2>
+          <p style={{ fontSize: '0.88rem', color: 'var(--sf-text-tertiary)' }}>Welcome, {customer.name}!</p>
         </div>
         <button onClick={logout} className="store-btn" style={{ height: '40px', background: 'white', border: '1.5px solid var(--sf-border)', color: '#ef4444', borderRadius: '8px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.88rem', padding: '0 16px' }}>
-          <LogOut size={16} /> লগআউট করুন
+          <LogOut size={16} /> Logout
         </button>
       </div>
 
@@ -746,7 +746,7 @@ export default function CustomerAccount() {
           className="account-drawer-toggle-btn"
         >
           <Menu size={18} />
-          <span>একাউন্ট মেনু (Account Menu)</span>
+          <span>Account Menu</span>
         </button>
 
         <button 
@@ -754,7 +754,7 @@ export default function CustomerAccount() {
           className="account-mobile-chat-trigger-btn"
         >
           <MessageSquare size={16} />
-          <span>লাইভ চ্যাট</span>
+          <span>Live Chat</span>
         </button>
       </div>
 
@@ -794,56 +794,56 @@ export default function CustomerAccount() {
             onClick={() => { setActiveTab('profile'); setSelectedOrder(null); setIsMobileDrawerOpen(false); }}
             style={{ width: '100%', padding: '12px 16px', background: activeTab === 'profile' ? 'var(--sf-bg-light)' : 'none', color: activeTab === 'profile' ? 'var(--sf-accent)' : 'var(--sf-text-secondary)', border: 'none', borderRadius: '8px', textAlign: 'left', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
           >
-            <User size={18} /> প্রোফাইল তথ্য (Profile)
+            <User size={18} /> Profile Info
           </button>
           
           <button 
             onClick={() => { setActiveTab('orders'); setSelectedOrder(null); setIsMobileDrawerOpen(false); }}
             style={{ width: '100%', padding: '12px 16px', background: activeTab === 'orders' ? 'var(--sf-bg-light)' : 'none', color: activeTab === 'orders' ? 'var(--sf-accent)' : 'var(--sf-text-secondary)', border: 'none', borderRadius: '8px', textAlign: 'left', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
           >
-            <ShoppingBag size={18} /> আমার অর্ডারসমূহ ({orders.length})
+            <ShoppingBag size={18} /> My Orders ({orders.length})
           </button>
           
           <button 
             onClick={() => { setActiveTab('invoices'); setSelectedOrder(null); setSelectedInvoice(null); setIsMobileDrawerOpen(false); }}
             style={{ width: '100%', padding: '12px 16px', background: activeTab === 'invoices' ? 'var(--sf-bg-light)' : 'none', color: activeTab === 'invoices' ? 'var(--sf-accent)' : 'var(--sf-text-secondary)', border: 'none', borderRadius: '8px', textAlign: 'left', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
           >
-            <FileText size={18} /> আমার ইনভয়েসসমূহ (Invoices)
+            <FileText size={18} /> My Invoices
           </button>
           
           <button 
             onClick={() => { setActiveTab('events'); setSelectedOrder(null); setIsMobileDrawerOpen(false); }}
             style={{ width: '100%', padding: '12px 16px', background: activeTab === 'events' ? 'var(--sf-bg-light)' : 'none', color: activeTab === 'events' ? 'var(--sf-accent)' : 'var(--sf-text-secondary)', border: 'none', borderRadius: '8px', textAlign: 'left', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
           >
-            <Trophy size={18} style={{ color: '#fbbf24' }} /> ইভেন্টসমূহ (Events)
+            <Trophy size={18} style={{ color: '#fbbf24' }} /> Events
           </button>
 
           <button 
             onClick={() => { setActiveTab('coupons'); setSelectedOrder(null); setIsMobileDrawerOpen(false); }}
             style={{ width: '100%', padding: '12px 16px', background: activeTab === 'coupons' ? 'var(--sf-bg-light)' : 'none', color: activeTab === 'coupons' ? 'var(--sf-accent)' : 'var(--sf-text-secondary)', border: 'none', borderRadius: '8px', textAlign: 'left', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
           >
-            <Ticket size={18} /> আমার কুপন ও অফারসমূহ
+            <Ticket size={18} /> My Coupons & Offers
           </button>
 
           <button 
             onClick={() => { setActiveTab('addresses'); setSelectedOrder(null); setIsMobileDrawerOpen(false); }}
             style={{ width: '100%', padding: '12px 16px', background: activeTab === 'addresses' ? 'var(--sf-bg-light)' : 'none', color: activeTab === 'addresses' ? 'var(--sf-accent)' : 'var(--sf-text-secondary)', border: 'none', borderRadius: '8px', textAlign: 'left', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
           >
-            <MapPin size={18} /> সংরক্ষিত ঠিকানা ({customer.addresses?.length || 0})
+            <MapPin size={18} /> Saved Addresses ({customer.addresses?.length || 0})
           </button>
           
           <button 
             onClick={() => { setActiveTab('wishlist'); setSelectedOrder(null); setIsMobileDrawerOpen(false); }}
             style={{ width: '100%', padding: '12px 16px', background: activeTab === 'wishlist' ? 'var(--sf-bg-light)' : 'none', color: activeTab === 'wishlist' ? 'var(--sf-accent)' : 'var(--sf-text-secondary)', border: 'none', borderRadius: '8px', textAlign: 'left', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
           >
-            <Heart size={18} /> আমার উইশলিস্ট ({wishlist.length})
+            <Heart size={18} /> My Wishlist ({wishlist.length})
           </button>
           
           <button 
             onClick={() => { setActiveTab('cart'); setSelectedOrder(null); setIsMobileDrawerOpen(false); }}
             style={{ width: '100%', padding: '12px 16px', background: activeTab === 'cart' ? 'var(--sf-bg-light)' : 'none', color: activeTab === 'cart' ? 'var(--sf-accent)' : 'var(--sf-text-secondary)', border: 'none', borderRadius: '8px', textAlign: 'left', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
           >
-            <ShoppingCart size={18} /> শপিং কার্ট ({cart.reduce((s: number, i: any) => s + i.quantity, 0)})
+            <ShoppingCart size={18} /> Shopping Cart ({cart.reduce((s: number, i: any) => s + i.quantity, 0)})
           </button>
 
           {/* Divider */}
@@ -851,12 +851,12 @@ export default function CustomerAccount() {
 
           {/* Support Box */}
           <div style={{ padding: '10px', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(99, 102, 241, 0.03) 100%)', border: '1px dashed var(--sf-accent)', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--sf-accent)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>কাস্টমার সাপোর্ট</div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--sf-accent)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Customer Support</div>
             <button 
               onClick={() => { setActiveTab('chat'); setIsMobileDrawerOpen(false); }}
               style={{ width: '100%', padding: '10px 12px', background: 'linear-gradient(135deg, var(--sf-accent) 0%, var(--sf-accent-hover) 100%)', color: 'white', border: 'none', borderRadius: '6px', textAlign: 'left', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s', fontSize: '0.85rem', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)' }}
             >
-              <MessageSquare size={16} /> 24/7 লাইভ চ্যাট সাহায্য
+              <MessageSquare size={16} /> 24/7 Live Chat Help
             </button>
           </div>
 
@@ -865,7 +865,7 @@ export default function CustomerAccount() {
             onClick={() => { logout(); navigate('/'); setIsMobileDrawerOpen(false); }}
             style={{ width: '100%', padding: '10px 16px', background: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', textAlign: 'left', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', marginTop: '12px' }}
           >
-            <LogOut size={16} /> লগআউট করুন (Logout)
+            <LogOut size={16} /> Logout (Logout)
           </button>
         </div>
 
@@ -883,27 +883,27 @@ export default function CustomerAccount() {
             <div>
               <div className="addresses-section-header" style={{ marginBottom: '20px' }}>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--sf-text-primary)' }}>
-                  <MapPin size={20} style={{ color: 'var(--sf-accent)' }} /> সংরক্ষিত ডেলিভারি ঠিকানা (Saved Address Book)
+                  <MapPin size={20} style={{ color: 'var(--sf-accent)' }} /> Saved Delivery Addresses
                 </h3>
                 <button 
                   onClick={openAddAddressModal} 
                   className="address-action-btn set-default"
                   style={{ width: 'auto', padding: '0 16px', height: '38px', borderRadius: '8px' }}
                 >
-                  <Plus size={16} /> নতুন ঠিকানা যোগ করুন
+                  <Plus size={16} /> Add New Address
                 </button>
               </div>
 
               {!customer.addresses || customer.addresses.length === 0 ? (
                 <div className="address-empty-state">
                   <MapPin size={48} style={{ opacity: 0.3, color: 'var(--sf-accent)' }} />
-                  <p style={{ fontWeight: 700, fontSize: '1.05rem', margin: '12px 0 4px 0' }}>আপনার কোনো ঠিকানা সংরক্ষিত নেই</p>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--sf-text-secondary)', margin: 0 }}>ভবিষ্যতে ১-ক্লিকে দ্রুত অর্ডার করার জন্য এখানে আপনার বাসা বা অফিসের ঠিকানা সংরক্ষণ করুন।</p>
+                  <p style={{ fontWeight: 700, fontSize: '1.05rem', margin: '12px 0 4px 0' }}>No addresses saved yet</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--sf-text-secondary)', margin: 0 }}>Save your home or office address here for quick 1-click ordering in the future.</p>
                   <button 
                     onClick={openAddAddressModal}
                     style={{ marginTop: '16px', padding: '10px 20px', background: 'var(--sf-accent)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                   >
-                    <Plus size={16} /> ঠিকানা যোগ করুন
+                    <Plus size={16} /> Add Address
                   </button>
                 </div>
               ) : (
@@ -915,7 +915,7 @@ export default function CustomerAccount() {
                           <span className="address-label">{addr.label}</span>
                           {addr.isDefault && (
                             <span className="address-default-badge">
-                              <CheckCircle2 size={12} /> ডিফল্ট
+                              <CheckCircle2 size={12} /> Default
                             </span>
                           )}
                         </div>
@@ -933,21 +933,21 @@ export default function CustomerAccount() {
                             onClick={() => setDefaultCustomerAddress(addr.id)} 
                             className="address-action-btn set-default"
                           >
-                            ডিফল্ট করুন
+                            Make Default
                           </button>
                         )}
                         <button 
                           onClick={() => openEditAddressModal(addr)} 
                           className="address-action-btn"
                         >
-                          <Edit size={12} /> এডিট
+                          <Edit size={12} /> Edit
                         </button>
                         <button 
                           onClick={() => deleteCustomerAddress(addr.id)} 
                           className="address-action-btn" 
                           style={{ color: '#ef4444' }}
                         >
-                          <Trash2 size={12} /> ডিলিট
+                          <Trash2 size={12} /> Delete
                         </button>
                       </div>
                     </div>
@@ -960,12 +960,12 @@ export default function CustomerAccount() {
           {/* INVOICES TAB */}
           {activeTab === 'invoices' && (
             <div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px', borderBottom: '1px solid var(--sf-border)', paddingBottom: '10px' }}>আমার ইনভয়েসসমূহ (Invoice History)</h3>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px', borderBottom: '1px solid var(--sf-border)', paddingBottom: '10px' }}>My Invoices (Invoice History)</h3>
               
               {orders.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--sf-text-tertiary)' }}>
                   <FileText size={48} style={{ marginBottom: '16px', opacity: 0.3 }} />
-                  <p style={{ fontWeight: 600, color: 'var(--sf-text-secondary)' }}>আপনার কোনো ইনভয়েস নেই।</p>
+                  <p style={{ fontWeight: 600, color: 'var(--sf-text-secondary)' }}>You have no invoices.</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -996,10 +996,10 @@ export default function CustomerAccount() {
                         >
                           <div>
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--sf-text-primary)' }}>
-                              ইনভয়েস #{(order.memoNumber || '').includes('TrxID:') ? `GS-${order.id}` : `GS-${order.id}`}
+                              Invoice #{(order.memoNumber || '').includes('TrxID:') ? `GS-${order.id}` : `GS-${order.id}`}
                             </div>
                             <div style={{ fontSize: '0.78rem', color: 'var(--sf-text-tertiary)', marginTop: '4px' }}>
-                              তারিখ: {new Date(order.date || order.created_at || Date.now()).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}
+                              Date: {new Date(order.date || order.created_at || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                             </div>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -1014,7 +1014,7 @@ export default function CustomerAccount() {
                                 fontWeight: 700,
                                 textTransform: 'uppercase'
                               }}>
-                                {order.status === 'delivered' ? 'ডেলিভার্ড' : order.status === 'processing' ? 'প্রসেসিং' : 'পেন্ডিং'}
+                                {order.status === 'delivered' ? 'Delivered' : order.status === 'processing' ? 'Processing' : 'Pending'}
                               </span>
                             </div>
                             <button 
@@ -1027,7 +1027,7 @@ export default function CustomerAccount() {
                                 cursor: 'pointer'
                               }}
                             >
-                              {isSelected ? 'বন্ধ করুন' : 'বিস্তারিত দেখুন'}
+                              {isSelected ? 'Close' : 'View Details'}
                             </button>
                           </div>
                         </div>
@@ -1042,28 +1042,28 @@ export default function CustomerAccount() {
                                   <span style={{ fontSize: '0.78rem', color: '#4f566b', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Play Hard, Shop Smart</span>
                                 </div>
                                 <div className="invoice-meta">
-                                  <div><b>মেমো নং:</b> {order.memoNumber ? order.memoNumber : `GS-${order.id}`}</div>
-                                  <div><b>তারিখ:</b> {new Date(order.date || order.created_at || Date.now()).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                                  <div><b>পেমেন্ট:</b> {order.paymentMethod || 'ক্যাশ অন ডেলিভারি'}</div>
+                                  <div><b>Invoice No:</b> {order.memoNumber ? order.memoNumber : `GS-${order.id}`}</div>
+                                  <div><b>Date:</b> {new Date(order.date || order.created_at || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                                  <div><b>Payment:</b> {order.paymentMethod || 'Cash on Delivery'}</div>
                                 </div>
                               </div>
 
                               <div className="invoice-parties">
                                 <div>
-                                  <div className="invoice-party-title">প্রেরক (Sender)</div>
+                                  <div className="invoice-party-title">Sender</div>
                                   <div className="invoice-party-details">
                                     <b>{config.branding.storeName || 'Gazi Sports'}</b><br />
-                                    মোবাইল: {config.contactInfo.phoneNumber || '01700000000'}<br />
-                                    ইমেইল: {config.contactInfo.email || 'support@gazisports.com'}<br />
-                                    ঠিকানা: ঢাকা, বাংলাদেশ
+                                    Phone: {config.contactInfo.phoneNumber || '01700000000'}<br />
+                                    Email: {config.contactInfo.email || 'support@gazisports.com'}<br />
+                                    Address: Dhaka, Bangladesh
                                   </div>
                                 </div>
                                 <div>
-                                  <div className="invoice-party-title">বিলিং ও ডেলিভারি ঠিকানা</div>
+                                  <div className="invoice-party-title">Billing & Delivery Address</div>
                                   <div className="invoice-party-details">
-                                    <b>নাম:</b> {order.customer || customer.name}<br />
-                                    <b>মোবাইল:</b> {order.phone || customer.phone}<br />
-                                    <b>ঠিকানা:</b> {order.address || customer.address}
+                                    <b>Name:</b> {order.customer || customer.name}<br />
+                                    <b>Phone:</b> {order.phone || customer.phone}<br />
+                                    <b>Address:</b> {order.address || customer.address}
                                   </div>
                                 </div>
                               </div>
@@ -1072,11 +1072,11 @@ export default function CustomerAccount() {
                                 <table className="invoice-table">
                                   <thead>
                                     <tr>
-                                      <th>পণ্য বিবরণ (Product)</th>
-                                      <th style={{ textAlign: 'center' }}>সাইজ (Size)</th>
-                                      <th style={{ textAlign: 'center' }}>পরিমাণ (Qty)</th>
-                                      <th style={{ textAlign: 'right' }}>মূল্য (Price)</th>
-                                      <th style={{ textAlign: 'right' }}>মোট (Total)</th>
+                                      <th>Product Description</th>
+                                      <th style={{ textAlign: 'center' }}>Size</th>
+                                      <th style={{ textAlign: 'center' }}>Qty</th>
+                                      <th style={{ textAlign: 'right' }}>Price</th>
+                                      <th style={{ textAlign: 'right' }}>Total</th>
                                     </tr>
                                   </thead>
                                   <tbody>
@@ -1085,16 +1085,16 @@ export default function CustomerAccount() {
                                         <tr key={itemIdx}>
                                           <td>{item.name}</td>
                                           <td style={{ textAlign: 'center' }}>{item.size || 'Free Size'}</td>
-                                          <td style={{ textAlign: 'center' }}>{item.quantity || 1}টি</td>
+                                          <td style={{ textAlign: 'center' }}>{item.quantity || 1} pcs</td>
                                           <td style={{ textAlign: 'right' }}>৳{(item.price || order.amount).toFixed(2)}</td>
                                           <td style={{ textAlign: 'right' }}>৳{((item.price || order.amount) * (item.quantity || 1)).toFixed(2)}</td>
                                         </tr>
                                       ))
                                     ) : (
                                       <tr>
-                                        <td>পণ্য বিবরণ (অর্ডার #{order.id})</td>
-                                        <td style={{ textAlign: 'center' }}>ফ্রি সাইজ</td>
-                                        <td style={{ textAlign: 'center' }}>১টি</td>
+                                        <td>Product Details (Order #{order.id})</td>
+                                        <td style={{ textAlign: 'center' }}>Free Size</td>
+                                        <td style={{ textAlign: 'center' }}>1 pc</td>
                                         <td style={{ textAlign: 'right' }}>৳{order.amount.toFixed(2)}</td>
                                         <td style={{ textAlign: 'right' }}>৳{order.amount.toFixed(2)}</td>
                                       </tr>
@@ -1105,28 +1105,28 @@ export default function CustomerAccount() {
 
                               <div className="invoice-totals">
                                 <div className="invoice-total-row">
-                                  <span>উপমোট (Subtotal)</span>
+                                  <span>Subtotal</span>
                                   <span>৳{(order.subtotal || order.amount - (order.deliveryCharge || 0) + (order.discount || 0)).toFixed(2)}</span>
                                 </div>
                                 <div className="invoice-total-row">
-                                  <span>ডেলিভারি চার্জ</span>
+                                  <span>Shipping Charge</span>
                                   <span>৳{(order.deliveryCharge || 0).toFixed(2)}</span>
                                 </div>
                                 {(order.discount || 0) > 0 && (
                                   <div className="invoice-total-row" style={{ color: '#ef4444' }}>
-                                    <span>ডিসকাউন্ট</span>
+                                    <span>Discount</span>
                                     <span>-৳{(order.discount || 0).toFixed(2)}</span>
                                   </div>
                                 )}
                                 <div className="invoice-total-row grand-total">
-                                  <span>সর্বমোট (Total Paid)</span>
+                                  <span>Grand Total</span>
                                   <span>৳{order.amount.toFixed(2)}</span>
                                 </div>
                               </div>
 
                               <div className="invoice-footer">
-                                <p>আমাদের ওপর আস্থা রাখার জন্য আপনাকে ধন্যবাদ!</p>
-                                <p style={{ fontSize: '0.7rem', opacity: 0.8, marginTop: '4px' }}>এটি একটি কম্পিউটার জেনারেটেড চালান (Invoice), কোনো স্বাক্ষরের প্রয়োজন নেই।</p>
+                                <p>Thank you for shopping with us!</p>
+                                <p style={{ fontSize: '0.7rem', opacity: 0.8, marginTop: '4px' }}>This is a computer generated invoice, no signature is required.</p>
                               </div>
                             </div>
 
@@ -1136,7 +1136,7 @@ export default function CustomerAccount() {
                                 onClick={() => window.print()} 
                                 style={{ padding: '0 24px', height: '40px', background: 'var(--sf-accent)', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}
                               >
-                                ইনভয়েস প্রিন্ট / সেভ করুন
+                                Print / Save Invoice
                               </button>
                             </div>
                           </div>
@@ -1152,7 +1152,7 @@ export default function CustomerAccount() {
           {/* PROFILE TAB */}
           {activeTab === 'profile' && (
             <div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px', borderBottom: '1px solid var(--sf-border)', paddingBottom: '10px' }}>প্রোফাইল বিবরণী</h3>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px', borderBottom: '1px solid var(--sf-border)', paddingBottom: '10px' }}>Profile Details</h3>
               
               <div className="profile-badge-row">
                 <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--sf-accent) 0%, var(--sf-accent-hover) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 800, color: 'white', overflow: 'hidden' }}>
@@ -1169,7 +1169,7 @@ export default function CustomerAccount() {
                       Verified Customer
                     </span>
                     <span style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--sf-success)', fontSize: '0.75rem', fontWeight: 700, padding: '4px 8px', borderRadius: '4px' }}>
-                      সদস্যপদ: {new Date(customer.createdAt).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long' })}
+                      Member Since: {new Date(customer.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
                     </span>
                   </div>
                 </div>
@@ -1190,7 +1190,7 @@ export default function CustomerAccount() {
               <form onSubmit={handleProfileUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>পূর্ণ নাম *</label>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Full Name *</label>
                     <input 
                       type="text" 
                       required 
@@ -1200,7 +1200,7 @@ export default function CustomerAccount() {
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>ইমেইল (পরিবর্তনযোগ্য নয়)</label>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Email (cannot be changed)</label>
                     <input 
                       type="email" 
                       disabled 
@@ -1212,34 +1212,34 @@ export default function CustomerAccount() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>মোবাইল নম্বর *</label>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Mobile Number *</label>
                     <input 
                       type="tel" 
                       required 
                       value={profilePhone} 
                       onChange={e => setProfilePhone(e.target.value)} 
                       style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', background: 'var(--sf-bg-light)', color: 'var(--sf-text-primary)' }} 
-                      placeholder="যেমন: ০১৭XXXXXXXX"
+                      placeholder="e.g. 017XXXXXXXX"
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>রেজিস্ট্রেশন তারিখ</label>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Registration Date</label>
                     <input 
                       type="text" 
                       disabled 
-                      value={new Date(customer.createdAt).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })} 
+                      value={new Date(customer.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
                       style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', background: '#e2e8f0', color: 'var(--sf-text-secondary)', cursor: 'not-allowed' }} 
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>ডেলিভারি ঠিকানা</label>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Delivery Address</label>
                   <textarea 
                     value={profileAddress} 
                     onChange={e => setProfileAddress(e.target.value)} 
                     style={{ width: '100%', minHeight: '80px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '10px 12px', outline: 'none', background: 'var(--sf-bg-light)', color: 'var(--sf-text-primary)', resize: 'vertical', fontFamily: 'inherit' }} 
-                    placeholder="বাসা/হোল্ডিং নং, রোড নং, এলাকা, থানা ও জেলা বিস্তারিত লিখুন"
+                    placeholder="House/Holding no, Road no, Area, Thana & District"
                   />
                 </div>
 
@@ -1247,7 +1247,7 @@ export default function CustomerAccount() {
                   type="submit" 
                   style={{ height: '44px', background: 'var(--sf-text-primary)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '0 24px', alignSelf: 'flex-start', transition: 'background 0.2s' }}
                 >
-                  তথ্য সংরক্ষণ করুন (Save Profile)
+                  Save Profile
                 </button>
               </form>
 
@@ -1255,22 +1255,22 @@ export default function CustomerAccount() {
               <div className="addresses-section">
                 <div className="addresses-section-header">
                   <h4 className="addresses-section-title">
-                    <MapPin size={18} /> সংরক্ষিত ডেলিভারি ঠিকানা (Saved Addresses)
+                    <MapPin size={18} /> Saved Delivery Addresses
                   </h4>
                   <button 
                     onClick={openAddAddressModal} 
                     className="address-action-btn set-default"
                     style={{ width: 'auto', padding: '0 16px', height: '36px' }}
                   >
-                    <Plus size={14} /> নতুন যোগ করুন
+                    <Plus size={14} /> Add New
                   </button>
                 </div>
 
                 {!customer.addresses || customer.addresses.length === 0 ? (
                   <div className="address-empty-state">
                     <MapPin size={40} style={{ opacity: 0.3 }} />
-                    <p style={{ fontWeight: 600, margin: 0 }}>আপনার কোনো ঠিকানা সংরক্ষিত নেই।</p>
-                    <p style={{ fontSize: '0.8rem', margin: 0 }}>ভবিষ্যতে দ্রুত অর্ডার করতে এখানে আপনার ঠিকানাগুলো সংরক্ষণ করে রাখতে পারেন।</p>
+                    <p style={{ fontWeight: 600, margin: 0 }}>No addresses saved yet।</p>
+                    <p style={{ fontSize: '0.8rem', margin: 0 }}>You can save your addresses here for quick checkout in the future.</p>
                   </div>
                 ) : (
                   <div className="address-grid">
@@ -1281,7 +1281,7 @@ export default function CustomerAccount() {
                             <span className="address-label">{addr.label}</span>
                             {addr.isDefault && (
                               <span className="address-default-badge">
-                                <CheckCircle2 size={12} /> ডিফল্ট
+                                <CheckCircle2 size={12} /> Default
                               </span>
                             )}
                           </div>
@@ -1300,20 +1300,20 @@ export default function CustomerAccount() {
                               className="address-action-btn set-default"
                               title="Set as Default"
                             >
-                              ডিফল্ট করুন
+                              Make Default
                             </button>
                           )}
                           <button 
                             onClick={() => openEditAddressModal(addr)} 
                             className="address-action-btn"
                           >
-                            <Edit size={12} /> এডিট
+                            <Edit size={12} /> Edit
                           </button>
                           <button 
                             onClick={() => deleteCustomerAddress(addr.id)} 
                             className="address-action-btn delete"
                           >
-                            <Trash2 size={12} /> ডিলিট
+                            <Trash2 size={12} /> Delete
                           </button>
                         </div>
                       </div>
@@ -1328,11 +1328,11 @@ export default function CustomerAccount() {
           {/* WISHLIST TAB */}
           {activeTab === 'wishlist' && (
             <div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px', borderBottom: '1px solid var(--sf-border)', paddingBottom: '10px' }}>আমার উইশলিস্ট</h3>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px', borderBottom: '1px solid var(--sf-border)', paddingBottom: '10px' }}>My Wishlist</h3>
               {wishlist.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--sf-text-tertiary)' }}>
                   <Heart size={48} style={{ marginBottom: '16px', opacity: 0.3 }} />
-                  <p style={{ fontWeight: 600, color: 'var(--sf-text-secondary)' }}>আপনার উইশলিস্টটি খালি।</p>
+                  <p style={{ fontWeight: 600, color: 'var(--sf-text-secondary)' }}>Your wishlist is empty.</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1350,13 +1350,13 @@ export default function CustomerAccount() {
                             onClick={() => { addToCart(product); toggleWishlist(product.id); }} 
                             style={{ padding: '8px 12px', background: 'var(--sf-accent)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}
                           >
-                            কার্টে যোগ করুন
+                            Add to Cart
                           </button>
                           <button 
                             onClick={() => toggleWishlist(product.id)} 
                             style={{ padding: '8px 12px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}
                           >
-                            মুছুন
+                            Delete
                           </button>
                         </div>
                       </div>
@@ -1369,11 +1369,11 @@ export default function CustomerAccount() {
           {/* CART TAB */}
           {activeTab === 'cart' && (
             <div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px', borderBottom: '1px solid var(--sf-border)', paddingBottom: '10px' }}>শপিং কার্ট</h3>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '20px', borderBottom: '1px solid var(--sf-border)', paddingBottom: '10px' }}>Shopping Cart</h3>
               {cart.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--sf-text-tertiary)' }}>
                   <ShoppingCart size={48} style={{ marginBottom: '16px', opacity: 0.3 }} />
-                  <p style={{ fontWeight: 600, color: 'var(--sf-text-secondary)' }}>আপনার কার্টটি খালি।</p>
+                  <p style={{ fontWeight: 600, color: 'var(--sf-text-secondary)' }}>Your cart is empty.</p>
                 </div>
               ) : (
                 <div>
@@ -1402,9 +1402,9 @@ export default function CustomerAccount() {
                     ))}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderTop: '1px solid var(--sf-border)', marginTop: '20px' }}>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>মোট পরিমাণ: ৳{cartTotal.toFixed(2)}</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>Total Amount: ৳{cartTotal.toFixed(2)}</div>
                     <Link to="/checkout" style={{ padding: '10px 24px', background: 'var(--sf-accent)', color: 'white', borderRadius: '6px', fontWeight: 700, textDecoration: 'none', fontSize: '0.95rem' }}>
-                      চেকআউট করুন
+                      Checkout
                     </Link>
                   </div>
                 </div>
@@ -1418,19 +1418,19 @@ export default function CustomerAccount() {
               {!selectedOrder ? (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--sf-border)', paddingBottom: '10px' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>আমার অর্ডার ইতিহাস</h3>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>My Order History</h3>
                     <button onClick={loadCustomerOrders} disabled={loadingOrders} style={{ background: 'none', border: 'none', color: 'var(--sf-accent)', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem' }}>
-                      <RefreshCw size={14} className={loadingOrders ? 'animate-spin' : ''} /> রিফ্রেশ করুন
+                      <RefreshCw size={14} className={loadingOrders ? 'animate-spin' : ''} /> Refresh
                     </button>
                   </div>
 
                   {loadingOrders ? (
-                    <div style={{ textAlign: 'center', padding: '40px 0' }}>লোডিং হচ্ছে...</div>
+                    <div style={{ textAlign: 'center', padding: '40px 0' }}>Loading...</div>
                   ) : orders.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--sf-text-tertiary)' }}>
                       <ShoppingBag size={48} style={{ opacity: 0.2, marginBottom: '12px' }} />
-                      <p style={{ fontWeight: 600 }}>আপনার কোনো অর্ডার পাওয়া যায়নি।</p>
-                      <p style={{ fontSize: '0.8rem', marginTop: '4px' }}>অর্ডারের সময় যে ইমেইল/ফোন দিয়েছিলেন তা প্রোফাইলের সাথে ম্যাচ করতে হবে।</p>
+                      <p style={{ fontWeight: 600 }}>No orders found.</p>
+                      <p style={{ fontSize: '0.8rem', marginTop: '4px' }}>The email/phone used during ordering must match your profile.</p>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1438,36 +1438,36 @@ export default function CustomerAccount() {
                         const lowerSt = (order.status || '').toLowerCase().trim();
                         let badgeBg = '#fef3c7';
                         let badgeColor = '#92400e';
-                        let badgeText = 'অপেক্ষমান';
+                        let badgeText = 'Pending';
 
                         if (lowerSt === 'delivered' || lowerSt === 'completed') {
                           badgeBg = '#d1fae5';
                           badgeColor = '#065f46';
-                          badgeText = 'ডেলিভার্ড';
+                          badgeText = 'Delivered';
                         } else if (lowerSt === 'shipped' || lowerSt === 'shipping') {
                           badgeBg = '#dbeafe';
                           badgeColor = '#1e40af';
-                          badgeText = 'কুরিয়ারে পাঠানো হয়েছে';
+                          badgeText = 'Shipped';
                         } else if (lowerSt === 'processing') {
                           badgeBg = '#e0f2fe';
                           badgeColor = '#0369a1';
-                          badgeText = 'প্রসেসিং';
+                          badgeText = 'Processing';
                         } else if (lowerSt === 'cancelled') {
                           badgeBg = '#fee2e2';
                           badgeColor = '#991b1b';
-                          badgeText = 'বাতিল করা হয়েছে';
+                          badgeText = 'Cancelled';
                         } else if (lowerSt === 'returned') {
                           badgeBg = '#f3e8ff';
                           badgeColor = '#6b21a8';
-                          badgeText = 'রিটার্ন করা হয়েছে';
+                          badgeText = 'Returned';
                         }
 
                         return (
                           <div key={idx} style={{ border: '1px solid var(--sf-border)', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', transition: 'box-shadow 0.2s' }} onMouseEnter={e => e.currentTarget.style.boxShadow = 'var(--sf-shadow-sm)'} onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}>
                             <div>
-                              <div style={{ fontWeight: 700, color: 'var(--sf-text-primary)', fontSize: '0.95rem' }}>অর্ডার নং: #{order.id}</div>
-                              <div style={{ fontSize: '0.78rem', color: 'var(--sf-text-tertiary)', marginTop: '2px' }}>তারিখ: {new Date(order.date || order.created_at || Date.now()).toLocaleDateString()}</div>
-                              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginTop: '6px' }}>মূল্য: ৳{order.amount} ({order.items} টি প্রোডাক্ট)</div>
+                              <div style={{ fontWeight: 700, color: 'var(--sf-text-primary)', fontSize: '0.95rem' }}>Order No: #{order.id}</div>
+                              <div style={{ fontSize: '0.78rem', color: 'var(--sf-text-tertiary)', marginTop: '2px' }}>Date: {new Date(order.date || order.created_at || Date.now()).toLocaleDateString()}</div>
+                              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginTop: '6px' }}>Amount: ৳{order.amount} ({order.items} items)</div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                               <span style={{ 
@@ -1481,7 +1481,7 @@ export default function CustomerAccount() {
                                 {badgeText}
                               </span>
                               <button onClick={() => setSelectedOrder(order)} className="store-btn" style={{ height: '36px', background: 'var(--sf-text-primary)', color: 'white', border: 'none', borderRadius: '8px', padding: '0 12px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>
-                                অর্ডার ট্র্যাক করুন
+                                Track Order
                               </button>
                             </div>
                           </div>
@@ -1499,17 +1499,17 @@ export default function CustomerAccount() {
                   return (
                     <div>
                       <button onClick={() => setSelectedOrder(null)} style={{ background: 'none', border: 'none', color: 'var(--sf-text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.88rem', fontWeight: 700, cursor: 'pointer', marginBottom: '20px', padding: 0 }}>
-                        <ArrowLeft size={16} /> অর্ডারের তালিকায় ফিরে যান
+                        <ArrowLeft size={16} /> Back to Orders List
                       </button>
 
                       <div style={{ border: '1px solid var(--sf-border)', borderRadius: '16px', padding: '24px', background: 'var(--sf-bg-light)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', borderBottom: '1px solid var(--sf-border)', paddingBottom: '16px', marginBottom: '24px' }}>
                           <div>
-                            <h4 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>অর্ডার ট্র্যাকিং বিবরণী</h4>
-                            <div style={{ fontSize: '0.85rem', color: 'var(--sf-text-tertiary)', marginTop: '4px' }}>অর্ডার নং: <strong>#{currentActiveOrder.id}</strong> | তারিখ: {new Date(currentActiveOrder.date || currentActiveOrder.created_at || Date.now()).toLocaleString()}</div>
+                            <h4 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>Order Tracking Details</h4>
+                            <div style={{ fontSize: '0.85rem', color: 'var(--sf-text-tertiary)', marginTop: '4px' }}>Order No: <strong>#{currentActiveOrder.id}</strong> | Date: {new Date(currentActiveOrder.date || currentActiveOrder.created_at || Date.now()).toLocaleString()}</div>
                           </div>
                           <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--sf-text-tertiary)' }}>মোট মূল্য</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--sf-text-tertiary)' }}>Total Price</div>
                             <div style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--sf-text-primary)', marginTop: '2px' }}>৳{currentActiveOrder.amount}</div>
                           </div>
                         </div>
@@ -1517,12 +1517,12 @@ export default function CustomerAccount() {
                         {/* Special alert banner for Cancelled / Returned orders */}
                         {trackingData.isCancelled && (
                           <div style={{ background: '#fee2e2', color: '#991b1b', padding: '12px 16px', borderRadius: '8px', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <AlertCircle size={20} /> এই অর্ডারটি বাতিল (Cancelled) করা হয়েছে।
+                            <AlertCircle size={20} /> This order has been cancelled.
                           </div>
                         )}
                         {trackingData.isReturned && (
                           <div style={{ background: '#f3e8ff', color: '#6b21a8', padding: '12px 16px', borderRadius: '8px', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <RotateCcw size={20} /> এই অর্ডারটি রিটার্ন (Returned) করা হয়েছে।
+                            <RotateCcw size={20} /> This order has been returned.
                           </div>
                         )}
 
@@ -1575,13 +1575,13 @@ export default function CustomerAccount() {
 
                         <div style={{ borderTop: '1px solid var(--sf-border)', paddingTop: '20px', marginTop: '10px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                           <div>
-                            <div style={{ fontSize: '0.78rem', color: 'var(--sf-text-tertiary)' }}>কুরিয়ার সার্ভিস</div>
+                            <div style={{ fontSize: '0.78rem', color: 'var(--sf-text-tertiary)' }}>Courier Service</div>
                             <div style={{ fontWeight: 700, fontSize: '0.95rem', marginTop: '2px', color: 'var(--sf-text-primary)' }}>
                               {currentActiveOrder.courier || 'Pathao Courier'}
                             </div>
                           </div>
                           <div>
-                            <div style={{ fontSize: '0.78rem', color: 'var(--sf-text-tertiary)' }}>ডেলিভারি ঠিকানা</div>
+                            <div style={{ fontSize: '0.78rem', color: 'var(--sf-text-tertiary)' }}>Delivery Address</div>
                             <div style={{ fontWeight: 700, fontSize: '0.9rem', marginTop: '2px', color: 'var(--sf-text-primary)' }}>
                               {currentActiveOrder.address || 'Dhaka, Bangladesh'}
                             </div>
@@ -1599,7 +1599,7 @@ export default function CustomerAccount() {
           {activeTab === 'chat' && (
             <div style={{ display: 'flex', flexDirection: 'column', height: '480px' }}>
               <div style={{ borderBottom: '1px solid var(--sf-border)', paddingBottom: '12px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>হেল্প ও কাস্টমার সাপোর্ট চ্যাট</h3>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>Help & Customer Support Chat</h3>
                 <span style={{ fontSize: '0.72rem', color: '#16a34a', background: '#f0fdf4', padding: '4px 8px', borderRadius: '4px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a', display: 'inline-block' }} /> Support Agent Online
                 </span>
@@ -1610,8 +1610,8 @@ export default function CustomerAccount() {
                 {chatMessages.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--sf-text-tertiary)', margin: 'auto' }}>
                     <MessageSquare size={48} style={{ opacity: 0.15, marginBottom: '12px' }} />
-                    <p style={{ fontWeight: 600 }}>আপনার কোনো মেসেজ নেই</p>
-                    <p style={{ fontSize: '0.78rem', marginTop: '4px' }}>অর্ডার বা কোনো পণ্য নিয়ে যেকোনো প্রশ্ন করতে নিচে মেসেজ পাঠান।</p>
+                    <p style={{ fontWeight: 600 }}>You have no messages</p>
+                    <p style={{ fontSize: '0.78rem', marginTop: '4px' }}>Send a message below to ask any questions about an order or product.</p>
                   </div>
                 ) : (
                   chatMessages.map((msg, idx) => {
@@ -1669,7 +1669,7 @@ export default function CustomerAccount() {
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2px' }}>
                                       <span style={{ fontWeight: 800, fontSize: '0.85rem', color: isAdmin ? 'var(--sf-text-primary)' : 'white' }}>৳{productInfo.price}</span>
-                                      <span style={{ fontSize: '9px', background: 'rgba(255, 255, 255, 0.2)', color: isAdmin ? 'var(--sf-text-primary)' : 'white', padding: '1px 5px', borderRadius: '4px' }}>প্রোডাক্ট লিংক</span>
+                                      <span style={{ fontSize: '9px', background: 'rgba(255, 255, 255, 0.2)', color: isAdmin ? 'var(--sf-text-primary)' : 'white', padding: '1px 5px', borderRadius: '4px' }}>Product Link</span>
                                     </div>
                                   </Link>
                                 );
@@ -1705,7 +1705,7 @@ export default function CustomerAccount() {
                   type="text" 
                   value={inputMessage} 
                   onChange={e => setInputMessage(e.target.value)} 
-                  placeholder="আপনার মেসেজটি এখানে লিখুন..." 
+                  placeholder="Type your message here..." 
                   style={{ flex: 1, height: '44px', border: '1.5px solid var(--sf-border)', borderRadius: '12px', padding: '0 16px', outline: 'none', fontSize: '0.88rem', backgroundColor: '#ffffff', color: '#0f172a' }}
                 />
                 <button type="submit" style={{ width: '44px', height: '44px', background: 'var(--sf-accent)', color: 'white', border: 'none', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s' }}>
@@ -1724,7 +1724,7 @@ export default function CustomerAccount() {
           <div className="address-modal" onClick={e => e.stopPropagation()}>
             <div className="address-modal-header">
               <h3 className="address-modal-title">
-                {editingAddress ? 'সংরক্ষিত ঠিকানা এডিট করুন' : 'নতুন ডেলিভারি ঠিকানা যোগ করুন'}
+                {editingAddress ? 'Edit Saved Address' : 'Add New Delivery Address'}
               </h3>
               <button className="address-modal-close-btn" onClick={resetAddressForm}>
                 <X size={18} />
@@ -1739,49 +1739,49 @@ export default function CustomerAccount() {
 
             <form onSubmit={handleAddressSubmit} className="address-form">
               <div>
-                <label className="address-form-label">ঠিকানার লেবেল (Label) <span>*</span></label>
+                <label className="address-form-label">Address Label (Label) <span>*</span></label>
                 <input 
                   type="text" 
                   required 
                   value={addressLabel} 
                   onChange={e => setAddressLabel(e.target.value)} 
                   className="address-form-input" 
-                  placeholder="যেমন: বাসা, অফিস, দোকান" 
+                  placeholder="e.g. Home, Office, Shop" 
                 />
               </div>
 
               <div>
-                <label className="address-form-label">কাস্টমারের নাম (Full Name) <span>*</span></label>
+                <label className="address-form-label">Recipient Name (Full Name) <span>*</span></label>
                 <input 
                   type="text" 
                   required 
                   value={addressName} 
                   onChange={e => setAddressName(e.target.value)} 
                   className="address-form-input" 
-                  placeholder="ডেলিভারি গ্রহীতার নাম" 
+                  placeholder="Recipient's Name" 
                 />
               </div>
 
               <div>
-                <label className="address-form-label">মোবাইল নম্বর (Phone Number) <span>*</span></label>
+                <label className="address-form-label">Mobile Number <span>*</span></label>
                 <input 
                   type="tel" 
                   required 
                   value={addressPhone} 
                   onChange={e => setAddressPhone(e.target.value)} 
                   className="address-form-input" 
-                  placeholder="যেমন: ০১৭XXXXXXXX" 
+                  placeholder="e.g. 017XXXXXXXX" 
                 />
               </div>
 
               <div>
-                <label className="address-form-label">বিস্তারিত ঠিকানা (Detailed Address) <span>*</span></label>
+                <label className="address-form-label">Detailed Address <span>*</span></label>
                 <textarea 
                   required 
                   value={addressDetail} 
                   onChange={e => setAddressDetail(e.target.value)} 
                   className="address-form-textarea" 
-                  placeholder="বাসা/হোল্ডিং নং, রোড নং, এলাকা, থানা ও জেলা বিস্তারিত লিখুন"
+                  placeholder="House/Holding no, Road no, Area, Thana & District"
                 />
               </div>
 
@@ -1792,15 +1792,15 @@ export default function CustomerAccount() {
                   onChange={() => {}} 
                   className="address-form-checkbox" 
                 />
-                <span className="address-form-checkbox-label">এটি আমার ডিফল্ট ডেলিভারি ঠিকানা হিসেবে সেট করুন</span>
+                <span className="address-form-checkbox-label">Set as my Default Delivery Address</span>
               </div>
 
               <div className="address-form-actions">
                 <button type="button" onClick={resetAddressForm} className="address-btn-cancel">
-                  বাতিল করুন
+                  Cancel
                 </button>
                 <button type="submit" className="address-btn-save">
-                  সংরক্ষণ করুন
+                  Save
                 </button>
               </div>
             </form>

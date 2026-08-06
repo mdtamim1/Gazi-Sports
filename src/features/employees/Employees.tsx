@@ -59,7 +59,7 @@ export default function Employees() {
         <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔒</div>
         <h2 style={{ color: 'var(--text-primary)', marginBottom: '8px', fontSize: '1.5rem', fontWeight: 700 }}>Access Restricted</h2>
         <p style={{ color: 'var(--text-tertiary)', marginBottom: '24px', fontSize: '0.9rem', lineHeight: 1.5 }}>
-          আপনার অ্যাকাউন্ট থেকে এমপ্লয়ি ম্যানেজমেন্ট সেকশনে অ্যাক্সেস করার অনুমতি নেই।
+          You do not have permission to access the Employee Management section from your account.
         </p>
         <RouterLink to="/firoz-84" className="btn btn-primary">
           Back to Dashboard
@@ -115,7 +115,7 @@ export default function Employees() {
       }
       if (inviteData) setInvitations(inviteData);
     } catch (e) {
-      setErrorMsg('সার্ভার থেকে ডাটা লোড করা যাচ্ছে না।');
+      setErrorMsg('Cannot load data from the server.');
     } finally {
       setLoading(false);
     }
@@ -133,7 +133,7 @@ export default function Employees() {
     setGeneratedLink('');
 
     if (!inviteEmail.trim() || !inviteRoleId) {
-      setInviteError('ইমেইল এবং রোল সিলেক্ট করুন।');
+      setInviteError('Please enter an email and select a role.');
       return;
     }
 
@@ -145,13 +145,13 @@ export default function Employees() {
     if (res.status === 'success') {
       const link = `${window.location.protocol}//${window.location.host}/register-employee?token=${res.data.token}`;
       setGeneratedLink(link);
-      setInviteSuccessMsg('ইনভাইটেশন লিংক সফলভাবে তৈরি হয়েছে! নিচের লিংকটি কপি করে ইনভাইট করুন।');
+      setInviteSuccessMsg('Invitation link created successfully! Copy the link below to invite.');
       setInviteEmail('');
       // Reload invitations logs
       const updatedInvites = await fetchInvitations();
       if (updatedInvites) setInvitations(updatedInvites);
     } else {
-      setInviteError(res.message || 'ইনভাইটেশন তৈরি করা সম্ভব হয়নি।');
+      setInviteError(res.message || 'Could not create the invitation.');
     }
   };
 
@@ -255,7 +255,7 @@ export default function Employees() {
     setRoleError('');
 
     if (!roleName.trim()) {
-      setRoleError('রোল টাইটেল দিতে হবে।');
+      setRoleError('Role title is required.');
       return;
     }
 
@@ -606,7 +606,7 @@ export default function Employees() {
                 {invitations.length === 0 ? (
                   <tr>
                     <td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '24px' }}>
-                      কোনো পেন্ডিং আমন্ত্রণপত্র পাওয়া যায়নি।
+                      No pending invitations found.
                     </td>
                   </tr>
                 ) : (

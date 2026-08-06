@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, ArrowLeft, Target, ShieldCheck, HeartHandshake, Award } from 'lucide-react';
 import { useStorefrontConfig } from '../store/storefrontConfig';
@@ -39,7 +39,7 @@ export default function AboutUs() {
         <div className="premium-page-hero-content">
           <span className="premium-page-badge">Our Story</span>
           <h1 className="premium-page-hero-title">About {config.branding.storeName}</h1>
-          <p className="premium-page-subtitle">জানুন আমাদের লক্ষ্য, মূল্যবোধ এবং পথচলার গল্প</p>
+          <p className="premium-page-subtitle">Learn about our mission, values, and journey</p>
         </div>
       </div>
 
@@ -71,9 +71,9 @@ export default function AboutUs() {
               <div className="about-card-icon">
                 <Target size={24} />
               </div>
-              <h3 className="about-card-title">আমাদের লক্ষ্য (Mission)</h3>
+              <h3 className="about-card-title">Our Mission</h3>
               <p className="about-card-text">
-                সুলভ মূল্যে এবং বিশ্বস্ততার সাথে সেরা ফিটনেস ও জিম একুপমেন্ট এবং সামগ্রী প্রতিটি ঘরে পৌঁছে দেওয়া, যাতে মানুষ আরও সুস্থ ও সক্রিয় জীবনযাপন করতে পারে।
+                To deliver the best fitness and gym equipment to every household at affordable prices with reliability, helping people live a healthier and active life.
               </p>
             </div>
 
@@ -81,9 +81,9 @@ export default function AboutUs() {
               <div className="about-card-icon">
                 <ShieldCheck size={24} />
               </div>
-              <h3 className="about-card-title">কোয়ালিটি গ্যারান্টি</h3>
+              <h3 className="about-card-title">Quality Guarantee</h3>
               <p className="about-card-text">
-                আমরা আমাদের প্রতিটি পণ্যের গুণগত মান কঠোরভাবে যাচাই করি। গ্রাহকদের ১০০% আসল এবং টেকসই স্পোর্টস পণ্য সরবরাহ করাই আমাদের অগ্রাধিকার।
+                We rigorously verify the quality of each of our products. Our priority is to supply customers with 100% authentic and durable sports products.
               </p>
             </div>
 
@@ -91,9 +91,9 @@ export default function AboutUs() {
               <div className="about-card-icon">
                 <HeartHandshake size={24} />
               </div>
-              <h3 className="about-card-title">গ্রাহক সেবা (Support)</h3>
+              <h3 className="about-card-title">Customer Service (Support)</h3>
               <p className="about-card-text">
-                অর্ডার নিশ্চিতকরণ থেকে শুরু করে হোম ডেলিভারি এবং পরবর্তী যেকোনো প্রয়োজনে আমাদের কাস্টমার সাপোর্ট টিম সর্বদা আন্তরিক সেবা দিতে প্রস্তুত।
+                From order confirmation to home delivery and any subsequent needs, our customer support team is always ready to provide sincere service.
               </p>
             </div>
           </div>
@@ -102,17 +102,17 @@ export default function AboutUs() {
           <div className="about-stats-section">
             <div className="about-stat-item">
               <div className="about-stat-number" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                <Award size={24} /> ৫+
+                <Award size={24} /> 5+
               </div>
-              <div className="about-stat-label">বছরের অভিজ্ঞতা</div>
+              <div className="about-stat-label">Years of Experience</div>
             </div>
             <div className="about-stat-item">
-              <div className="about-stat-number">৫০,০০০+</div>
-              <div className="about-stat-label">সফল ডেলিভারি</div>
+              <div className="about-stat-number">50,000+</div>
+              <div className="about-stat-label">Successful Deliveries</div>
             </div>
             <div className="about-stat-item">
-              <div className="about-stat-number">৪.৯ ★</div>
-              <div className="about-stat-label">গ্রাহক সন্তুষ্টি রেটিং</div>
+              <div className="about-stat-number">4.9 ★</div>
+              <div className="about-stat-label">Customer Satisfaction Rating</div>
             </div>
           </div>
         </div>
@@ -126,3 +126,4 @@ export default function AboutUs() {
     </div>
   );
 }
+

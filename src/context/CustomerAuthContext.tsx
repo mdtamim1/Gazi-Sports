@@ -120,7 +120,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setCustomer(res.data.customer);
         return { success: true };
       } else {
-        return { success: false, error: res.message || 'আপনার ইমেইল অথবা পাসওয়ার্ডটি সঠিক নয়' };
+        return { success: false, error: res.message || 'Your email or password is incorrect.' };
       }
     } catch (e) {
       console.warn('Backend offline, fallback login check');
@@ -130,7 +130,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setCustomer(found);
         return { success: true };
       }
-      return { success: false, error: 'সার্ভারে সংযোগ করা যাচ্ছে না।' };
+      return { success: false, error: 'Cannot connect to the server.' };
     }
   };
 
@@ -148,7 +148,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setCustomer(res.data.customer);
         return { success: true };
       } else {
-        return { success: false, error: res.message || 'নিবন্ধন ব্যর্থ হয়েছে।' };
+        return { success: false, error: res.message || 'Registration failed.' };
       }
     } catch (e) {
       console.warn('Backend offline, fallback register');
@@ -191,7 +191,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setCustomer(res.data.customer);
         return { success: true };
       } else {
-        return { success: false, error: res.message || 'গুগল লগইন ব্যর্থ হয়েছে।' };
+        return { success: false, error: res.message || 'Google login failed.' };
       }
     } catch (e) {
       console.warn('Backend offline, mock Google sign in');
@@ -220,7 +220,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
           }
         }
       } catch (err) {}
-      return { success: false, error: 'সার্ভারে সংযোগ করা যাচ্ছে না।' };
+      return { success: false, error: 'Cannot connect to the server.' };
     }
   };
 

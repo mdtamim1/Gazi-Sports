@@ -217,7 +217,7 @@ export default function CollectionPage() {
       <div className="collection-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
         <div style={{ textAlign: 'center', color: 'var(--sf-text-tertiary)' }}>
           <div className="loading-spinner" style={{ border: '3px solid #f3f3f3', borderTop: '3px solid var(--sf-accent)', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
-          <p>লোড হচ্ছে...</p>
+          <p>Loading...</p>
           <style>{`
             @keyframes spin {
               0% { transform: rotate(0deg); }
@@ -338,7 +338,7 @@ export default function CollectionPage() {
             />
           </button>
           {isSoldOut ? (
-            <span className="trending-product-badge sold-out" style={{ background: '#ef4444' }}>স্টক আউট</span>
+            <span className="trending-product-badge sold-out" style={{ background: '#ef4444' }}>Out of Stock</span>
           ) : hasDiscount ? (
             <span className="trending-product-badge">-{discountPercent}%</span>
           ) : product.badge ? (
@@ -354,7 +354,7 @@ export default function CollectionPage() {
           <div className="trending-product-action-container">
             {isSoldOut ? (
               <span className="trending-product-action-btn disabled" style={{ background: '#f1f5f9', color: 'var(--sf-text-tertiary)', border: '1px solid var(--sf-border)', cursor: 'not-allowed', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                স্টক আউট
+                Out of Stock
               </span>
             ) : hasOptions ? (
               <span className="trending-product-action-btn">

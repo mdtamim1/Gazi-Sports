@@ -266,7 +266,7 @@ export default function Inbox() {
         syncChatData(updated);
       }
     } catch (err) {
-      alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+      alert('Failed to convert image.');
     }
   };
 

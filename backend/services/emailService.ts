@@ -148,7 +148,7 @@ const emailTemplate = (content: string) => `
     <div class="footer">
       <p>© ${new Date().getFullYear()} ${STORE_NAME}. All rights reserved.</p>
       <p><a href="${STORE_URL}">${STORE_URL}</a></p>
-      <p class="unsubscribe">আর ইমেইল পেতে না চাইলে <a href="${STORE_URL}/unsubscribe">এখানে ক্লিক করুন</a></p>
+      <p class="unsubscribe">To unsubscribe from our emails, <a href="${STORE_URL}/unsubscribe">click here</a></p>
     </div>
   </div>
 </body>
@@ -163,21 +163,21 @@ export const sendWelcomeEmail = async (email: string): Promise<boolean> => {
   }
 
   const content = `
-    <h2>🎉 সাবস্ক্রিপশন সফল!</h2>
-    <p>আপনাকে <strong>${STORE_NAME}</strong>-এর নিউজলেটারে স্বাগতম! এখন থেকে আপনি পাবেন:</p>
+    <h2>🎉 Subscription Successful!</h2>
+    <p>Welcome to <strong>${STORE_NAME}</strong>'s newsletter! From now on, you'll receive:</p>
     <div>
-      <span class="tag">🔥 এক্সক্লুসিভ অফার</span>
-      <span class="tag">🆕 নতুন পণ্যের আপডেট</span>
-      <span class="tag">🎁 বিশেষ কুপন কোড</span>
-      <span class="tag">⚡ ফ্ল্যাশ সেল নোটিশ</span>
+      <span class="tag">🔥 Exclusive Offers</span>
+      <span class="tag">🆕 New Product Updates</span>
+      <span class="tag">🎁 Special Coupon Codes</span>
+      <span class="tag">⚡ Flash Sale Alerts</span>
     </div>
     <hr class="divider" />
-    <p>এখনই কেনাকাটা শুরু করুন এবং সেরা ডিলগুলো উপভোগ করুন।</p>
-    <a href="${STORE_URL}" class="btn">🛍️ শপ করুন এখনই</a>
+    <p>Start shopping now and enjoy the best deals.</p>
+    <a href="${STORE_URL}" class="btn">🛍️ Shop Now</a>
   `;
 
   try {
-    const success = await sendMailHelper(email, `🎉 ${STORE_NAME}-এ স্বাগতম! আপনার সাবস্ক্রিপশন সফল`, emailTemplate(content));
+    const success = await sendMailHelper(email, `🎉 Welcome to ${STORE_NAME}! Your subscription was successful`, emailTemplate(content));
     if (success) {
       console.log(`[EmailService] Welcome email sent to: ${email}`);
     }
@@ -217,7 +217,7 @@ export const sendOrderConfirmationEmail = async (
     <div class="product-card" style="display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border-radius: 8px; padding: 10px; margin-bottom: 8px; border: 1px solid #f3f4f6;">
       <div>
         <div style="font-weight: 700; font-size: 0.85rem; color: #111827;">${item.name} (${item.size || 'Free Size'})</div>
-        <div style="font-size: 0.78rem; color: #6b7280; margin-top: 2px;">${item.quantity}টি × ৳${item.price.toFixed(2)}</div>
+        <div style="font-size: 0.78rem; color: #6b7280; margin-top: 2px;">${item.quantity} pcs × ৳${item.price.toFixed(2)}</div>
       </div>
       <div style="font-weight: 800; font-size: 0.88rem; color: #111827; text-align: right;">
         ৳${(item.price * item.quantity).toFixed(2)}
@@ -226,48 +226,47 @@ export const sendOrderConfirmationEmail = async (
   `).join('');
 
   const content = `
-    <h2 style="color: #111827; margin-bottom: 8px;">🛍️ অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে!</h2>
-    <p>প্রিয় <strong>${customerName}</strong>, আপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে। খুব শীঘ্রই আমাদের প্রতিনিধি কল করে অর্ডারটি কনফার্ম করবে।</p>
+    <h2 style="color: #111827; margin-bottom: 8px;">🛍️ Your order has been received successfully!</h2>
+    <p>Dear <strong>${customerName}</strong>, your order has been placed successfully. Our representative will call you shortly to confirm the order.</p>
     
     <div style="background: #f3f4f6; padding: 16px; border-radius: 12px; margin-bottom: 20px; font-size: 0.82rem; line-height: 1.6; color: #374151;">
-      <h3 style="margin: 0 0 8px; font-size: 0.88rem; color: #111827; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;">অর্ডার বিবরণী:</h3>
-      <div><b>অর্ডার আইডি:</b> ${orderId}</div>
-      <div><b>তারিখ:</b> ${new Date().toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-      <div><b>পেমেন্ট পদ্ধতি:</b> ${paymentMethod}</div>
-      <div><b>ডেলিভারি ঠিকানা:</b> ${address}</div>
-      <div><b>মোবাইল নম্বর:</b> ${phone}</div>
+      <h3 style="margin: 0 0 8px; font-size: 0.88rem; color: #111827; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px;">Order Summary:</h3>
+      <div><b>Order ID:</b> ${orderId}</div>
+      <div><b>Date:</b> ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+      <div><b>Payment Method:</b> ${paymentMethod}</div>
+      <div><b>Delivery Address:</b> ${address}</div>
+      <div><b>Mobile Number:</b> ${phone}</div>
     </div>
 
-    <h3 style="font-size: 0.92rem; color: #111827; margin-bottom: 12px; border-bottom: 1.5px solid #111827; padding-bottom: 4px;">অর্ডারকৃত পণ্যসমূহ:</h3>
+    <h3 style="font-size: 0.92rem; color: #111827; margin-bottom: 12px; border-bottom: 1.5px solid #111827; padding-bottom: 4px;">Ordered Items:</h3>
     ${itemsHtml}
 
     <div style="margin-top: 16px; border-top: 1px solid #e5e7eb; padding-top: 12px; font-size: 0.85rem; line-height: 1.6; color: #4b5563;">
       <div style="display: flex; justify-content: space-between;">
-        <span>উপমোট (Subtotal):</span>
+        <span>Subtotal:</span>
         <span style="font-weight: 700; color: #111827;">৳${subtotal.toFixed(2)}</span>
       </div>
       <div style="display: flex; justify-content: space-between; margin-top: 4px;">
-        <span>ডেলিভারি চার্জ:</span>
+        <span>Delivery Charge:</span>
         <span style="font-weight: 700; color: #111827;">৳${deliveryCharge.toFixed(2)}</span>
       </div>
       ${discount > 0 ? `
       <div style="display: flex; justify-content: space-between; margin-top: 4px; color: #dc2626;">
-        <span>ডিসকাউন্ট:</span>
+        <span>Discount:</span>
         <span>-৳${discount.toFixed(2)}</span>
       </div>` : ''}
-      <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1rem; border-top: 2px solid #111827; padding-top: 8px; margin-top: 8px; color: #e11d48;">
-        <span>সর্বমোট (Total):</span>
+        <span>Total:</span>
         <span>৳${total.toFixed(2)}</span>
       </div>
     </div>
 
     <hr class="divider" />
-    <p>আমাদের সাথে কেনাকাটা করার জন্য ধন্যবাদ!</p>
-    <a href="${STORE_URL}" class="btn" style="color: white !important;">🛍️ আরও শপ করুন</a>
+    <p>Thank you for shopping with us!</p>
+    <a href="${STORE_URL}" class="btn" style="color: white !important;">🛍️ Shop More</a>
   `;
 
   try {
-    const success = await sendMailHelper(email, `🛍️ ${STORE_NAME} - অর্ডার রশিদ (Order Confirmation #${orderId})`, emailTemplate(content));
+    const success = await sendMailHelper(email, `🛍️ ${STORE_NAME} - Order Confirmation #${orderId}`, emailTemplate(content));
     if (success) {
       console.log(`[EmailService] Order confirmation email sent to: ${email}`);
     }

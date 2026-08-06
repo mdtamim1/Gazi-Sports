@@ -27,7 +27,7 @@ try {
   conn.on('ready', () => {
     console.log('✅ Connected to VPS via SSH.');
     console.log('🔄 Executing remote git pull, build & pm2 restart...');
-    const cmd = 'cd /var/www/gazisports && git stash && git pull origin master && npm install --include=optional --force && npm run build && pm2 restart gazi-sports-backend';
+    const cmd = 'cd /var/www/gazisports && git stash && git pull origin master && npm install --include=optional --force && npm run build && pm2 restart gazi-sports';
 
     conn.exec(cmd, (err, stream) => {
       if (err) {

@@ -26,7 +26,7 @@ export const seedProducts = [
       { name: 'Material', value: 'Cast Iron & Rubber' },
       { name: 'Handle Type', value: 'Knurled' }
     ],
-    description: 'শারীরিক শক্তি বৃদ্ধি ও পেশী গঠনে এই ডাম্বেল সেট অত্যন্ত উপযোগী। এটি ঘরে বসে ফুল বডি ওয়ার্কআউট (যেমন: বাইসেপ কার্ল, শোল্ডার প্রেস, চেস্ট প্রেস) করার জন্য আদর্শ। ব্যবহারের নিয়ম: ওয়ার্কআউট শুরুর আগে ৫-১০ মিনিট ওয়ার্মআপ করে নিন। ডাম্বেল তোলার সময় গ্রিপ শক্তভাবে ধরুন এবং আপনার ক্ষমতা অনুযায়ী রেপস ও সেট নির্ধারণ করুন।',
+    description: 'This dumbbell set is highly suitable for building physical strength and muscle. It is ideal for home workouts (e.g. bicep curls, shoulder press, chest press). How to use: Warm up for 5-10 minutes before starting. Hold the grip firmly while lifting and set repetitions and sets according to your capacity.',
     stock: 50,
     published: 1,
     in_stock: 1
@@ -57,7 +57,7 @@ export const seedProducts = [
       { name: 'Max Weight Cap', value: '150kg' },
       { name: 'Includes', value: 'Knee Pad' }
     ],
-    description: 'উন্নত ৪-হুইল ডিজাইনের এই এবি রোলার কোরের পেশী মজবুত ও পেটের মেদ কমাতে দারুণ সাহায্য করে। এর সাথে হাঁটু সুরক্ষার জন্য ফোম ম্যাট রয়েছে। ব্যবহারের নিয়ম: ম্যাটের উপর হাঁটু গেড়ে বসুন, রোলারের গ্রিপ ধরুন এবং শরীরকে সামনের দিকে আস্তে আস্তে এগিয়ে নিন ও পুনরায় পেছনের দিকে নিয়ে আসুন। কোরে প্রেসার রেখে প্রতিদিন ১০-১৫ বার করে ৩ সেট প্র্যাকটিস করুন।',
+    description: 'This 4-wheel design ab roller helps strengthen core muscles and reduce belly fat. It comes with a foam mat for knee protection. How to use: Kneel on the mat, grab the roller handles, and slowly roll forward, then return to the starting position. Practice 3 sets of 10-15 repetitions daily, keeping tension on your core.',
     stock: 80,
     published: 1,
     in_stock: 1
@@ -85,7 +85,7 @@ export const seedProducts = [
       { name: 'Weight', value: '420-440g' },
       { name: 'Material', value: 'PU Leather' }
     ],
-    description: 'অফিসিয়াল সাইজ ৫ এর এই ফুটবলটি পেশাদার ম্যাচ ও অনুশীলনের জন্য উপযোগী। এর উন্নত ক্যাসিং বাতাস ধরে রাখে ও নিখুঁত সুইং প্রদান করে। ব্যবহারের নিয়ম: খেলার আগে বলের এয়ার প্রেসার চেক করে নিন (৮.৫ থেকে ১৫.৬ পিএসআই আদর্শ)। পিচ্ছিল বা ধারালো জায়গায় খেলা এড়িয়ে চলুন। ভেজা কাদা লাগলে খেলা শেষে বলটি মুছে শুকিয়ে রাখুন।',
+    description: 'This official size 5 football is ideal for professional matches and training. Its advanced casing retains air and provides a perfect swing. How to use: Check the air pressure before playing (8.5 to 15.6 PSI is ideal). Avoid playing on slippery or sharp surfaces. Wipe and dry the ball after playing if muddy.',
     stock: 60,
     published: 1,
     in_stock: 1
@@ -113,7 +113,7 @@ export const seedProducts = [
       { name: 'Weight', value: '83g' },
       { name: 'Grip Size', value: 'G4' }
     ],
-    description: '১০০% কার্বন গ্রাফাইট ফ্রেমের এই র্যাকেটটি হালকা ও শক্তিশালী শট খেলতে অত্যন্ত উপযোগী। এর ন্যানোটেকনোলজি ফ্রেম সুইট স্পট বৃদ্ধি করে। ব্যবহারের নিয়ম: ব্যবহারের সময় গ্রিপ ভালো মানের টেপ দিয়ে মুড়ে নিন। র্যাকেটটি ওয়াটারপ্রুফ ব্যাগে রাখুন এবং খেলুন শুধুমাত্র ইনডোর বা আউটডোর সঠিক শাটলকর্ক দিয়ে।',
+    description: 'This 100% carbon graphite racket is lightweight and perfect for powerful shots. Its nanotechnology frame increases the sweet spot. How to use: Wrap the handle with high-quality grip tape before use. Store the racket in a waterproof bag and play with appropriate indoor or outdoor shuttlecocks.',
     stock: 45,
     published: 1,
     in_stock: 1
@@ -143,7 +143,7 @@ export const seedProducts = [
       { name: 'Weight', value: '290g' },
       { name: 'Warranty', value: '6 Months' }
     ],
-    description: 'হালকা ও আরামদায়ক রানিং জুতো যা নিয়মিত দৌড়াদৌড়ি, জর্জিং ও জিম ওয়ার্কআউটের জন্য অত্যন্ত উপযোগী। এর ব্রিদাবেল মেশ পা ঘামতে দেয় না। ব্যবহারের নিয়ম: মোজা পরে জুতোটি ব্যবহার করুন এবং ফিতাগুলো সঠিকভাবে টাইট দিয়ে বাঁধুন। ব্যবহারের পর পরিষ্কার ও শুকনো স্থানে জুতো রাখুন।',
+    description: 'Lightweight and comfortable running shoes ideal for running, jogging, and gym workouts. The breathable mesh upper prevents feet from sweating. How to use: Wear socks with the shoes and tie laces securely. Store in a clean and dry place after use.',
     stock: 35,
     published: 1,
     in_stock: 1
@@ -173,7 +173,7 @@ export const seedProducts = [
       { name: 'Fit', value: 'Slim Fit' },
       { name: 'Wash', value: 'Machine Wash Cold' }
     ],
-    description: 'ঘাম শোষণকারী ড্রাই-ফিট প্রযুক্তির অ্যাথলেটিক জার্সি যা খেলাধুলা ও জিমের সময় আপনাকে রাখে শুষ্ক ও সতেজ। ১০০% রিসাইকেলড পলিয়েস্টার। ব্যবহারের নিয়ম: ঠান্ডা পানিতে মাইল্ড ডিটারজেন্ট দিয়ে হাত দিয়ে অথবা ওয়াশিং মেশিনে মাইল্ড সাইকেলে ধুয়ে নিন। কড়া রোদে সরাসরি না শুকিয়ে ছায়াযুক্ত স্থানে শুকানো ভালো।',
+    description: 'Moisture-wicking jersey that keeps you dry and fresh during sports and gym workouts. Made of recycled polyester. How to use: Hand wash in cold water with mild detergent.',
     stock: 75,
     published: 1,
     in_stock: 1
@@ -202,7 +202,7 @@ export const seedProducts = [
       { name: 'Material', value: 'TPE' },
       { name: 'Dimensions', value: '183cm x 61cm' }
     ],
-    description: '৮ মিমি পুরু এই ইয়োগা ম্যাট ব্যায়াম বা যোগব্যায়ামের সময় শরীরের জয়েন্ট ও হাঁটুতে কুশনিং সাপোর্ট দেয়। নন-স্লিপ গ্রিপ পিচ্ছিল হওয়া রোধ করে। ব্যবহারের নিয়ম: সমতল মেঝেতে ম্যাটটি বিছিয়ে ইয়োগা করুন। ব্যবহারের পর আর্দ্র নরম সুতি কাপড় দিয়ে মুছে বাতাসে শুকিয়ে তারপর রোল করে রাখুন।',
+    description: 'This 8mm thick yoga mat provides cushioning support to joints and knees during exercises. Non-slip grip prevents sliding. How to use: Spread the mat on a flat floor. Clean with a damp cloth after use, air dry, and roll to store.',
     stock: 65,
     published: 1,
     in_stock: 1
@@ -230,7 +230,7 @@ export const seedProducts = [
       { name: 'Suitable Age', value: '3-10 Years' },
       { name: 'Material', value: 'Steel & Durable ABS' }
     ],
-    description: 'বাচ্চাদের জন্য অ্যাডজাস্টেবল হাইট বাস্কেটবল স্ট্যান্ড যা ৩ থেকে ১০ বছর বয়সীদের শারীরিক বৃদ্ধি ও আনন্দ দিতে উপযোগী। এর স্ট্যান্ডটি ৭ ফুট পর্যন্ত বাড়ানো যায়। ব্যবহারের নিয়ম: স্ট্যান্ডের নিচে থাকা বালতি বা বেসটিতে পানি অথবা বালি ভরে ভারী ও স্থিতিশীল করে নিন। ছোট বাস্কেটবল দিয়ে বাউন্সিং ও ডাকিং অনুশীলন করান।',
+    description: 'Adjustable basketball stand for kids aged 3-10, great for physical growth and fun. How to use: Fill the base bucket with water or sand to make it heavy and stable.',
     stock: 25,
     published: 1,
     in_stock: 1

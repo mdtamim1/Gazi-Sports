@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, Heart, User, Zap, X, Minus, Plus, Phone, Mail, Menu, Home, MoreVertical, ArrowRight, Shield, Truck, RotateCcw, ChevronDown } from 'lucide-react';
+import { Search, ShoppingCart, Heart, User, Zap, X, Minus, Plus, Phone, Mail, Menu, Home, MoreVertical, ArrowRight, Shield, Truck, RotateCcw, ChevronDown, MapPin } from 'lucide-react';
 import { useStorefrontConfig } from '../store/storefrontConfig';
 import './storefront.css';
 import { replaceContactInfo } from '../utils/storefrontUtils';
@@ -30,6 +30,8 @@ const CustomLogo = () => (
 
 export default function StorefrontLayout() {
   const [config] = useStorefrontConfig();
+  const mapUrl = config.contactInfo.shopLocationMapUrl || 
+    (config.contactInfo.shopAddress ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.contactInfo.shopAddress)}` : '');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
@@ -611,7 +613,7 @@ export default function StorefrontLayout() {
                       {suggestions.length > 0 ? (
                         <>
                           <div className="store-search-suggestions-title">
-                            {suggestions.length} টি পণ্য পাওয়া গেছে
+                            {suggestions.length} {suggestions.length === 1 ? 'product' : 'products'} found
                           </div>
                           {suggestions.map((product) => (
                             <div
@@ -642,7 +644,7 @@ export default function StorefrontLayout() {
                         </>
                       ) : (
                         <div className="store-search-no-results">
-                          "{searchQuery}" এর কোনো পণ্য পাওয়া যায়নি
+                          No products found for "{searchQuery}"
                         </div>
                       )}
                     </div>
@@ -679,6 +681,18 @@ export default function StorefrontLayout() {
                   <li>
                     <a href={`mailto:${config.contactInfo.email}`} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span>✉️</span> {config.contactInfo.email}
+                    </a>
+                  </li>
+                )}
+                {config.contactInfo.shopLocationMapUrl && (
+                  <li>
+                    <a
+                      href={config.contactInfo.shopLocationMapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      <span>📍</span> Find Us on Google Maps
                     </a>
                   </li>
                 )}
@@ -724,6 +738,11 @@ export default function StorefrontLayout() {
                     </svg>
                   </a>
                 )}
+                {mapUrl && (
+                  <a href={mapUrl} className="social-btn map" title="Google Maps" target="_blank" rel="noopener noreferrer">
+                    <MapPin size={18} />
+                  </a>
+                )}
               </div>
             </div>
 
@@ -750,6 +769,49 @@ export default function StorefrontLayout() {
                 </ul>
               </div>
             ))}
+
+            {(config.contactInfo.shopAddress || mapUrl) && (
+              <div>
+                <h4>Our Location</h4>
+                {config.contactInfo.shopAddress && (
+                  <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.5, marginBottom: '12px', whiteSpace: 'pre-wrap' }}>
+                    📍 {config.contactInfo.shopAddress}
+                  </p>
+                )}
+                {mapUrl && (
+                  <a
+                    href={mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      color: '#ffffff',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      borderRadius: '6px',
+                      padding: '6px 12px',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      textDecoration: 'none',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    }}
+                  >
+                    <MapPin size={13} /> View on Map
+                  </a>
+                )}
+              </div>
+            )}
           </div>
           <div className="store-footer-bottom">
             <span>
@@ -802,7 +864,7 @@ export default function StorefrontLayout() {
                         <div className="cart-item-name">{item.product.name}</div>
                         {size !== 'Free Size' && (
                           <div style={{ fontSize: '0.8rem', color: 'var(--sf-text-secondary)', marginTop: '2px' }}>
-                            সাইজ (Size): <strong>{size}</strong>
+                            Size: <strong>{size}</strong>
                           </div>
                         )}
                         <div className="cart-item-price">৳{(item.product.price * item.quantity).toFixed(2)}</div>

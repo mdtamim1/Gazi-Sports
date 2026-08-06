@@ -28,7 +28,7 @@ export default function Marketing() {
       const couponData = await fetchCoupons();
       if (couponData) setCoupons(couponData);
     } catch (e) {
-      setErrorMsg('ডাটাবেজ থেকে কুপন ডাটা লোড করা যাচ্ছে না।');
+      setErrorMsg('Failed to load coupon data from the database.');
     } finally {
       setLoading(false);
     }
@@ -142,7 +142,7 @@ export default function Marketing() {
             {coupons.length === 0 ? (
               <tr>
                 <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '24px' }}>
-                  কোনো কুপন কোড পাওয়া যায়নি।
+                  No coupon codes found.
                 </td>
               </tr>
             ) : (
@@ -215,3 +215,4 @@ export default function Marketing() {
     </div>
   );
 }
+

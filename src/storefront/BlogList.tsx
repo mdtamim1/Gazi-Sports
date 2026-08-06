@@ -25,7 +25,7 @@ export default function BlogList() {
 
   const formatDate = (isoString: string) => {
     if (!isoString) return '';
-    return new Date(isoString).toLocaleDateString('bn-BD', {
+    return new Date(isoString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -36,7 +36,7 @@ export default function BlogList() {
     <div className="pdp-container" style={{ maxWidth: '1200px', margin: '40px auto', padding: '0 20px' }}>
       <SEOMeta 
         title="Sports & Fitness Blogs" 
-        description="ফিটনেস, শরীরচর্চা এবং খেলাধুলার সেরা টিপস নিয়ে আমাদের প্রফেশনাল স্পোর্টস ব্লগ ও হেলথ আর্টিকেলসমূহ পড়ুন।"
+        description="Read our professional sports blogs and health articles for the best tips on fitness, exercise, and sports."
         slug="blogs"
       />
 
@@ -60,7 +60,7 @@ export default function BlogList() {
           marginTop: '15px',
           letterSpacing: '-0.02em'
         }}>
-          আমাদের স্পোর্টস ও ফিটনেস বিষয়ক ব্লগপোস্ট
+          Our Sports & Fitness Blog Posts
         </h1>
         <p style={{ 
           color: 'var(--sf-text-secondary)', 
@@ -69,7 +69,7 @@ export default function BlogList() {
           fontSize: '1rem',
           lineHeight: '1.6'
         }}>
-          নিজেকে ফিট, শক্তিশালী ও প্রাণবন্ত রাখতে খেলাধুলা, জিম এবং স্বাস্থ্যকর জীবনযাত্রার সহজ টিপস ও প্রফেশনাল গাইডলাইন পড়ুন।
+          Read simple tips and professional guidelines on sports, gym, and a healthy lifestyle to keep yourself fit, strong, and vibrant.
         </p>
       </div>
 
@@ -81,8 +81,8 @@ export default function BlogList() {
         </div>
       ) : blogs.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '80px 20px', background: 'var(--sf-bg-light, #f6f6f6)', borderRadius: '16px' }}>
-          <h3 style={{ color: 'var(--sf-text-secondary)' }}>কোনো ব্লগপোস্ট খুঁজে পাওয়া যায়নি।</h3>
-          <Link to="/" className="store-btn store-btn-primary" style={{ marginTop: '20px' }}>স্টোরে ফিরে যান</Link>
+          <h3 style={{ color: 'var(--sf-text-secondary)' }}>No blog posts found.</h3>
+          <Link to="/" className="store-btn store-btn-primary" style={{ marginTop: '20px' }}>Go to Store</Link>
         </div>
       ) : (
         <div style={{ 
@@ -177,7 +177,7 @@ export default function BlogList() {
                       fontSize: '0.9rem'
                     }}
                   >
-                    বিস্তারিত পড়ুন <ArrowRight size={14} />
+                    Read More <ArrowRight size={14} />
                   </Link>
                 </div>
               </div>

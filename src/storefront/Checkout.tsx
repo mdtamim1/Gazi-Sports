@@ -71,9 +71,9 @@ export default function Checkout() {
     
     if (res.status === 'success') {
       setAppliedCoupon(res.data);
-      setCouponSuccess(`কুপন কোড '${res.data.code}' সফলভাবে যুক্ত হয়েছে!`);
+      setCouponSuccess(`Coupon code '${res.data.code}' added successfully!`);
     } else {
-      setCouponError(res.message || 'কুপনটি প্রযোজ্য নয়।');
+      setCouponError(res.message || 'This coupon is not applicable.');
       setAppliedCoupon(null);
     }
   };
@@ -150,7 +150,7 @@ export default function Checkout() {
     e.preventDefault();
 
     if ((paymentMethod === 'bkash' || paymentMethod === 'nagad') && (!senderNumber.trim() || !trxId.trim())) {
-      alert('দয়া করে আপনার প্রেরকের বিকাশ/নগদ নম্বর এবং Transaction ID (TrxID) ইনপুট দিন।');
+      alert('Please enter your sender bKash/Nagad number and Transaction ID (TrxID).');
       return;
     }
 
@@ -277,11 +277,11 @@ export default function Checkout() {
     
     setSubmittedOrder({
       invoiceNo: `GS-${Math.floor(100000 + Math.random() * 900000)}`,
-      date: new Date().toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }),
+      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
       customerName,
       customerPhone,
       customerAddress,
-      paymentMethodName: paymentMethod === 'bkash' ? 'বিকাশ (Send Money)' : paymentMethod === 'nagad' ? 'নগদ (Send Money)' : 'ক্যাশ অন ডেলিভারি',
+      paymentMethodName: paymentMethod === 'bkash' ? 'bKash (Send Money)' : paymentMethod === 'nagad' ? 'Nagad (Send Money)' : 'Cash on Delivery',
       items: items.map(item => ({
         name: item.product.name,
         price: item.product.price,
@@ -300,9 +300,9 @@ export default function Checkout() {
   if (items.length === 0 && !isSuccess) {
     return (
       <div className="checkout-container" style={{ textAlign: 'center', minHeight: '50vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <h2>আপনার কার্ট খালি! (Your Cart is Empty!)</h2>
-        <p style={{ color: 'var(--sf-text-secondary)', marginBottom: '24px' }}>দয়া করে কিছু পণ্য যোগ করে আবার চেষ্টা করুন।</p>
-        <Link to="/" className="btn-confirm" style={{ width: 'auto', padding: '0 32px' }}>শপিং চালিয়ে যান (Continue Shopping)</Link>
+        <h2>Your Cart is Empty!</h2>
+        <p style={{ color: 'var(--sf-text-secondary)', marginBottom: '24px' }}>Please add some products to your cart and try again.</p>
+        <Link to="/" className="btn-confirm" style={{ width: 'auto', padding: '0 32px' }}>Continue Shopping</Link>
       </div>
     );
   }
@@ -310,8 +310,8 @@ export default function Checkout() {
   return (
     <div className="checkout-container">
       <div className="checkout-header">
-        <h1>নিরাপদ অর্ডার ফরম (Secure Order Form)</h1>
-        <p>অর্ডারটি সম্পন্ন করতে আপনার সঠিক তথ্য দিয়ে ফরমটি পূরণ করুন</p>
+        <h1>Secure Order Form</h1>
+        <p>Please fill out the form with correct details to complete your order</p>
       </div>
 
       <form className="checkout-layout" onSubmit={handleSubmit}>
@@ -319,7 +319,7 @@ export default function Checkout() {
         {/* Step 1: Order Summary at the Top */}
         <div className="checkout-panel checkout-summary-panel">
           <h2 className="checkout-panel-title">
-            <Package size={24} /> অর্ডারের সারসংক্ষেপ (Summary)
+            <Package size={24} /> Order Summary
           </h2>
           
           <div className="summary-items">
@@ -328,7 +328,7 @@ export default function Checkout() {
                 <img src={item.product.image} alt={item.product.name} className="summary-item-image" />
                 <div className="summary-item-info">
                   <div className="summary-item-name">{item.product.name}</div>
-                  <div className="summary-item-variant">রঙ: ডিফল্ট | সাইজ: {item.product.selectedSize || 'ফ্রি সাইজ'}</div>
+                  <div className="summary-item-variant">Color: Default | Size: {item.product.selectedSize || 'Free Size'}</div>
                   <div className="summary-item-price-row">
                     <div className="summary-item-price">৳{item.product.price}</div>
                     <div className="qty-control">
@@ -348,19 +348,19 @@ export default function Checkout() {
 
           {/* Coupon / Promo Code Form */}
           <div style={{ padding: '16px', background: 'var(--sf-bg-secondary, #fafafa)', borderTop: '1px dashed var(--border-secondary)', borderBottom: '1px dashed var(--border-secondary)', margin: '0 0 16px 0' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--sf-text-secondary)', marginBottom: '8px' }}>প্রোমো কোড (Promo Code)</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--sf-text-secondary)', marginBottom: '8px' }}>Promo Code</div>
             {appliedCoupon ? (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '8px 12px', borderRadius: '6px' }}>
                 <span style={{ fontSize: '0.82rem', color: '#16a34a', fontWeight: 600 }}>
-                  '{appliedCoupon.code}' প্রয়োগ করা হয়েছে ({appliedCoupon.type === 'percentage' ? `${appliedCoupon.value}%` : `৳${appliedCoupon.value}`} ছাড়)
+                  '{appliedCoupon.code}' applied ({appliedCoupon.type === 'percentage' ? `${appliedCoupon.value}%` : `৳${appliedCoupon.value}`} discount)
                 </span>
-                <button type="button" onClick={handleRemoveCoupon} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 700 }}>সরিয়ে ফেলুন</button>
+                <button type="button" onClick={handleRemoveCoupon} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 700 }}>Remove</button>
               </div>
             ) : (
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input
                   type="text"
-                  placeholder="কোড লিখুন (যেমন: SUMMER20)"
+                  placeholder="Enter code (e.g. SUMMER20)"
                   className="form-input"
                   style={{ height: '36px', fontSize: '0.8rem', textTransform: 'uppercase', flex: 1 }}
                   value={promoCodeInput}
@@ -372,7 +372,7 @@ export default function Checkout() {
                   disabled={isValidating}
                   style={{ height: '36px', padding: '0 16px', background: '#000000', color: '#ffffff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}
                 >
-                  {isValidating ? '...' : 'প্রয়োগ'}
+                  {isValidating ? '...' : 'Apply'}
                 </button>
               </div>
             )}
@@ -382,21 +382,21 @@ export default function Checkout() {
 
           <div className="summary-totals">
             <div className="summary-row">
-              <span>পণ্যের মূল্য (Subtotal)</span>
+              <span>Subtotal</span>
               <span>৳{subtotal.toFixed(2)}</span>
             </div>
             <div className="summary-row">
-              <span>ডেলিভারি চার্জ (Shipping)</span>
+              <span>Shipping Charge</span>
               <span>৳{deliveryCharge.toFixed(2)}</span>
             </div>
             {discount > 0 && (
               <div className="summary-row discount">
-                <span>ডিসকাউন্ট (Discount)</span>
+                <span>Discount</span>
                 <span>-৳{discount.toFixed(2)}</span>
               </div>
             )}
             <div className="summary-row total">
-              <span>সর্বমোট (Total)</span>
+              <span>Total</span>
               <span>৳{total.toFixed(2)}</span>
             </div>
           </div>
@@ -405,14 +405,14 @@ export default function Checkout() {
         {/* Step 2: Customer Details */}
         <div className="checkout-panel">
           <h2 className="checkout-panel-title">
-            <User size={20} /> কাস্টমার ও ডেলিভারি তথ্য (Delivery Details)
+            <User size={20} /> Customer & Delivery Details
           </h2>
 
           {/* Quick-fill from saved addresses */}
           {customer && customer.addresses && customer.addresses.length > 0 && (
             <div className="checkout-saved-addresses-container">
               <div className="checkout-saved-addresses-title">
-                <MapPin size={16} /> সংরক্ষিত ঠিকানা থেকে সিলেক্ট করুন (Quick Fill)
+                <MapPin size={16} /> Select from Saved Addresses (Quick Fill)
               </div>
               <div className="checkout-address-list">
                 {customer.addresses.map((addr) => {
@@ -443,28 +443,28 @@ export default function Checkout() {
 
           <div className="form-grid">
             <div className="form-group full-width">
-              <label className="form-label">আপনার নাম (Full Name) <span>*</span></label>
-              <input type="text" className="form-input" placeholder="আপনার নাম লিখুন" required value={customerName} onChange={(e) => { setCustomerName(e.target.value); setNameEdited(true); setSelectedAddressId(''); }} />
+              <label className="form-label">Full Name <span>*</span></label>
+              <input type="text" className="form-input" placeholder="Enter your name" required value={customerName} onChange={(e) => { setCustomerName(e.target.value); setNameEdited(true); setSelectedAddressId(''); }} />
             </div>
             
             <div className="form-group full-width">
-              <label className="form-label">মোবাইল নম্বর (Phone Number) <span>*</span></label>
-              <input type="tel" className="form-input" placeholder="যেমন: ০১৭XXXXXXXX" required value={customerPhone} onChange={(e) => { setCustomerPhone(e.target.value); setPhoneEdited(true); setSelectedAddressId(''); }} />
+              <label className="form-label">Phone Number <span>*</span></label>
+              <input type="tel" className="form-input" placeholder="e.g. 017XXXXXXXX" required value={customerPhone} onChange={(e) => { setCustomerPhone(e.target.value); setPhoneEdited(true); setSelectedAddressId(''); }} />
             </div>
 
             <div className="form-group full-width">
-              <label className="form-label">ইমেইল ঠিকানা (Email Address) <span style={{ color: '#94a3b8', fontWeight: 'normal', fontSize: '0.78rem' }}>(অপশনাল)</span></label>
-              <input type="email" className="form-input" placeholder="যেমন: example@gmail.com (অর্ডার রশিদ মেইলে পেতে চাইলে)" value={customerEmail} onChange={(e) => { setCustomerEmail(e.target.value); setEmailEdited(true); }} />
+              <label className="form-label">Email Address <span style={{ color: '#94a3b8', fontWeight: 'normal', fontSize: '0.78rem' }}>(Optional)</span></label>
+              <input type="email" className="form-input" placeholder="e.g. example@gmail.com (to receive order receipt)" value={customerEmail} onChange={(e) => { setCustomerEmail(e.target.value); setEmailEdited(true); }} />
             </div>
 
             <div className="form-group full-width">
-              <label className="form-label">সম্পূর্ণ ডেলিভারি ঠিকানা (Detailed Address) <span>*</span></label>
-              <input type="text" className="form-input" placeholder="বাসা/হোল্ডিং নং, রোড নং, এলাকা, থানা ও জেলা লিখুন" required value={customerAddress} onChange={(e) => { setCustomerAddress(e.target.value); setAddressEdited(true); setSelectedAddressId(''); }} />
+              <label className="form-label">Detailed Address <span>*</span></label>
+              <input type="text" className="form-input" placeholder="House/Holding no, Road no, Area, Thana & District" required value={customerAddress} onChange={(e) => { setCustomerAddress(e.target.value); setAddressEdited(true); setSelectedAddressId(''); }} />
             </div>
 
             <div className="form-group full-width">
-              <label className="form-label">অর্ডার সংক্রান্ত নোট (Optional Note)</label>
-              <input type="text" className="form-input" placeholder="অর্ডার সংক্রান্ত অতিরিক্ত তথ্য বা নির্দেশনা" value={customerNote} onChange={(e) => setCustomerNote(e.target.value)} />
+              <label className="form-label">Order Note (Optional)</label>
+              <input type="text" className="form-input" placeholder="Extra instructions or details for delivery" value={customerNote} onChange={(e) => setCustomerNote(e.target.value)} />
             </div>
 
             {customer && (
@@ -477,7 +477,7 @@ export default function Checkout() {
                   style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--sf-accent)' }}
                 />
                 <label htmlFor="saveAddressCheckbox" style={{ cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sf-text-secondary)', userSelect: 'none' }}>
-                  ভবিষ্যতে ব্যবহারের জন্য এই ঠিকানাটি সেভ করে রাখুন (Save this address to my profile)
+                  Save this address to my profile
                 </label>
               </div>
             )}
@@ -489,19 +489,19 @@ export default function Checkout() {
           <div className="method-grid">
             <div>
               <h3 className="method-title">
-                <Truck size={18} /> ডেলিভারি চার্জ (Shipping Rate)
+                <Truck size={18} /> Shipping Rate
               </h3>
               <div className="selection-row">
                 <div className={`selection-card ${shippingLocation === 'dhaka' ? 'active' : ''}`} onClick={() => setShippingLocation('dhaka')}>
                   <div className="selection-card-content">
-                    <div className="selection-card-title">ঢাকার ভেতরে</div>
+                    <div className="selection-card-title">Inside Dhaka</div>
                     <div className="selection-card-desc">৳{config.delivery.insideDhakaPrice} ({config.delivery.insideDhakaTimeline})</div>
                   </div>
                   {shippingLocation === 'dhaka' && <CheckCircle size={18} color="var(--sf-accent)" />}
                 </div>
                 <div className={`selection-card ${shippingLocation === 'outside' ? 'active' : ''}`} onClick={() => setShippingLocation('outside')}>
                   <div className="selection-card-content">
-                    <div className="selection-card-title">ঢাকার বাইরে</div>
+                    <div className="selection-card-title">Outside Dhaka</div>
                     <div className="selection-card-desc">৳{config.delivery.outsideDhakaPrice} ({config.delivery.outsideDhakaTimeline})</div>
                   </div>
                   {shippingLocation === 'outside' && <CheckCircle size={18} color="var(--sf-accent)" />}
@@ -511,7 +511,7 @@ export default function Checkout() {
 
             <div>
               <h3 className="method-title">
-                <CreditCard size={18} /> পেমেন্ট পদ্ধতি (Payment Method)
+                <CreditCard size={18} /> Payment Method
               </h3>
 
               <div className="payment-selection-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', marginTop: '10px' }}>
@@ -522,7 +522,7 @@ export default function Checkout() {
                   style={{ cursor: 'pointer', padding: '12px', borderRadius: '10px', border: paymentMethod === 'cod' ? '2px solid var(--sf-accent)' : '1px solid var(--sf-border)', background: paymentMethod === 'cod' ? 'var(--sf-bg-light)' : 'white', display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
                   <Package size={20} />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>ক্যাশ অন ডেলিভারি</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Cash on Delivery</span>
                 </div>
 
                 {/* bKash */}
@@ -532,7 +532,7 @@ export default function Checkout() {
                   style={{ cursor: 'pointer', padding: '12px', borderRadius: '10px', border: paymentMethod === 'bkash' ? '2px solid #e11d48' : '1px solid var(--sf-border)', background: paymentMethod === 'bkash' ? 'rgba(225, 29, 72, 0.06)' : 'white', display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
                   <div style={{ background: '#e11d48', color: 'white', fontWeight: 800, fontSize: '10px', padding: '3px 6px', borderRadius: '4px' }}>bKash</div>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#e11d48' }}>বিকাশ</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#e11d48' }}>bKash</span>
                 </div>
 
                 {/* Nagad */}
@@ -542,7 +542,7 @@ export default function Checkout() {
                   style={{ cursor: 'pointer', padding: '12px', borderRadius: '10px', border: paymentMethod === 'nagad' ? '2px solid #ea580c' : '1px solid var(--sf-border)', background: paymentMethod === 'nagad' ? 'rgba(234, 88, 12, 0.06)' : 'white', display: 'flex', alignItems: 'center', gap: '8px' }}
                 >
                   <div style={{ background: '#ea580c', color: 'white', fontWeight: 800, fontSize: '10px', padding: '3px 6px', borderRadius: '4px' }}>NAGAD</div>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ea580c' }}>নগদ</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ea580c' }}>Nagad</span>
                 </div>
               </div>
 
@@ -550,24 +550,24 @@ export default function Checkout() {
               {(paymentMethod === 'bkash' || paymentMethod === 'nagad') && (
                 <div style={{ marginTop: '16px', padding: '16px', background: paymentMethod === 'bkash' ? 'rgba(225, 29, 72, 0.04)' : 'rgba(234, 88, 12, 0.04)', border: `1.5px dashed ${paymentMethod === 'bkash' ? '#e11d48' : '#ea580c'}`, borderRadius: '12px' }}>
                   <div style={{ fontWeight: 800, fontSize: '0.9rem', color: paymentMethod === 'bkash' ? '#e11d48' : '#ea580c', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CreditCard size={18} /> {paymentMethod === 'bkash' ? 'bKash (বিকাশ)' : 'Nagad (নগদ)'} টাকা পাঠানোর নিয়মাবলী:
+                    <CreditCard size={18} /> {paymentMethod === 'bkash' ? 'bKash (bKash)' : 'Nagad (Nagad)'} instructions:
                   </div>
 
                   <ol style={{ paddingLeft: '20px', fontSize: '0.82rem', lineHeight: 1.6, color: 'var(--sf-text-secondary)', margin: '0 0 14px 0' }}>
-                    <li>আপনার <b>{paymentMethod === 'bkash' ? 'bKash' : 'Nagad'}</b> অ্যাপ খুলুন অথবা <b>{paymentMethod === 'bkash' ? '*247#' : '*167#'}</b> ডায়াল করে <b>Send Money / Cash Out</b> এ ক্লিক করুন।</li>
-                    <li>টাকা পাঠানোর নম্বর: <b style={{ fontSize: '0.95rem', color: paymentMethod === 'bkash' ? '#e11d48' : '#ea580c', background: 'white', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--sf-border)' }}>{paymentMethod === 'bkash' ? '01700000000' : '01800000000'}</b> (Personal)</li>
-                    <li>মোট পরিশোধযোগ্য টাকার পরিমাণ: <b style={{ color: 'var(--sf-text-primary)' }}>৳{total.toFixed(2)}</b> পাঠাবেন।</li>
-                    <li>টাকা পাঠানোর পর প্রাপ্ত <b>Transaction ID (TrxID)</b> ও <b>আপনার নম্বরটি</b> নিচে ইনপুট দিন।</li>
+                    <li>Open your <b>{paymentMethod === 'bkash' ? 'bKash' : 'Nagad'}</b> app or dial <b>{paymentMethod === 'bkash' ? '*247#' : '*167#'}</b> and select <b>Send Money</b>.</li>
+                    <li>Send to number: <b style={{ fontSize: '0.95rem', color: paymentMethod === 'bkash' ? '#e11d48' : '#ea580c', background: 'white', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--sf-border)' }}>{paymentMethod === 'bkash' ? '01700000000' : '01800000000'}</b> (Personal)</li>
+                    <li>Send the total payable amount: <b style={{ color: 'var(--sf-text-primary)' }}>৳{total.toFixed(2)}</b>.</li>
+                    <li>After sending, enter your <b>Transaction ID (TrxID)</b> and <b>Sender Phone number</b> below.</li>
                   </ol>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                     <div>
                       <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--sf-text-primary)', display: 'block', marginBottom: '4px' }}>
-                        প্রেরকের বিকাশ/নগদ নম্বর (Sender Phone) <span style={{ color: '#ef4444' }}>*</span>
+                        Sender Phone number (bKash/Nagad) <span style={{ color: '#ef4444' }}>*</span>
                       </label>
                       <input 
                         type="tel"
-                        placeholder="যেমন: ০১৭XXXXXXXX"
+                        placeholder="e.g. 017XXXXXXXX"
                         required
                         value={senderNumber}
                         onChange={(e) => setSenderNumber(e.target.value)}
@@ -581,7 +581,7 @@ export default function Checkout() {
                       </label>
                       <input 
                         type="text"
-                        placeholder="যেমন: 8N7X9K2L1"
+                        placeholder="e.g. 8N7X9K2L1"
                         required
                         value={trxId}
                         onChange={(e) => setTrxId(e.target.value.toUpperCase())}
@@ -598,14 +598,14 @@ export default function Checkout() {
         {/* Step 4: Submit Actions & Trust Badges */}
         <div className="checkout-actions-bottom" style={{ marginTop: '8px' }}>
           <button type="submit" className="btn-confirm" style={{ height: '52px', fontSize: '1.1rem' }}>
-            অর্ডার নিশ্চিত করুন (Confirm Order) <ArrowRight size={20} />
+            Confirm Order <ArrowRight size={20} />
           </button>
           
           <div className="trust-badges-grid" style={{ marginTop: '24px' }}>
-            <div className="trust-badge-item"><Shield size={16} /> ১০০% নিরাপদ অর্ডার</div>
-            <div className="trust-badge-item"><Truck size={16} /> দ্রুত ডেলিভারি</div>
-            <div className="trust-badge-item"><RotateCcw size={16} /> সহজ রিটার্ন</div>
-            <div className="trust-badge-item"><Headphones size={16} /> কাস্টমার সাপোর্ট</div>
+            <div className="trust-badge-item"><Shield size={16} /> 100% Secure Order</div>
+            <div className="trust-badge-item"><Truck size={16} /> Fast Delivery</div>
+            <div className="trust-badge-item"><RotateCcw size={16} /> Easy Returns</div>
+            <div className="trust-badge-item"><Headphones size={16} /> Customer Support</div>
           </div>
         </div>
 
@@ -620,8 +620,8 @@ export default function Checkout() {
               <div className="success-icon" style={{ background: '#10b981', color: 'white', marginBottom: '8px', width: '40px', height: '40px' }}>
                 <CheckCircle size={28} />
               </div>
-              <h2 style={{ fontSize: '1.25rem', color: '#16a34a', margin: 0, fontWeight: 800 }}>অর্ডার সফল হয়েছে!</h2>
-              <p style={{ fontSize: '0.82rem', color: '#15803d', margin: '4px 0 0 0', lineHeight: 1.4 }}>আপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে। রশিদটি প্রিন্ট করতে বা পিডিএফ সেভ করতে নিচের "ইনভয়েস প্রিন্ট / সেভ করুন" বাটনে ক্লিক করুন।</p>
+              <h2 style={{ fontSize: '1.25rem', color: '#16a34a', margin: 0, fontWeight: 800 }}>Order Successful!</h2>
+              <p style={{ fontSize: '0.82rem', color: '#15803d', margin: '4px 0 0 0', lineHeight: 1.4 }}>Your order has been completed successfully. Click "Print / Save Invoice" below to print or save the receipt.</p>
             </div>
 
             {/* Printable Invoice Card */}
@@ -632,28 +632,28 @@ export default function Checkout() {
                   <span style={{ fontSize: '0.78rem', color: 'var(--sf-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Play Hard, Shop Smart</span>
                 </div>
                 <div className="invoice-meta">
-                  <div><b>মেমো নং:</b> {submittedOrder.invoiceNo}</div>
-                  <div><b>তারিখ:</b> {submittedOrder.date}</div>
-                  <div><b>পেমেন্ট:</b> {submittedOrder.paymentMethodName}</div>
+                  <div><b>Invoice No:</b> {submittedOrder.invoiceNo}</div>
+                  <div><b>Date:</b> {submittedOrder.date}</div>
+                  <div><b>Payment:</b> {submittedOrder.paymentMethodName}</div>
                 </div>
               </div>
 
               <div className="invoice-parties">
                 <div>
-                  <div className="invoice-party-title">প্রেরক (Sender)</div>
+                  <div className="invoice-party-title">Sender</div>
                   <div className="invoice-party-details">
                     <b>{config.branding.storeName || 'Gazi Sports'}</b><br />
-                    মোবাইল: {config.contactInfo.phoneNumber || '01700000000'}<br />
-                    ইমেইল: {config.contactInfo.email || 'support@gazisports.com'}<br />
-                    ঠিকানা: ঢাকা, বাংলাদেশ
+                    Phone: {config.contactInfo.phoneNumber || '01700000000'}<br />
+                    Email: {config.contactInfo.email || 'support@gazisports.com'}<br />
+                    Address: Dhaka, Bangladesh
                   </div>
                 </div>
                 <div>
-                  <div className="invoice-party-title">বিলিং ও ডেলিভারি ঠিকানা</div>
+                  <div className="invoice-party-title">Billing & Delivery Address</div>
                   <div className="invoice-party-details">
-                    <b>নাম:</b> {submittedOrder.customerName}<br />
-                    <b>মোবাইল:</b> {submittedOrder.customerPhone}<br />
-                    <b>ঠিকানা:</b> {submittedOrder.customerAddress}
+                    <b>Name:</b> {submittedOrder.customerName}<br />
+                    <b>Phone:</b> {submittedOrder.customerPhone}<br />
+                    <b>Address:</b> {submittedOrder.customerAddress}
                   </div>
                 </div>
               </div>
@@ -662,11 +662,11 @@ export default function Checkout() {
                 <table className="invoice-table">
                   <thead>
                     <tr>
-                      <th>পণ্য বিবরণ (Product)</th>
-                      <th style={{ textAlign: 'center' }}>সাইজ (Size)</th>
-                      <th style={{ textAlign: 'center' }}>পরিমাণ (Qty)</th>
-                      <th style={{ textAlign: 'right' }}>মূল্য (Price)</th>
-                      <th style={{ textAlign: 'right' }}>মোট (Total)</th>
+                      <th>Product Description</th>
+                      <th style={{ textAlign: 'center' }}>Size</th>
+                      <th style={{ textAlign: 'center' }}>Qty</th>
+                      <th style={{ textAlign: 'right' }}>Price</th>
+                      <th style={{ textAlign: 'right' }}>Total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -674,7 +674,7 @@ export default function Checkout() {
                       <tr key={idx}>
                         <td>{item.name}</td>
                         <td style={{ textAlign: 'center' }}>{item.size}</td>
-                        <td style={{ textAlign: 'center' }}>{item.quantity}টি</td>
+                        <td style={{ textAlign: 'center' }}>{item.quantity} pcs</td>
                         <td style={{ textAlign: 'right' }}>৳{item.price.toFixed(2)}</td>
                         <td style={{ textAlign: 'right' }}>৳{(item.price * item.quantity).toFixed(2)}</td>
                       </tr>
@@ -685,28 +685,28 @@ export default function Checkout() {
 
               <div className="invoice-totals">
                 <div className="invoice-total-row">
-                  <span>উপমোট (Subtotal)</span>
+                  <span>Subtotal</span>
                   <span>৳{submittedOrder.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="invoice-total-row">
-                  <span>ডেলিভারি চার্জ</span>
+                  <span>Shipping Charge</span>
                   <span>৳{submittedOrder.deliveryCharge.toFixed(2)}</span>
                 </div>
                 {submittedOrder.discount > 0 && (
                   <div className="invoice-total-row" style={{ color: '#ef4444' }}>
-                    <span>ডিসকাউন্ট</span>
+                    <span>Discount</span>
                     <span>-৳{submittedOrder.discount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="invoice-total-row grand-total">
-                  <span>সর্বমোট (Total Paid)</span>
+                  <span>Grand Total</span>
                   <span>৳{submittedOrder.total.toFixed(2)}</span>
                 </div>
               </div>
 
               <div className="invoice-footer">
-                <p>আমাদের ওপর আস্থা রাখার জন্য আপনাকে ধন্যবাদ!</p>
-                <p style={{ fontSize: '0.7rem', opacity: 0.8, marginTop: '4px' }}>এটি একটি কম্পিউটার জেনারেটেড চালান (Invoice), কোনো স্বাক্ষরের প্রয়োজন নেই।</p>
+                <p>Thank you for shopping with us!</p>
+                <p style={{ fontSize: '0.7rem', opacity: 0.8, marginTop: '4px' }}>This is a computer generated invoice, no signature is required.</p>
               </div>
             </div>
 
@@ -716,14 +716,14 @@ export default function Checkout() {
                 onClick={() => window.print()} 
                 style={{ flex: 1, height: '44px', background: 'var(--sf-accent)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
-                ইনভয়েস প্রিন্ট / সেভ করুন
+                Print / Save Invoice
               </button>
               <Link 
                 to="/" 
                 className="btn-confirm" 
                 style={{ flex: 1, height: '44px', border: '1.5px solid var(--sf-border)', background: 'white', color: 'var(--sf-text-primary)', textDecoration: 'none', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, fontWeight: 700 }}
               >
-                শপিং চালিয়ে যান
+                Continue Shopping
               </Link>
             </div>
           </div>

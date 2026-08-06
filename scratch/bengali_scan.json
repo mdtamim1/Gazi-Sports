@@ -1,0 +1,3502 @@
+﻿[
+    {
+        "Filename":  "CustomerAuthContext.tsx",
+        "LineNumber":  123,
+        "Line":  "        return { success: false, error: res.message || \u0027আপনার ইমেইল অথবা পাসওয়ার্ডটি সঠিক নয়\u0027 };"
+    },
+    {
+        "Filename":  "CustomerAuthContext.tsx",
+        "LineNumber":  133,
+        "Line":  "      return { success: false, error: \u0027সার্ভারে সংযোগ করা যাচ্ছে না।\u0027 };"
+    },
+    {
+        "Filename":  "CustomerAuthContext.tsx",
+        "LineNumber":  151,
+        "Line":  "        return { success: false, error: res.message || \u0027নিবন্ধন ব্যর্থ হয়েছে।\u0027 };"
+    },
+    {
+        "Filename":  "CustomerAuthContext.tsx",
+        "LineNumber":  194,
+        "Line":  "        return { success: false, error: res.message || \u0027গুগল লগইন ব্যর্থ হয়েছে।\u0027 };"
+    },
+    {
+        "Filename":  "CustomerAuthContext.tsx",
+        "LineNumber":  223,
+        "Line":  "      return { success: false, error: \u0027সার্ভারে সংযোগ করা যাচ্ছে না।\u0027 };"
+    },
+    {
+        "Filename":  "Inbox.tsx",
+        "LineNumber":  269,
+        "Line":  "      alert(\u0027ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "Inbox.tsx",
+        "LineNumber":  489,
+        "Line":  "                                    \u003cspan style={{ fontWeight: 800, fontSize: \u0027var(--text-sm)\u0027, color: isAdmin ? \u0027white\u0027 : \u0027var(--text-primary)\u0027 }}\u003e৳{productInfo.price}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  192,
+        "Line":  "    csvLines.push(`\"Total Revenue\",\"৳${revenueVal}\",\"${stats ? stats.yearlyChange : mockRevenueData.yearlyChange}%\"`);"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  193,
+        "Line":  "    csvLines.push(`\"Today\u0027s Revenue\",\"৳${todayRevenueVal}\",\"${stats ? stats.todayChange : mockRevenueData.todayChange}%\"`);"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  194,
+        "Line":  "    csvLines.push(`\"Monthly Revenue\",\"৳${monthlyRevenueVal}\",\"${stats ? stats.monthlyChange : mockRevenueData.monthlyChange}%\"`);"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  195,
+        "Line":  "    csvLines.push(`\"Yearly Revenue\",\"৳${yearlyRevenueVal}\",\"${stats ? stats.yearlyChange : mockRevenueData.yearlyChange}%\"`);"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  196,
+        "Line":  "    csvLines.push(`\"Net Profit\",\"৳${netProfitVal}\",\"${netProfitMarg}% margin\"`);"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  197,
+        "Line":  "    csvLines.push(`\"Gross Profit\",\"৳${grossProfitVal}\",\"${grossProfitMarg}% margin\"`);"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  204,
+        "Line":  "    csvLines.push(`\"Month\",\"Revenue (৳)\",\"Profit (৳)\"`);"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  212,
+        "Line":  "    csvLines.push(`\"Date\",\"Revenue (৳)\",\"Profit (৳)\"`);"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  220,
+        "Line":  "    csvLines.push(`\"Category\",\"Amount (৳)\"`);"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  228,
+        "Line":  "    csvLines.push(`\"Category\",\"Revenue (৳)\"`);"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  250,
+        "Line":  "          \u003cp\u003eড্যাশবোর্ড লোড হচ্ছে...\u003c/p\u003e"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  345,
+        "Line":  "              \u003cYAxis stroke=\"#475569\" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) =\u003e `৳${(v/1000)}k`} /\u003e"
+    },
+    {
+        "Filename":  "Dashboard.tsx",
+        "LineNumber":  435,
+        "Line":  "              \u003cXAxis type=\"number\" stroke=\"#475569\" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) =\u003e `৳${(v/1000000).toFixed(1)}M`} /\u003e"
+    },
+    {
+        "Filename":  "Employees.tsx",
+        "LineNumber":  62,
+        "Line":  "          আপনার অ্যাকাউন্ট থেকে এমপ্লয়ি ম্যানেজমেন্ট সেকশনে অ্যাক্সেস করার অনুমতি নেই।"
+    },
+    {
+        "Filename":  "Employees.tsx",
+        "LineNumber":  118,
+        "Line":  "      setErrorMsg(\u0027সার্ভার থেকে ডাটা লোড করা যাচ্ছে না।\u0027);"
+    },
+    {
+        "Filename":  "Employees.tsx",
+        "LineNumber":  136,
+        "Line":  "      setInviteError(\u0027ইমেইল এবং রোল সিলেক্ট করুন।\u0027);"
+    },
+    {
+        "Filename":  "Employees.tsx",
+        "LineNumber":  148,
+        "Line":  "      setInviteSuccessMsg(\u0027ইনভাইটেশন লিংক সফলভাবে তৈরি হয়েছে! নিচের লিংকটি কপি করে ইনভাইট করুন।\u0027);"
+    },
+    {
+        "Filename":  "Employees.tsx",
+        "LineNumber":  154,
+        "Line":  "      setInviteError(res.message || \u0027ইনভাইটেশন তৈরি করা সম্ভব হয়নি।\u0027);"
+    },
+    {
+        "Filename":  "Employees.tsx",
+        "LineNumber":  258,
+        "Line":  "      setRoleError(\u0027রোল টাইটেল দিতে হবে।\u0027);"
+    },
+    {
+        "Filename":  "Employees.tsx",
+        "LineNumber":  609,
+        "Line":  "                      কোনো পেন্ডিং আমন্ত্রণপত্র পাওয়া যায়নি।"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  39,
+        "Line":  "      setVerifyError(\u0027ইনভাইটেশন টোকেন পাওয়া যায়নি। দয়া করে সঠিক লিংক ব্যবহার করুন।\u0027);"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  50,
+        "Line":  "        setVerifyError(res.message || \u0027ইনভাইটেশন টোকেনটি সঠিক নয় অথবা ইতিমধ্যে ব্যবহৃত হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  102,
+        "Line":  "      setSubmitError(\u0027দয়া করে একটি পাসওয়ার্ড তৈরি করুন।\u0027);"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  106,
+        "Line":  "      setSubmitError(\u0027পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে।\u0027);"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  110,
+        "Line":  "      setSubmitError(\u0027পাসওয়ার্ড দুটি মিলছে না।\u0027);"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  122,
+        "Line":  "      setSubmitSuccess(\u0027রেজিস্ট্রেশন সফল! Admin panel-এ প্রবেশ করা হচ্ছে...\u0027);"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  127,
+        "Line":  "      setSubmitError(res.message || \u0027Google দিয়ে verification সফল হয়নি।\u0027);"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  137,
+        "Line":  "          \u003cp\u003eইনভাইটেশন লিংক যাচাই করা হচ্ছে...\u003c/p\u003e"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  152,
+        "Line":  "          \u003ch2 style={{ color: \u0027#fff\u0027, fontSize: \u00271.3rem\u0027, fontWeight: 800, marginBottom: \u002712px\u0027 }}\u003eভুল বা মেয়াদোত্তীর্ণ লিংক\u003c/h2\u003e"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  155,
+        "Line":  "            লগইন পেজে যান"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  172,
+        "Line":  "          \u003ch2 style={{ color: \u0027#fff\u0027, fontSize: \u00271.4rem\u0027, fontWeight: 800, margin: \u00270 0 6px 0\u0027 }}\u003eআমন্ত্রণপত্র গ্রহণ করুন\u003c/h2\u003e"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  174,
+        "Line":  "            আপনি এই পোর্টালে \u003cstrong style={{ color: \u0027#fff\u0027 }}\u003e{invitedRole}\u003c/strong\u003e হিসেবে আমন্ত্রিত হয়েছেন"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  182,
+        "Line":  "            \u003cdiv style={{ fontSize: \u002711px\u0027, color: \u0027#94a3b8\u0027, fontWeight: 600, textTransform: \u0027uppercase\u0027, letterSpacing: \u00270.05em\u0027 }}\u003eআমন্ত্রিত Gmail\u003c/div\u003e"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  191,
+        "Line":  "            \u003cstrong\u003eগুরুত্বপূর্ণ:\u003c/strong\u003e শুধুমাত্র \u003cstrong\u003e{invitedEmail}\u003c/strong\u003e দিয়ে Google sign-in করুন। অন্য Gmail দিয়ে accept করা যাবে না।"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  211,
+        "Line":  "              \u003clabel style={{ display: \u0027block\u0027, color: \u0027#9ca3af\u0027, fontSize: \u002712px\u0027, fontWeight: 600, marginBottom: \u00276px\u0027 }}\u003eপাসওয়ার্ড তৈরি করুন\u003c/label\u003e"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  216,
+        "Line":  "                placeholder=\"পাসওয়ার্ড দিন (অন্তত ৬ অক্ষরের)\""
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  221,
+        "Line":  "              \u003clabel style={{ display: \u0027block\u0027, color: \u0027#9ca3af\u0027, fontSize: \u002712px\u0027, fontWeight: 600, marginBottom: \u00276px\u0027 }}\u003eপাসওয়ার্ড নিশ্চিত করুন\u003c/label\u003e"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  226,
+        "Line":  "                placeholder=\"পাসওয়ার্ডটি আবার টাইপ করুন\""
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  238,
+        "Line":  "              \u003cspan style={{ fontSize: \u002714px\u0027 }}\u003eGoogle verification হচ্ছে...\u003c/span\u003e"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  243,
+        "Line":  "                পাসওয়ার্ড পূরণ করে নিচের বাটনে ক্লিক করে Google দিয়ে invitation accept করুন"
+    },
+    {
+        "Filename":  "RegisterEmployee.tsx",
+        "LineNumber":  254,
+        "Line":  "              লগইন পেজে ফিরে যান"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  16,
+        "Line":  "  const [title, setTitle] = useState(\u0027🎁 ঈদ স্পেশাল গিফট ডিসকাউন্ট কুপন!\u0027);"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  45,
+        "Line":  "      alert(\u0027কুপনের নাম, কোড এবং ছাড়ের পরিমাণ দিন।\u0027);"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  49,
+        "Line":  "      alert(\u0027কাস্টমারের ইমেইল আইডি লিখুন।\u0027);"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  68,
+        "Line":  "        setMessage({ type: \u0027success\u0027, text: res.message || \u0027কুপনটি সফলভাবে একাউন্টগুলোতে পাঠানো হয়েছে!\u0027 });"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  72,
+        "Line":  "        setMessage({ type: \u0027error\u0027, text: res.message || \u0027কুপন পাঠাতে সমস্যা হয়েছে।\u0027 });"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  75,
+        "Line":  "      setMessage({ type: \u0027error\u0027, text: \u0027সার্ভারে সংযোগ করা যাচ্ছে না।\u0027 });"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  82,
+        "Line":  "    if (!window.confirm(\u0027আপনি কি নিশ্চিত যে এই অটো-ডিচপ্যাচ ক্যাম্পেইনটি বন্ধ করতে চান?\u0027)) return;"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  99,
+        "Line":  "            কাস্টমার একাউন্টে সরাসরি অফার / কুপন ডিচপ্যাচার (Direct Coupon Dispatcher)"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  102,
+        "Line":  "            এখানে অফার তৈরি করে সাবমিট করলে অফারটি কাস্টমারদের একাউন্টের \"My Coupons\" সেকশনে সাথে সাথে পৌঁছে যাবে।"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  131,
+        "Line":  "              অফারের শিরোনাম (Title)"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  138,
+        "Line":  "              placeholder=\"🎁 ঈদ স্পেশাল গিফট ডিসকাউন্ট কুপন!\""
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  145,
+        "Line":  "              কুপন কোড (Coupon Code)"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  160,
+        "Line":  "              ছাড়ের ধরন (Discount Type)"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  167,
+        "Line":  "              \u003coption value=\"fixed\"\u003eফিক্সড টাকা (৳)\u003c/option\u003e"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  168,
+        "Line":  "              \u003coption value=\"percentage\"\u003eপার্সেন্টেজ (%)\u003c/option\u003e"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  174,
+        "Line":  "              ছাড়ের পরিমাণ (Amount)"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  191,
+        "Line":  "              প্রাপক কাস্টমার (Target Audience)"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  202,
+        "Line":  "                \u003cspan\u003eসকল রেজিস্টার্ড কাস্টমার\u003c/span\u003e"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  213,
+        "Line":  "                \u003cspan\u003eনির্দিষ্ট ইমেইল\u003c/span\u003e"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  227,
+        "Line":  "              \u003cspan\u003eভবিষ্যতে যারা নতুন অ্যাকাউন্ট খুলবে, তারাও স্বয়ংক্রিয়ভাবে এই অফারটি পাবে\u003c/span\u003e"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  235,
+        "Line":  "              কাস্টমার ইমেইল এড্রেস (Customer Email)"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  268,
+        "Line":  "            \u003cspan\u003e{sending ? \u0027পাঠানো হচ্ছে...\u0027 : \u0027🚀 একাউন্টে অফার পাঠিয়ে দিন\u0027}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  278,
+        "Line":  "            \u003cspan\u003eসক্রিয় অটো-ডিচপ্যাচ অফারসমূহ (ভবিষ্যত নতুন মেম্বারদের জন্য)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  285,
+        "Line":  "                  \u003cth style={{ padding: \u00278px 10px\u0027, textAlign: \u0027left\u0027 }}\u003eঅফারের নাম\u003c/th\u003e"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  286,
+        "Line":  "                  \u003cth style={{ padding: \u00278px 10px\u0027, textAlign: \u0027left\u0027 }}\u003eকুপন কোড\u003c/th\u003e"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  287,
+        "Line":  "                  \u003cth style={{ padding: \u00278px 10px\u0027, textAlign: \u0027left\u0027 }}\u003eছাড়ের পরিমাণ\u003c/th\u003e"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  288,
+        "Line":  "                  \u003cth style={{ padding: \u00278px 10px\u0027, textAlign: \u0027center\u0027 }}\u003eএকশন\u003c/th\u003e"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  297,
+        "Line":  "                      {camp.discount_type === \u0027percentage\u0027 ? `${camp.discount_value}% OFF` : `৳${camp.discount_value} OFF`}"
+    },
+    {
+        "Filename":  "DirectCouponDispatcher.tsx",
+        "LineNumber":  316,
+        "Line":  "                        \u003cspan\u003eঅটো-ডিচপ্যাচ বন্ধ করুন\u003c/span\u003e"
+    },
+    {
+        "Filename":  "EventsManager.tsx",
+        "LineNumber":  46,
+        "Line":  "    { question: \u0027১. কোন খেলায় শাটলকর্ক (shuttlecock) ব্যবহার করা হয়?\u0027, options: [\u0027ফুটবল (Football)\u0027, \u0027ক্রিকেট (Cricket)\u0027, \u0027ব্যাডমিন্টন (Badminton)\u0027, \u0027টেনিস (Tennis)\u0027], correct: \u0027ব্যাডমিন্টন (Badminton)\u0027 }"
+    },
+    {
+        "Filename":  "EventsManager.tsx",
+        "LineNumber":  149,
+        "Line":  "        { question: \u0027১. কোন খেলায় শাটলকর্ক (shuttlecock) ব্যবহার করা হয়?\u0027, options: [\u0027ফুটবল (Football)\u0027, \u0027ক্রিকেট (Cricket)\u0027, \u0027ব্যাডমিন্টন (Badminton)\u0027, \u0027টেনিস (Tennis)\u0027], correct: \u0027ব্যাডমিন্টন (Badminton)\u0027 }"
+    },
+    {
+        "Filename":  "EventsManager.tsx",
+        "LineNumber":  278,
+        "Line":  "              placeholder=\"e.g. কুইজটির সঠিক উত্তর দিয়ে জিতে নিন স্পেশাল ডিসকাউন্ট কুপন...\""
+    },
+    {
+        "Filename":  "EventsManager.tsx",
+        "LineNumber":  326,
+        "Line":  "                          alert(\u0027ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "EventsManager.tsx",
+        "LineNumber":  485,
+        "Line":  "                    placeholder=\"Enter question text (e.g. ১. ফুটবল ম্যাচ কত মিনিটের হয়?)\""
+    },
+    {
+        "Filename":  "Marketing.tsx",
+        "LineNumber":  31,
+        "Line":  "      setErrorMsg(\u0027ডাটাবেজ থেকে কুপন ডাটা লোড করা যাচ্ছে না।\u0027);"
+    },
+    {
+        "Filename":  "Marketing.tsx",
+        "LineNumber":  145,
+        "Line":  "                  কোনো কুপন কোড পাওয়া যায়নি।"
+    },
+    {
+        "Filename":  "Marketing.tsx",
+        "LineNumber":  154,
+        "Line":  "                    {c.type === \u0027percentage\u0027 ? `${c.value}%` : `৳${Number(c.value).toFixed(2)}`}"
+    },
+    {
+        "Filename":  "Marketing.tsx",
+        "LineNumber":  193,
+        "Line":  "                    \u003coption value=\"fixed\"\u003eFixed Cash Discount (৳)\u003c/option\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  18,
+        "Line":  "  const [title, setTitle] = useState(\u0027🎁 ঘুরে জিতুন স্পেশাল ডিসকাউন্ট!\u0027);"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  19,
+        "Line":  "  const [subtitle, setSubtitle] = useState(\u0027আজকের সৌভাগ্যজনক কুপন কোড জিততে চাকাটি ঘোরান!\u0027);"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  36,
+        "Line":  "        setTitle(res.data.title || \u0027🎁 ঘুরে জিতুন স্পেশাল ডিসকাউন্ট!\u0027);"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  37,
+        "Line":  "        setSubtitle(res.data.subtitle || \u0027আজকের সৌভাগ্যজনক কুপন কোড জিততে চাকাটি ঘোরান!\u0027);"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  77,
+        "Line":  "      alert(\u0027স্পিন হুইলে কমপক্ষে ২টি স্লাইস থাকতে হবে।\u0027);"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  96,
+        "Line":  "        setMessage({ type: \u0027success\u0027, text: \u0027স্পিন হুইল সেটিংস সফলভাবে সেভ করা হয়েছে!\u0027 });"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  98,
+        "Line":  "        setMessage({ type: \u0027error\u0027, text: res.message || \u0027সেটিংস সেভ করতে ব্যর্থ হয়েছে।\u0027 });"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  101,
+        "Line":  "      setMessage({ type: \u0027error\u0027, text: \u0027সার্ভারে সংযোগ করা যাচ্ছে না।\u0027 });"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  111,
+        "Line":  "        \u003cdiv\u003eস্পিন হুইল কন্ট্রোল লোড হচ্ছে...\u003c/div\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  126,
+        "Line":  "            ওয়েবসাইটে কাস্টমারদের জন্য লটারি চাকা অন/অফ করুন এবং জেতার সম্ভাবনা (Win Probability) কাস্টমাইজ করুন।"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  148,
+        "Line":  "          \u003cspan\u003e{enabled ? \u0027স্পিন হুইল চালু (ON)\u0027 : \u0027স্পিন হুইল বন্ধ (OFF)\u0027}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  176,
+        "Line":  "            পপআপ টাইটেল (Modal Title)"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  183,
+        "Line":  "            placeholder=\"🎁 ঘুরে জিতুন স্পেশাল ডিসকাউন্ট!\""
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  188,
+        "Line":  "            সাব-টাইটেল (Subtitle)"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  195,
+        "Line":  "            placeholder=\"আজকের সৌভাগ্যজনক কুপন কোড জিততে চাকাটি ঘোরান!\""
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  200,
+        "Line":  "            পুনরায় ঘোরানোর অর্ডার রিকোয়ারমেন্ট (Re-Spin Orders)"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  210,
+        "Line":  "            কাস্টমার ১টি স্পিন করার পর আবার ঘুরানোর জন্য কতটি সফল অর্ডার প্রয়োজন।"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  219,
+        "Line":  "            চাকার স্লাইস ও জেতার সম্ভাবনা (Slices \u0026 Win Weights)"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  238,
+        "Line":  "            \u003cspan\u003eস্লাইস যোগ করুন\u003c/span\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  246,
+        "Line":  "                \u003cth style={{ padding: \u002710px\u0027, textAlign: \u0027left\u0027 }}\u003eকালার\u003c/th\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  247,
+        "Line":  "                \u003cth style={{ padding: \u002710px\u0027, textAlign: \u0027left\u0027 }}\u003eস্লাইসের লেখা\u003c/th\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  248,
+        "Line":  "                \u003cth style={{ padding: \u002710px\u0027, textAlign: \u0027left\u0027 }}\u003eকুপন কোড\u003c/th\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  249,
+        "Line":  "                \u003cth style={{ padding: \u002710px\u0027, textAlign: \u0027left\u0027 }}\u003eছাড়ের ধরন\u003c/th\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  250,
+        "Line":  "                \u003cth style={{ padding: \u002710px\u0027, textAlign: \u0027left\u0027 }}\u003eছাড়ের পরিমাণ\u003c/th\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  253,
+        "Line":  "                    \u003cspan\u003eWeight / চান্স\u003c/span\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  254,
+        "Line":  "                    \u003cspan title=\"Weight যত বেশি হবে, এই অফারটি কাস্টমারদের কাছে পড়ার সম্ভাবনা তত বেশি হবে।\"\u003e\u003cHelpCircle size={14} /\u003e\u003c/span\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  257,
+        "Line":  "                \u003cth style={{ padding: \u002710px\u0027, textAlign: \u0027center\u0027 }}\u003eপড়ার সম্ভাবনা (%)\u003c/th\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  258,
+        "Line":  "                \u003cth style={{ padding: \u002710px\u0027, textAlign: \u0027center\u0027 }}\u003eএকশন\u003c/th\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  303,
+        "Line":  "                        \u003coption value=\"percentage\"\u003eপার্সেন্টেজ (%)\u003c/option\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  304,
+        "Line":  "                        \u003coption value=\"fixed\"\u003eফিক্সড টাকা (৳)\u003c/option\u003e"
+    },
+    {
+        "Filename":  "SpinWheelControl.tsx",
+        "LineNumber":  387,
+        "Line":  "          \u003cspan\u003e{saving ? \u0027সেভ হচ্ছে...\u0027 : \u0027সেটিংস সেভ করুন\u0027}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  223,
+        "Line":  "      setCouponMsg(`Applied! ৳${disc} discount.`);"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  391,
+        "Line":  "                    \u003ctd style=\"text-align: right;\"\u003e৳${p.price.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  392,
+        "Line":  "                    \u003ctd style=\"text-align: right; font-weight: bold;\"\u003e৳${(p.price * p.quantity).toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  401,
+        "Line":  "                \u003ctd\u003e৳${subtotal.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  405,
+        "Line":  "                \u003ctd\u003e৳${formDeliveryCharge.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  409,
+        "Line":  "                \u003ctd style=\"color: #10b981;\"\u003e-৳${formDiscount.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  413,
+        "Line":  "                \u003ctd\u003e৳${formPaidAmount.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  417,
+        "Line":  "                \u003ctd\u003e৳${(total - formPaidAmount).toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  461,
+        "Line":  "      \u0027Amount (৳)\u0027,"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  584,
+        "Line":  "                    \u003ctd style=\"text-align: right;\"\u003e৳${p.price.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  585,
+        "Line":  "                    \u003ctd style=\"text-align: right; font-weight: bold;\"\u003e৳${(p.price * p.quantity).toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  594,
+        "Line":  "                \u003ctd\u003e৳${subtotal.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  598,
+        "Line":  "                \u003ctd\u003e৳${(order.deliveryCharge || 60).toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  602,
+        "Line":  "                \u003ctd style=\"color: #10b981;\"\u003e-৳${(order.discount || 0).toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  606,
+        "Line":  "                \u003ctd\u003e৳${paidAmount.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  610,
+        "Line":  "                \u003ctd\u003e৳${netPayable.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  900,
+        "Line":  "          \u003cp\u003eঅর্ডার লিস্ট লোড হচ্ছে...\u003c/p\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  1166,
+        "Line":  "                    \u003ctd style={{ fontWeight: 700, color: \u0027var(--text-primary)\u0027 }}\u003e৳{order.amount.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  1567,
+        "Line":  "                            {p.name} - ৳{p.price}"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  1641,
+        "Line":  "                      \u003cspan style={{ fontWeight: 600 }}\u003e৳{formProducts.reduce((sum, p) =\u003e sum + (p.price * p.quantity), 0).toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Orders.tsx",
+        "LineNumber":  1682,
+        "Line":  "                        ৳{(formProducts.reduce((sum, p) =\u003e sum + (p.price * p.quantity), 0) + formDeliveryCharge - formDiscount).toFixed(2)}"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  172,
+        "Line":  "    const COLORS_KEYS = [\u0027red\u0027, \u0027blue\u0027, \u0027black\u0027, \u0027white\u0027, \u0027green\u0027, \u0027yellow\u0027, \u0027grey\u0027, \u0027orange\u0027, \u0027pink\u0027, \u0027purple\u0027, \u0027navy\u0027, \u0027maroon\u0027, \u0027brown\u0027, \u0027gold\u0027, \u0027silver\u0027, \u0027beige\u0027, \u0027cream\u0027, \u0027olive\u0027, \u0027রং\u0027, \u0027লাল\u0027, \u0027নীল\u0027, \u0027কালো\u0027, \u0027সাদা\u0027, \u0027সবুজ\u0027, \u0027হলুদ\u0027, \u0027ধূসর\u0027, \u0027কমলা\u0027, \u0027গোলাপী\u0027];"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  660,
+        "Line":  "                        \u003clabel className=\"form-label\"\u003ePrice (৳) *\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  661,
+        "Line":  "                        \u003cinput type=\"number\" step=\"0.01\" className=\"form-input\" required value={tempProduct.price || \u0027\u0027} onChange={e =\u003e setTempProduct({ ...tempProduct, price: parseFloat(e.target.value) || 0 })} placeholder=\"৳\" /\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  664,
+        "Line":  "                        \u003clabel className=\"form-label\"\u003eOriginal Price (৳) - optional\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  672,
+        "Line":  "                        \u003clabel className=\"form-label\" style={{ display: \u0027flex\u0027, alignItems: \u0027center\u0027, gap: \u00278px\u0027, color: \u0027var(--accent-primary)\u0027, fontWeight: 700 }}\u003e👕 Jersey Sizes (জার্সির সাইজ সিলেক্ট করুন)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  673,
+        "Line":  "                        \u003cp style={{ fontSize: \u0027var(--text-xs)\u0027, color: \u0027var(--text-tertiary)\u0027, marginBottom: \u002712px\u0027, marginTop: \u00272px\u0027 }}\u003eএই জার্সির জন্য যে সাইজগুলো এভেইলেবল রাখতে চান, সেগুলো সিলেক্ট করুন:\u003c/p\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  751,
+        "Line":  "                        \u003clabel className=\"form-label\"\u003eTotal Revenue generated (৳)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  784,
+        "Line":  "                                  alert(\u0027ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  824,
+        "Line":  "                                      alert(\u0027ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  859,
+        "Line":  "                                  alert(\u0027ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  881,
+        "Line":  "                      \u003clabel className=\"form-label\" style={{ display: \u0027flex\u0027, alignItems: \u0027center\u0027, gap: \u00278px\u0027, fontSize: \u00271.05rem\u0027, color: \u0027var(--text-primary)\u0027, fontWeight: 700 }}\u003e📏 Available Product Options (প্রোডাক্টের অপশন ও সাইজ সিলেক্ট করুন)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  883,
+        "Line":  "                        কাস্টমার প্রোডাক্ট ভিউ পেজে এই অপশনগুলো থেকে সিলেক্ট করে কার্ট বা অর্ডার করতে পারবে।"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  888,
+        "Line":  "                        \u003clabel className=\"form-label\" style={{ fontSize: \u0027var(--text-xs)\u0027, fontWeight: 700, color: \u0027var(--text-secondary)\u0027, textTransform: \u0027uppercase\u0027, letterSpacing: \u00270.05em\u0027 }}\u003eColors (রংসমূহ - কমা দিয়ে লিখুন)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  903,
+        "Line":  "                        \u003clabel className=\"form-label\" style={{ fontSize: \u0027var(--text-xs)\u0027, fontWeight: 700, color: \u0027var(--text-secondary)\u0027, textTransform: \u0027uppercase\u0027, letterSpacing: \u00270.05em\u0027 }}\u003eWeights (ওজনসমূহ - কমা দিয়ে লিখুন)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  918,
+        "Line":  "                        \u003clabel className=\"form-label\" style={{ fontSize: \u0027var(--text-xs)\u0027, fontWeight: 700, color: \u0027var(--text-secondary)\u0027, textTransform: \u0027uppercase\u0027, letterSpacing: \u00270.05em\u0027 }}\u003eSizes (সাইজসমূহ - কমা দিয়ে লিখুন)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  933,
+        "Line":  "                        \u003clabel className=\"form-label\" style={{ fontSize: \u0027var(--text-xs)\u0027, fontWeight: 700, color: \u0027var(--text-secondary)\u0027, textTransform: \u0027uppercase\u0027, letterSpacing: \u00270.05em\u0027 }}\u003eHeights / Dimensions (উচ্চতা/সাইজ - কমা দিয়ে লিখুন)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  948,
+        "Line":  "                        \u003clabel className=\"form-label\" style={{ fontSize: \u0027var(--text-xs)\u0027, fontWeight: 700, color: \u0027var(--text-secondary)\u0027, textTransform: \u0027uppercase\u0027, letterSpacing: \u00270.05em\u0027 }}\u003eCustom Options (অন্যান্য অপশন - কমা দিয়ে লিখুন)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  964,
+        "Line":  "                          if (enabledSizes.length === 0) return \u0027⚠️ কোনো অপশন সিলেক্ট করা হয়নি — Customer \"Free Size\" দেখবে।\u0027;"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  965,
+        "Line":  "                          return `✅ সক্রিয় অপশনসমূহ: ${enabledSizes.map(s =\u003e s.label).join(\u0027, \u0027)}`;"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  973,
+        "Line":  "                            💰 Option Prices (অপশন অনুযায়ী কাস্টম দাম সেট করুন - অপশনাল)"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  981,
+        "Line":  "                                    \u003clabel style={{ fontSize: \u002710px\u0027, color: \u0027var(--text-secondary)\u0027, fontWeight: 600 }}\u003eDiscounted Price (৳)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  984,
+        "Line":  "                                      placeholder=\"৳ Price\""
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  1004,
+        "Line":  "                                    \u003clabel style={{ fontSize: \u002710px\u0027, color: \u0027var(--text-secondary)\u0027, fontWeight: 600 }}\u003eOriginal Price (৳)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Products.tsx",
+        "LineNumber":  1007,
+        "Line":  "                                      placeholder=\"৳ Regular\""
+    },
+    {
+        "Filename":  "SecurityLogs.tsx",
+        "LineNumber":  57,
+        "Line":  "        setErrorMsg(response?.message || \u0027লগ লোড করতে ব্যর্থ হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "SecurityLogs.tsx",
+        "LineNumber":  60,
+        "Line":  "      setErrorMsg(\u0027সার্ভারে যোগাযোগ করা যাচ্ছে না।\u0027);"
+    },
+    {
+        "Filename":  "SecurityLogs.tsx",
+        "LineNumber":  91,
+        "Line":  "      .catch(() =\u003e setErrorMsg(\u0027সার্ভার থেকে লগ রিকোয়েস্ট ব্যর্থ হয়েছে।\u0027))"
+    },
+    {
+        "Filename":  "SecurityLogs.tsx",
+        "LineNumber":  130,
+        "Line":  "            অ্যাডমিন এবং এমপ্লয়িদের সকল নিরাপত্তা ও ডাটা পরিবর্তনের অ্যাক্টিভিটি অডিট ট্রেইল।"
+    },
+    {
+        "Filename":  "SecurityLogs.tsx",
+        "LineNumber":  254,
+        "Line":  "                    \u003cdiv style={{ fontSize: \u0027var(--text-sm)\u0027 }}\u003eকোনো লগ ডাটা পাওয়া যায়নি।\u003c/div\u003e"
+    },
+    {
+        "Filename":  "StorefrontManager.tsx",
+        "LineNumber":  294,
+        "Line":  "                                  alert(\u0027ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "StorefrontManager.tsx",
+        "LineNumber":  383,
+        "Line":  "                                  alert(\u0027ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "StorefrontManager.tsx",
+        "LineNumber":  802,
+        "Line":  "                                ৳{prod.price}"
+    },
+    {
+        "Filename":  "StorefrontManager.tsx",
+        "LineNumber":  1033,
+        "Line":  "                            updateLink(colIdx, link.id, \u0027customPageContent\u0027, \u0027\u003ch3\u003eনূতন পেজ\u003c/h3\u003e\u003cp\u003eএখানে আপনার পেজ এর লেখাগুলো লিখুন।\u003c/p\u003e\u0027);"
+    },
+    {
+        "Filename":  "StorefrontManager.tsx",
+        "LineNumber":  1448,
+        "Line":  "            \u003clabel className=\"sfm-label\"\u003eInside Dhaka Price (৳)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "StorefrontManager.tsx",
+        "LineNumber":  1456,
+        "Line":  "            \u003clabel className=\"sfm-label\"\u003eOutside Dhaka Price (৳)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "data.ts",
+        "LineNumber":  70,
+        "Line":  "  { id: \u0027ACT-1\u0027, type: \u0027order\u0027, message: \u0027\u003cstrong\u003eRahim Ahmed\u003c/strong\u003e placed an order for \u003cspan class=\"activity-amount\"\u003e৳8,900.00\u003c/span\u003e\u0027, user: \u0027Rahim Ahmed\u0027, amount: 8900, timestamp: new Date(Date.now() - 4 * 3600 * 1000).toISOString(), avatar: \u0027RA\u0027, avatarColor: \u0027#8b5cf6\u0027 },"
+    },
+    {
+        "Filename":  "data.ts",
+        "LineNumber":  217,
+        "Line":  "    message: `\u003cstrong\u003e${newOrder.customer}\u003c/strong\u003e placed an order for \u003cspan class=\"activity-amount\"\u003e৳${newOrder.amount.toFixed(2)}\u003c/span\u003e`,"
+    },
+    {
+        "Filename":  "data.ts",
+        "LineNumber":  372,
+        "Line":  "  currency: \u0027BDT (৳)\u0027,"
+    },
+    {
+        "Filename":  "data.ts",
+        "LineNumber":  392,
+        "Line":  "  if (value \u003e= 1_000_000) return `৳${(value / 1_000_000).toFixed(1)}M`;"
+    },
+    {
+        "Filename":  "data.ts",
+        "LineNumber":  393,
+        "Line":  "  if (value \u003e= 1_000) return `৳${(value / 1_000).toFixed(1)}K`;"
+    },
+    {
+        "Filename":  "data.ts",
+        "LineNumber":  394,
+        "Line":  "  return `৳${value.toFixed(2)}`;"
+    },
+    {
+        "Filename":  "api.ts",
+        "LineNumber":  58,
+        "Line":  "    return { status: \u0027error\u0027, message: \u0027সার্ভারে সংযোগ করা যাচ্ছে না।\u0027 };"
+    },
+    {
+        "Filename":  "api.ts",
+        "LineNumber":  861,
+        "Line":  "    return { status: \u0027error\u0027, message: \u0027সার্ভারে সংযোগ করা যাচ্ছে না।\u0027 };"
+    },
+    {
+        "Filename":  "api.ts",
+        "LineNumber":  877,
+        "Line":  "    return { status: \u0027error\u0027, message: \u0027সার্ভারে সংযোগ করা যাচ্ছে না।\u0027 };"
+    },
+    {
+        "Filename":  "api.ts",
+        "LineNumber":  931,
+        "Line":  "    return { status: \u0027error\u0027, message: \u0027সার্ভারে সংযোগ করা যাচ্ছে না।\u0027 };"
+    },
+    {
+        "Filename":  "api.ts",
+        "LineNumber":  1054,
+        "Line":  "    return { status: \u0027error\u0027, message: \u0027সার্ভারে সংযোগ করা যাচ্ছে না।\u0027 };"
+    },
+    {
+        "Filename":  "storefrontConfig.ts",
+        "LineNumber":  171,
+        "Line":  "  { id: 1, text: \"🎉 গাজী স্পোর্টস মানেই শক্তি, খেলা আর আনন্দ! সকল পণ্যের ওপর বিশেষ ছাড়!\", enabled: true },"
+    },
+    {
+        "Filename":  "storefrontConfig.ts",
+        "LineNumber":  172,
+        "Line":  "  { id: 2, text: \"🚚 সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা এবং দ্রুত হোম ডেলিভারি!\", enabled: true },"
+    },
+    {
+        "Filename":  "storefrontConfig.ts",
+        "LineNumber":  173,
+        "Line":  "  { id: 3, text: \"📞 যেকোনো প্রয়োজনে কল বা হোয়াটসঅ্যাপ করুন: ০১৩২১৮৩২৬০৫\", enabled: true }"
+    },
+    {
+        "Filename":  "storefrontConfig.ts",
+        "LineNumber":  200,
+        "Line":  "      { id: 6, label: \u0027Contact Us\u0027, url: \u0027/\u0027, enabled: true, customPageContent: \u0027\u003ch3\u003eযোগাযোগ করুন\u003c/h3\u003e\u003cp\u003eআমাদের সাথে সরাসরি কথা বলতে নিচের নম্বরে যোগাযোগ করুন:\u003c/p\u003e\u003cp\u003e📞 \u003cstrong\u003eমোবাইল:\u003c/strong\u003e ০১৩২১৮৩২৬০৫\u003c/p\u003e\u003cp\u003e💬 \u003cstrong\u003eWhatsApp:\u003c/strong\u003e +৮৮০১৩২১৮৩২৬০৫\u003c/p\u003e\u003cp\u003e✉️ \u003cstrong\u003eইমেইল:\u003c/strong\u003e support@gazisports24.com\u003c/p\u003e\u003cp\u003eআমাদের সাথে যেকোনো প্রয়োজনে যোগাযোগ করতে পারেন।\u003c/p\u003e\u0027 },"
+    },
+    {
+        "Filename":  "storefrontConfig.ts",
+        "LineNumber":  201,
+        "Line":  "      { id: 7, label: \u0027Shipping Info\u0027, url: \u0027/\u0027, enabled: true, customPageContent: \u0027\u003ch3\u003eডেলিভারি পলিসি ও চার্জ\u003c/h3\u003e\u003cp\u003eআমাদের যেকোনো পণ্য আপনার দোরগোড়ায় পৌঁছে দিতে আমরা নির্ভরযোগ্য ডেলিভারি পার্টনার ব্যবহার করি.\u003c/p\u003e\u003cp\u003e📍 \u003cstrong\u003eঢাকার ভেতরে:\u003c/strong\u003e ডেলিভারি চার্জ ৬০ টাকা (সময়: ১-২ কার্যদিবস)\u003c/p\u003e\u003cp\u003e📍 \u003cstrong\u003eঢাকার বাইরে:\u003c/strong\u003e ডেলিভারি চার্জ ১২০ টাকা (সময়: ২-৩ কার্যদিবস)\u003c/p\u003e\u003cp\u003e📦 ৫,০০০ টাকার বেশি অর্ডারে সারা বাংলাদেশে ফ্রি ডেলিভারি প্রদান করা হয়।\u003c/p\u003e\u0027 },"
+    },
+    {
+        "Filename":  "storefrontConfig.ts",
+        "LineNumber":  202,
+        "Line":  "      { id: 8, label: \u0027Returns \u0026 Exchanges\u0027, url: \u0027/\u0027, enabled: true, customPageContent: \u0027\u003ch3\u003eরিটার্ন ও এক্সচেঞ্জ পলিসি\u003c/h3\u003e\u003cp\u003eআমাদের পণ্য ক্রয়ের পর যদি কোনো সমস্যা দেখা দেয় বা আপনি সন্তুষ্ট না হন, তবে ৭ দিনের মধ্যে সহজেই এক্সচেঞ্জ বা রিটার্ন করতে পারবেন।\u003c/p\u003e\u003cp\u003e⚠️ \u003cstrong\u003eশর্তাবলী:\u003c/strong\u003e\u003c/p\u003e\u003cul\u003e\u003cli\u003eপণ্যটি অব্যবহৃত এবং সম্পূর্ণ নতুন অবস্থায় থাকতে হবে।\u003c/li\u003e\u003cli\u003eঅরিজিনাল প্যাকেজিং ও মেমো সাথে থাকতে হবে।\u003c/li\u003e\u003c/ul\u003e\u0027 },"
+    },
+    {
+        "Filename":  "storefrontConfig.ts",
+        "LineNumber":  203,
+        "Line":  "      { id: 9, label: \u0027FAQ\u0027, url: \u0027/\u0027, enabled: true, customPageContent: \u0027\u003ch3\u003eসাধারণ জিজ্ঞাসিত প্রশ্নাবলী (FAQ)\u003c/h3\u003e\u003cp\u003e\u003cstrong\u003e১. আমি কীভাবে অর্ডার করব?\u003c/strong\u003e\u003cbr/\u003eপণ্যটি সিলেক্ট করে \"Order Now\" এ ক্লিক করুন এবং আপনার নাম, ঠিকানা ও মোবাইল নম্বর দিয়ে অর্ডার নিশ্চিত করুন।\u003c/p\u003e\u003cp\u003e\u003cstrong\u003e২. আমি কি ক্যাশ অন ডেলিভারি পেতে পারি?\u003c/strong\u003e\u003cbr/\u003eহ্যাঁ, আমরা সারা বাংলাদেশে ক্যাশ অন ডেলিভারি (পণ্য পেয়ে মূল্য পরিশোধের সুবিধা) দিচ্ছি।\u003c/p\u003e\u0027 },"
+    },
+    {
+        "Filename":  "storefrontConfig.ts",
+        "LineNumber":  209,
+        "Line":  "      { id: 11, label: \u0027About Us\u0027, url: \u0027/\u0027, enabled: true, customPageContent: \u0027\u003ch3\u003eআমাদের সম্পর্কে\u003c/h3\u003e\u003cp\u003e\u003cstrong\u003eGazi Sports\u003c/strong\u003e একটি শীর্ষস্থানীয় অনলাইন স্পোর্টস রিটেইল প্ল্যাটফর্ম। আমাদের লক্ষ্য হলো সুলভ মূল্যে উন্নত মানের জিম ও ফিটনেস একুপমেন্ট, জুতো ও খেলাধুলার সামগ্রী আপনার দোরগোড়ায় পৌঁছে দেওয়া।\u003c/p\u003e\u0027 },"
+    },
+    {
+        "Filename":  "storefrontConfig.ts",
+        "LineNumber":  210,
+        "Line":  "      { id: 13, label: \u0027Privacy Policy\u0027, url: \u0027/\u0027, enabled: true, customPageContent: \u0027\u003cp\u003e\u003cstrong\u003eকার্যকর তারিখ:\u003c/strong\u003e ৯ জুলাই, ২০২৬\u003c/p\u003e\u003cp\u003eGazi Sports-এ আপনাকে স্বাগতম। আমরা আপনার গোপনীয়তাকে সর্বোচ্চ গুরুত্ব দিই এবং আপনার ব্যক্তিগত তথ্য সুরক্ষায় প্রতিশ্রুতিবদ্ধ। এই প্রাইভেসি পলিসিতে বিস্তারিত জানানো হয়েছে যে আমরা কীভাবে আপনার তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করি।\u003c/p\u003e\u003ch3\u003e১. আমরা যে তথ্য সংগ্রহ করি\u003c/h3\u003e\u003cp\u003eআপনি যখন আমাদের ওয়েবসাইট ব্যবহার করেন বা অর্ডার প্লেস করেন, তখন আমরা নিম্নলিখিত তথ্য সংগ্রহ করতে পারি:\u003c/p\u003e\u003cul\u003e\u003cli\u003e\u003cstrong\u003eব্যক্তিগত তথ্য:\u003c/strong\u003e আপনার নাম, ডেলিভারি ঠিকানা, মোবাইল নম্বর এবং ইমেইল ঠিকানা।\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eঅর্ডার তথ্য:\u003c/strong\u003e আপনার ক্রয় করা পণ্যের বিবরণ, অর্ডার ইতিহাস এবং পেমেন্ট সংক্রান্ত তথ্য।\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eব্যবহারের তথ্য:\u003c/strong\u003e আপনার ব্রাউজিং কার্যকলাপ, পছন্দের পণ্য এবং ডিভাইস সংক্রান্ত তথ্য।\u003c/li\u003e\u003c/ul\u003e\u003ch3\u003e২. তথ্য ব্যবহারের উদ্দেশ্য\u003c/h3\u003e\u003cp\u003eআপনার সংগ্রহ করা তথ্য আমরা নিম্নলিখিত উদ্দেশ্যে ব্যবহার করি:\u003c/p\u003e\u003cul\u003e\u003cli\u003eআপনার অর্ডার প্রক্রিয়া করা এবং সঠিক ঠিকানায় পণ্য ডেলিভারি নিশ্চিত করা।\u003c/li\u003e\u003cli\u003eঅর্ডার সম্পর্কিত আপডেট ও তথ্য আপনার মোবাইলে বা ইমেইলে পাঠানো।\u003c/li\u003e\u003cli\u003eআমাদের সেবার মান উন্নত করা এবং আপনার কেনাকাটার অভিজ্ঞতা সহজ করা।\u003c/li\u003e\u003cli\u003eযেকোনো অভিযোগ বা জিজ্ঞাসায় দ্রুত কাস্টমার সাপোর্ট প্রদান করা।\u003c/li\u003e\u003c/ul\u003e\u003ch3\u003e৩. তথ্যের সুরক্ষা\u003c/h3\u003e\u003cp\u003eআমরা আপনার ব্যক্তিগত তথ্যের নিরাপত্তা নিশ্চিত করতে প্রয়োজনীয় সকল পদক্ষেপ গ্রহণ করি। আপনার তথ্য সম্পূর্ণ এনক্রিপ্টেড সার্ভারে সংরক্ষিত থাকে এবং কখনোই কোনো তৃতীয় পক্ষের কাছে বিক্রি বা শেয়ার করা হয় না।\u003c/p\u003e\u003ch3\u003e৪. কুকিজ নীতি\u003c/h3\u003e\u003cp\u003eআমাদের ওয়েবসাইট আপনার ব্রাউজিং অভিজ্ঞতা উন্নত করতে কুকিজ ব্যবহার করে। আপনি চাইলে ব্রাউজার সেটিংস থেকে কুকিজ নিষ্ক্রিয় করতে পারেন, তবে এতে কিছু ফিচার সীমিত হয়ে যেতে পারে।\u003c/p\u003e\u003ch3\u003e৫. তথ্য শেয়ার\u003c/h3\u003e\u003cp\u003eনিম্নলিখিত ক্ষেত্রগুলো ছাড়া আমরা আপনার তথ্য কখনো তৃতীয় পক্ষের সাথে শেয়ার করি না:\u003c/p\u003e\u003cul\u003e\u003cli\u003e\u003cstrong\u003eডেলিভারি পার্টনার:\u003c/strong\u003e পণ্য পৌঁছে দেওয়ার জন্য শুধুমাত্র নাম ও ঠিকানা শেয়ার করা হয়।\u003c/li\u003e\u003cli\u003e\u003cstrong\u003eআইনি বাধ্যবাধকতা:\u003c/strong\u003e সরকারি বা আইনি কর্তৃপক্ষের নির্দেশে তথ্য প্রদান করা হতে পারে।\u003c/li\u003e\u003c/ul\u003e\u003ch3\u003e৬. আপনার অধিকার\u003c/h3\u003e\u003cp\u003eআপনি যেকোনো সময় আমাদের সাথে যোগাযোগ করে আপনার ব্যক্তিগত তথ্য দেখতে, সংশোধন করতে বা মুছে ফেলতে অনুরোধ করতে পারেন।\u003c/p\u003e\u003ch3\u003e৭. যোগাযোগ করুন\u003c/h3\u003e\u003cp\u003eএই প্রাইভেসি পলিসি সম্পর্কে কোনো প্রশ্ন থাকলে আমাদের সাথে যোগাযোগ করুন:\u003cbr/\u003e\u003cstrong\u003eইমেইল:\u003c/strong\u003e {{email}}\u003cbr/\u003e\u003cstrong\u003eফোন:\u003c/strong\u003e {{phone}}\u003c/p\u003e\u0027 },"
+    },
+    {
+        "Filename":  "storefrontConfig.ts",
+        "LineNumber":  211,
+        "Line":  "      { id: 14, label: \u0027Terms of Service\u0027, url: \u0027/\u0027, enabled: true, customPageContent: \u0027\u003cp\u003e\u003cstrong\u003eকার্যকর তারিখ:\u003c/strong\u003e ৯ জুলাই, ২০২৬\u003c/p\u003e\u003cp\u003eGazi Sports-এর ওয়েবসাইট ব্যবহার করার মাধ্যমে আপনি নিচে উল্লিখিত সকল শর্তাবলীতে সম্মতি প্রদান করছেন। অনুগ্রহ করে অর্ডার প্লেস করার আগে এই শর্তগুলো মনোযোগ দিয়ে পড়ুন।\u003c/p\u003e\u003ch3\u003e১. সাধারণ শর্তাবলী\u003c/h3\u003e\u003cul\u003e\u003cli\u003eআমাদের ওয়েবসাইট ব্যবহারের জন্য আপনার বয়স কমপক্ষে ১৮ বছর হতে হবে।\u003c/li\u003e\u003cli\u003eআপনি সঠিক ও সত্য তথ্য প্রদান করতে বাধ্য। মিথ্যা তথ্য দিয়ে অর্ডার করলে তা বাতিল করার অধিকার আমাদের আছে।\u003c/li\u003e\u003cli\u003eআমাদের সেবা বা পণ্য যেকোনো সময় পরিবর্তন করার অধিকার Gazi Sports-এর রয়েছে।\u003c/li\u003e\u003c/ul\u003e\u003ch3\u003e২. অর্ডার ও পেমেন্ট\u003c/h3\u003e\u003cul\u003e\u003cli\u003eঅর্ডার করার সময় সঠিক নাম, মোবাইল নম্বর ও ডেলিভারি ঠিকানা প্রদান করতে হবে।\u003c/li\u003e\u003cli\u003eক্যাশ অন ডেলিভারিতে পণ্য গ্রহণের সময় সম্পূর্ণ মূল্য পরিশোধ করতে হবে।\u003c/li\u003e\u003cli\u003eঅগ্রিম পেমেন্টের ক্ষেত্রে পেমেন্ট কনফার্মেশনের পরই অর্ডার প্রসেস শুরু হবে।\u003c/li\u003e\u003cli\u003eঅর্ডার কনফার্ম হওয়ার পর বাতিল করতে হলে অবিলম্বে আমাদের কাস্টমার সাপোর্টে যোগাযোগ করুন।\u003c/li\u003e\u003c/ul\u003e\u003ch3\u003e৩. ডেলিভারি নীতি\u003c/h3\u003e\u003cul\u003e\u003cli\u003eঢাকার ভেতরে ডেলিভারি সাধারণত ১-২ কার্যদিবসের মধ্যে সম্পন্ন হয়।\u003c/li\u003e\u003cli\u003eঢাকার বাইরে ডেলিভারি সাধারণত ২-৩ কার্যদিবসের মধ্যে সম্পন্ন হয়।\u003c/li\u003e\u003cli\u003eপ্রাকৃতিক দুর্যোগ, হরতাল বা অন্য কোনো অনিবার্য কারণে ডেলিভারিতে বিলম্ব হতে পারে।\u003c/li\u003e\u003cli\u003eপণ্য পাওয়ার সময় ডেলিভারিম্যানের সামনে প্যাকেজিং চেক করে নিন।\u003c/li\u003e\u003c/ul\u003e\u003ch3\u003e৪. রিটার্ন ও এক্সচেঞ্জ\u003c/h3\u003e\u003cul\u003e\u003cli\u003eপণ্যে কোনো ত্রুটি থাকলে ডেলিভারির ৭ দিনের মধ্যে রিটার্ন বা এক্সচেঞ্জ করা যাবে।\u003c/li\u003e\u003cli\u003eপণ্যটি অব্যবহৃত, অরিজিনাল প্যাকেজিং সহ এবং ক্রয়ের রসিদ থাকলেই কেবল রিটার্ন গ্রহণযোগ্য হবে।\u003c/li\u003e\u003cli\u003eব্যবহৃত বা ক্ষতিগ্রস্ত পণ্য রিটার্ন গ্রহণযোগ্য নয়।\u003c/li\u003e\u003c/ul\u003e\u003ch3\u003e৫. পণ্যের মূল্য ও প্রাপ্যতা\u003c/h3\u003e\u003cul\u003e\u003cli\u003eপণ্যের মূল্য পূর্ব বিজ্ঞপ্তি ছাড়াই পরিবর্তন হতে পারে।\u003c/li\u003e\u003cli\u003eস্টক শেষ হয়ে গেলে অর্ডার বাতিল করা হতে পারে এবং সে ক্ষেত্রে অগ্রিম প্রদত্ত অর্থ ফেরত দেওয়া হবে।\u003c/li\u003e\u003c/ul\u003e\u003ch3\u003e৬. দায়বদ্ধতার সীমা\u003c/h3\u003e\u003cp\u003eGazi Sports পণ্যের গুণমান নিশ্চিত করতে সর্বদা সচেষ্ট। তবে ব্যবহারকারীর অসাবধানতাজনিত কারণে পণ্যে কোনো ক্ষতি হলে আমরা দায়ী থাকব না। পণ্যের সঠিক ব্যবহারবিধি অনুসরণ করুন।\u003c/p\u003e\u003ch3\u003e৭. আইনি এখতিয়ার\u003c/h3\u003e\u003cp\u003eএই শর্তাবলী বাংলাদেশের আইন অনুযায়ী পরিচালিত। যেকোনো বিরোধ বাংলাদেশের আদালতে নিষ্পত্তি করা হবে।\u003c/p\u003e\u003ch3\u003e৮. যোগাযোগ\u003c/h3\u003e\u003cp\u003eযেকোনো প্রশ্ন বা অভিযোগের জন্য আমাদের সাথে যোগাযোগ করুন:\u003cbr/\u003e\u003cstrong\u003eইমেইল:\u003c/strong\u003e {{email}}\u003cbr/\u003e\u003cstrong\u003eফোন:\u003c/strong\u003e {{phone}}\u003c/p\u003e\u0027 },"
+    },
+    {
+        "Filename":  "storefrontConfig.ts",
+        "LineNumber":  421,
+        "Line":  "      parsed.branding.footerDescription = \u0027Gazi Sports 24 মানেই শক্তি, খেলা আর আনন্দ আমাদের কাছে পাবেন Gym Equipment, Sports Item ও Kids Sports Products —পুরো পরিবারের জন্য।\u0027;"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  42,
+        "Line":  "          \u003cp className=\"premium-page-subtitle\"\u003eজানুন আমাদের লক্ষ্য, মূল্যবোধ এবং পথচলার গল্প\u003c/p\u003e"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  74,
+        "Line":  "              \u003ch3 className=\"about-card-title\"\u003eআমাদের লক্ষ্য (Mission)\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  76,
+        "Line":  "                সুলভ মূল্যে এবং বিশ্বস্ততার সাথে সেরা ফিটনেস ও জিম একুপমেন্ট এবং সামগ্রী প্রতিটি ঘরে পৌঁছে দেওয়া, যাতে মানুষ আরও সুস্থ ও সক্রিয় জীবনযাপন করতে পারে।"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  84,
+        "Line":  "              \u003ch3 className=\"about-card-title\"\u003eকোয়ালিটি গ্যারান্টি\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  86,
+        "Line":  "                আমরা আমাদের প্রতিটি পণ্যের গুণগত মান কঠোরভাবে যাচাই করি। গ্রাহকদের ১০০% আসল এবং টেকসই স্পোর্টস পণ্য সরবরাহ করাই আমাদের অগ্রাধিকার।"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  94,
+        "Line":  "              \u003ch3 className=\"about-card-title\"\u003eগ্রাহক সেবা (Support)\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  96,
+        "Line":  "                অর্ডার নিশ্চিতকরণ থেকে শুরু করে হোম ডেলিভারি এবং পরবর্তী যেকোনো প্রয়োজনে আমাদের কাস্টমার সাপোর্ট টিম সর্বদা আন্তরিক সেবা দিতে প্রস্তুত।"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  105,
+        "Line":  "                \u003cAward size={24} /\u003e ৫+"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  107,
+        "Line":  "              \u003cdiv className=\"about-stat-label\"\u003eবছরের অভিজ্ঞতা\u003c/div\u003e"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  110,
+        "Line":  "              \u003cdiv className=\"about-stat-number\"\u003e৫০,০০০+\u003c/div\u003e"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  111,
+        "Line":  "              \u003cdiv className=\"about-stat-label\"\u003eসফল ডেলিভারি\u003c/div\u003e"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  114,
+        "Line":  "              \u003cdiv className=\"about-stat-number\"\u003e৪.৯ ★\u003c/div\u003e"
+    },
+    {
+        "Filename":  "AboutUs.tsx",
+        "LineNumber":  115,
+        "Line":  "              \u003cdiv className=\"about-stat-label\"\u003eগ্রাহক সন্তুষ্টি রেটিং\u003c/div\u003e"
+    },
+    {
+        "Filename":  "BlogDetails.tsx",
+        "LineNumber":  58,
+        "Line":  "        \u003ch2\u003eব্লগ পোস্টটি পাওয়া যায়নি\u003c/h2\u003e"
+    },
+    {
+        "Filename":  "BlogDetails.tsx",
+        "LineNumber":  59,
+        "Line":  "        \u003cp\u003eদুঃখিত, আপনি যে লিংকটি খুঁজছেন তা বর্তমানে নিষ্ক্রিয় বা মুছে ফেলা হয়েছে।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "BlogDetails.tsx",
+        "LineNumber":  61,
+        "Line":  "          ব্লগে ফিরে যান"
+    },
+    {
+        "Filename":  "BlogDetails.tsx",
+        "LineNumber":  93,
+        "Line":  "        \u003cArrowLeft size={16} /\u003e সকল ব্লগে ফিরে যান"
+    },
+    {
+        "Filename":  "BlogDetails.tsx",
+        "LineNumber":  120,
+        "Line":  "          \u003cUser size={16} style={{ color: \u0027var(--sf-accent)\u0027 }} /\u003e \u003cstrong\u003eলেখক:\u003c/strong\u003e {blog.author_name}"
+    },
+    {
+        "Filename":  "BlogDetails.tsx",
+        "LineNumber":  123,
+        "Line":  "          \u003cCalendar size={16} style={{ color: \u0027var(--sf-accent)\u0027 }} /\u003e \u003cstrong\u003eপ্রকাশকাল:\u003c/strong\u003e {formatDate(blog.created_at)}"
+    },
+    {
+        "Filename":  "BlogDetails.tsx",
+        "LineNumber":  126,
+        "Line":  "          \u003cClock size={16} style={{ color: \u0027var(--sf-accent)\u0027 }} /\u003e \u003cstrong\u003eপড়তে সময় লাগবে:\u003c/strong\u003e {getReadTime(blog.content)} মিনিট"
+    },
+    {
+        "Filename":  "BlogList.tsx",
+        "LineNumber":  39,
+        "Line":  "        description=\"ফিটনেস, শরীরচর্চা এবং খেলাধুলার সেরা টিপস নিয়ে আমাদের প্রফেশনাল স্পোর্টস ব্লগ ও হেলথ আর্টিকেলসমূহ পড়ুন।\""
+    },
+    {
+        "Filename":  "BlogList.tsx",
+        "LineNumber":  63,
+        "Line":  "          আমাদের স্পোর্টস ও ফিটনেস বিষয়ক ব্লগপোস্ট"
+    },
+    {
+        "Filename":  "BlogList.tsx",
+        "LineNumber":  72,
+        "Line":  "          নিজেকে ফিট, শক্তিশালী ও প্রাণবন্ত রাখতে খেলাধুলা, জিম এবং স্বাস্থ্যকর জীবনযাত্রার সহজ টিপস ও প্রফেশনাল গাইডলাইন পড়ুন।"
+    },
+    {
+        "Filename":  "BlogList.tsx",
+        "LineNumber":  84,
+        "Line":  "          \u003ch3 style={{ color: \u0027var(--sf-text-secondary)\u0027 }}\u003eকোনো ব্লগপোস্ট খুঁজে পাওয়া যায়নি।\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "BlogList.tsx",
+        "LineNumber":  85,
+        "Line":  "          \u003cLink to=\"/\" className=\"store-btn store-btn-primary\" style={{ marginTop: \u002720px\u0027 }}\u003eস্টোরে ফিরে যান\u003c/Link\u003e"
+    },
+    {
+        "Filename":  "BlogList.tsx",
+        "LineNumber":  180,
+        "Line":  "                    বিস্তারিত পড়ুন \u003cArrowRight size={14} /\u003e"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  113,
+        "Line":  "        \u003cp style={{ fontSize: \u00271.1rem\u0027, fontWeight: 600 }}\u003eক্যাম্পেইন লোড হচ্ছে...\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  121,
+        "Line":  "        \u003ch2 style={{ fontSize: \u00272rem\u0027, fontWeight: 800, color: \u0027#0f172a\u0027, marginBottom: \u002716px\u0027 }}\u003eক্যাম্পেইন পাওয়া যায়নি\u003c/h2\u003e"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  122,
+        "Line":  "        \u003cp style={{ color: \u0027#64748b\u0027, marginBottom: \u002732px\u0027 }}\u003eএই ক্যাম্পেইনটি বর্তমানে অ্যাক্টিভ নেই অথবা ডিলিট করা হয়েছে।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  124,
+        "Line":  "          \u003cArrowLeft size={18} /\u003e হোমপেজে ফিরে যান"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  154,
+        "Line":  "        \u003cArrowLeft size={16} /\u003e হোমপেজে যান"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  181,
+        "Line":  "          মেয়াদ: {new Date(campaign.startDate).toLocaleDateString(\u0027bn-BD\u0027)} থেকে {new Date(campaign.endDate).toLocaleDateString(\u0027bn-BD\u0027)}"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  188,
+        "Line":  "              \u003cClock size={14} /\u003e ক্যাম্পেইন শেষ হতে বাকি"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  216,
+        "Line":  "            \u003cClock size={16} /\u003e এই অফারটির মেয়াদ শেষ হয়ে গেছে"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  224,
+        "Line":  "          ক্যাম্পেইনের অফারকৃত পণ্যসমূহ ({campaignProducts.length})"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  253,
+        "Line":  "                        ৳{product.price}"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  255,
+        "Line":  "                          \u003cspan className=\"product-card-original-price\" style={{ textDecoration: \u0027line-through\u0027, color: \u0027#94a3b8\u0027, fontSize: \u00270.85rem\u0027, marginLeft: \u00276px\u0027 }}\u003e৳{product.originalPrice}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  274,
+        "Line":  "            \u003ch3 style={{ fontSize: \u00271.1rem\u0027, fontWeight: 700, color: \u0027#475569\u0027, marginBottom: \u00278px\u0027 }}\u003eকোনো পণ্য পাওয়া যায়নি\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "CampaignPage.tsx",
+        "LineNumber":  275,
+        "Line":  "            \u003cp style={{ color: \u0027#64748b\u0027 }}\u003eএই ক্যাম্পেইনে কোনো পণ্য অ্যাসাইন করা হয়নি।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  74,
+        "Line":  "      setCouponSuccess(`কুপন কোড \u0027${res.data.code}\u0027 সফলভাবে যুক্ত হয়েছে!`);"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  76,
+        "Line":  "      setCouponError(res.message || \u0027কুপনটি প্রযোজ্য নয়।\u0027);"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  153,
+        "Line":  "      alert(\u0027দয়া করে আপনার প্রেরকের বিকাশ/নগদ নম্বর এবং Transaction ID (TrxID) ইনপুট দিন।\u0027);"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  284,
+        "Line":  "      paymentMethodName: paymentMethod === \u0027bkash\u0027 ? \u0027বিকাশ (Send Money)\u0027 : paymentMethod === \u0027nagad\u0027 ? \u0027নগদ (Send Money)\u0027 : \u0027ক্যাশ অন ডেলিভারি\u0027,"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  303,
+        "Line":  "        \u003ch2\u003eআপনার কার্ট খালি! (Your Cart is Empty!)\u003c/h2\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  304,
+        "Line":  "        \u003cp style={{ color: \u0027var(--sf-text-secondary)\u0027, marginBottom: \u002724px\u0027 }}\u003eদয়া করে কিছু পণ্য যোগ করে আবার চেষ্টা করুন।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  305,
+        "Line":  "        \u003cLink to=\"/\" className=\"btn-confirm\" style={{ width: \u0027auto\u0027, padding: \u00270 32px\u0027 }}\u003eশপিং চালিয়ে যান (Continue Shopping)\u003c/Link\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  313,
+        "Line":  "        \u003ch1\u003eনিরাপদ অর্ডার ফরম (Secure Order Form)\u003c/h1\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  314,
+        "Line":  "        \u003cp\u003eঅর্ডারটি সম্পন্ন করতে আপনার সঠিক তথ্য দিয়ে ফরমটি পূরণ করুন\u003c/p\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  322,
+        "Line":  "            \u003cPackage size={24} /\u003e অর্ডারের সারসংক্ষেপ (Summary)"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  331,
+        "Line":  "                  \u003cdiv className=\"summary-item-variant\"\u003eরঙ: ডিফল্ট | সাইজ: {item.product.selectedSize || \u0027ফ্রি সাইজ\u0027}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  333,
+        "Line":  "                    \u003cdiv className=\"summary-item-price\"\u003e৳{item.product.price}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  351,
+        "Line":  "            \u003cdiv style={{ fontSize: \u00270.85rem\u0027, fontWeight: 700, color: \u0027var(--sf-text-secondary)\u0027, marginBottom: \u00278px\u0027 }}\u003eপ্রোমো কোড (Promo Code)\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  355,
+        "Line":  "                  \u0027{appliedCoupon.code}\u0027 প্রয়োগ করা হয়েছে ({appliedCoupon.type === \u0027percentage\u0027 ? `${appliedCoupon.value}%` : `৳${appliedCoupon.value}`} ছাড়)"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  357,
+        "Line":  "                \u003cbutton type=\"button\" onClick={handleRemoveCoupon} style={{ background: \u0027none\u0027, border: \u0027none\u0027, color: \u0027#dc2626\u0027, fontSize: \u00270.78rem\u0027, cursor: \u0027pointer\u0027, fontWeight: 700 }}\u003eসরিয়ে ফেলুন\u003c/button\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  363,
+        "Line":  "                  placeholder=\"কোড লিখুন (যেমন: SUMMER20)\""
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  375,
+        "Line":  "                  {isValidating ? \u0027...\u0027 : \u0027প্রয়োগ\u0027}"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  385,
+        "Line":  "              \u003cspan\u003eপণ্যের মূল্য (Subtotal)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  386,
+        "Line":  "              \u003cspan\u003e৳{subtotal.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  389,
+        "Line":  "              \u003cspan\u003eডেলিভারি চার্জ (Shipping)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  390,
+        "Line":  "              \u003cspan\u003e৳{deliveryCharge.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  394,
+        "Line":  "                \u003cspan\u003eডিসকাউন্ট (Discount)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  395,
+        "Line":  "                \u003cspan\u003e-৳{discount.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  399,
+        "Line":  "              \u003cspan\u003eসর্বমোট (Total)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  400,
+        "Line":  "              \u003cspan\u003e৳{total.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  408,
+        "Line":  "            \u003cUser size={20} /\u003e কাস্টমার ও ডেলিভারি তথ্য (Delivery Details)"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  415,
+        "Line":  "                \u003cMapPin size={16} /\u003e সংরক্ষিত ঠিকানা থেকে সিলেক্ট করুন (Quick Fill)"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  446,
+        "Line":  "              \u003clabel className=\"form-label\"\u003eআপনার নাম (Full Name) \u003cspan\u003e*\u003c/span\u003e\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  447,
+        "Line":  "              \u003cinput type=\"text\" className=\"form-input\" placeholder=\"আপনার নাম লিখুন\" required value={customerName} onChange={(e) =\u003e { setCustomerName(e.target.value); setNameEdited(true); setSelectedAddressId(\u0027\u0027); }} /\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  451,
+        "Line":  "              \u003clabel className=\"form-label\"\u003eমোবাইল নম্বর (Phone Number) \u003cspan\u003e*\u003c/span\u003e\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  452,
+        "Line":  "              \u003cinput type=\"tel\" className=\"form-input\" placeholder=\"যেমন: ০১৭XXXXXXXX\" required value={customerPhone} onChange={(e) =\u003e { setCustomerPhone(e.target.value); setPhoneEdited(true); setSelectedAddressId(\u0027\u0027); }} /\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  456,
+        "Line":  "              \u003clabel className=\"form-label\"\u003eইমেইল ঠিকানা (Email Address) \u003cspan style={{ color: \u0027#94a3b8\u0027, fontWeight: \u0027normal\u0027, fontSize: \u00270.78rem\u0027 }}\u003e(অপশনাল)\u003c/span\u003e\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  457,
+        "Line":  "              \u003cinput type=\"email\" className=\"form-input\" placeholder=\"যেমন: example@gmail.com (অর্ডার রশিদ মেইলে পেতে চাইলে)\" value={customerEmail} onChange={(e) =\u003e { setCustomerEmail(e.target.value); setEmailEdited(true); }} /\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  461,
+        "Line":  "              \u003clabel className=\"form-label\"\u003eসম্পূর্ণ ডেলিভারি ঠিকানা (Detailed Address) \u003cspan\u003e*\u003c/span\u003e\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  462,
+        "Line":  "              \u003cinput type=\"text\" className=\"form-input\" placeholder=\"বাসা/হোল্ডিং নং, রোড নং, এলাকা, থানা ও জেলা লিখুন\" required value={customerAddress} onChange={(e) =\u003e { setCustomerAddress(e.target.value); setAddressEdited(true); setSelectedAddressId(\u0027\u0027); }} /\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  466,
+        "Line":  "              \u003clabel className=\"form-label\"\u003eঅর্ডার সংক্রান্ত নোট (Optional Note)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  467,
+        "Line":  "              \u003cinput type=\"text\" className=\"form-input\" placeholder=\"অর্ডার সংক্রান্ত অতিরিক্ত তথ্য বা নির্দেশনা\" value={customerNote} onChange={(e) =\u003e setCustomerNote(e.target.value)} /\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  480,
+        "Line":  "                  ভবিষ্যতে ব্যবহারের জন্য এই ঠিকানাটি সেভ করে রাখুন (Save this address to my profile)"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  492,
+        "Line":  "                \u003cTruck size={18} /\u003e ডেলিভারি চার্জ (Shipping Rate)"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  497,
+        "Line":  "                    \u003cdiv className=\"selection-card-title\"\u003eঢাকার ভেতরে\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  498,
+        "Line":  "                    \u003cdiv className=\"selection-card-desc\"\u003e৳{config.delivery.insideDhakaPrice} ({config.delivery.insideDhakaTimeline})\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  504,
+        "Line":  "                    \u003cdiv className=\"selection-card-title\"\u003eঢাকার বাইরে\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  505,
+        "Line":  "                    \u003cdiv className=\"selection-card-desc\"\u003e৳{config.delivery.outsideDhakaPrice} ({config.delivery.outsideDhakaTimeline})\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  514,
+        "Line":  "                \u003cCreditCard size={18} /\u003e পেমেন্ট পদ্ধতি (Payment Method)"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  525,
+        "Line":  "                  \u003cspan style={{ fontSize: \u00270.85rem\u0027, fontWeight: 700 }}\u003eক্যাশ অন ডেলিভারি\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  535,
+        "Line":  "                  \u003cspan style={{ fontSize: \u00270.85rem\u0027, fontWeight: 700, color: \u0027#e11d48\u0027 }}\u003eবিকাশ\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  545,
+        "Line":  "                  \u003cspan style={{ fontSize: \u00270.85rem\u0027, fontWeight: 700, color: \u0027#ea580c\u0027 }}\u003eনগদ\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  553,
+        "Line":  "                    \u003cCreditCard size={18} /\u003e {paymentMethod === \u0027bkash\u0027 ? \u0027bKash (বিকাশ)\u0027 : \u0027Nagad (নগদ)\u0027} টাকা পাঠানোর নিয়মাবলী:"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  557,
+        "Line":  "                    \u003cli\u003eআপনার \u003cb\u003e{paymentMethod === \u0027bkash\u0027 ? \u0027bKash\u0027 : \u0027Nagad\u0027}\u003c/b\u003e অ্যাপ খুলুন অথবা \u003cb\u003e{paymentMethod === \u0027bkash\u0027 ? \u0027*247#\u0027 : \u0027*167#\u0027}\u003c/b\u003e ডায়াল করে \u003cb\u003eSend Money / Cash Out\u003c/b\u003e এ ক্লিক করুন।\u003c/li\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  558,
+        "Line":  "                    \u003cli\u003eটাকা পাঠানোর নম্বর: \u003cb style={{ fontSize: \u00270.95rem\u0027, color: paymentMethod === \u0027bkash\u0027 ? \u0027#e11d48\u0027 : \u0027#ea580c\u0027, background: \u0027white\u0027, padding: \u00272px 8px\u0027, borderRadius: \u00274px\u0027, border: \u00271px solid var(--sf-border)\u0027 }}\u003e{paymentMethod === \u0027bkash\u0027 ? \u002701700000000\u0027 : \u002701800000000\u0027}\u003c/b\u003e (Personal)\u003c/li\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  559,
+        "Line":  "                    \u003cli\u003eমোট পরিশোধযোগ্য টাকার পরিমাণ: \u003cb style={{ color: \u0027var(--sf-text-primary)\u0027 }}\u003e৳{total.toFixed(2)}\u003c/b\u003e পাঠাবেন।\u003c/li\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  560,
+        "Line":  "                    \u003cli\u003eটাকা পাঠানোর পর প্রাপ্ত \u003cb\u003eTransaction ID (TrxID)\u003c/b\u003e ও \u003cb\u003eআপনার নম্বরটি\u003c/b\u003e নিচে ইনপুট দিন।\u003c/li\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  566,
+        "Line":  "                        প্রেরকের বিকাশ/নগদ নম্বর (Sender Phone) \u003cspan style={{ color: \u0027#ef4444\u0027 }}\u003e*\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  570,
+        "Line":  "                        placeholder=\"যেমন: ০১৭XXXXXXXX\""
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  584,
+        "Line":  "                        placeholder=\"যেমন: 8N7X9K2L1\""
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  601,
+        "Line":  "            অর্ডার নিশ্চিত করুন (Confirm Order) \u003cArrowRight size={20} /\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  605,
+        "Line":  "            \u003cdiv className=\"trust-badge-item\"\u003e\u003cShield size={16} /\u003e ১০০% নিরাপদ অর্ডার\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  606,
+        "Line":  "            \u003cdiv className=\"trust-badge-item\"\u003e\u003cTruck size={16} /\u003e দ্রুত ডেলিভারি\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  607,
+        "Line":  "            \u003cdiv className=\"trust-badge-item\"\u003e\u003cRotateCcw size={16} /\u003e সহজ রিটার্ন\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  608,
+        "Line":  "            \u003cdiv className=\"trust-badge-item\"\u003e\u003cHeadphones size={16} /\u003e কাস্টমার সাপোর্ট\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  623,
+        "Line":  "              \u003ch2 style={{ fontSize: \u00271.25rem\u0027, color: \u0027#16a34a\u0027, margin: 0, fontWeight: 800 }}\u003eঅর্ডার সফল হয়েছে!\u003c/h2\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  624,
+        "Line":  "              \u003cp style={{ fontSize: \u00270.82rem\u0027, color: \u0027#15803d\u0027, margin: \u00274px 0 0 0\u0027, lineHeight: 1.4 }}\u003eআপনার অর্ডারটি সফলভাবে সম্পন্ন হয়েছে। রশিদটি প্রিন্ট করতে বা পিডিএফ সেভ করতে নিচের \"ইনভয়েস প্রিন্ট / সেভ করুন\" বাটনে ক্লিক করুন।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  635,
+        "Line":  "                  \u003cdiv\u003e\u003cb\u003eমেমো নং:\u003c/b\u003e {submittedOrder.invoiceNo}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  636,
+        "Line":  "                  \u003cdiv\u003e\u003cb\u003eতারিখ:\u003c/b\u003e {submittedOrder.date}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  637,
+        "Line":  "                  \u003cdiv\u003e\u003cb\u003eপেমেন্ট:\u003c/b\u003e {submittedOrder.paymentMethodName}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  643,
+        "Line":  "                  \u003cdiv className=\"invoice-party-title\"\u003eপ্রেরক (Sender)\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  646,
+        "Line":  "                    মোবাইল: {config.contactInfo.phoneNumber || \u002701700000000\u0027}\u003cbr /\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  647,
+        "Line":  "                    ইমেইল: {config.contactInfo.email || \u0027support@gazisports.com\u0027}\u003cbr /\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  648,
+        "Line":  "                    ঠিকানা: ঢাকা, বাংলাদেশ"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  652,
+        "Line":  "                  \u003cdiv className=\"invoice-party-title\"\u003eবিলিং ও ডেলিভারি ঠিকানা\u003c/div\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  654,
+        "Line":  "                    \u003cb\u003eনাম:\u003c/b\u003e {submittedOrder.customerName}\u003cbr /\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  655,
+        "Line":  "                    \u003cb\u003eমোবাইল:\u003c/b\u003e {submittedOrder.customerPhone}\u003cbr /\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  656,
+        "Line":  "                    \u003cb\u003eঠিকানা:\u003c/b\u003e {submittedOrder.customerAddress}"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  665,
+        "Line":  "                      \u003cth\u003eপণ্য বিবরণ (Product)\u003c/th\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  666,
+        "Line":  "                      \u003cth style={{ textAlign: \u0027center\u0027 }}\u003eসাইজ (Size)\u003c/th\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  667,
+        "Line":  "                      \u003cth style={{ textAlign: \u0027center\u0027 }}\u003eপরিমাণ (Qty)\u003c/th\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  668,
+        "Line":  "                      \u003cth style={{ textAlign: \u0027right\u0027 }}\u003eমূল্য (Price)\u003c/th\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  669,
+        "Line":  "                      \u003cth style={{ textAlign: \u0027right\u0027 }}\u003eমোট (Total)\u003c/th\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  677,
+        "Line":  "                        \u003ctd style={{ textAlign: \u0027center\u0027 }}\u003e{item.quantity}টি\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  678,
+        "Line":  "                        \u003ctd style={{ textAlign: \u0027right\u0027 }}\u003e৳{item.price.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  679,
+        "Line":  "                        \u003ctd style={{ textAlign: \u0027right\u0027 }}\u003e৳{(item.price * item.quantity).toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  688,
+        "Line":  "                  \u003cspan\u003eউপমোট (Subtotal)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  689,
+        "Line":  "                  \u003cspan\u003e৳{submittedOrder.subtotal.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  692,
+        "Line":  "                  \u003cspan\u003eডেলিভারি চার্জ\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  693,
+        "Line":  "                  \u003cspan\u003e৳{submittedOrder.deliveryCharge.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  697,
+        "Line":  "                    \u003cspan\u003eডিসকাউন্ট\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  698,
+        "Line":  "                    \u003cspan\u003e-৳{submittedOrder.discount.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  702,
+        "Line":  "                  \u003cspan\u003eসর্বমোট (Total Paid)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  703,
+        "Line":  "                  \u003cspan\u003e৳{submittedOrder.total.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  708,
+        "Line":  "                \u003cp\u003eআমাদের ওপর আস্থা রাখার জন্য আপনাকে ধন্যবাদ!\u003c/p\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  709,
+        "Line":  "                \u003cp style={{ fontSize: \u00270.7rem\u0027, opacity: 0.8, marginTop: \u00274px\u0027 }}\u003eএটি একটি কম্পিউটার জেনারেটেড চালান (Invoice), কোনো স্বাক্ষরের প্রয়োজন নেই।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  719,
+        "Line":  "                ইনভয়েস প্রিন্ট / সেভ করুন"
+    },
+    {
+        "Filename":  "Checkout.tsx",
+        "LineNumber":  726,
+        "Line":  "                শপিং চালিয়ে যান"
+    },
+    {
+        "Filename":  "CollectionPage.tsx",
+        "LineNumber":  220,
+        "Line":  "          \u003cp\u003eলোড হচ্ছে...\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CollectionPage.tsx",
+        "LineNumber":  341,
+        "Line":  "            \u003cspan className=\"trending-product-badge sold-out\" style={{ background: \u0027#ef4444\u0027 }}\u003eস্টক আউট\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CollectionPage.tsx",
+        "LineNumber":  351,
+        "Line":  "            {hasDiscount \u0026\u0026 \u003cspan className=\"trending-product-original-price\"\u003e৳ {product.originalPrice.toLocaleString(\u0027en-US\u0027, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\u003c/span\u003e}"
+    },
+    {
+        "Filename":  "CollectionPage.tsx",
+        "LineNumber":  352,
+        "Line":  "            \u003cspan className=\"trending-product-price\"\u003e৳ {product.price.toLocaleString(\u0027en-US\u0027, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CollectionPage.tsx",
+        "LineNumber":  357,
+        "Line":  "                স্টক আউট"
+    },
+    {
+        "Filename":  "CollectionPage.tsx",
+        "LineNumber":  399,
+        "Line":  "            \u003cspan\u003e৳{priceFilterMin.toLocaleString()}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CollectionPage.tsx",
+        "LineNumber":  400,
+        "Line":  "            \u003cspan\u003e৳{priceFilterMax.toLocaleString()}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CollectionPage.tsx",
+        "LineNumber":  506,
+        "Line":  "                ৳{appliedPriceMin.toLocaleString()} – ৳{appliedPriceMax.toLocaleString()}"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  106,
+        "Line":  "  const [addressLabel, setAddressLabel] = useState(\u0027বাসা (Home)\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  115,
+        "Line":  "    setAddressLabel(\u0027বাসা (Home)\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  147,
+        "Line":  "      setAddressError(\u0027লেবেল (যেমন: বাসা, অফিস) খালি রাখা যাবে না।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  151,
+        "Line":  "      setAddressError(\u0027নাম খালি রাখা যাবে না।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  155,
+        "Line":  "      setAddressError(\u0027মোবাইল নম্বর খালি রাখা যাবে না।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  159,
+        "Line":  "      setAddressError(\u0027বিস্তারিত ঠিকানা খালি রাখা যাবে না।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  179,
+        "Line":  "      setAddressError(\u0027ঠিকানা সংরক্ষণ করতে সমস্যা হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  221,
+        "Line":  "                  setAuthSuccess(\u0027গুগল দিয়ে লগইন সফল হয়েছে!\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  223,
+        "Line":  "                  setAuthError(res.error || \u0027গুগল লগইন ব্যর্থ হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  226,
+        "Line":  "                setAuthError(\u0027গুগল থেকে কোনো ভ্যালিড ক্রেডেনশিয়াল পাওয়া যায়নি।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  289,
+        "Line":  "      alert(\u0027ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  299,
+        "Line":  "      setProfileError(\u0027নাম খালি রাখা যাবে না।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  303,
+        "Line":  "      setProfileError(\u0027মোবাইল নম্বর খালি রাখা যাবে না।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  313,
+        "Line":  "      setProfileSuccess(\u0027আপনার প্রোফাইল তথ্য সফলভাবে আপডেট করা হয়েছে!\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  315,
+        "Line":  "      setProfileError(\u0027প্রোফাইল আপডেট করতে সমস্যা হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  536,
+        "Line":  "        setAuthError(\u0027দয়া করে সবগুলো ঘর পূরণ করুন।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  541,
+        "Line":  "        setAuthError(res.error || \u0027নিবন্ধন ব্যর্থ হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  543,
+        "Line":  "        setAuthSuccess(\u0027অ্যাকাউন্ট তৈরি সফল হয়েছে!\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  547,
+        "Line":  "        setAuthError(\u0027ইমেইল ও পাসওয়ার্ড প্রদান করুন।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  552,
+        "Line":  "        setAuthError(res.error || \u0027লগইন ব্যর্থ হয়েছে।\u0027);"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  615,
+        "Line":  "      { key: \u0027placed\u0027, label: \u0027অর্ডার প্লেসড\u0027, desc: \u0027অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে\u0027, icon: Clock },"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  616,
+        "Line":  "      { key: \u0027processing\u0027, label: \u0027প্রসেসিং\u0027, desc: \u0027প্যাকেজিং ও ভেরিফিকেশন চলছে\u0027, icon: RefreshCw },"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  617,
+        "Line":  "      { key: \u0027shipped\u0027, label: \u0027কুরিয়ারে পাঠানো হয়েছে\u0027, desc: \u0027পণ্যটি কুরিয়ারে হস্তান্তর করা হয়েছে\u0027, icon: Truck },"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  618,
+        "Line":  "      { key: \u0027delivered\u0027, label: \u0027ডেলিভার্ড\u0027, desc: \u0027অর্ডারটি আপনার কাছে পৌঁছে গেছে\u0027, icon: CheckCircle2 }"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  640,
+        "Line":  "              {isRegister ? \u0027নতুন অ্যাকাউন্ট তৈরি করুন\u0027 : \u0027কাস্টমার অ্যাকাউন্টে লগইন\u0027}"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  643,
+        "Line":  "              {isRegister ? \u0027সহজ ট্র্যাকিং ও চ্যাট সাপোর্ট পেতে অ্যাকাউন্ট তৈরি করুন\u0027 : \u0027অর্ডার ট্র্যাক এবং কাস্টমার সাপোর্টে যোগাযোগ করতে লগইন করুন\u0027}"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  663,
+        "Line":  "                  \u003clabel style={{ display: \u0027block\u0027, fontSize: \u00270.8rem\u0027, fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027, marginBottom: \u00276px\u0027 }}\u003eআপনার নাম *\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  664,
+        "Line":  "                  \u003cinput type=\"text\" required value={authName} onChange={e =\u003e setAuthName(e.target.value)} style={{ width: \u0027100%\u0027, height: \u002742px\u0027, border: \u00271px solid var(--sf-border)\u0027, borderRadius: \u00278px\u0027, padding: \u00270 12px\u0027, outline: \u0027none\u0027, backgroundColor: \u0027#ffffff\u0027, color: \u0027#0f172a\u0027 }} placeholder=\"যেমন: মো: রহিম\" /\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  667,
+        "Line":  "                  \u003clabel style={{ display: \u0027block\u0027, fontSize: \u00270.8rem\u0027, fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027, marginBottom: \u00276px\u0027 }}\u003eমোবাইল নম্বর *\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  668,
+        "Line":  "                  \u003cinput type=\"tel\" required value={authPhone} onChange={e =\u003e setAuthPhone(e.target.value)} style={{ width: \u0027100%\u0027, height: \u002742px\u0027, border: \u00271px solid var(--sf-border)\u0027, borderRadius: \u00278px\u0027, padding: \u00270 12px\u0027, outline: \u0027none\u0027, backgroundColor: \u0027#ffffff\u0027, color: \u0027#0f172a\u0027 }} placeholder=\"যেমন: ০১৭XXXXXXXX\" /\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  674,
+        "Line":  "              \u003clabel style={{ display: \u0027block\u0027, fontSize: \u00270.8rem\u0027, fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027, marginBottom: \u00276px\u0027 }}\u003eইমেইল ঠিকানা *\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  675,
+        "Line":  "              \u003cinput type=\"email\" required value={authEmail} onChange={e =\u003e setAuthEmail(e.target.value)} style={{ width: \u0027100%\u0027, height: \u002742px\u0027, border: \u00271px solid var(--sf-border)\u0027, borderRadius: \u00278px\u0027, padding: \u00270 12px\u0027, outline: \u0027none\u0027, backgroundColor: \u0027#ffffff\u0027, color: \u0027#0f172a\u0027 }} placeholder=\"যেমন: example@gmail.com\" /\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  679,
+        "Line":  "              \u003clabel style={{ display: \u0027block\u0027, fontSize: \u00270.8rem\u0027, fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027, marginBottom: \u00276px\u0027 }}\u003eপাসওয়ার্ড *\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  680,
+        "Line":  "              \u003cinput type=\"password\" required value={authPassword} onChange={e =\u003e setAuthPassword(e.target.value)} style={{ width: \u0027100%\u0027, height: \u002742px\u0027, border: \u00271px solid var(--sf-border)\u0027, borderRadius: \u00278px\u0027, padding: \u00270 12px\u0027, outline: \u0027none\u0027, backgroundColor: \u0027#ffffff\u0027, color: \u0027#0f172a\u0027 }} placeholder=\"পাসওয়ার্ড দিন\" /\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  684,
+        "Line":  "              {isRegister ? \u0027অ্যাকাউন্ট তৈরি করুন\u0027 : \u0027লগইন করুন\u0027} \u003cArrowRight size={16} /\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  691,
+        "Line":  "            \u003cspan style={{ fontSize: \u00270.78rem\u0027, color: \u0027var(--sf-text-tertiary)\u0027, fontWeight: 600 }}\u003eঅথবা\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  711,
+        "Line":  "                অলরেডি একটি অ্যাকাউন্ট আছে?{\u0027 \u0027}"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  713,
+        "Line":  "                  লগইন করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  718,
+        "Line":  "                কোনো অ্যাকাউন্ট নেই?{\u0027 \u0027}"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  720,
+        "Line":  "                  অ্যাকাউন্ট তৈরি করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  734,
+        "Line":  "          \u003ch2 style={{ fontSize: \u00271.6rem\u0027, fontWeight: 800, color: \u0027var(--sf-text-primary)\u0027 }}\u003eকাস্টমার পোর্টাল\u003c/h2\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  735,
+        "Line":  "          \u003cp style={{ fontSize: \u00270.88rem\u0027, color: \u0027var(--sf-text-tertiary)\u0027 }}\u003eস্বাগতম, {customer.name}!\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  738,
+        "Line":  "          \u003cLogOut size={16} /\u003e লগআউট করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  749,
+        "Line":  "          \u003cspan\u003eএকাউন্ট মেনু (Account Menu)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  757,
+        "Line":  "          \u003cspan\u003eলাইভ চ্যাট\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  797,
+        "Line":  "            \u003cUser size={18} /\u003e প্রোফাইল তথ্য (Profile)"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  804,
+        "Line":  "            \u003cShoppingBag size={18} /\u003e আমার অর্ডারসমূহ ({orders.length})"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  811,
+        "Line":  "            \u003cFileText size={18} /\u003e আমার ইনভয়েসসমূহ (Invoices)"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  818,
+        "Line":  "            \u003cTrophy size={18} style={{ color: \u0027#fbbf24\u0027 }} /\u003e ইভেন্টসমূহ (Events)"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  825,
+        "Line":  "            \u003cTicket size={18} /\u003e আমার কুপন ও অফারসমূহ"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  832,
+        "Line":  "            \u003cMapPin size={18} /\u003e সংরক্ষিত ঠিকানা ({customer.addresses?.length || 0})"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  839,
+        "Line":  "            \u003cHeart size={18} /\u003e আমার উইশলিস্ট ({wishlist.length})"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  846,
+        "Line":  "            \u003cShoppingCart size={18} /\u003e শপিং কার্ট ({cart.reduce((s: number, i: any) =\u003e s + i.quantity, 0)})"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  854,
+        "Line":  "            \u003cdiv style={{ fontSize: \u00270.75rem\u0027, fontWeight: 700, color: \u0027var(--sf-accent)\u0027, textTransform: \u0027uppercase\u0027, letterSpacing: \u00270.05em\u0027 }}\u003eকাস্টমার সাপোর্ট\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  859,
+        "Line":  "              \u003cMessageSquare size={16} /\u003e 24/7 লাইভ চ্যাট সাহায্য"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  868,
+        "Line":  "            \u003cLogOut size={16} /\u003e লগআউট করুন (Logout)"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  886,
+        "Line":  "                  \u003cMapPin size={20} style={{ color: \u0027var(--sf-accent)\u0027 }} /\u003e সংরক্ষিত ডেলিভারি ঠিকানা (Saved Address Book)"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  893,
+        "Line":  "                  \u003cPlus size={16} /\u003e নতুন ঠিকানা যোগ করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  900,
+        "Line":  "                  \u003cp style={{ fontWeight: 700, fontSize: \u00271.05rem\u0027, margin: \u002712px 0 4px 0\u0027 }}\u003eআপনার কোনো ঠিকানা সংরক্ষিত নেই\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  901,
+        "Line":  "                  \u003cp style={{ fontSize: \u00270.85rem\u0027, color: \u0027var(--sf-text-secondary)\u0027, margin: 0 }}\u003eভবিষ্যতে ১-ক্লিকে দ্রুত অর্ডার করার জন্য এখানে আপনার বাসা বা অফিসের ঠিকানা সংরক্ষণ করুন।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  906,
+        "Line":  "                    \u003cPlus size={16} /\u003e ঠিকানা যোগ করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  918,
+        "Line":  "                              \u003cCheckCircle2 size={12} /\u003e ডিফল্ট"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  936,
+        "Line":  "                            ডিফল্ট করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  943,
+        "Line":  "                          \u003cEdit size={12} /\u003e এডিট"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  950,
+        "Line":  "                          \u003cTrash2 size={12} /\u003e ডিলিট"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  963,
+        "Line":  "              \u003ch3 style={{ fontSize: \u00271.2rem\u0027, fontWeight: 800, marginBottom: \u002720px\u0027, borderBottom: \u00271px solid var(--sf-border)\u0027, paddingBottom: \u002710px\u0027 }}\u003eআমার ইনভয়েসসমূহ (Invoice History)\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  968,
+        "Line":  "                  \u003cp style={{ fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027 }}\u003eআপনার কোনো ইনভয়েস নেই।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  999,
+        "Line":  "                              ইনভয়েস #{(order.memoNumber || \u0027\u0027).includes(\u0027TrxID:\u0027) ? `GS-${order.id}` : `GS-${order.id}`}"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1002,
+        "Line":  "                              তারিখ: {new Date(order.date || order.created_at || Date.now()).toLocaleDateString(\u0027bn-BD\u0027, { year: \u0027numeric\u0027, month: \u0027long\u0027, day: \u0027numeric\u0027 })}"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1007,
+        "Line":  "                              \u003cdiv style={{ fontWeight: 800, fontSize: \u00270.95rem\u0027, color: \u0027var(--sf-accent)\u0027 }}\u003e৳{order.amount}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1017,
+        "Line":  "                                {order.status === \u0027delivered\u0027 ? \u0027ডেলিভার্ড\u0027 : order.status === \u0027processing\u0027 ? \u0027প্রসেসিং\u0027 : \u0027পেন্ডিং\u0027}"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1030,
+        "Line":  "                              {isSelected ? \u0027বন্ধ করুন\u0027 : \u0027বিস্তারিত দেখুন\u0027}"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1045,
+        "Line":  "                                  \u003cdiv\u003e\u003cb\u003eমেমো নং:\u003c/b\u003e {order.memoNumber ? order.memoNumber : `GS-${order.id}`}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1046,
+        "Line":  "                                  \u003cdiv\u003e\u003cb\u003eতারিখ:\u003c/b\u003e {new Date(order.date || order.created_at || Date.now()).toLocaleDateString(\u0027bn-BD\u0027, { year: \u0027numeric\u0027, month: \u0027long\u0027, day: \u0027numeric\u0027 })}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1047,
+        "Line":  "                                  \u003cdiv\u003e\u003cb\u003eপেমেন্ট:\u003c/b\u003e {order.paymentMethod || \u0027ক্যাশ অন ডেলিভারি\u0027}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1053,
+        "Line":  "                                  \u003cdiv className=\"invoice-party-title\"\u003eপ্রেরক (Sender)\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1056,
+        "Line":  "                                    মোবাইল: {config.contactInfo.phoneNumber || \u002701700000000\u0027}\u003cbr /\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1057,
+        "Line":  "                                    ইমেইল: {config.contactInfo.email || \u0027support@gazisports.com\u0027}\u003cbr /\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1058,
+        "Line":  "                                    ঠিকানা: ঢাকা, বাংলাদেশ"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1062,
+        "Line":  "                                  \u003cdiv className=\"invoice-party-title\"\u003eবিলিং ও ডেলিভারি ঠিকানা\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1064,
+        "Line":  "                                    \u003cb\u003eনাম:\u003c/b\u003e {order.customer || customer.name}\u003cbr /\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1065,
+        "Line":  "                                    \u003cb\u003eমোবাইল:\u003c/b\u003e {order.phone || customer.phone}\u003cbr /\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1066,
+        "Line":  "                                    \u003cb\u003eঠিকানা:\u003c/b\u003e {order.address || customer.address}"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1075,
+        "Line":  "                                      \u003cth\u003eপণ্য বিবরণ (Product)\u003c/th\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1076,
+        "Line":  "                                      \u003cth style={{ textAlign: \u0027center\u0027 }}\u003eসাইজ (Size)\u003c/th\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1077,
+        "Line":  "                                      \u003cth style={{ textAlign: \u0027center\u0027 }}\u003eপরিমাণ (Qty)\u003c/th\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1078,
+        "Line":  "                                      \u003cth style={{ textAlign: \u0027right\u0027 }}\u003eমূল্য (Price)\u003c/th\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1079,
+        "Line":  "                                      \u003cth style={{ textAlign: \u0027right\u0027 }}\u003eমোট (Total)\u003c/th\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1088,
+        "Line":  "                                          \u003ctd style={{ textAlign: \u0027center\u0027 }}\u003e{item.quantity || 1}টি\u003c/td\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1089,
+        "Line":  "                                          \u003ctd style={{ textAlign: \u0027right\u0027 }}\u003e৳{(item.price || order.amount).toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1090,
+        "Line":  "                                          \u003ctd style={{ textAlign: \u0027right\u0027 }}\u003e৳{((item.price || order.amount) * (item.quantity || 1)).toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1095,
+        "Line":  "                                        \u003ctd\u003eপণ্য বিবরণ (অর্ডার #{order.id})\u003c/td\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1096,
+        "Line":  "                                        \u003ctd style={{ textAlign: \u0027center\u0027 }}\u003eফ্রি সাইজ\u003c/td\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1097,
+        "Line":  "                                        \u003ctd style={{ textAlign: \u0027center\u0027 }}\u003e১টি\u003c/td\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1098,
+        "Line":  "                                        \u003ctd style={{ textAlign: \u0027right\u0027 }}\u003e৳{order.amount.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1099,
+        "Line":  "                                        \u003ctd style={{ textAlign: \u0027right\u0027 }}\u003e৳{order.amount.toFixed(2)}\u003c/td\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1108,
+        "Line":  "                                  \u003cspan\u003eউপমোট (Subtotal)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1109,
+        "Line":  "                                  \u003cspan\u003e৳{(order.subtotal || order.amount - (order.deliveryCharge || 0) + (order.discount || 0)).toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1112,
+        "Line":  "                                  \u003cspan\u003eডেলিভারি চার্জ\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1113,
+        "Line":  "                                  \u003cspan\u003e৳{(order.deliveryCharge || 0).toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1117,
+        "Line":  "                                    \u003cspan\u003eডিসকাউন্ট\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1118,
+        "Line":  "                                    \u003cspan\u003e-৳{(order.discount || 0).toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1122,
+        "Line":  "                                  \u003cspan\u003eসর্বমোট (Total Paid)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1123,
+        "Line":  "                                  \u003cspan\u003e৳{order.amount.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1128,
+        "Line":  "                                \u003cp\u003eআমাদের ওপর আস্থা রাখার জন্য আপনাকে ধন্যবাদ!\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1129,
+        "Line":  "                                \u003cp style={{ fontSize: \u00270.7rem\u0027, opacity: 0.8, marginTop: \u00274px\u0027 }}\u003eএটি একটি কম্পিউটার জেনারেটেড চালান (Invoice), কোনো স্বাক্ষরের প্রয়োজন নেই।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1139,
+        "Line":  "                                ইনভয়েস প্রিন্ট / সেভ করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1155,
+        "Line":  "              \u003ch3 style={{ fontSize: \u00271.2rem\u0027, fontWeight: 800, marginBottom: \u002720px\u0027, borderBottom: \u00271px solid var(--sf-border)\u0027, paddingBottom: \u002710px\u0027 }}\u003eপ্রোফাইল বিবরণী\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1172,
+        "Line":  "                      সদস্যপদ: {new Date(customer.createdAt).toLocaleDateString(\u0027bn-BD\u0027, { year: \u0027numeric\u0027, month: \u0027long\u0027 })}"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1193,
+        "Line":  "                    \u003clabel style={{ display: \u0027block\u0027, fontSize: \u00270.85rem\u0027, fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027, marginBottom: \u00276px\u0027 }}\u003eপূর্ণ নাম *\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1203,
+        "Line":  "                    \u003clabel style={{ display: \u0027block\u0027, fontSize: \u00270.85rem\u0027, fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027, marginBottom: \u00276px\u0027 }}\u003eইমেইল (পরিবর্তনযোগ্য নয়)\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1215,
+        "Line":  "                    \u003clabel style={{ display: \u0027block\u0027, fontSize: \u00270.85rem\u0027, fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027, marginBottom: \u00276px\u0027 }}\u003eমোবাইল নম্বর *\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1222,
+        "Line":  "                      placeholder=\"যেমন: ০১৭XXXXXXXX\""
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1226,
+        "Line":  "                    \u003clabel style={{ display: \u0027block\u0027, fontSize: \u00270.85rem\u0027, fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027, marginBottom: \u00276px\u0027 }}\u003eরেজিস্ট্রেশন তারিখ\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1237,
+        "Line":  "                  \u003clabel style={{ display: \u0027block\u0027, fontSize: \u00270.85rem\u0027, fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027, marginBottom: \u00276px\u0027 }}\u003eডেলিভারি ঠিকানা\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1242,
+        "Line":  "                    placeholder=\"বাসা/হোল্ডিং নং, রোড নং, এলাকা, থানা ও জেলা বিস্তারিত লিখুন\""
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1250,
+        "Line":  "                  তথ্য সংরক্ষণ করুন (Save Profile)"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1258,
+        "Line":  "                    \u003cMapPin size={18} /\u003e সংরক্ষিত ডেলিভারি ঠিকানা (Saved Addresses)"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1265,
+        "Line":  "                    \u003cPlus size={14} /\u003e নতুন যোগ করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1272,
+        "Line":  "                    \u003cp style={{ fontWeight: 600, margin: 0 }}\u003eআপনার কোনো ঠিকানা সংরক্ষিত নেই।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1273,
+        "Line":  "                    \u003cp style={{ fontSize: \u00270.8rem\u0027, margin: 0 }}\u003eভবিষ্যতে দ্রুত অর্ডার করতে এখানে আপনার ঠিকানাগুলো সংরক্ষণ করে রাখতে পারেন।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1284,
+        "Line":  "                                \u003cCheckCircle2 size={12} /\u003e ডিফল্ট"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1303,
+        "Line":  "                              ডিফল্ট করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1310,
+        "Line":  "                            \u003cEdit size={12} /\u003e এডিট"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1316,
+        "Line":  "                            \u003cTrash2 size={12} /\u003e ডিলিট"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1331,
+        "Line":  "              \u003ch3 style={{ fontSize: \u00271.2rem\u0027, fontWeight: 800, marginBottom: \u002720px\u0027, borderBottom: \u00271px solid var(--sf-border)\u0027, paddingBottom: \u002710px\u0027 }}\u003eআমার উইশলিস্ট\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1335,
+        "Line":  "                  \u003cp style={{ fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027 }}\u003eআপনার উইশলিস্টটি খালি।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1346,
+        "Line":  "                          \u003cdiv style={{ color: \u0027var(--sf-accent)\u0027, fontWeight: 800, marginTop: \u00274px\u0027 }}\u003e৳{product.price}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1353,
+        "Line":  "                            কার্টে যোগ করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1359,
+        "Line":  "                            মুছুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1372,
+        "Line":  "              \u003ch3 style={{ fontSize: \u00271.2rem\u0027, fontWeight: 800, marginBottom: \u002720px\u0027, borderBottom: \u00271px solid var(--sf-border)\u0027, paddingBottom: \u002710px\u0027 }}\u003eশপিং কার্ট\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1376,
+        "Line":  "                  \u003cp style={{ fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027 }}\u003eআপনার কার্টটি খালি।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1386,
+        "Line":  "                          \u003cdiv style={{ color: \u0027var(--sf-accent)\u0027, fontWeight: 800, marginTop: \u00274px\u0027 }}\u003e৳{(item.product.price * item.quantity).toFixed(2)}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1405,
+        "Line":  "                    \u003cdiv style={{ fontSize: \u00271.1rem\u0027, fontWeight: 800 }}\u003eমোট পরিমাণ: ৳{cartTotal.toFixed(2)}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1407,
+        "Line":  "                      চেকআউট করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1421,
+        "Line":  "                    \u003ch3 style={{ fontSize: \u00271.2rem\u0027, fontWeight: 800, margin: 0 }}\u003eআমার অর্ডার ইতিহাস\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1423,
+        "Line":  "                      \u003cRefreshCw size={14} className={loadingOrders ? \u0027animate-spin\u0027 : \u0027\u0027} /\u003e রিফ্রেশ করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1428,
+        "Line":  "                    \u003cdiv style={{ textAlign: \u0027center\u0027, padding: \u002740px 0\u0027 }}\u003eলোডিং হচ্ছে...\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1432,
+        "Line":  "                      \u003cp style={{ fontWeight: 600 }}\u003eআপনার কোনো অর্ডার পাওয়া যায়নি।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1433,
+        "Line":  "                      \u003cp style={{ fontSize: \u00270.8rem\u0027, marginTop: \u00274px\u0027 }}\u003eঅর্ডারের সময় যে ইমেইল/ফোন দিয়েছিলেন তা প্রোফাইলের সাথে ম্যাচ করতে হবে।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1441,
+        "Line":  "                        let badgeText = \u0027অপেক্ষমান\u0027;"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1446,
+        "Line":  "                          badgeText = \u0027ডেলিভার্ড\u0027;"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1450,
+        "Line":  "                          badgeText = \u0027কুরিয়ারে পাঠানো হয়েছে\u0027;"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1454,
+        "Line":  "                          badgeText = \u0027প্রসেসিং\u0027;"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1458,
+        "Line":  "                          badgeText = \u0027বাতিল করা হয়েছে\u0027;"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1462,
+        "Line":  "                          badgeText = \u0027রিটার্ন করা হয়েছে\u0027;"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1468,
+        "Line":  "                              \u003cdiv style={{ fontWeight: 700, color: \u0027var(--sf-text-primary)\u0027, fontSize: \u00270.95rem\u0027 }}\u003eঅর্ডার নং: #{order.id}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1469,
+        "Line":  "                              \u003cdiv style={{ fontSize: \u00270.78rem\u0027, color: \u0027var(--sf-text-tertiary)\u0027, marginTop: \u00272px\u0027 }}\u003eতারিখ: {new Date(order.date || order.created_at || Date.now()).toLocaleDateString()}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1470,
+        "Line":  "                              \u003cdiv style={{ fontSize: \u00270.85rem\u0027, fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027, marginTop: \u00276px\u0027 }}\u003eমূল্য: ৳{order.amount} ({order.items} টি প্রোডাক্ট)\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1484,
+        "Line":  "                                অর্ডার ট্র্যাক করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1502,
+        "Line":  "                        \u003cArrowLeft size={16} /\u003e অর্ডারের তালিকায় ফিরে যান"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1508,
+        "Line":  "                            \u003ch4 style={{ fontSize: \u00271.2rem\u0027, fontWeight: 800, margin: 0 }}\u003eঅর্ডার ট্র্যাকিং বিবরণী\u003c/h4\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1509,
+        "Line":  "                            \u003cdiv style={{ fontSize: \u00270.85rem\u0027, color: \u0027var(--sf-text-tertiary)\u0027, marginTop: \u00274px\u0027 }}\u003eঅর্ডার নং: \u003cstrong\u003e#{currentActiveOrder.id}\u003c/strong\u003e | তারিখ: {new Date(currentActiveOrder.date || currentActiveOrder.created_at || Date.now()).toLocaleString()}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1512,
+        "Line":  "                            \u003cdiv style={{ fontSize: \u00270.8rem\u0027, color: \u0027var(--sf-text-tertiary)\u0027 }}\u003eমোট মূল্য\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1513,
+        "Line":  "                            \u003cdiv style={{ fontSize: \u00271.3rem\u0027, fontWeight: 900, color: \u0027var(--sf-text-primary)\u0027, marginTop: \u00272px\u0027 }}\u003e৳{currentActiveOrder.amount}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1520,
+        "Line":  "                            \u003cAlertCircle size={20} /\u003e এই অর্ডারটি বাতিল (Cancelled) করা হয়েছে।"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1525,
+        "Line":  "                            \u003cRotateCcw size={20} /\u003e এই অর্ডারটি রিটার্ন (Returned) করা হয়েছে।"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1578,
+        "Line":  "                            \u003cdiv style={{ fontSize: \u00270.78rem\u0027, color: \u0027var(--sf-text-tertiary)\u0027 }}\u003eকুরিয়ার সার্ভিস\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1584,
+        "Line":  "                            \u003cdiv style={{ fontSize: \u00270.78rem\u0027, color: \u0027var(--sf-text-tertiary)\u0027 }}\u003eডেলিভারি ঠিকানা\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1602,
+        "Line":  "                \u003ch3 style={{ fontSize: \u00271.2rem\u0027, fontWeight: 800, margin: 0 }}\u003eহেল্প ও কাস্টমার সাপোর্ট চ্যাট\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1613,
+        "Line":  "                    \u003cp style={{ fontWeight: 600 }}\u003eআপনার কোনো মেসেজ নেই\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1614,
+        "Line":  "                    \u003cp style={{ fontSize: \u00270.78rem\u0027, marginTop: \u00274px\u0027 }}\u003eঅর্ডার বা কোনো পণ্য নিয়ে যেকোনো প্রশ্ন করতে নিচে মেসেজ পাঠান।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1671,
+        "Line":  "                                      \u003cspan style={{ fontWeight: 800, fontSize: \u00270.85rem\u0027, color: isAdmin ? \u0027var(--sf-text-primary)\u0027 : \u0027white\u0027 }}\u003e৳{productInfo.price}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1672,
+        "Line":  "                                      \u003cspan style={{ fontSize: \u00279px\u0027, background: \u0027rgba(255, 255, 255, 0.2)\u0027, color: isAdmin ? \u0027var(--sf-text-primary)\u0027 : \u0027white\u0027, padding: \u00271px 5px\u0027, borderRadius: \u00274px\u0027 }}\u003eপ্রোডাক্ট লিংক\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1708,
+        "Line":  "                  placeholder=\"আপনার মেসেজটি এখানে লিখুন...\" "
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1727,
+        "Line":  "                {editingAddress ? \u0027সংরক্ষিত ঠিকানা এডিট করুন\u0027 : \u0027নতুন ডেলিভারি ঠিকানা যোগ করুন\u0027}"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1742,
+        "Line":  "                \u003clabel className=\"address-form-label\"\u003eঠিকানার লেবেল (Label) \u003cspan\u003e*\u003c/span\u003e\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1749,
+        "Line":  "                  placeholder=\"যেমন: বাসা, অফিস, দোকান\" "
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1754,
+        "Line":  "                \u003clabel className=\"address-form-label\"\u003eকাস্টমারের নাম (Full Name) \u003cspan\u003e*\u003c/span\u003e\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1761,
+        "Line":  "                  placeholder=\"ডেলিভারি গ্রহীতার নাম\" "
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1766,
+        "Line":  "                \u003clabel className=\"address-form-label\"\u003eমোবাইল নম্বর (Phone Number) \u003cspan\u003e*\u003c/span\u003e\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1773,
+        "Line":  "                  placeholder=\"যেমন: ০১৭XXXXXXXX\" "
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1778,
+        "Line":  "                \u003clabel className=\"address-form-label\"\u003eবিস্তারিত ঠিকানা (Detailed Address) \u003cspan\u003e*\u003c/span\u003e\u003c/label\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1784,
+        "Line":  "                  placeholder=\"বাসা/হোল্ডিং নং, রোড নং, এলাকা, থানা ও জেলা বিস্তারিত লিখুন\""
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1795,
+        "Line":  "                \u003cspan className=\"address-form-checkbox-label\"\u003eএটি আমার ডিফল্ট ডেলিভারি ঠিকানা হিসেবে সেট করুন\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1800,
+        "Line":  "                  বাতিল করুন"
+    },
+    {
+        "Filename":  "CustomerAccount.tsx",
+        "LineNumber":  1803,
+        "Line":  "                  সংরক্ষণ করুন"
+    },
+    {
+        "Filename":  "CustomerCouponsTab.tsx",
+        "LineNumber":  67,
+        "Line":  "        \u003cdiv\u003eআপনার কুপনগুলো লোড হচ্ছে...\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerCouponsTab.tsx",
+        "LineNumber":  80,
+        "Line":  "            \u003cspan\u003eআমার কুপন ও স্পেশাল অফারসমূহ (My Coupons)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerCouponsTab.tsx",
+        "LineNumber":  83,
+        "Line":  "            আপনার অ্যাকাউন্টে জমা হওয়া সকল ডিসকাউন্ট কুপন নিচে দেওয়া হলো। চেকআউটে কপি করে ব্যবহার করুন।"
+    },
+    {
+        "Filename":  "CustomerCouponsTab.tsx",
+        "LineNumber":  103,
+        "Line":  "          \u003cspan\u003eরিফ্রেশ\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerCouponsTab.tsx",
+        "LineNumber":  110,
+        "Line":  "          \u003ch4 style={{ margin: \u00270 0 6px 0\u0027, fontSize: \u00271rem\u0027, color: \u0027var(--text-primary)\u0027 }}\u003eকোনো কুপন কোড নেই\u003c/h4\u003e"
+    },
+    {
+        "Filename":  "CustomerCouponsTab.tsx",
+        "LineNumber":  112,
+        "Line":  "            লটারি হুইল ঘুরিয়ে অথবা কেনাকাটা করে আপনার প্রথম কুপনটি সংগ্রহ করুন!"
+    },
+    {
+        "Filename":  "CustomerCouponsTab.tsx",
+        "LineNumber":  120,
+        "Line":  "            const displayValue = isPercentage ? `${coupon.discount_value}% OFF` : `৳${coupon.discount_value} OFF`;"
+    },
+    {
+        "Filename":  "CustomerCouponsTab.tsx",
+        "LineNumber":  153,
+        "Line":  "                    \u003cspan\u003e{coupon.source === \u0027admin_gift\u0027 ? \u0027বিশেষ উপহার\u0027 : \u0027লটারি চাকা\u0027}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerCouponsTab.tsx",
+        "LineNumber":  166,
+        "Line":  "                    {isUsed ? \u0027ব্যবহৃত\u0027 : \u0027সক্রিয়\u0027}"
+    },
+    {
+        "Filename":  "CustomerCouponsTab.tsx",
+        "LineNumber":  172,
+        "Line":  "                  {coupon.title || \u0027স্পেশাল ডিসকাউন্ট\u0027}"
+    },
+    {
+        "Filename":  "CustomerCouponsTab.tsx",
+        "LineNumber":  211,
+        "Line":  "                    \u003cspan\u003e{copiedCode === coupon.code ? \u0027কপি হয়েছে!\u0027 : \u0027কপি\u0027}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerEventsTab.tsx",
+        "LineNumber":  51,
+        "Line":  "          \u003cspan\u003eআমার ইভেন্ট ও অ্যাচিভমেন্টসমূহ (Events \u0026 Achievements)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerEventsTab.tsx",
+        "LineNumber":  54,
+        "Line":  "          আমাদের বিভিন্ন কুইজ ও গেমিং ইভেন্টগুলোতে অংশগ্রহণ করে সফলভাবে আনলক করা বিশেষ পুরস্কার কোডসমূহ।"
+    },
+    {
+        "Filename":  "CustomerEventsTab.tsx",
+        "LineNumber":  59,
+        "Line":  "        \u003cdiv style={{ textAlign: \u0027center\u0027, padding: \u002740px 0\u0027 }}\u003eলোড হচ্ছে...\u003c/div\u003e"
+    },
+    {
+        "Filename":  "CustomerEventsTab.tsx",
+        "LineNumber":  71,
+        "Line":  "          \u003ch4 style={{ margin: \u00270 0 6px 0\u0027, fontSize: \u00271rem\u0027, fontWeight: 700 }}\u003eএখনো কোনো ইভেন্ট সম্পন্ন করেননি\u003c/h4\u003e"
+    },
+    {
+        "Filename":  "CustomerEventsTab.tsx",
+        "LineNumber":  73,
+        "Line":  "            আমাদের লাইভ ইভেন্টগুলোতে অংশ নিয়ে খুব সহজেই জিতে নিতে পারেন ডিসকাউন্ট কুপন কোড।"
+    },
+    {
+        "Filename":  "CustomerEventsTab.tsx",
+        "LineNumber":  91,
+        "Line":  "            \u003cspan\u003eসক্রিয় ইভেন্টগুলো দেখুন\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerEventsTab.tsx",
+        "LineNumber":  121,
+        "Line":  "                    \u003cspan\u003eঅর্জনের তারিখ: {new Date(ach.claimed_at).toLocaleDateString(\u0027bn-BD\u0027)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerEventsTab.tsx",
+        "LineNumber":  127,
+        "Line":  "                  \u003cspan\u003eসম্পন্ন (Achieved)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "CustomerEventsTab.tsx",
+        "LineNumber":  146,
+        "Line":  "                  \u003cspan style={{ fontSize: \u00270.82rem\u0027, color: \u0027#475569\u0027, fontWeight: 700 }}\u003eডিসকাউন্ট কোড:\u003c/span\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  88,
+        "Line":  "      alert(\"ইভেন্টে অংশগ্রহণ করতে প্রথমে আপনার জিমেইল অ্যাকাউন্ট দিয়ে লগইন করুন।\");"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  139,
+        "Line":  "      alert(res.message || \"পুরস্কার ক্লেইম করা ব্যর্থ হয়েছে।\");"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  175,
+        "Line":  "            \u003cSparkles size={14} style={{ color: \u0027#fbbf24\u0027 }} /\u003e কাস্টমার অ্যাচিভমেন্ট ও পুরস্কার"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  181,
+        "Line":  "            আমাদের বিভিন্ন ইভেন্টে অংশ নিয়ে সঠিক চ্যালেঞ্জ সম্পন্ন করুন এবং সরাসরি আপনার ওয়ালেটে কুপন ডিসকাউন্ট জিতে নিন!"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  187,
+        "Line":  "          💡 \u003cstrong\u003eঅংশগ্রহণের শর্তাবলী:\u003c/strong\u003e ইভেন্টগুলোতে অংশ নিতে অবশ্যই একটি **বাস্তব জিমেইল (@gmail.com)** অ্যাকাউন্ট দিয়ে গাজী স্পোর্টসে একাউন্ট তৈরি করে লগইন করতে হবে। অর্জিত সকল কুপন ও অ্যাচিভমেন্ট আপনার আইডিতে লাইফটাইম সেভ থাকবে।"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  194,
+        "Line":  "            \u003cp style={{ color: \u0027var(--sf-text-tertiary)\u0027 }}\u003eইভেন্ট লোড হচ্ছে...\u003c/p\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  199,
+        "Line":  "            \u003ch3 style={{ margin: 0 }}\u003eকোনো সক্রিয় ইভেন্ট নেই\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  200,
+        "Line":  "            \u003cp style={{ color: \u0027var(--sf-text-tertiary)\u0027, marginTop: \u00276px\u0027 }}\u003eনতুন কোনো ইভেন্ট পাবলিশ হলে তা এখানে দেখতে পাবেন।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  268,
+        "Line":  "                            \u003cCheckCircle size={16} /\u003e \u003cspan\u003eচ্যালেঞ্জ সফল ও পুরস্কার ক্লেইমড!\u003c/span\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  302,
+        "Line":  "                          \u003cspan\u003eইভেন্ট কুইজ খেলুন (Play Quiz)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  328,
+        "Line":  "                \u003cspan\u003eস্পোর্টস কুইজ চ্যালেঞ্জ\u003c/span\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  334,
+        "Line":  "                    \u003cspan\u003eপ্রশ্ন: {currentQuestionIndex + 1} / {quizQuestions.length}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  335,
+        "Line":  "                    \u003cspan\u003eসঠিক উত্তর দেয়া বাধ্যতামূলক\u003c/span\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  385,
+        "Line":  "                    {currentQuestionIndex === quizQuestions.length - 1 ? \u0027সাবমিট করুন\u0027 : \u0027পরবর্তী প্রশ্ন\u0027}"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  395,
+        "Line":  "                      \u003ch3 style={{ fontSize: \u00271.25rem\u0027, fontWeight: 900, color: \u0027#16a34a\u0027, margin: \u00270 0 8px 0\u0027 }}\u003eকুইজ সফল হয়েছে!\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  397,
+        "Line":  "                        সবগুলো প্রশ্নের সঠিক উত্তর প্রদানের মাধ্যমে আপনি পুরস্কার ভাউচারটি আনলক করেছেন।"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  401,
+        "Line":  "                        \u003cdiv style={{ padding: \u002716px 0\u0027, color: \u0027#0f172a\u0027 }}\u003eকুপন জেনারেট হচ্ছে...\u003c/div\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  404,
+        "Line":  "                          \u003cspan style={{ fontSize: \u00270.75rem\u0027, fontWeight: 700, color: \u0027#475569\u0027, textTransform: \u0027uppercase\u0027, letterSpacing: \u00270.05em\u0027 }}\u003eআপনার কুপন কোড (Coupon Code)\u003c/span\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  432,
+        "Line":  "                        বন্ধ করুন"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  440,
+        "Line":  "                      \u003ch3 style={{ fontSize: \u00271.25rem\u0027, fontWeight: 900, color: \u0027#ef4444\u0027, margin: \u00270 0 8px 0\u0027 }}\u003eদুঃখিত! ভুল উত্তর দেওয়া হয়েছে।\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  442,
+        "Line":  "                        আপনার যেকোনো প্রশ্নের উত্তর ভুল ছিল। পুরস্কার ভাউচার আনলক করতে সবগুলো উত্তর সঠিক হওয়া আবশ্যক।"
+    },
+    {
+        "Filename":  "EventsPage.tsx",
+        "LineNumber":  462,
+        "Line":  "                        আবার চেষ্টা করুন (Retry)"
+    },
+    {
+        "Filename":  "PrivacyPolicy.tsx",
+        "LineNumber":  128,
+        "Line":  "          \u003cp className=\"premium-page-subtitle\"\u003eআমাদের ডাটা প্রসেসিং পলিসি ও আপনার কাস্টমার ডাটা সিকিউরিটি সম্পর্কে বিস্তারিত জানুন\u003c/p\u003e"
+    },
+    {
+        "Filename":  "PrivacyPolicy.tsx",
+        "LineNumber":  139,
+        "Line":  "              \u003ch2 className=\"premium-toc-title\"\u003eসূচিপত্র (Contents)\u003c/h2\u003e"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  140,
+        "Line":  "    const COLORS_KEYS = [\u0027red\u0027, \u0027blue\u0027, \u0027black\u0027, \u0027white\u0027, \u0027green\u0027, \u0027yellow\u0027, \u0027grey\u0027, \u0027orange\u0027, \u0027pink\u0027, \u0027purple\u0027, \u0027navy\u0027, \u0027maroon\u0027, \u0027brown\u0027, \u0027gold\u0027, \u0027silver\u0027, \u0027beige\u0027, \u0027cream\u0027, \u0027olive\u0027, \u0027রং\u0027, \u0027লাল\u0027, \u0027নীল\u0027, \u0027কালো\u0027, \u0027সাদা\u0027, \u0027সবুজ\u0027, \u0027হলুদ\u0027, \u0027ধূসর\u0027, \u0027কমলা\u0027, \u0027গোলাপী\u0027];"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  972,
+        "Line":  "                : `৳${getActivePrice()}`"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  979,
+        "Line":  "                  : `৳${getActiveOriginalPrice()}`"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1426,
+        "Line":  "                    ছবি রিভিউ কনটেন্ট (Additional Photo Review)"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1450,
+        "Line":  "            \u003ch3 style={{ fontSize: \u00271.5rem\u0027, fontWeight: 800, color: \u0027var(--sf-text-primary)\u0027, marginBottom: \u002720px\u0027 }}\u003eআপনাদের পছন্দের অন্যান্য পণ্য (Suggested Products)\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1510,
+        "Line":  "                            ৳ {relatedProduct.originalPrice.toLocaleString(\u0027en-US\u0027, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1514,
+        "Line":  "                          ৳ {relatedProduct.price.toLocaleString(\u0027en-US\u0027, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1554,
+        "Line":  "          \u003cspan\u003eস্টোর\u003c/span\u003e"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1571,
+        "Line":  "          \u003cspan\u003eমেসেঞ্জার\u003c/span\u003e"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1630,
+        "Line":  "                  \u003cdiv style={{ fontWeight: 800, fontSize: \u00270.9rem\u0027 }}\u003eকাস্টমার চ্যাট সাপোর্ট\u003c/div\u003e"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1646,
+        "Line":  "                      \u003cp style={{ fontWeight: 600, color: \u0027var(--sf-text-secondary)\u0027, fontSize: \u00270.85rem\u0027 }}\u003eআপনার কোনো মেসেজ নেই\u003c/p\u003e"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1647,
+        "Line":  "                      \u003cp style={{ fontSize: \u00270.75rem\u0027, marginTop: \u00274px\u0027 }}\u003eএই পণ্যটি নিয়ে সরাসরি এডমিনের সাথে কথা বলতে নিচে মেসেজ করুন।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1703,
+        "Line":  "                                        \u003cspan style={{ fontWeight: 800, fontSize: \u00270.8rem\u0027, color: isAdmin ? \u0027#1e293b\u0027 : \u0027white\u0027 }}\u003e৳{productInfo.price}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1704,
+        "Line":  "                                        \u003cspan style={{ fontSize: \u00278px\u0027, background: \u0027rgba(255,255,255,0.2)\u0027, padding: \u00271px 4px\u0027, borderRadius: \u00272px\u0027 }}\u003eলিংক\u003c/span\u003e"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1748,
+        "Line":  "                        প্রোডাক্ট লিংক পাঠান"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1757,
+        "Line":  "                      placeholder=\"মেসেজ লিখুন...\" "
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1771,
+        "Line":  "                  {chatIsRegister ? \u0027নতুন অ্যাকাউন্ট খুলুন\u0027 : \u0027চ্যাট করতে লগইন করুন\u0027}"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1774,
+        "Line":  "                  এডমিনের সাথে সরাসরি কথা বলতে এবং আপনার মেসেজ ট্র্যাক করতে সাইন ইন করুন"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1795,
+        "Line":  "                        placeholder=\"আপনার নাম\" "
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1803,
+        "Line":  "                        placeholder=\"যেমন: ০১৭XXXXXXXX\" "
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1813,
+        "Line":  "                    placeholder=\"ইমেইল ঠিকানা\" "
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1821,
+        "Line":  "                    placeholder=\"পাসওয়ার্ড\" "
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1826,
+        "Line":  "                    {chatIsRegister ? \u0027রেজিস্ট্রেশন করুন\u0027 : \u0027লগইন করুন\u0027}"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1835,
+        "Line":  "                      অলরেডি অ্যাকাউন্ট আছে?"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1836,
+        "Line":  "                      \u003cbutton onClick={() =\u003e { setChatIsRegister(false); setChatAuthError(\u0027\u0027); }}\u003eলগইন করুন\u003c/button\u003e"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1840,
+        "Line":  "                      অ্যাকাউন্ট নেই?"
+    },
+    {
+        "Filename":  "ProductDetails.tsx",
+        "LineNumber":  1841,
+        "Line":  "                      \u003cbutton onClick={() =\u003e { setChatIsRegister(true); setChatAuthError(\u0027\u0027); }}\u003eরেজিস্ট্রেশন করুন\u003c/button\u003e"
+    },
+    {
+        "Filename":  "StorefrontHome.tsx",
+        "LineNumber":  203,
+        "Line":  "                ৳ {product.originalPrice.toLocaleString(\u0027en-US\u0027, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}"
+    },
+    {
+        "Filename":  "StorefrontHome.tsx",
+        "LineNumber":  207,
+        "Line":  "              ৳ {product.price.toLocaleString(\u0027en-US\u0027, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}"
+    },
+    {
+        "Filename":  "StorefrontLayout.tsx",
+        "LineNumber":  638,
+        "Line":  "                                ৳{product.price}"
+    },
+    {
+        "Filename":  "StorefrontLayout.tsx",
+        "LineNumber":  820,
+        "Line":  "                        \u003cdiv className=\"cart-item-price\"\u003e৳{(item.product.price * item.quantity).toFixed(2)}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "StorefrontLayout.tsx",
+        "LineNumber":  845,
+        "Line":  "                  \u003cspan\u003e৳{cartTotal.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "StorefrontLayout.tsx",
+        "LineNumber":  899,
+        "Line":  "                        \u003cdiv className=\"wishlist-item-price\"\u003e৳{product.price.toFixed(2)}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "storefrontUtils.ts",
+        "LineNumber":  4,
+        "Line":  "    \u00270\u0027: \u0027০\u0027, \u00271\u0027: \u0027১\u0027, \u00272\u0027: \u0027২\u0027, \u00273\u0027: \u0027৩\u0027, \u00274\u0027: \u0027৪\u0027,"
+    },
+    {
+        "Filename":  "storefrontUtils.ts",
+        "LineNumber":  5,
+        "Line":  "    \u00275\u0027: \u0027৫\u0027, \u00276\u0027: \u0027৬\u0027, \u00277\u0027: \u0027৭\u0027, \u00278\u0027: \u0027৮\u0027, \u00279\u0027: \u0027৯\u0027"
+    },
+    {
+        "Filename":  "storefrontUtils.ts",
+        "LineNumber":  24,
+        "Line":  "  result = result.replace(/০১৭০০০০০০০০/g, formattedPhoneBengali || \u0027০১৭০০০০০০০০\u0027);"
+    },
+    {
+        "Filename":  "storefrontUtils.ts",
+        "LineNumber":  28,
+        "Line":  "  result = result.replace(/\\+৮৮০১৭০০০০০০০০/g, formattedWhatsappBengali ? (\u0027+\u0027 + formattedWhatsappBengali) : \u0027+৮৮০১৭০০০০০০০০\u0027);"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  701,
+        "Line":  "            question: \"১. কোন খেলায় শাটলকর্ক (shuttlecock) ব্যবহার করা হয়?\","
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  702,
+        "Line":  "            options: [\"ফুটবল (Football)\", \"ক্রিকেট (Cricket)\", \"ব্যাডমিন্টন (Badminton)\", \"টেনিস (Tennis)\"],"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  703,
+        "Line":  "            correct: \"ব্যাডমিন্টন (Badminton)\""
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  706,
+        "Line":  "            question: \"২. গাজী স্পোর্টসের হেক্স ডাম্বেল (Hex Dumbbell Set) সেটের মোট ওজন কত?\","
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  707,
+        "Line":  "            options: [\"১০ কেজি (10kg)\", \"২০ কেজি (20kg)\", \"৩০ কেজি (30kg)\", \"৫ কেজি (5kg)\"],"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  708,
+        "Line":  "            correct: \"২০ কেজি (20kg)\""
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  711,
+        "Line":  "            question: \"৩. পেটের মেদ কমাতে এবং কোর শক্তিশালী করতে নিচের কোন রোলারটি উপযোগী?\","
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  712,
+        "Line":  "            options: [\"ফেস রোলার (Face Roller)\", \"হেয়ার রোলার (Hair Roller)\", \"এবি রোলার (AB Roller)\"],"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  713,
+        "Line":  "            correct: \"এবি রোলার (AB Roller)\""
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  719,
+        "Line":  "            question: \"১. কার্ডিও এক্সারসাইজের জন্য নিচের কোনটি সবচেয়ে কার্যকর?\","
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  720,
+        "Line":  "            options: [\"ভারোত্তোলন (Weightlifting)\", \"দড়ি লাফানো (Skipping)\", \"যোগব্যায়াম (Yoga)\"],"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  721,
+        "Line":  "            correct: \"দড়ি লাফানো (Skipping)\""
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  724,
+        "Line":  "            question: \"২. আমাদের ট্র্যাডমিল সেটের সর্বোচ্চ গতিসীমা কত?\","
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  725,
+        "Line":  "            options: [\"১০ কিমি/ঘণ্টা\", \"১৬ কিমি/ঘণ্টা\", \"২২ কিমি/ঘণ্টা\"],"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  726,
+        "Line":  "            correct: \"১৬ কিমি/ঘণ্টা\""
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  733,
+        "Line":  "          (\u0027EVT-001\u0027, \u0027Gazi Sports Welcome Quiz Challenge\u0027, \u0027আমাদের স্টোরের বিভিন্ন প্রোডাক্ট এবং খেলাধুলা বিষয়ক সাধারণ প্রশ্নের সঠিক উত্তর দিয়ে জিতে নিন ১৫% স্পেশাল কুপন ডিসকাউন্ট কোড।\u0027, \u0027GAZIQUIZ\u0027, ?, ?, \u0027https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format\u0026fit=crop\u0026w=600\u0026q=80\u0027, \u0027\u0027, ?, 15, \u0027active\u0027),"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  734,
+        "Line":  "          (\u0027EVT-002\u0027, \u0027Summer Fitness Challenge 2026\u0027, \u0027ব্যায়াম ও সুস্থ থাকার এই চ্যালেঞ্জ ইভেন্টটি সম্পন্ন করে জিতে নিন আকর্ষণীয় ২০% ডিসকাউন্ট ভাউচার।\u0027, \u0027FITNESS2026\u0027, ?, ?, \u0027https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format\u0026fit=crop\u0026w=600\u0026q=80\u0027, \u0027\u0027, ?, 20, \u0027active\u0027)"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  752,
+        "Line":  "          VALUES (\u0027CMP-001\u0027, \u0027ধামাকা ওপেনিং অফার\u0027, \u0027email\u0027, \u0027active\u0027, 5000, 2400, 1100, 320, 145000.0, ?, ?, \u00271,2,3,4\u0027)"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  853,
+        "Line":  "          { key: \u0027currency\u0027, val: \u0027BDT (৳)\u0027, group: \u0027general\u0027 },"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  882,
+        "Line":  "            title: \u0027৫টি সহজ উপায়ে আপনার স্কিন গ্লোয়িং ও হেলদি রাখুন\u0027,"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  884,
+        "Line":  "            summary: \u0027স্কিন কেয়ার বা ত্বকের যত্ন নেওয়া কঠিন কিছু নয়। মাত্র কয়েকটি সাধারণ নিয়ম মেনে চললে আপনিও পেতে পারেন উজ্জ্বল ও সতেজ ত্বক। বিস্তারিত পড়ুন আমাদের আজকের ব্লগে।\u0027,"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  885,
+        "Line":  "            content: `\u003cp\u003eসুন্দর, উজ্জ্বল ও সুস্থ ত্বক সবারই কাম্য। তবে ব্যস্ত জীবনের ধকল, দূষণ ও সঠিক যত্নের অভাবে আমাদের ত্বক প্রায়শই সতেজতা হারিয়ে ফেলে। ত্বককে প্রাকৃতিকভাবে গ্লোয়িং ও হেলদি রাখার জন্য এখানে ৫টি অত্যন্ত কার্যকর ও সহজ উপায় আলোচনা করা হলো:\u003c/p\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  887,
+        "Line":  "\u003ch3\u003e১. পর্যাপ্ত পানি পান করুন\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  888,
+        "Line":  "\u003cp\u003eত্বকের আর্দ্রতা ধরে রাখার সবচেয়ে সহজ উপায় হলো প্রচুর পানি পান করা। প্রতিদিন অন্তত ৮-১০ গ্লাস পানি পান করুন। এটি আপনার শরীর থেকে ক্ষতিকর টক্সিন বের করে দিতে সাহায্য করে এবং ত্বকে প্রাকৃতিক উজ্জ্বলতা এনে দেয়।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  890,
+        "Line":  "\u003ch3\u003e২. ডাবল ক্লিনজিং পদ্ধতি ব্যবহার করুন\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  891,
+        "Line":  "\u003cp\u003eসারাদিনের ধুলোবালি ও মেকআপ দূর করার জন্য শুধু ফেসওয়াশ যথেষ্ট নয়। প্রথমে একটি অয়েল-বেসড ক্লিনার বা মাইসেলার ওয়াটার দিয়ে ত্বক পরিষ্কার করুন। এরপর আপনার স্কিন টাইপ অনুযায়ী ফেসওয়াশ ব্যবহার করুন।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  893,
+        "Line":  "\u003ch3\u003e৩. রেগুলার ময়েশ্চারাইজার ও সানস্ক্রিন ব্যবহার\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  894,
+        "Line":  "\u003cp\u003eস্কিন টাইপ যেমনই হোক না কেন, ময়েশ্চারাইজার ব্যবহার করা জরুরি। আর দিনের বেলা ঘরের বাইরে বা ভেতরে যেখানেই থাকুন না কেন, অন্তত SPF 30+ সমৃদ্ধ সানস্ক্রিন ব্যবহার করতে ভুলবেন না। এটি ত্বকে সানবার্ন ও অকাল বার্ধক্য প্রতিরোধ করে।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  896,
+        "Line":  "\u003ch3\u003e৪. সুষম খাবার ও পর্যাপ্ত ঘুম\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  897,
+        "Line":  "\u003cp\u003eভিটামিন সি এবং ই সমৃদ্ধ ফলমূল যেমন লেবু, পেয়ারা, কমলা ইত্যাদি আপনার খাদ্যতালিকায় রাখুন। এছাড়াও প্রতিদিন ৭-৮ ঘণ্টার ভালো ঘুম ত্বক কোষের পুনর্গঠনে অত্যন্ত সাহায্য করে।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  899,
+        "Line":  "\u003ch3\u003e৫. ঘরোয়া ফেসপ্যাকের ব্যবহার\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  900,
+        "Line":  "\u003cp\u003eসপ্তাহে অন্তত একদিন বেসন, মধু এবং টকদই মিশিয়ে কাস্টম ফেসপ্যাক তৈরি করে মুখে লাগাতে পারেন। এটি ত্বককে প্রাকৃতিকভাবে এক্সফোলিয়েট করে এবং ইনস্ট্যান্ট গ্লো এনে দেয়।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  902,
+        "Line":  "\u003cp\u003eত্বকের যত্ন নেওয়ার ক্ষেত্রে ধারাবাহিকতা সবচেয়ে গুরুত্বপূর্ণ। আজ থেকেই এই নিয়মগুলো মেনে চলা শুরু করুন এবং অল্প কিছুদিনের মধ্যেই আপনার ত্বকের পরিবর্তন লক্ষ্য করুন!\u003c/p\u003e`,"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  904,
+        "Line":  "            author_name: \u0027সাবিহা ইয়াসমিন\u0027,"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  909,
+        "Line":  "            title: \u0027মেকআপ ব্রাশ পরিষ্কার করার সঠিক নিয়ম ও গুরুত্ব\u0027,"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  911,
+        "Line":  "            summary: \u0027অপরিষ্কার মেকআপ ব্রাশ ব্যবহার করলে ত্বকে ব্রণ ও অন্যান্য সমস্যা হতে পারে। ব্রাশ পরিষ্কার করার সহজ ও সঠিক নিয়মটি জেনে নিন এই ব্লগের মাধ্যমে।\u0027,"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  912,
+        "Line":  "            content: `\u003cp\u003eমেকআপপ্রেমীদের কাছে মেকআপ ব্রাশ এবং ব্লেন্ডার অত্যন্ত মূল্যবান সরঞ্জাম। তবে এগুলো সঠিক সময়ে পরিষ্কার না করা হলে তা আপনার ত্বকের জন্য মারাত্মক ক্ষতিকর হতে পারে। নোংরা ব্রাশে ব্যাকটেরিয়া জমে থাকে, যা ত্বকে ব্রণ, ফুসকুড়ি ও ইনফেকশন তৈরি করতে পারে।\u003c/p\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  914,
+        "Line":  "\u003ch3\u003eকেন মেকআপ ব্রাশ পরিষ্কার করবেন?\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  916,
+        "Line":  "  \u003cli\u003e\u003cstrong\u003eত্বকের সুরক্ষায়:\u003c/strong\u003e ব্রাশে থাকা অতিরিক্ত তেল, মৃত চামড়া এবং ধুলাবালি সরাসরি ত্বকের সংস্পর্শে আসে, যা পোরস ব্লক করে দেয়।\u003c/li\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  917,
+        "Line":  "  \u003cli\u003e\u003cstrong\u003eমেকআপের পারফেকশনের জন্য:\u003c/strong\u003e নোংরা ব্রাশে আগে লেগে থাকা মেকআপের কারণে নতুন মেকআপ ব্লেন্ড করতে সমস্যা হয়।\u003c/li\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  918,
+        "Line":  "  \u003cli\u003e\u003cstrong\u003eব্রাশের স্থায়িত্ব বাড়াতে:\u003c/strong\u003e নিয়মিত পরিষ্কার করলে ব্রাশের ব্রিসলস নরম ও টেকসই থাকে।\u003c/li\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  921,
+        "Line":  "\u003ch3\u003eপরিষ্কার করার সহজ ধাপসমূহ:\u003c/h3\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  923,
+        "Line":  "  \u003cli\u003e\u003cstrong\u003eব্রাশ ভেজানো:\u003c/strong\u003e হালকা গরম পানিতে ব্রাশের ব্রিসলস বা চুলগুলো ভিজিয়ে নিন। লক্ষ্য রাখবেন যেন হ্যান্ডেল এবং ব্রিসলসের সংযোগস্থলে পানি না যায়, এতে আঠা আলগা হয়ে চুল পড়ে যেতে পারে।\u003c/li\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  924,
+        "Line":  "  \u003cli\u003e\u003cstrong\u003eক্লিনজার ব্যবহার:\u003c/strong\u003e একটি পাত্রে সামান্য বেবি শ্যাম্পু অথবা ব্রাশ ক্লিনজার নিন। সেখানে ব্রাশটি আলতোভাবে ঘুরিয়ে ফেনা তৈরি করুন।\u003c/li\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  925,
+        "Line":  "  \u003cli\u003e\u003cstrong\u003eস্ক্রাবিং:\u003c/strong\u003e হাতের তালুতে অথবা একটি সিলিকন স্ক্রাব প্যাডে ব্রাশের মাথাটি আলতো করে ঘষুন যাতে জমে থাকা মেকআপ উঠে আসে।\u003c/li\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  926,
+        "Line":  "  \u003cli\u003e\u003cstrong\u003eধুয়ে ফেলা:\u003c/strong\u003e পরিষ্কার পানি দিয়ে ব্রাশের মাথাটি ধুয়ে ফেলুন যতক্ষণ না পর্যন্ত ফেনা চলে যায়।\u003c/li\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  927,
+        "Line":  "  \u003cli\u003e\u003cstrong\u003eশুকানো:\u003c/strong\u003e অতিরিক্ত পানি চিপে বের করে একটি শুকনা তোয়ালেতে ব্রাশগুলো সমান করে বিছিয়ে দিন। কখনোই ব্রাশ সোজা খাড়া করে শুকাবেন না, এতে পানি হ্যান্ডেলের ভেতরে চলে যায়।\u003c/li\u003e"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  930,
+        "Line":  "\u003cp\u003eনিয়মিত সপ্তাহে অন্তত একবার আপনার ব্যবহৃত মেকআপ ব্রাশ ও স্পঞ্জ পরিষ্কার করার অভ্যাস গড়ে তুলুন এবং ত্বককে রাখুন রোগমুক্ত ও সতেজ!\u003c/p\u003e`,"
+    },
+    {
+        "Filename":  "db.ts",
+        "LineNumber":  932,
+        "Line":  "            author_name: \u0027তানিয়া রহমান\u0027,"
+    },
+    {
+        "Filename":  "seedData.ts",
+        "LineNumber":  29,
+        "Line":  "    description: \u0027শারীরিক শক্তি বৃদ্ধি ও পেশী গঠনে এই ডাম্বেল সেট অত্যন্ত উপযোগী। এটি ঘরে বসে ফুল বডি ওয়ার্কআউট (যেমন: বাইসেপ কার্ল, শোল্ডার প্রেস, চেস্ট প্রেস) করার জন্য আদর্শ। ব্যবহারের নিয়ম: ওয়ার্কআউট শুরুর আগে ৫-১০ মিনিট ওয়ার্মআপ করে নিন। ডাম্বেল তোলার সময় গ্রিপ শক্তভাবে ধরুন এবং আপনার ক্ষমতা অনুযায়ী রেপস ও সেট নির্ধারণ করুন।\u0027,"
+    },
+    {
+        "Filename":  "seedData.ts",
+        "LineNumber":  60,
+        "Line":  "    description: \u0027উন্নত ৪-হুইল ডিজাইনের এই এবি রোলার কোরের পেশী মজবুত ও পেটের মেদ কমাতে দারুণ সাহায্য করে। এর সাথে হাঁটু সুরক্ষার জন্য ফোম ম্যাট রয়েছে। ব্যবহারের নিয়ম: ম্যাটের উপর হাঁটু গেড়ে বসুন, রোলারের গ্রিপ ধরুন এবং শরীরকে সামনের দিকে আস্তে আস্তে এগিয়ে নিন ও পুনরায় পেছনের দিকে নিয়ে আসুন। কোরে প্রেসার রেখে প্রতিদিন ১০-১৫ বার করে ৩ সেট প্র্যাকটিস করুন।\u0027,"
+    },
+    {
+        "Filename":  "seedData.ts",
+        "LineNumber":  88,
+        "Line":  "    description: \u0027অফিসিয়াল সাইজ ৫ এর এই ফুটবলটি পেশাদার ম্যাচ ও অনুশীলনের জন্য উপযোগী। এর উন্নত ক্যাসিং বাতাস ধরে রাখে ও নিখুঁত সুইং প্রদান করে। ব্যবহারের নিয়ম: খেলার আগে বলের এয়ার প্রেসার চেক করে নিন (৮.৫ থেকে ১৫.৬ পিএসআই আদর্শ)। পিচ্ছিল বা ধারালো জায়গায় খেলা এড়িয়ে চলুন। ভেজা কাদা লাগলে খেলা শেষে বলটি মুছে শুকিয়ে রাখুন।\u0027,"
+    },
+    {
+        "Filename":  "seedData.ts",
+        "LineNumber":  116,
+        "Line":  "    description: \u0027১০০% কার্বন গ্রাফাইট ফ্রেমের এই র্যাকেটটি হালকা ও শক্তিশালী শট খেলতে অত্যন্ত উপযোগী। এর ন্যানোটেকনোলজি ফ্রেম সুইট স্পট বৃদ্ধি করে। ব্যবহারের নিয়ম: ব্যবহারের সময় গ্রিপ ভালো মানের টেপ দিয়ে মুড়ে নিন। র্যাকেটটি ওয়াটারপ্রুফ ব্যাগে রাখুন এবং খেলুন শুধুমাত্র ইনডোর বা আউটডোর সঠিক শাটলকর্ক দিয়ে।\u0027,"
+    },
+    {
+        "Filename":  "seedData.ts",
+        "LineNumber":  146,
+        "Line":  "    description: \u0027হালকা ও আরামদায়ক রানিং জুতো যা নিয়মিত দৌড়াদৌড়ি, জর্জিং ও জিম ওয়ার্কআউটের জন্য অত্যন্ত উপযোগী। এর ব্রিদাবেল মেশ পা ঘামতে দেয় না। ব্যবহারের নিয়ম: মোজা পরে জুতোটি ব্যবহার করুন এবং ফিতাগুলো সঠিকভাবে টাইট দিয়ে বাঁধুন। ব্যবহারের পর পরিষ্কার ও শুকনো স্থানে জুতো রাখুন।\u0027,"
+    },
+    {
+        "Filename":  "seedData.ts",
+        "LineNumber":  176,
+        "Line":  "    description: \u0027ঘাম শোষণকারী ড্রাই-ফিট প্রযুক্তির অ্যাথলেটিক জার্সি যা খেলাধুলা ও জিমের সময় আপনাকে রাখে শুষ্ক ও সতেজ। ১০০% রিসাইকেলড পলিয়েস্টার। ব্যবহারের নিয়ম: ঠান্ডা পানিতে মাইল্ড ডিটারজেন্ট দিয়ে হাত দিয়ে অথবা ওয়াশিং মেশিনে মাইল্ড সাইকেলে ধুয়ে নিন। কড়া রোদে সরাসরি না শুকিয়ে ছায়াযুক্ত স্থানে শুকানো ভালো।\u0027,"
+    },
+    {
+        "Filename":  "seedData.ts",
+        "LineNumber":  205,
+        "Line":  "    description: \u0027৮ মিমি পুরু এই ইয়োগা ম্যাট ব্যায়াম বা যোগব্যায়ামের সময় শরীরের জয়েন্ট ও হাঁটুতে কুশনিং সাপোর্ট দেয়। নন-স্লিপ গ্রিপ পিচ্ছিল হওয়া রোধ করে। ব্যবহারের নিয়ম: সমতল মেঝেতে ম্যাটটি বিছিয়ে ইয়োগা করুন। ব্যবহারের পর আর্দ্র নরম সুতি কাপড় দিয়ে মুছে বাতাসে শুকিয়ে তারপর রোল করে রাখুন।\u0027,"
+    },
+    {
+        "Filename":  "seedData.ts",
+        "LineNumber":  233,
+        "Line":  "    description: \u0027বাচ্চাদের জন্য অ্যাডজাস্টেবল হাইট বাস্কেটবল স্ট্যান্ড যা ৩ থেকে ১০ বছর বয়সীদের শারীরিক বৃদ্ধি ও আনন্দ দিতে উপযোগী। এর স্ট্যান্ডটি ৭ ফুট পর্যন্ত বাড়ানো যায়। ব্যবহারের নিয়ম: স্ট্যান্ডের নিচে থাকা বালতি বা বেসটিতে পানি অথবা বালি ভরে ভারী ও স্থিতিশীল করে নিন। ছোট বাস্কেটবল দিয়ে বাউন্সিং ও ডাকিং অনুশীলন করান।\u0027,"
+    },
+    {
+        "Filename":  "authController.ts",
+        "LineNumber":  149,
+        "Line":  "        message: `আপনার invited Gmail (${employeeEmail}) দিয়ে Google sign-in করুন। অন্য Gmail দিয়ে login করা যাবে না।`,"
+    },
+    {
+        "Filename":  "customersController.ts",
+        "LineNumber":  36,
+        "Line":  "     VALUES (?, ?, \u0027🎉 নিউ অ্যাকাউন্ট ওয়েলকাম ১০% ছাড় (১ম অর্ডার)\u0027, \u0027percentage\u0027, 10, \u0027active\u0027, \u0027welcome_gift\u0027)`,"
+    },
+    {
+        "Filename":  "customersController.ts",
+        "LineNumber":  55,
+        "Line":  "                camp.title || \u0027বিশেষ উপহার\u0027,"
+    },
+    {
+        "Filename":  "customersController.ts",
+        "LineNumber":  79,
+        "Line":  "    return res.status(400).json({ status: \u0027error\u0027, message: \u0027অ্যাকাউন্ট তৈরি করার জন্য শুধুমাত্র আসল জিমেইল (@gmail.com) অ্যাকাউন্ট ব্যবহার করা যাবে।\u0027 });"
+    },
+    {
+        "Filename":  "customersController.ts",
+        "LineNumber":  90,
+        "Line":  "      return res.status(400).json({ status: \u0027error\u0027, message: \u0027এই ইমেইল দিয়ে অলরেডি অ্যাকাউন্ট তৈরি করা আছে\u0027 });"
+    },
+    {
+        "Filename":  "customersController.ts",
+        "LineNumber":  153,
+        "Line":  "    return res.status(400).json({ status: \u0027error\u0027, message: \u0027লগইন করার জন্য শুধুমাত্র জিমেইল (@gmail.com) অ্যাকাউন্ট ব্যবহার করা যাবে।\u0027 });"
+    },
+    {
+        "Filename":  "customersController.ts",
+        "LineNumber":  163,
+        "Line":  "      return res.status(401).json({ status: \u0027error\u0027, message: \u0027আপনার ইমেইল অথবা পাসওয়ার্ডটি সঠিক নয়\u0027 });"
+    },
+    {
+        "Filename":  "customersController.ts",
+        "LineNumber":  167,
+        "Line":  "      return res.status(403).json({ status: \u0027error\u0027, message: \u0027অ্যাকাউন্টটি বর্তমানে নিষ্ক্রিয় রয়েছে\u0027 });"
+    },
+    {
+        "Filename":  "customersController.ts",
+        "LineNumber":  172,
+        "Line":  "        return res.status(401).json({ status: \u0027error\u0027, message: \u0027আপনার ইমেইল অথবা পাসওয়ার্ডটি সঠিক নয়\u0027 });"
+    },
+    {
+        "Filename":  "customersController.ts",
+        "LineNumber":  514,
+        "Line":  "      return res.status(400).json({ status: \u0027error\u0027, message: \u0027শুধুমাত্র আসল জিমেইল (@gmail.com) অ্যাকাউন্ট দিয়ে লগইন করা যাবে।\u0027 });"
+    },
+    {
+        "Filename":  "customersController.ts",
+        "LineNumber":  600,
+        "Line":  "    return res.status(401).json({ status: \u0027error\u0027, message: \u0027গুগল টোকেন ভেরিফিকেশন ব্যর্থ হয়েছে।\u0027 });"
+    },
+    {
+        "Filename":  "dashboardController.ts",
+        "LineNumber":  194,
+        "Line":  "        message: `\u003cstrong\u003e${o.customer}\u003c/strong\u003e placed an order for \u003cspan class=\"activity-amount\"\u003e৳${o.amount.toFixed(2)}\u003c/span\u003e`,"
+    },
+    {
+        "Filename":  "employeesController.ts",
+        "LineNumber":  165,
+        "Line":  "      return res.status(400).json({ status: \u0027error\u0027, message: \u0027এই ইমেইল দিয়ে অলরেডি রেজিস্টার্ড ইউজার আছে\u0027 });"
+    },
+    {
+        "Filename":  "employeesController.ts",
+        "LineNumber":  171,
+        "Line":  "        return res.status(400).json({ status: \u0027error\u0027, message: \u0027এই ইমেইলে ইতিমধ্যে একটি পেন্ডিং ইনভাইটেশন পাঠানো আছে\u0027 });"
+    },
+    {
+        "Filename":  "employeesController.ts",
+        "LineNumber":  404,
+        "Line":  "        return res.status(404).json({ status: \u0027error\u0027, message: \u0027ইনভাইটেশন টোকেনটি সঠিক নয়।\u0027 });"
+    },
+    {
+        "Filename":  "employeesController.ts",
+        "LineNumber":  408,
+        "Line":  "        return res.status(400).json({ status: \u0027error\u0027, message: \u0027ইনভাইটেশন টোকেনটি ইতিমধ্যে ব্যবহার করা হয়েছে।\u0027 });"
+    },
+    {
+        "Filename":  "employeesController.ts",
+        "LineNumber":  413,
+        "Line":  "        return res.status(400).json({ status: \u0027error\u0027, message: \u0027ইনভাইটেশন লিংকটির মেয়াদ শেষ হয়ে গেছে।\u0027 });"
+    },
+    {
+        "Filename":  "employeesController.ts",
+        "LineNumber":  458,
+        "Line":  "        return res.status(400).json({ status: \u0027error\u0027, message: \u0027এই invitation টোকেনটি ইতিমধ্যে ব্যবহার করা হয়েছে।\u0027 });"
+    },
+    {
+        "Filename":  "employeesController.ts",
+        "LineNumber":  470,
+        "Line":  "          message: `আপনাকে ${invite.email} দিয়ে Google sign-in করতে হবে। অন্য Gmail দিয়ে accept করা যাবে না।`,"
+    },
+    {
+        "Filename":  "employeesController.ts",
+        "LineNumber":  590,
+        "Line":  "    return res.status(400).json({ status: \u0027error\u0027, message: \u0027Super Admin এর স্ট্যাটাস পরিবর্তন করা যাবে না।\u0027 });"
+    },
+    {
+        "Filename":  "eventsController.ts",
+        "LineNumber":  113,
+        "Line":  "    return res.status(400).json({ status: \u0027error\u0027, message: \u0027ইভেন্ট রিওয়ার্ড পাওয়ার জন্য শুধুমাত্র জিমেইল (@gmail.com) ব্যবহার করতে হবে।\u0027 });"
+    },
+    {
+        "Filename":  "eventsController.ts",
+        "LineNumber":  131,
+        "Line":  "          return res.status(400).json({ status: \u0027error\u0027, message: \u0027আপনি ইতিমধ্যে এই ইভেন্টের পুরস্কার ক্লেইম করেছেন।\u0027 });"
+    },
+    {
+        "Filename":  "eventsController.ts",
+        "LineNumber":  157,
+        "Line":  "                  `🏆 ইভেন্ট পুরস্কার: ${event.title}`,"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  309,
+        "Line":  "    { id: \u00272\u0027, label: \u0027৳100 OFF\u0027, coupon_code: \u0027SPIN100\u0027, type: \u0027fixed\u0027, value: 100, weight: 30, color: \u0027#059669\u0027 },"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  348,
+        "Line":  "            message: \u0027আপনি এই অ্যাকাউন্ট দিয়ে ইতিপূর্বে ১ বার স্পিন হুইল ব্যবহার করেছেন। প্রতি অ্যাকাউন্টে ১ বারই স্পিন প্রযোজ্য।\u0027"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  368,
+        "Line":  "        return res.status(400).json({ status: \u0027error\u0027, message: \u0027স্পিন হুইল অফার আপাতত বন্ধ রয়েছে।\u0027 });"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  451,
+        "Line":  "      res.json({ status: \u0027success\u0027, message: \u0027স্পিন হুইল সেটিংস সফলভাবে সেভ করা হয়েছে!\u0027, data: newConfig });"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  483,
+        "Line":  "        const welcomeTitle = \u0027🎉 নিউ অ্যাকাউন্ট ওয়েলকাম ১০% ছাড় (১ম অর্ডার)\u0027;"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  527,
+        "Line":  "                        camp.title || \u0027বিশেষ উপহার\u0027,"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  536,
+        "Line":  "                      title: camp.title || \u0027বিশেষ উপহার\u0027,"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  563,
+        "Line":  "    return res.status(400).json({ status: \u0027error\u0027, message: \u0027কুপনের শিরোনাম, কোড এবং ছাড়ের পরিমাণ বাধ্যতামূলক।\u0027 });"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  623,
+        "Line":  "        res.json({ status: \u0027success\u0027, message: `কুপন কোডটি ${email} একাউন্টে পাঠানো হয়েছে!` });"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  630,
+        "Line":  "        return res.json({ status: \u0027success\u0027, message: \u0027কুপন ডাটাবেজে তৈরি হয়েছে এবং কাস্টমার একাউন্টগুলোর জন্য অন করা হয়েছে!\u0027 });"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  643,
+        "Line":  "      const autoMsg = shouldAutoEnroll ? \u0027 এবং সকল কাস্টমার একাউন্টে স্বয়ংক্রিয়ভাবে অন করা হয়েছে!\u0027 : \u0027\u0027;"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  644,
+        "Line":  "      res.json({ status: \u0027success\u0027, message: `সকল কাস্টমারের একাউন্টে কুপন পাঠানো হয়েছে${autoMsg}` });"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  670,
+        "Line":  "      return res.json({ status: \u0027success\u0027, message: \u0027ক্যাম্পেইন রিমুভ করা হয়েছে\u0027 });"
+    },
+    {
+        "Filename":  "marketingController.ts",
+        "LineNumber":  683,
+        "Line":  "          res.json({ status: \u0027success\u0027, message: \u0027অটো-ডিচপ্যাচ ক্যাম্পেইন বন্ধ করা হয়েছে!\u0027 });"
+    },
+    {
+        "Filename":  "ordersController.ts",
+        "LineNumber":  496,
+        "Line":  "                            `Order ${id} updated (Customer: ${customer}, Amount: ৳${amount}, Status: ${status})`,"
+    },
+    {
+        "Filename":  "productsController.ts",
+        "LineNumber":  406,
+        "Line":  "                `Product created: ${name} (SKU: ${skuVal}, ID: ${id}, Price: ৳${price})`, req);"
+    },
+    {
+        "Filename":  "productsController.ts",
+        "LineNumber":  523,
+        "Line":  "                `Product updated: ${name || \u0027ID: \u0027 + id} (ID: ${id}, Price: ৳${price || \u0027unchanged\u0027}, Stock: ${stock || \u0027unchanged\u0027})`,"
+    },
+    {
+        "Filename":  "settingsController.ts",
+        "LineNumber":  62,
+        "Line":  "      currency: \u0027BDT (৳)\u0027,"
+    },
+    {
+        "Filename":  "emailService.ts",
+        "LineNumber":  220,
+        "Line":  "        \u003cdiv style=\"font-size: 0.78rem; color: #6b7280; margin-top: 2px;\"\u003e${item.quantity} pcs × ৳${item.price.toFixed(2)}\u003c/div\u003e"
+    },
+    {
+        "Filename":  "emailService.ts",
+        "LineNumber":  223,
+        "Line":  "        ৳${(item.price * item.quantity).toFixed(2)}"
+    },
+    {
+        "Filename":  "emailService.ts",
+        "LineNumber":  247,
+        "Line":  "        \u003cspan style=\"font-weight: 700; color: #111827;\"\u003e৳${subtotal.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "emailService.ts",
+        "LineNumber":  251,
+        "Line":  "        \u003cspan style=\"font-weight: 700; color: #111827;\"\u003e৳${deliveryCharge.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "emailService.ts",
+        "LineNumber":  256,
+        "Line":  "        \u003cspan\u003e-৳${discount.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "emailService.ts",
+        "LineNumber":  259,
+        "Line":  "        \u003cspan\u003eসর্বমোট (Total):\u003c/span\u003e"
+    },
+    {
+        "Filename":  "emailService.ts",
+        "LineNumber":  260,
+        "Line":  "        \u003cspan\u003e৳${total.toFixed(2)}\u003c/span\u003e"
+    },
+    {
+        "Filename":  "emailService.ts",
+        "LineNumber":  265,
+        "Line":  "    \u003cp\u003eআমাদের সাথে কেনাকাটা করার জন্য ধন্যবাদ!\u003c/p\u003e"
+    },
+    {
+        "Filename":  "emailService.ts",
+        "LineNumber":  266,
+        "Line":  "    \u003ca href=\"${STORE_URL}\" class=\"btn\" style=\"color: white !important;\"\u003e🛍️ আরও শপ করুন\u003c/a\u003e"
+    }
+]

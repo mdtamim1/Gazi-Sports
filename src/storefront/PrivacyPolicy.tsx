@@ -125,7 +125,7 @@ export default function PrivacyPolicy() {
         <div className="premium-page-hero-content">
           <span className="premium-page-badge">Privacy & Safety</span>
           <h1 className="premium-page-hero-title">Privacy Policy</h1>
-          <p className="premium-page-subtitle">আমাদের ডাটা প্রসেসিং পলিসি ও আপনার কাস্টমার ডাটা সিকিউরিটি সম্পর্কে বিস্তারিত জানুন</p>
+          <p className="premium-page-subtitle">Learn more about our data processing policy and your customer data security</p>
         </div>
       </div>
 
@@ -136,7 +136,7 @@ export default function PrivacyPolicy() {
         <aside className="premium-page-sidebar">
           {headings.length > 0 && (
             <div className="premium-toc-card">
-              <h2 className="premium-toc-title">সূচিপত্র (Contents)</h2>
+              <h2 className="premium-toc-title">Table of Contents</h2>
               <ul className="premium-toc-list">
                 {headings.map((item) => (
                   <li 

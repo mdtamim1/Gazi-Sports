@@ -27,7 +27,7 @@ export default function BlogDetails() {
 
   const formatDate = (isoString: string) => {
     if (!isoString) return '';
-    return new Date(isoString).toLocaleDateString('bn-BD', {
+    return new Date(isoString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -55,10 +55,10 @@ export default function BlogDetails() {
   if (!blog) {
     return (
       <div className="pdp-not-found" style={{ textAlign: 'center', padding: '80px 20px' }}>
-        <h2>ব্লগ পোস্টটি পাওয়া যায়নি</h2>
-        <p>দুঃখিত, আপনি যে লিংকটি খুঁজছেন তা বর্তমানে নিষ্ক্রিয় বা মুছে ফেলা হয়েছে।</p>
+        <h2>Blog Post Not Found</h2>
+        <p>Sorry, the link you are looking for is currently inactive or has been deleted.</p>
         <Link to="/blogs" className="store-btn store-btn-primary" style={{ marginTop: '20px' }}>
-          ব্লগে ফিরে যান
+          Back to Blogs
         </Link>
       </div>
     );
@@ -90,7 +90,7 @@ export default function BlogDetails() {
         onMouseEnter={(e) => e.currentTarget.style.color = 'var(--sf-accent)'}
         onMouseLeave={(e) => e.currentTarget.style.color = 'var(--sf-text-secondary)'}
       >
-        <ArrowLeft size={16} /> সকল ব্লগে ফিরে যান
+        <ArrowLeft size={16} /> Back to all blogs
       </Link>
 
       {/* Article Title */}
@@ -117,13 +117,13 @@ export default function BlogDetails() {
         marginBottom: '30px'
       }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-          <User size={16} style={{ color: 'var(--sf-accent)' }} /> <strong>লেখক:</strong> {blog.author_name}
+          <User size={16} style={{ color: 'var(--sf-accent)' }} /> <strong>Author:</strong> {blog.author_name}
         </span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-          <Calendar size={16} style={{ color: 'var(--sf-accent)' }} /> <strong>প্রকাশকাল:</strong> {formatDate(blog.created_at)}
+          <Calendar size={16} style={{ color: 'var(--sf-accent)' }} /> <strong>Published:</strong> {formatDate(blog.created_at)}
         </span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-          <Clock size={16} style={{ color: 'var(--sf-accent)' }} /> <strong>পড়তে সময় লাগবে:</strong> {getReadTime(blog.content)} মিনিট
+          <Clock size={16} style={{ color: 'var(--sf-accent)' }} /> <strong>Reading Time:</strong> {getReadTime(blog.content)} min
         </span>
       </div>
 

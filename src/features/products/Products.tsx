@@ -95,7 +95,7 @@ export default function Products() {
         }
         // If refetch fails, keep the optimistic removal from above
       } else {
-        // Backend delete failed — restore the product back
+        // Backend delete failed â€” restore the product back
         setConfig(prev => ({ ...prev, products: products }));
         alert(`Failed to delete product: ${result.message || 'Unknown error'}`);
       }
@@ -169,7 +169,7 @@ export default function Products() {
     
     // Group them
     const SIZES_KEYS = ['s', 'm', 'l', 'xl', 'xxl', '3xl', '4xl', '5xl', '6xl', 'free size'];
-    const COLORS_KEYS = ['red', 'blue', 'black', 'white', 'green', 'yellow', 'grey', 'orange', 'pink', 'purple', 'navy', 'maroon', 'brown', 'gold', 'silver', 'beige', 'cream', 'olive', 'রং', 'লাল', 'নীল', 'কালো', 'সাদা', 'সবুজ', 'হলুদ', 'ধূসর', 'কমলা', 'গোলাপী'];
+    const COLORS_KEYS = ['red', 'blue', 'black', 'white', 'green', 'yellow', 'grey', 'orange', 'pink', 'purple', 'navy', 'maroon', 'brown', 'gold', 'silver', 'beige', 'cream', 'olive'];
 
     const sizesArr: string[] = [];
     const colorsArr: string[] = [];
@@ -573,7 +573,7 @@ export default function Products() {
                       <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 'var(--text-sm)', lineHeight: 1.2 }}>{product.name}</div>
                       <span className={`badge ${product.published ? 'badge-success' : 'badge-warning'}`}>{product.published ? 'Active' : 'Draft'}</span>
                     </div>
-                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: '12px' }}>{product.brand} • {product.category}</div>
+                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: '12px' }}>{product.brand} â€¢ {product.category}</div>
                     
                     <div style={{ borderTop: '1px solid var(--border-secondary)', paddingTop: '12px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -601,11 +601,11 @@ export default function Products() {
         <div className="data-table-footer">
           <span>Showing {(page - 1) * perPage + 1}-{Math.min(page * perPage, filtered.length)} of {filtered.length}</span>
           <div className="pagination">
-            <button className="pagination-btn" disabled={page === 1} onClick={() => setPage(p => p - 1)}>‹</button>
+            <button className="pagination-btn" disabled={page === 1} onClick={() => setPage(p => p - 1)}>â€¹</button>
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => (
               <button key={i} className={`pagination-btn ${page === i + 1 ? 'active' : ''}`} onClick={() => setPage(i + 1)}>{i + 1}</button>
             ))}
-            <button className="pagination-btn" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>›</button>
+            <button className="pagination-btn" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>â€º</button>
           </div>
         </div>
       </div>
@@ -669,8 +669,8 @@ export default function Products() {
                     {/* Jersey Specific Sizes Box */}
                     {(tempProduct.category?.toLowerCase() === 'jersey' || tempProduct.category?.toLowerCase() === 'jerseys') && (
                       <div className="form-group" style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-secondary)', marginTop: '8px' }}>
-                        <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-primary)', fontWeight: 700 }}>👕 Jersey Sizes (জার্সির সাইজ সিলেক্ট করুন)</label>
-                        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: '12px', marginTop: '2px' }}>এই জার্সির জন্য যে সাইজগুলো এভেইলেবল রাখতে চান, সেগুলো সিলেক্ট করুন:</p>
+                        <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-primary)', fontWeight: 700 }}>👕 Jersey Sizes (Select Jersey Sizes)</label>
+                        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: '12px', marginTop: '2px' }}>Select the sizes you want to make available for this jersey:</p>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                           {['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((label) => {
                             const isEnabled = tempProduct.sizes ? tempProduct.sizes.some(s => s.label === label && s.enabled) : false;
@@ -781,7 +781,7 @@ export default function Products() {
                                   const webpBase64 = await convertToWebP(file);
                                   setTempProduct({ ...tempProduct, image: webpBase64 });
                                 } catch (err) {
-                                  alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+                                  alert('Failed to convert image.');
                                 }
                               }
                             }} 
@@ -821,7 +821,7 @@ export default function Products() {
                                       newGallery[idx] = webpBase64;
                                       setTempProduct({ ...tempProduct, gallery: newGallery });
                                     } catch (err) {
-                                      alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+                                      alert('Failed to convert image.');
                                     }
                                   }
                                 }} 
@@ -856,7 +856,7 @@ export default function Products() {
                                   const webpBase64 = await convertToWebP(file);
                                   setTempProduct({ ...tempProduct, photoContent: webpBase64 });
                                 } catch (err) {
-                                  alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+                                  alert('Failed to convert image.');
                                 }
                               }
                             }} 
@@ -878,14 +878,14 @@ export default function Products() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {/* Option Selection Panel (Weight, Color, KG, Height, Custom) */}
                     <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                      <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: 700 }}>📏 Available Product Options (প্রোডাক্টের অপশন ও সাইজ সিলেক্ট করুন)</label>
+                      <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: 700 }}>📋 Available Product Options (Select Product Options & Sizes)</label>
                       <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: '4px', marginTop: '-12px' }}>
-                        কাস্টমার প্রোডাক্ট ভিউ পেজে এই অপশনগুলো থেকে সিলেক্ট করে কার্ট বা অর্ডার করতে পারবে।
+                        Customers can select from these options on the product details page to add to cart or order.
                       </p>
 
                       {/* 1. Colors Input */}
                       <div className="form-group">
-                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Colors (রংসমূহ - কমা দিয়ে লিখুন)</label>
+                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Colors (Comma-separated list)</label>
                         <input
                           type="text"
                           className="form-input"
@@ -900,7 +900,7 @@ export default function Products() {
 
                       {/* 2. Weights Input */}
                       <div className="form-group">
-                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Weights (ওজনসমূহ - কমা দিয়ে লিখুন)</label>
+                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Weights (Comma-separated list)</label>
                         <input
                           type="text"
                           className="form-input"
@@ -915,7 +915,7 @@ export default function Products() {
 
                       {/* 3. Sizes Input */}
                       <div className="form-group">
-                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sizes (সাইজসমূহ - কমা দিয়ে লিখুন)</label>
+                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sizes (Comma-separated list)</label>
                         <input
                           type="text"
                           className="form-input"
@@ -930,7 +930,7 @@ export default function Products() {
 
                       {/* 4. Heights Input */}
                       <div className="form-group">
-                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Heights / Dimensions (উচ্চতা/সাইজ - কমা দিয়ে লিখুন)</label>
+                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Heights / Dimensions (Comma-separated list)</label>
                         <input
                           type="text"
                           className="form-input"
@@ -945,7 +945,7 @@ export default function Products() {
 
                       {/* 5. Custom Options Input */}
                       <div className="form-group">
-                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Custom Options (অন্যান্য অপশন - কমা দিয়ে লিখুন)</label>
+                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Custom Options (Comma-separated list)</label>
                         <input
                           type="text"
                           className="form-input"
@@ -961,8 +961,8 @@ export default function Products() {
                       <div style={{ marginTop: '8px', fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>
                         {(() => {
                           const enabledSizes = (tempProduct.sizes || []).filter(s => s.enabled);
-                          if (enabledSizes.length === 0) return '⚠️ কোনো অপশন সিলেক্ট করা হয়নি — Customer "Free Size" দেখবে।';
-                          return `✅ সক্রিয় অপশনসমূহ: ${enabledSizes.map(s => s.label).join(', ')}`;
+                          if (enabledSizes.length === 0) return '⚠️ No options selected — Customer will see "Free Size".';
+                          return `✅ Active Options: ${enabledSizes.map(s => s.label).join(', ')}`;
                         })()}
                       </div>
 
@@ -970,7 +970,7 @@ export default function Products() {
                       {(tempProduct.sizes || []).filter(s => s.enabled).length > 0 && (
                         <div style={{ marginTop: '16px', borderTop: '1px dashed var(--border-secondary)', paddingTop: '16px' }}>
                           <div style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                            💰 Option Prices (অপশন অনুযায়ী কাস্টম দাম সেট করুন - অপশনাল)
+                            💰 Option Prices (Set custom prices per option - optional)
                           </div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
                             {(tempProduct.sizes || []).filter(s => s.enabled).map((opt) => (
@@ -1118,3 +1118,4 @@ export default function Products() {
     </div>
   );
 }
+

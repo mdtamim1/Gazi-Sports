@@ -146,7 +146,7 @@ export const verifyGoogleStep = async (req: Request, res: Response) => {
         `Employee Google email mismatch: expected ${employeeEmail}, got ${googleEmail}`, req);
       return res.status(403).json({
         status: 'error',
-        message: `আপনার invited Gmail (${employeeEmail}) দিয়ে Google sign-in করুন। অন্য Gmail দিয়ে login করা যাবে না।`,
+        message: `Please sign in using your invited Gmail (${employeeEmail}). Logging in with another Gmail is not allowed.`,
       });
     }
   }

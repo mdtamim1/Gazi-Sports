@@ -162,13 +162,13 @@ export const inviteEmployee = (req: Request, res: Response) => {
   // Check if user is already an employee
   db.get('SELECT id FROM employees WHERE email = ?', [email], (err, row) => {
     if (row) {
-      return res.status(400).json({ status: 'error', message: 'এই ইমেইল দিয়ে অলরেডি রেজিস্টার্ড ইউজার আছে' });
+      return res.status(400).json({ status: 'error', message: 'A user is already registered with this email.' });
     }
 
     // Check if there is already a pending invitation
     db.get("SELECT id FROM employee_invitations WHERE email = ? AND status = 'pending'", [email], (err, inviteRow) => {
       if (inviteRow) {
-        return res.status(400).json({ status: 'error', message: 'এই ইমেইলে ইতিমধ্যে একটি পেন্ডিং ইনভাইটেশন পাঠানো আছে' });
+        return res.status(400).json({ status: 'error', message: 'A pending invitation has already been sent to this email.' });
       }
 
       const token = `inv-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
@@ -401,16 +401,16 @@ export const verifyInvitationToken = (req: Request, res: Response) => {
       }
 
       if (!row) {
-        return res.status(404).json({ status: 'error', message: 'ইনভাইটেশন টোকেনটি সঠিক নয়।' });
+        return res.status(404).json({ status: 'error', message: 'Invalid invitation token.' });
       }
 
       if (row.status !== 'pending') {
-        return res.status(400).json({ status: 'error', message: 'ইনভাইটেশন টোকেনটি ইতিমধ্যে ব্যবহার করা হয়েছে।' });
+        return res.status(400).json({ status: 'error', message: 'The invitation token has already been used.' });
       }
 
       const expiry = new Date(row.expires_at).getTime();
       if (expiry < Date.now()) {
-        return res.status(400).json({ status: 'error', message: 'ইনভাইটেশন লিংকটির মেয়াদ শেষ হয়ে গেছে।' });
+        return res.status(400).json({ status: 'error', message: 'The invitation link has expired.' });
       }
 
       res.json({
@@ -455,7 +455,7 @@ export const registerInvitedEmployee = async (req: Request, res: Response) => {
       }
 
       if (invite.status !== 'pending') {
-        return res.status(400).json({ status: 'error', message: 'এই invitation টোকেনটি ইতিমধ্যে ব্যবহার করা হয়েছে।' });
+        return res.status(400).json({ status: 'error', message: 'This invitation token has already been used.' });
       }
 
       const expiry = new Date(invite.expires_at).getTime();
@@ -467,7 +467,7 @@ export const registerInvitedEmployee = async (req: Request, res: Response) => {
       if (googleEmail !== invite.email.toLowerCase().trim()) {
         return res.status(403).json({
           status: 'error',
-          message: `আপনাকে ${invite.email} দিয়ে Google sign-in করতে হবে। অন্য Gmail দিয়ে accept করা যাবে না।`,
+          message: `You must sign in with ${invite.email}. Accepting with another Gmail is not allowed.`,
         });
       }
 
@@ -587,7 +587,7 @@ export const toggleEmployeeStatus = (req: Request, res: Response) => {
 
   // Cannot toggle EMP-001 (Super Admin)
   if (employeeId === 'EMP-001') {
-    return res.status(400).json({ status: 'error', message: 'Super Admin এর স্ট্যাটাস পরিবর্তন করা যাবে না।' });
+    return res.status(400).json({ status: 'error', message: 'Super Admin status cannot be changed.' });
   }
 
   // Get current status

@@ -184,7 +184,7 @@ export default function StorefrontHome() {
             />
           </button>
           {isSoldOut ? (
-            <span className="trending-product-badge sold-out" style={{ background: '#ef4444' }}>স্টক আউট</span>
+            <span className="trending-product-badge sold-out" style={{ background: '#ef4444' }}>Out of Stock</span>
           ) : hasDiscount ? (
             <span className="trending-product-badge">
               -{discountPercent}%
@@ -210,7 +210,7 @@ export default function StorefrontHome() {
           <div className="trending-product-action-container">
             {isSoldOut ? (
               <span className="trending-product-action-btn disabled" style={{ background: '#f1f5f9', color: 'var(--sf-text-tertiary)', border: '1px solid var(--sf-border)', cursor: 'not-allowed', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                স্টক আউট
+                Out of Stock
               </span>
             ) : hasOptions ? (
               <span className="trending-product-action-btn">

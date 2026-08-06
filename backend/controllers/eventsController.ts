@@ -110,7 +110,7 @@ export const addCustomerAchievement = (req: Request, res: Response) => {
 
   // Enforce Gmail validation
   if (!cleanEmail.endsWith('@gmail.com')) {
-    return res.status(400).json({ status: 'error', message: 'ইভেন্ট রিওয়ার্ড পাওয়ার জন্য শুধুমাত্র জিমেইল (@gmail.com) ব্যবহার করতে হবে।' });
+    return res.status(400).json({ status: 'error', message: 'Only a Gmail (@gmail.com) account can be used to get event rewards.' });
   }
 
   // 1. Fetch event detail
@@ -128,7 +128,7 @@ export const addCustomerAchievement = (req: Request, res: Response) => {
           return res.status(500).json({ status: 'error', message: 'Database error' });
         }
         if (exists) {
-          return res.status(400).json({ status: 'error', message: 'আপনি ইতিমধ্যে এই ইভেন্টের পুরস্কার ক্লেইম করেছেন।' });
+          return res.status(400).json({ status: 'error', message: 'You have already claimed the reward for this event.' });
         }
 
         // 3. Add to customer_events
@@ -154,7 +154,7 @@ export const addCustomerAchievement = (req: Request, res: Response) => {
                 [
                   cleanEmail,
                   event.reward_coupon_code,
-                  `🏆 ইভেন্ট পুরস্কার: ${event.title}`,
+                  `🏆 Event Reward: ${event.title}`,
                   discType,
                   discVal
                 ],

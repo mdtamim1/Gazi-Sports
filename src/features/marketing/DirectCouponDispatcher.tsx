@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { dispatchDirectOffer, fetchAutoDispatchCoupons, stopAutoDispatchCoupon } from '../../services/api';
 import { Send, Gift, Users, Mail, AlertCircle, CheckCircle, Zap, Trash2, RefreshCw } from 'lucide-react';
 
@@ -13,7 +13,7 @@ interface AutoCampaign {
 }
 
 export const DirectCouponDispatcher: React.FC = () => {
-  const [title, setTitle] = useState('🎁 ঈদ স্পেশাল গিফট ডিসকাউন্ট কুপন!');
+  const [title, setTitle] = useState('🎁 Eid Special Gift Discount Coupon!');
   const [code, setCode] = useState('EID200');
   const [type, setType] = useState<'percentage' | 'fixed'>('fixed');
   const [value, setValue] = useState(200);
@@ -42,11 +42,11 @@ export const DirectCouponDispatcher: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !code || value === undefined) {
-      alert('কুপনের নাম, কোড এবং ছাড়ের পরিমাণ দিন।');
+      alert('Please enter coupon name, code, and discount value.');
       return;
     }
     if (target === 'specific' && !customerEmail) {
-      alert('কাস্টমারের ইমেইল আইডি লিখুন।');
+      alert('Please enter customer email address.');
       return;
     }
 
@@ -65,21 +65,21 @@ export const DirectCouponDispatcher: React.FC = () => {
       });
 
       if (res && res.status === 'success') {
-        setMessage({ type: 'success', text: res.message || 'কুপনটি সফলভাবে একাউন্টগুলোতে পাঠানো হয়েছে!' });
+        setMessage({ type: 'success', text: res.message || 'Coupon successfully dispatched to accounts!' });
         setCode(`GIFT${Math.floor(100 + Math.random() * 900)}`);
         loadAutoCampaigns();
       } else {
-        setMessage({ type: 'error', text: res.message || 'কুপন পাঠাতে সমস্যা হয়েছে।' });
+        setMessage({ type: 'error', text: res.message || 'Failed to dispatch coupon.' });
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'সার্ভারে সংযোগ করা যাচ্ছে না।' });
+      setMessage({ type: 'error', text: 'Cannot connect to the server.' });
     } finally {
       setSending(false);
     }
   };
 
   const handleStopAutoCampaign = async (id: string) => {
-    if (!window.confirm('আপনি কি নিশ্চিত যে এই অটো-ডিচপ্যাচ ক্যাম্পেইনটি বন্ধ করতে চান?')) return;
+    if (!window.confirm('Are you sure you want to stop this auto-dispatch campaign?')) return;
     try {
       const res = await stopAutoDispatchCoupon(id);
       if (res && res.status === 'success') {
@@ -96,10 +96,10 @@ export const DirectCouponDispatcher: React.FC = () => {
         <Gift size={24} style={{ color: '#ec4899' }} />
         <div>
           <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-            কাস্টমার একাউন্টে সরাসরি অফার / কুপন ডিচপ্যাচার (Direct Coupon Dispatcher)
+            Direct Coupon Dispatcher (Send Offers Directly to Customer Accounts)
           </h3>
           <p style={{ margin: '2px 0 0 0', fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
-            এখানে অফার তৈরি করে সাবমিট করলে অফারটি কাস্টমারদের একাউন্টের "My Coupons" সেকশনে সাথে সাথে পৌঁছে যাবে।
+            Submitting an offer here will instantly deliver it to the "My Coupons" section of customer accounts.
           </p>
         </div>
       </div>
@@ -128,21 +128,21 @@ export const DirectCouponDispatcher: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '20px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>
-              অফারের শিরোনাম (Title)
+              Offer Title
             </label>
             <input
               type="text"
               className="input-field"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="🎁 ঈদ স্পেশাল গিফট ডিসকাউন্ট কুপন!"
+              placeholder='🎁 Eid Special Gift Discount Coupon!'
               required
             />
           </div>
 
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>
-              কুপন কোড (Coupon Code)
+              Coupon Code
             </label>
             <input
               type="text"
@@ -157,21 +157,21 @@ export const DirectCouponDispatcher: React.FC = () => {
 
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>
-              ছাড়ের ধরন (Discount Type)
+              Discount Type
             </label>
             <select
               className="input-field"
               value={type}
               onChange={(e) => setType(e.target.value as any)}
             >
-              <option value="fixed">ফিক্সড টাকা (৳)</option>
-              <option value="percentage">পার্সেন্টেজ (%)</option>
+              <option value="fixed">Fixed Amount (৳)</option>
+              <option value="percentage">Percentage (%)</option>
             </select>
           </div>
 
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>
-              ছাড়ের পরিমাণ (Amount)
+              Discount Value
             </label>
             <input
               type="number"
@@ -188,7 +188,7 @@ export const DirectCouponDispatcher: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '20px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
-              প্রাপক কাস্টমার (Target Audience)
+              Target Audience
             </label>
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
@@ -199,7 +199,7 @@ export const DirectCouponDispatcher: React.FC = () => {
                   onChange={() => setTarget('all')}
                 />
                 <Users size={16} />
-                <span>সকল রেজিস্টার্ড কাস্টমার</span>
+                <span>All Registered Customers</span>
               </label>
 
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
@@ -210,7 +210,7 @@ export const DirectCouponDispatcher: React.FC = () => {
                   onChange={() => setTarget('specific')}
                 />
                 <Mail size={16} />
-                <span>নির্দিষ্ট ইমেইল</span>
+                <span>Specific Email</span>
               </label>
             </div>
           </div>
@@ -224,7 +224,7 @@ export const DirectCouponDispatcher: React.FC = () => {
                 onChange={(e) => setAutoEnrollFuture(e.target.checked)}
               />
               <Zap size={18} />
-              <span>ভবিষ্যতে যারা নতুন অ্যাকাউন্ট খুলবে, তারাও স্বয়ংক্রিয়ভাবে এই অফারটি পাবে</span>
+              <span>Auto-dispatch this offer to new accounts registered in the future</span>
             </label>
           </div>
         </div>
@@ -232,7 +232,7 @@ export const DirectCouponDispatcher: React.FC = () => {
         {target === 'specific' && (
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>
-              কাস্টমার ইমেইল এড্রেস (Customer Email)
+              Customer Email
             </label>
             <input
               type="email"
@@ -265,7 +265,7 @@ export const DirectCouponDispatcher: React.FC = () => {
             }}
           >
             <Send size={18} />
-            <span>{sending ? 'পাঠানো হচ্ছে...' : '🚀 একাউন্টে অফার পাঠিয়ে দিন'}</span>
+            <span>{sending ? 'Sending...' : '🚀 Dispatch Offer to Accounts'}</span>
           </button>
         </div>
       </form>
@@ -275,17 +275,17 @@ export const DirectCouponDispatcher: React.FC = () => {
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
           <h4 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Zap size={16} style={{ color: '#f59e0b' }} />
-            <span>সক্রিয় অটো-ডিচপ্যাচ অফারসমূহ (ভবিষ্যত নতুন মেম্বারদের জন্য)</span>
+            <span>Active Auto-Dispatch Campaigns (For Future Registered Members)</span>
           </h4>
 
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
               <thead>
                 <tr style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ padding: '8px 10px', textAlign: 'left' }}>অফারের নাম</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'left' }}>কুপন কোড</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'left' }}>ছাড়ের পরিমাণ</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'center' }}>একশন</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left' }}>Offer Name</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left' }}>Coupon Code</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'left' }}>Value</th>
+                  <th style={{ padding: '8px 10px', textAlign: 'center' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -313,7 +313,7 @@ export const DirectCouponDispatcher: React.FC = () => {
                         }}
                       >
                         <Trash2 size={14} />
-                        <span>অটো-ডিচপ্যাচ বন্ধ করুন</span>
+                        <span>Stop Auto-Dispatch</span>
                       </button>
                     </td>
                   </tr>
@@ -326,3 +326,4 @@ export const DirectCouponDispatcher: React.FC = () => {
     </div>
   );
 };
+

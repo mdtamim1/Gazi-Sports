@@ -137,7 +137,7 @@ export default function ProductDetails() {
   const getMissingOptionGroup = () => {
     if (!product) return null;
     const SIZES_KEYS = ['s', 'm', 'l', 'xl', 'xxl', '3xl', '4xl', '5xl', '6xl', 'free size'];
-    const COLORS_KEYS = ['red', 'blue', 'black', 'white', 'green', 'yellow', 'grey', 'orange', 'pink', 'purple', 'navy', 'maroon', 'brown', 'gold', 'silver', 'beige', 'cream', 'olive', 'রং', 'লাল', 'নীল', 'কালো', 'সাদা', 'সবুজ', 'হলুদ', 'ধূসর', 'কমলা', 'গোলাপী'];
+    const COLORS_KEYS = ['red', 'blue', 'black', 'white', 'green', 'yellow', 'grey', 'orange', 'pink', 'purple', 'navy', 'maroon', 'brown', 'gold', 'silver', 'beige', 'cream', 'olive', 'color', 'red', 'blue', 'black', 'white', 'green', 'yellow', 'grey', 'orange', 'pink'];
 
     if (!product.sizes || !Array.isArray(product.sizes)) return null;
 
@@ -298,7 +298,7 @@ export default function ProductDetails() {
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewerName.trim() || !reviewerComment.trim()) {
-      setReviewError('দয়া করে আপনার নাম এবং মতামত সঠিকভাবে লিখুন।');
+      setReviewError('Please enter your name and review correctly.');
       return;
     }
 
@@ -349,7 +349,7 @@ export default function ProductDetails() {
     setReviewerComment('');
     setReviewerImage('');
     setReviewError('');
-    setReviewMsg('আপনার রিভিউটি সফলভাবে সাবমিট করা হয়েছে! ধন্যবাদ।');
+    setReviewMsg('Your review has been submitted successfully! Thank you.');
 
     // Dismiss message after 5 seconds
     setTimeout(() => {
@@ -542,7 +542,7 @@ export default function ProductDetails() {
               customerId: customer.id,
               customerName: customer.name,
               sender: 'admin',
-              message: `ধন্যবাদ ${customer.name}! আমরা আপনার মেসেজটি পেয়েছি। আমাদের প্রতিনিধি প্রোডাক্টটি সম্পর্কে শীঘ্রই সাহায্য করবেন।`,
+              message: `Thank you ${customer.name}! We have received your message. Our representative will assist you about this product shortly.`,
               timestamp: new Date().toISOString(),
               read: false
             };
@@ -562,23 +562,23 @@ export default function ProductDetails() {
 
     if (chatIsRegister) {
       if (!chatAuthName || !chatAuthEmail || !chatAuthPassword || !chatAuthPhone) {
-        setChatAuthError('সবগুলো ঘর পূরণ করুন।');
+        setChatAuthError('Please fill in all fields.');
         return;
       }
       const res = await register(chatAuthName, chatAuthEmail, chatAuthPassword, chatAuthPhone);
       if (!res.success) {
-        setChatAuthError(res.error || 'নিবন্ধন ব্যর্থ হয়েছে।');
+        setChatAuthError(res.error || 'Registration failed.');
       } else {
-        setChatAuthSuccess('অ্যাকাউন্ট তৈরি সফল হয়েছে!');
+        setChatAuthSuccess('Account created successfully!');
       }
     } else {
       if (!chatAuthEmail || !chatAuthPassword) {
-        setChatAuthError('ইমেইল ও পাসওয়ার্ড প্রদান করুন।');
+        setChatAuthError('Please provide your email and password.');
         return;
       }
       const res = await login(chatAuthEmail, chatAuthPassword);
       if (!res.success) {
-        setChatAuthError(res.error || 'লগইন ব্যর্থ হয়েছে।');
+        setChatAuthError(res.error || 'Login failed.');
       }
     }
   };
@@ -611,7 +611,7 @@ export default function ProductDetails() {
     const total = subtotal + deliveryCharge - discount;
 
     if ((paymentMethod === 'bkash' || paymentMethod === 'nagad') && (!senderNumber.trim() || !trxId.trim())) {
-      alert('দয়া করে আপনার প্রেরকের বিকাশ/নগদ নম্বর এবং Transaction ID (TrxID) ইনপুট দিন।');
+      alert('Please enter your sender\'s Bkash/Nagad number and Transaction ID (TrxID).');
       return;
     }
 
@@ -986,7 +986,7 @@ export default function ProductDetails() {
           {/* ====== Variant Selectors ====== */}
           {product.sizes && product.sizes.filter((s: any) => s.enabled).length > 0 && (() => {
             const SIZES_KEYS = ['s', 'm', 'l', 'xl', 'xxl', '3xl', '4xl', '5xl', '6xl', 'free size'];
-            const COLORS_KEYS = ['red', 'blue', 'black', 'white', 'green', 'yellow', 'grey', 'orange', 'pink', 'purple', 'navy', 'maroon', 'brown', 'gold', 'silver', 'beige', 'cream', 'olive', 'রং', 'লাল', 'নীল', 'কালো', 'সাদা', 'সবুজ', 'হলুদ', 'ধূসর', 'কমলা', 'গোলাপী'];
+            const COLORS_KEYS = ['red', 'blue', 'black', 'white', 'green', 'yellow', 'grey', 'orange', 'pink', 'purple', 'navy', 'maroon', 'brown', 'gold', 'silver', 'beige', 'cream', 'olive'];
 
             const enabled = product.sizes.filter((s: any) => s.enabled);
             const isWeight = (l: string) => l.endsWith('kg') || l.endsWith('gm') || l.endsWith('g') || l.endsWith('lbs') || l.endsWith('lb') || l.includes('kg') || l.includes('gm') || /^\d+(\.\d+)?\s*(kg|gm|g|lbs|lb)$/i.test(l);
@@ -1068,7 +1068,7 @@ export default function ProductDetails() {
 
                   return (
                     <div className="pdp-variant-warn">
-                      ⚠️ অর্ডার করতে দয়া করে আপনার {missingGroups.join(', ')} সিলেক্ট করুন।
+                      ⚠️ Please select your {missingGroups.join(', ')} before placing the order.
                     </div>
                   );
                 })()}
@@ -1084,7 +1084,7 @@ export default function ProductDetails() {
                   {isOutOfStock ? (
                     <>
                       <X size={20} color="var(--sf-danger)" />
-                      <span style={{ fontWeight: 600 }}>স্টক আউট (Out of Stock)</span>
+                      <span style={{ fontWeight: 600 }}>Out of Stock</span>
                     </>
                   ) : (
                     <>
@@ -1105,21 +1105,21 @@ export default function ProductDetails() {
                     onClick={() => {
                       const missing = getMissingOptionGroup();
                       if (missing) {
-                        alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
+                        alert(`Please select ${missing.label} first!`);
                         return;
                       }
                       const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
                       addToCart({ ...product, price: getActivePrice(), selectedSize: variantLabel });
                     }}
                   >
-                    <ShoppingCart size={20} /> {isOutOfStock ? 'স্টক আউট' : 'Add to Cart'}
+                    <ShoppingCart size={20} /> {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
                   </button>
                   <button 
                     disabled={isOutOfStock}
                     onClick={() => {
                       const missing = getMissingOptionGroup();
                       if (missing) {
-                        alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
+                        alert(`Please select ${missing.label} first!`);
                         return;
                       }
                       const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
@@ -1136,7 +1136,7 @@ export default function ProductDetails() {
                       opacity: isOutOfStock ? 0.6 : 1
                     }}
                   >
-                    {isOutOfStock ? 'স্টক আউট' : 'Order Now'}
+                    {isOutOfStock ? 'Out of Stock' : 'Order Now'}
                   </button>
             <div className="pdp-action-icons">
               <button 
@@ -1163,12 +1163,12 @@ export default function ProductDetails() {
                 rel="noopener noreferrer" 
                 className="pdp-contact-btn pdp-whatsapp"
               >
-                <Smartphone size={18} /> WhatsApp এ কথা বলুন
+                <Smartphone size={18} /> Chat on WhatsApp
               </a>
             )}
             {config.contactInfo.phoneNumber && (
               <a href={`tel:${config.contactInfo.phoneNumber}`} className="pdp-contact-btn pdp-call">
-                <Phone size={18} /> সরাসরি কল: {config.contactInfo.phoneNumber}
+                <Phone size={18} /> Call Us: {config.contactInfo.phoneNumber}
               </a>
             )}
             {config.contactInfo.messengerUrl && (
@@ -1178,7 +1178,7 @@ export default function ProductDetails() {
                 rel="noopener noreferrer" 
                 className="pdp-contact-btn pdp-messenger"
               >
-                <MessageCircle size={18} /> মেসেঞ্জার
+                <MessageCircle size={18} /> Messenger
               </a>
             )}
           </div>
@@ -1234,14 +1234,14 @@ export default function ProductDetails() {
               {/* Existing Reviews List */}
               <div className="pdp-reviews-list" style={{ marginBottom: '40px' }}>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--sf-text-primary)', marginBottom: '20px' }}>
-                  কাস্টমার রিভিউসমূহ ({product.customerReviews?.length || 0})
+                  Customer Reviews ({product.customerReviews?.length || 0})
                 </h3>
                 {product.customerReviews && product.customerReviews.length > 0 ? (
                   product.customerReviews.map((review: any) => (
                     <div key={review.id} className="pdp-review-card" style={{ padding: '20px', borderRadius: '12px', background: 'var(--sf-bg-light)', border: '1px solid var(--sf-border)', marginBottom: '16px' }}>
                       <div className="review-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                         <span className="review-user" style={{ fontWeight: 800, color: 'var(--sf-text-primary)', fontSize: '0.95rem' }}>{review.user}</span>
-                        <span className="review-date" style={{ fontSize: '0.8rem', color: 'var(--sf-text-tertiary)' }}>{new Date(review.date).toLocaleDateString('bn-BD')}</span>
+                        <span className="review-date" style={{ fontSize: '0.8rem', color: 'var(--sf-text-tertiary)' }}>{new Date(review.date).toLocaleDateString('en-US')}</span>
                       </div>
                       <StarRating rating={review.rating} />
                       <p className="review-comment" style={{ margin: '10px 0 0 0', color: 'var(--sf-text-secondary)', fontSize: '0.92rem', lineHeight: 1.6 }}>{review.comment}</p>
@@ -1261,13 +1261,13 @@ export default function ProductDetails() {
                     </div>
                   ))
                 ) : (
-                  <p style={{ color: 'var(--sf-text-tertiary)' }}>এই প্রোডাক্টে এখনও কোনো রিভিউ দেওয়া হয়নি। প্রথম রিভিউটি আপনিই দিন!</p>
+                  <p style={{ color: 'var(--sf-text-tertiary)' }}>No reviews yet for this product. Be the first to leave a review!</p>
                 )}
               </div>
 
               {/* Write a Review Form */}
               <div className="pdp-write-review-form" style={{ background: 'var(--sf-bg-light)', padding: '24px', borderRadius: '16px', border: '1px solid var(--sf-border)' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--sf-text-primary)', marginBottom: '16px' }}>একটি রিভিউ লিখুন</h3>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--sf-text-primary)', marginBottom: '16px' }}>Write a Review</h3>
                 
                 {reviewMsg && (
                   <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#10b981', padding: '10px 16px', borderRadius: '8px', fontSize: '0.9rem', marginBottom: '16px' }}>
@@ -1285,10 +1285,10 @@ export default function ProductDetails() {
                   
                   {/* Name Input */}
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--sf-text-secondary)' }}>আপনার নাম (Your Name)</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--sf-text-secondary)' }}>Your Name</label>
                     <input 
                       type="text" 
-                      placeholder="আপনার নাম লিখুন" 
+                      placeholder="Enter your name" 
                       required 
                       value={reviewerName} 
                       onChange={(e) => setReviewerName(e.target.value)} 
@@ -1298,7 +1298,7 @@ export default function ProductDetails() {
 
                   {/* Rating Selector */}
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--sf-text-secondary)' }}>রেটিং সিলেক্ট করুন (Rating)</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--sf-text-secondary)' }}>Select Rating</label>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       {[1, 2, 3, 4, 5].map((stars) => (
                         <button
@@ -1322,9 +1322,9 @@ export default function ProductDetails() {
 
                   {/* Comment Textarea */}
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--sf-text-secondary)' }}>মন্তব্য লিখুন (Your Review)</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--sf-text-secondary)' }}>Your Review</label>
                     <textarea 
-                      placeholder="এখানে আপনার মতামত লিখুন..." 
+                      placeholder="Write your opinion here..." 
                       required 
                       rows={4}
                       value={reviewerComment} 
@@ -1335,7 +1335,7 @@ export default function ProductDetails() {
 
                   {/* Photo Upload Attachment */}
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--sf-text-secondary)' }}>প্রোডাক্টের ছবি যোগ করুন (Add Photo - Optional)</label>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--sf-text-secondary)' }}>Add Product Photo (Optional)</label>
                     <input 
                       type="file" 
                       accept="image/*" 
@@ -1376,7 +1376,7 @@ export default function ProductDetails() {
                     className="store-btn"
                     style={{ background: 'var(--sf-accent)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '30px', fontWeight: 'bold', cursor: 'pointer', marginTop: '8px', alignSelf: 'flex-start' }}
                   >
-                    রিভিউ সাবমিট করুন
+                    Submit Review
                   </button>
 
                 </form>
@@ -1392,7 +1392,7 @@ export default function ProductDetails() {
         <div className="pdp-tabs-container pdp-media-section" style={{ padding: '30px', background: 'white', marginTop: '40px' }}>
           <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--sf-text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <MessageCircle size={22} color="var(--sf-accent)" />
-            ভিডিও ও ছবি রিভিউ (Video & Photo Reviews)
+            Video & Photo Reviews
           </h3>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -1401,7 +1401,7 @@ export default function ProductDetails() {
                 <div style={{ background: 'var(--sf-bg-light)', padding: '20px', borderRadius: '12px', border: '1px solid var(--sf-border)' }}>
                   <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--sf-text-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--sf-accent)' }} />
-                    ভিডিও রিভিউ (Product Video Content)
+                    Product Video Review
                   </h4>
                   {((product.videoUrl || product.video_url).includes('youtube.com') || (product.videoUrl || product.video_url).includes('youtu.be') || (product.videoUrl || product.video_url).includes('shorts')) ? (
                     <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
@@ -1423,7 +1423,7 @@ export default function ProductDetails() {
                 <div style={{ background: 'var(--sf-bg-light)', padding: '20px', borderRadius: '12px', border: '1px solid var(--sf-border)', display: 'flex', flexDirection: 'column' }}>
                   <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--sf-text-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--sf-accent)' }} />
-                    ছবি রিভিউ কনটেন্ট (Additional Photo Review)
+                    Photo review content (Additional Photo Review)
                   </h4>
                   <div style={{ display: 'flex', justifyContent: 'center', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', flexGrow: 1, alignItems: 'center', background: 'var(--sf-bg-main)' }}>
                     <img 
@@ -1447,7 +1447,7 @@ export default function ProductDetails() {
         
         return (
           <div className="pdp-related">
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--sf-text-primary)', marginBottom: '20px' }}>আপনাদের পছন্দের অন্যান্য পণ্য (Suggested Products)</h3>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--sf-text-primary)', marginBottom: '20px' }}>Suggested Products</h3>
             <div className="new-arrivals-grid">
               {related.map((relatedProduct: any) => {
                 const isJersey = relatedProduct.category && (relatedProduct.category.toLowerCase() === 'jersey' || relatedProduct.category.toLowerCase() === 'jerseys');
@@ -1551,7 +1551,7 @@ export default function ProductDetails() {
       <div className="pdp-mobile-sticky-bar">
         <Link to="/" className="sticky-bar-icon-btn">
           <Store size={20} />
-          <span>স্টোর</span>
+          <span>Store</span>
         </Link>
         <a 
           href={config.contactInfo.messengerUrl || 'https://m.me/gazisports'} 
@@ -1568,7 +1568,7 @@ export default function ProductDetails() {
           >
             <path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.914 1.458 5.512 3.738 7.218.196.147.316.38.316.628l-.004 1.834c-.002.395.405.69.774.55l2.083-.794a.897.897 0 0 1 .632.036c.773.238 1.597.368 2.457.368 5.523 0 10-4.146 10-9.258C22 6.145 17.523 2 12 2zm1.025 12.274l-2.62-2.795-5.112 2.795 5.62-5.962 2.62 2.795 5.112-2.795-5.62 5.962z"/>
           </svg>
-          <span>মেসেঞ্জার</span>
+          <span>Messenger</span>
         </a>
         <div className="sticky-bar-actions">
           {(() => {
@@ -1583,7 +1583,7 @@ export default function ProductDetails() {
                   onClick={() => {
                     const missing = getMissingOptionGroup();
                     if (missing) {
-                      alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
+                      alert(`Please select ${missing.label} first!`);
                       return;
                     }
                     const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
@@ -1591,7 +1591,7 @@ export default function ProductDetails() {
                     navigate('/checkout', { state: { product: buyProduct, quantity: 1 } });
                   }}
                 >
-                  {isOutOfStock ? 'স্টক আউট' : 'Order Now'}
+                  {isOutOfStock ? 'Out of Stock' : 'Order Now'}
                 </button>
                 <button 
                   disabled={isOutOfStock}
@@ -1601,14 +1601,14 @@ export default function ProductDetails() {
                   onClick={() => {
                     const missing = getMissingOptionGroup();
                     if (missing) {
-                      alert(`দয়া করে প্রথমে ${missing.label} সিলেক্ট করুন!`);
+                      alert(`Please select ${missing.label} first!`);
                       return;
                     }
                     const variantLabel = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean).join(' / ') || 'Free Size';
                     addToCart({ ...product, price: getActivePrice(), selectedSize: variantLabel });
                   }}
                 >
-                  {isOutOfStock ? 'স্টক আউট' : 'Add to Cart'}
+                  {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
                 </button>
               </>
             );
@@ -1627,7 +1627,7 @@ export default function ProductDetails() {
                   {customer ? customer.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'G'}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>কাস্টমার চ্যাট সাপোর্ট</div>
+                  <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>Customer Chat Support</div>
                   <div style={{ fontSize: '0.72rem', opacity: 0.85 }}>Support Agent Online</div>
                 </div>
               </div>
@@ -1643,8 +1643,8 @@ export default function ProductDetails() {
                   {chatMessages.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--sf-text-tertiary)', margin: 'auto' }}>
                       <MessageCircle size={40} style={{ opacity: 0.15, marginBottom: '12px', display: 'inline-block' }} />
-                      <p style={{ fontWeight: 600, color: 'var(--sf-text-secondary)', fontSize: '0.85rem' }}>আপনার কোনো মেসেজ নেই</p>
-                      <p style={{ fontSize: '0.75rem', marginTop: '4px' }}>এই পণ্যটি নিয়ে সরাসরি এডমিনের সাথে কথা বলতে নিচে মেসেজ করুন।</p>
+                      <p style={{ fontWeight: 600, color: 'var(--sf-text-secondary)', fontSize: '0.85rem' }}>You have no messages</p>
+                      <p style={{ fontSize: '0.75rem', marginTop: '4px' }}>Send a message below to chat directly with the admin about this product.</p>
                     </div>
                   ) : (
                     chatMessages.map((msg, idx) => {
@@ -1701,7 +1701,7 @@ export default function ProductDetails() {
                                       </div>
                                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2px' }}>
                                         <span style={{ fontWeight: 800, fontSize: '0.8rem', color: isAdmin ? '#1e293b' : 'white' }}>৳{productInfo.price}</span>
-                                        <span style={{ fontSize: '8px', background: 'rgba(255,255,255,0.2)', padding: '1px 4px', borderRadius: '2px' }}>লিংক</span>
+                                        <span style={{ fontSize: '8px', background: 'rgba(255,255,255,0.2)', padding: '1px 4px', borderRadius: '2px' }}>Link</span>
                                       </div>
                                     </Link>
                                   );
@@ -1745,7 +1745,7 @@ export default function ProductDetails() {
                         className="pdp-chat-product-preview-bar-btn"
                         onClick={handleSendChatProductShare}
                       >
-                        প্রোডাক্ট লিংক পাঠান
+                        Send product link
                       </button>
                     </div>
                   )}
@@ -1754,7 +1754,7 @@ export default function ProductDetails() {
                     <input 
                       type="text" 
                       className="pdp-chat-input" 
-                      placeholder="মেসেজ লিখুন..." 
+                      placeholder="Type a message..." 
                       value={inputMessage}
                       onChange={e => setInputMessage(e.target.value)}
                     />
@@ -1768,10 +1768,10 @@ export default function ProductDetails() {
               /* Quick Auth inside Chat Drawer */
               <div className="pdp-chat-auth-container">
                 <div className="pdp-chat-auth-title">
-                  {chatIsRegister ? 'নতুন অ্যাকাউন্ট খুলুন' : 'চ্যাট করতে লগইন করুন'}
+                  {chatIsRegister ? 'Open a new account' : 'Login to chat'}
                 </div>
                 <div className="pdp-chat-auth-desc">
-                  এডমিনের সাথে সরাসরি কথা বলতে এবং আপনার মেসেজ ট্র্যাক করতে সাইন ইন করুন
+                  Sign in to talk directly with the admin and track your messages
                 </div>
 
                 {chatAuthError && (
@@ -1792,7 +1792,7 @@ export default function ProductDetails() {
                         type="text" 
                         required 
                         className="pdp-chat-auth-input" 
-                        placeholder="আপনার নাম" 
+                        placeholder="Your name" 
                         value={chatAuthName}
                         onChange={e => setChatAuthName(e.target.value)}
                       />
@@ -1800,7 +1800,7 @@ export default function ProductDetails() {
                         type="tel" 
                         required 
                         className="pdp-chat-auth-input" 
-                        placeholder="যেমন: ০১৭XXXXXXXX" 
+                        placeholder="e.g. 017XXXXXXXX" 
                         value={chatAuthPhone}
                         onChange={e => setChatAuthPhone(e.target.value)}
                       />
@@ -1810,7 +1810,7 @@ export default function ProductDetails() {
                     type="email" 
                     required 
                     className="pdp-chat-auth-input" 
-                    placeholder="ইমেইল ঠিকানা" 
+                    placeholder="Email address" 
                     value={chatAuthEmail}
                     onChange={e => setChatAuthEmail(e.target.value)}
                   />
@@ -1818,12 +1818,12 @@ export default function ProductDetails() {
                     type="password" 
                     required 
                     className="pdp-chat-auth-input" 
-                    placeholder="পাসওয়ার্ড" 
+                    placeholder="Password" 
                     value={chatAuthPassword}
                     onChange={e => setChatAuthPassword(e.target.value)}
                   />
                   <button type="submit" className="pdp-chat-auth-btn">
-                    {chatIsRegister ? 'রেজিস্ট্রেশন করুন' : 'লগইন করুন'}
+                    {chatIsRegister ? 'Register' : 'Login'}
                   </button>
                 </form>
 
@@ -1832,13 +1832,13 @@ export default function ProductDetails() {
                 <div className="pdp-chat-auth-toggle">
                   {chatIsRegister ? (
                     <>
-                      অলরেডি অ্যাকাউন্ট আছে?
-                      <button onClick={() => { setChatIsRegister(false); setChatAuthError(''); }}>লগইন করুন</button>
+                      Already have an account?
+                      <button onClick={() => { setChatIsRegister(false); setChatAuthError(''); }}>Login</button>
                     </>
                   ) : (
                     <>
-                      অ্যাকাউন্ট নেই?
-                      <button onClick={() => { setChatIsRegister(true); setChatAuthError(''); }}>রেজিস্ট্রেশন করুন</button>
+                      No account?
+                      <button onClick={() => { setChatIsRegister(true); setChatAuthError(''); }}>Register</button>
                     </>
                   )}
                 </div>

@@ -13,7 +13,7 @@ const getAuthHeaders = (): Record<string, string> => {
 };
 
 // Login admin employee via backend
-// Step 1: Email + Password → returns pre-auth token (not full access)
+// Step 1: Email + Password â†’ returns pre-auth token (not full access)
 export const loginToBackend = async (email: string, password: string): Promise<any> => {
   try {
     const response = await fetch(`${API_BASE}/auth/login`, {
@@ -30,7 +30,7 @@ export const loginToBackend = async (email: string, password: string): Promise<a
   }
 };
 
-// Step 2: Google ID Token verification → returns full JWT
+// Step 2: Google ID Token verification â†’ returns full JWT
 export const verifyGoogleStep = async (preAuthToken: string, googleIdToken: string): Promise<any> => {
   try {
     const response = await fetch(`${API_BASE}/auth/verify-google`, {
@@ -55,7 +55,7 @@ export const googleRegisterEmployee = async (token: string, googleIdToken: strin
     });
     return await res.json();
   } catch (e) {
-    return { status: 'error', message: 'সার্ভারে সংযোগ করা যাচ্ছে না।' };
+    return { status: 'error', message: 'Cannot connect to the server.' };
   }
 };
 
@@ -343,7 +343,7 @@ const mapProductToFrontend = (p: any): any => {
 const PRODUCTS_CACHE_KEY = 'gazi_products_cache_v2';
 const PRODUCTS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes freshness
 
-// Module-level in-memory cache — survives page navigation within same session
+// Module-level in-memory cache â€” survives page navigation within same session
 let _memProductsCache: any[] | null = null;
 let _memProductsCacheAt: number = 0;
 
@@ -426,12 +426,12 @@ export const fetchProductsFromBackend = async (): Promise<any[] | null> => {
   };
 
   if (stale) {
-    // Stale cache exists — return it immediately and refresh in the background
+    // Stale cache exists â€” return it immediately and refresh in the background
     doFetch().catch(() => {});
     return stale;
   }
 
-  // No cache at all — wait for fetch
+  // No cache at all â€” wait for fetch
   return doFetch();
 };
 
@@ -546,7 +546,7 @@ export const updateProductInBackend = async (id: string | number, productData: a
 // Delete a product from backend SQLite
 export const deleteProductFromBackend = async (id: string | number): Promise<{ success: boolean; message?: string }> => {
   try {
-    // Pass the raw ID — backend handles both numeric and PRD-XXX formats
+    // Pass the raw ID â€” backend handles both numeric and PRD-XXX formats
     const rawId = String(id);
     const response = await fetch(`${API_BASE}/products/${encodeURIComponent(rawId)}`, {
       method: 'DELETE',
@@ -858,7 +858,7 @@ export const verifyInvitationToken = async (token: string): Promise<any> => {
     const res = await fetch(`${API_BASE}/employees/invite/verify?token=${encodeURIComponent(token)}`);
     return await res.json();
   } catch (e) {
-    return { status: 'error', message: 'সার্ভারে সংযোগ করা যাচ্ছে না।' };
+    return { status: 'error', message: 'Cannot connect to the server.' };
   }
 };
 
@@ -874,7 +874,7 @@ export const registerEmployee = async (data: any): Promise<any> => {
     });
     return await res.json();
   } catch (e) {
-    return { status: 'error', message: 'সার্ভারে সংযোগ করা যাচ্ছে না।' };
+    return { status: 'error', message: 'Cannot connect to the server.' };
   }
 };
 
@@ -928,50 +928,10 @@ export const validateCouponCode = async (code: string): Promise<any> => {
     const res = await fetch(`${API_BASE}/marketing/coupons/validate/${encodeURIComponent(code)}`);
     return await res.json();
   } catch (e) {
-    return { status: 'error', message: 'সার্ভারে সংযোগ করা যাচ্ছে না।' };
+    return { status: 'error', message: 'Cannot connect to the server.' };
   }
 };
 
-// Fetch Spin Wheel configuration (Public)
-export const fetchSpinWheelConfig = async (): Promise<any> => {
-  try {
-    const res = await fetch(`${API_BASE}/marketing/spin-wheel`);
-    return await res.json();
-  } catch (e) {
-    return { status: 'error', message: 'Failed to fetch spin wheel settings' };
-  }
-};
-
-// Play Spin Wheel (Server-calculated outcome picker)
-export const playSpinWheel = async (customerEmail?: string): Promise<any> => {
-  try {
-    const res = await fetch(`${API_BASE}/marketing/spin-wheel/spin`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customer_email: customerEmail || '' })
-    });
-    return await res.json();
-  } catch (e) {
-    return { status: 'error', message: 'Failed to play spin wheel' };
-  }
-};
-
-// Update Spin Wheel settings (Admin Protected)
-export const updateSpinWheelSettings = async (payload: any): Promise<any> => {
-  try {
-    const res = await fetch(`${API_BASE}/marketing/spin-wheel/settings`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeaders()
-      },
-      body: JSON.stringify(payload)
-    });
-    return await res.json();
-  } catch (e) {
-    return { status: 'error', message: 'Failed to update spin wheel settings' };
-  }
-};
 
 // Fetch Customer Account Coupons (Public/Customer)
 export const fetchCustomerCoupons = async (email: string): Promise<any> => {
@@ -1051,7 +1011,7 @@ export const subscribeToNewsletter = async (email: string): Promise<any> => {
     });
     return await res.json();
   } catch (e) {
-    return { status: 'error', message: 'সার্ভারে সংযোগ করা যাচ্ছে না।' };
+    return { status: 'error', message: 'Cannot connect to the server.' };
   }
 };
 
@@ -1296,6 +1256,7 @@ export const fetchSecurityLogs = async (
     return { status: 'error', message: 'Failed to fetch security logs' };
   }
 };
+
 
 
 

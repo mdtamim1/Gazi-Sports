@@ -30,7 +30,7 @@ export const createCoupon = (req: Request, res: Response) => {
     function (err) {
       if (err) {
         if (err.message.includes('UNIQUE')) {
-          return res.status(400).json({ status: 'error', message: 'এই কুপন কোডটি ইতিমধ্যে ডাটাবেজে রয়েছে।' });
+          return res.status(400).json({ status: 'error', message: 'This coupon code already exists in the database.' });
         }
         console.error('Failed to create coupon:', err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
@@ -86,10 +86,10 @@ export const validateCoupon = (req: Request, res: Response) => {
         [cleanCode],
         (err, custCoupon: any) => {
           if (err || !custCoupon) {
-            return res.status(404).json({ status: 'error', message: 'দুঃখিত, কুপন কোডটি সঠিক নয়।' });
+            return res.status(404).json({ status: 'error', message: 'Sorry, this coupon code is not valid.' });
           }
           if (custCoupon.status === 'used') {
-            return res.status(400).json({ status: 'error', message: 'এই কুপনটি আপনি ইতিপূর্বে ১ বার ব্যবহার করে ফেলেছেন!' });
+            return res.status(400).json({ status: 'error', message: 'You have already used this coupon once!' });
           }
           return res.json({
             status: 'success',
@@ -105,13 +105,13 @@ export const validateCoupon = (req: Request, res: Response) => {
     }
 
     if (coupon.status !== 'active') {
-      return res.status(400).json({ status: 'error', message: 'এই কুপন কোডটি ইতিমধ্যে ব্যবহার করা হয়েছে অথবা নিষ্ক্রিয় করা হয়েছে।' });
+      return res.status(400).json({ status: 'error', message: 'This coupon code has already been used or has been deactivated.' });
     }
 
     const expiryTime = new Date(coupon.expiry).getTime() + (24 * 3600 * 1000);
     if (expiryTime < Date.now()) {
       db.run("UPDATE coupons SET status = 'expired' WHERE UPPER(code) = ?", [cleanCode]);
-      return res.status(400).json({ status: 'error', message: 'এই কুপন কোডটির মেয়াদ শেষ হয়ে গেছে।' });
+      return res.status(400).json({ status: 'error', message: 'This coupon code has expired.' });
     }
 
     // If customer email is passed, check if they have already used this specific coupon
@@ -121,7 +121,7 @@ export const validateCoupon = (req: Request, res: Response) => {
         [email, cleanCode],
         (err, custCoupon: any) => {
           if (custCoupon && custCoupon.status === 'used') {
-            return res.status(400).json({ status: 'error', message: 'এই কুপনটি আপনি ইতিপূর্বে ১ বার ব্যবহার করে ফেলেছেন!' });
+            return res.status(400).json({ status: 'error', message: 'You have already used this coupon once!' });
           }
           res.json({
             status: 'success',
@@ -162,7 +162,7 @@ export const subscribeEmail = (req: Request, res: Response) => {
   const { email } = req.body;
 
   if (!email || !email.includes('@')) {
-    return res.status(400).json({ status: 'error', message: 'সঠিক ইমেইল এড্রেস প্রদান করুন।' });
+    return res.status(400).json({ status: 'error', message: 'Please provide a valid email address.' });
   }
 
   const cleanEmail = email.trim().toLowerCase();
@@ -174,7 +174,7 @@ export const subscribeEmail = (req: Request, res: Response) => {
     function (err) {
       if (err) {
         if (err.message.includes('UNIQUE')) {
-          return res.status(400).json({ status: 'error', message: 'আপনি ইতিমধ্যে আমাদের নিউজলেটারে সাবস্ক্রাইব করেছেন!' });
+          return res.status(400).json({ status: 'error', message: 'You have already subscribed to our newsletter!' });
         }
         console.error('Failed to subscribe email:', err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
@@ -183,7 +183,7 @@ export const subscribeEmail = (req: Request, res: Response) => {
       // Send welcome email asynchronously (don't block response)
       sendWelcomeEmail(cleanEmail).catch(console.error);
 
-      res.json({ status: 'success', message: 'নিউজলেটার সাবস্ক্রিপশন সফল হয়েছে! ধন্যবাদ।' });
+      res.json({ status: 'success', message: 'Newsletter subscription successful! Thank you.' });
     }
   );
 };
@@ -301,8 +301,8 @@ export const deleteCampaign = (req: Request, res: Response) => {
 
 const DEFAULT_SPIN_WHEEL_CONFIG = {
   enabled: true,
-  title: 'ঘুরে জিতুন স্পেশাল ডিসকাউন্ট!',
-  subtitle: 'আজকের সৌভাগ্যজনক কুপন কোড জিততে চাকাটি ঘোরান!',
+  title: 'Spin & Win a Special Discount!',
+  subtitle: 'Spin the wheel to win today\'s lucky coupon code!',
   respin_order_count_required: 1,
   slices: [
     { id: '1', label: '10% OFF', coupon_code: 'SPIN10', type: 'percentage', value: 10, weight: 40, color: '#7c3aed' },
@@ -345,7 +345,7 @@ export const spinWheelPlay = (req: Request, res: Response) => {
         if (existingClaim) {
           return res.status(400).json({
             status: 'error',
-            message: 'আপনি এই অ্যাকাউন্ট দিয়ে ইতিপূর্বে ১ বার স্পিন হুইল ব্যবহার করেছেন। প্রতি অ্যাকাউন্টে ১ বারই স্পিন প্রযোজ্য।'
+            message: 'You have already used the spin wheel with this account. Spin is only allowed once per account.'
           });
         }
         processSpin();
@@ -365,7 +365,7 @@ export const spinWheelPlay = (req: Request, res: Response) => {
       }
 
       if (!config.enabled || !config.slices || config.slices.length === 0) {
-        return res.status(400).json({ status: 'error', message: 'স্পিন হুইল অফার আপাতত বন্ধ রয়েছে।' });
+        return res.status(400).json({ status: 'error', message: 'Spin wheel offer is currently closed.' });
       }
 
       const totalWeight = config.slices.reduce((sum: number, s: any) => sum + (Number(s.weight) || 0), 0);
@@ -448,7 +448,7 @@ export const updateSpinWheelConfig = (req: Request, res: Response) => {
         console.error('Failed to update spin wheel config:', err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
       }
-      res.json({ status: 'success', message: 'স্পিন হুইল সেটিংস সফলভাবে সেভ করা হয়েছে!', data: newConfig });
+      res.json({ status: 'success', message: 'Spin wheel settings saved successfully!', data: newConfig });
     }
   );
 };
@@ -480,7 +480,7 @@ export const getCustomerCoupons = (req: Request, res: Response) => {
         // Auto-generate unique 10% Welcome Coupon on the fly for this customer
         const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
         const welcomeCode = `WELCOME10-${randomSuffix}`;
-        const welcomeTitle = '🎉 নিউ অ্যাকাউন্ট ওয়েলকাম ১০% ছাড় (১ম অর্ডার)';
+        const welcomeTitle = '🎉 New Account Welcome 10% Off (1st Order)';
 
         db.run(
           `INSERT INTO coupons (code, type, value, expiry, status) VALUES (?, 'percentage', 10, '2030-12-31', 'active')`,
@@ -524,7 +524,7 @@ export const getCustomerCoupons = (req: Request, res: Response) => {
                       [
                         email,
                         cleanCode,
-                        camp.title || 'বিশেষ উপহার',
+                        camp.title || 'Special Gift',
                         camp.discount_type || 'fixed',
                         Number(camp.discount_value) || 0
                       ]
@@ -533,7 +533,7 @@ export const getCustomerCoupons = (req: Request, res: Response) => {
                     couponsList.unshift({
                       customer_email: email,
                       code: cleanCode,
-                      title: camp.title || 'বিশেষ উপহার',
+                      title: camp.title || 'Special Gift',
                       discount_type: camp.discount_type || 'fixed',
                       discount_value: Number(camp.discount_value) || 0,
                       status: 'active',
@@ -560,7 +560,7 @@ export const dispatchDirectCoupon = (req: Request, res: Response) => {
   const { title, code, discount_type, discount_value, target, customer_email, auto_enroll_future } = req.body;
 
   if (!title || !code || discount_value === undefined) {
-    return res.status(400).json({ status: 'error', message: 'কুপনের শিরোনাম, কোড এবং ছাড়ের পরিমাণ বাধ্যতামূলক।' });
+    return res.status(400).json({ status: 'error', message: 'Coupon title, code, and discount value are mandatory.' });
   }
 
   const cleanCode = String(code).trim().toUpperCase();
@@ -620,14 +620,14 @@ export const dispatchDirectCoupon = (req: Request, res: Response) => {
           console.error('Failed to dispatch coupon:', err);
           return res.status(500).json({ status: 'error', message: 'Database error' });
         }
-        res.json({ status: 'success', message: `কুপন কোডটি ${email} একাউন্টে পাঠানো হয়েছে!` });
+        res.json({ status: 'success', message: `The coupon code has been sent to the account of ${email}!` });
       }
     );
   } else {
     // Dispatch to ALL registered customers
     db.all(`SELECT email FROM customers`, [], (err, rows: any[]) => {
       if (err || !rows || rows.length === 0) {
-        return res.json({ status: 'success', message: 'কুপন ডাটাবেজে তৈরি হয়েছে এবং কাস্টমার একাউন্টগুলোর জন্য অন করা হয়েছে!' });
+        return res.json({ status: 'success', message: 'Coupon created in the database and enabled for customer accounts!' });
       }
 
       rows.forEach((c) => {
@@ -640,8 +640,8 @@ export const dispatchDirectCoupon = (req: Request, res: Response) => {
         }
       });
 
-      const autoMsg = shouldAutoEnroll ? ' এবং সকল কাস্টমার একাউন্টে স্বয়ংক্রিয়ভাবে অন করা হয়েছে!' : '';
-      res.json({ status: 'success', message: `সকল কাস্টমারের একাউন্টে কুপন পাঠানো হয়েছে${autoMsg}` });
+      const autoMsg = shouldAutoEnroll ? ' and automatically enabled for all customer accounts!' : '';
+      res.json({ status: 'success', message: `Coupon sent to all customer accounts${autoMsg}` });
     });
   }
 };
@@ -667,7 +667,7 @@ export const deleteAutoDispatchCoupon = (req: Request, res: Response) => {
 
   db.get(`SELECT setting_value FROM system_settings WHERE setting_key = 'auto_dispatch_coupons'`, [], (err, row: any) => {
     if (err || !row || !row.setting_value) {
-      return res.json({ status: 'success', message: 'ক্যাম্পেইন রিমুভ করা হয়েছে' });
+      return res.json({ status: 'success', message: 'Campaign has been removed' });
     }
     try {
       let existingCampaigns: any[] = JSON.parse(row.setting_value);
@@ -680,7 +680,7 @@ export const deleteAutoDispatchCoupon = (req: Request, res: Response) => {
         [jsonVal],
         function (err) {
           if (err) return res.status(500).json({ status: 'error', message: 'Database error' });
-          res.json({ status: 'success', message: 'অটো-ডিচপ্যাচ ক্যাম্পেইন বন্ধ করা হয়েছে!' });
+          res.json({ status: 'success', message: 'Auto-dispatch campaign stopped!' });
         }
       );
     } catch (e) {

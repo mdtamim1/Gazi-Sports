@@ -64,7 +64,7 @@ export const CustomerCouponsTab: React.FC<{ email: string }> = ({ email }) => {
     return (
       <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
         <RefreshCw className="animate-spin" size={24} style={{ margin: '0 auto 8px auto' }} />
-        <div>আপনার কুপনগুলো লোড হচ্ছে...</div>
+        <div>Loading your coupons...</div>
       </div>
     );
   }
@@ -77,10 +77,10 @@ export const CustomerCouponsTab: React.FC<{ email: string }> = ({ email }) => {
         <div>
           <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Ticket size={22} style={{ color: '#fbbf24' }} />
-            <span>আমার কুপন ও স্পেশাল অফারসমূহ (My Coupons)</span>
+            <span>My Coupons & Special Offers</span>
           </h3>
           <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
-            আপনার অ্যাকাউন্টে জমা হওয়া সকল ডিসকাউন্ট কুপন নিচে দেওয়া হলো। চেকআউটে কপি করে ব্যবহার করুন।
+            All discount coupons added to your account are listed below. Copy and apply them at checkout.
           </p>
         </div>
 
@@ -100,16 +100,16 @@ export const CustomerCouponsTab: React.FC<{ email: string }> = ({ email }) => {
           }}
         >
           <RefreshCw size={14} />
-          <span>রিফ্রেশ</span>
+          <span>Refresh</span>
         </button>
       </div>
 
       {activeCoupons.length === 0 ? (
         <div style={{ padding: '40px', textAlign: 'center', background: 'rgba(255,255,255,0.02)', border: '1px dashed var(--border)', borderRadius: '16px' }}>
           <Gift size={40} style={{ color: '#94a3b8', margin: '0 auto 12px auto' }} />
-          <h4 style={{ margin: '0 0 6px 0', fontSize: '1rem', color: 'var(--text-primary)' }}>কোনো কুপন কোড নেই</h4>
+          <h4 style={{ margin: '0 0 6px 0', fontSize: '1rem', color: 'var(--text-primary)' }}>No Coupon Codes Found</h4>
           <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
-            লটারি হুইল ঘুরিয়ে অথবা কেনাকাটা করে আপনার প্রথম কুপনটি সংগ্রহ করুন!
+            Spin the lottery wheel or place an order to collect your first coupon!
           </p>
         </div>
       ) : (
@@ -150,7 +150,7 @@ export const CustomerCouponsTab: React.FC<{ email: string }> = ({ email }) => {
                     }}
                   >
                     {coupon.source === 'admin_gift' ? <Gift size={12} /> : <Sparkles size={12} />}
-                    <span>{coupon.source === 'admin_gift' ? 'বিশেষ উপহার' : 'লটারি চাকা'}</span>
+                    <span>{coupon.source === 'admin_gift' ? 'Special Gift' : 'Spin Wheel'}</span>
                   </span>
 
                   <span
@@ -163,13 +163,13 @@ export const CustomerCouponsTab: React.FC<{ email: string }> = ({ email }) => {
                       gap: '4px'
                     }}
                   >
-                    {isUsed ? 'ব্যবহৃত' : 'সক্রিয়'}
+                    {isUsed ? 'Used' : 'Active'}
                   </span>
                 </div>
 
                 {/* Title & Value */}
                 <h4 style={{ margin: '0 0 6px 0', fontSize: '1rem', fontWeight: 800, color: '#ffffff' }}>
-                  {coupon.title || 'স্পেশাল ডিসকাউন্ট'}
+                  {coupon.title || 'Special Discount'}
                 </h4>
                 <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fbbf24', marginBottom: '16px' }}>
                   {displayValue}
@@ -208,7 +208,7 @@ export const CustomerCouponsTab: React.FC<{ email: string }> = ({ email }) => {
                     }}
                   >
                     {copiedCode === coupon.code ? <Check size={14} /> : <Copy size={14} />}
-                    <span>{copiedCode === coupon.code ? 'কপি হয়েছে!' : 'কপি'}</span>
+                    <span>{copiedCode === coupon.code ? 'Copied!' : 'Copy'}</span>
                   </button>
                 </div>
               </div>

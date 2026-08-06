@@ -698,40 +698,40 @@ function initializeDatabase() {
       if (!err && row && row.count === 0) {
         const welcomeQuizJson = JSON.stringify([
           {
-            question: "১. কোন খেলায় শাটলকর্ক (shuttlecock) ব্যবহার করা হয়?",
-            options: ["ফুটবল (Football)", "ক্রিকেট (Cricket)", "ব্যাডমিন্টন (Badminton)", "টেনিস (Tennis)"],
-            correct: "ব্যাডমিন্টন (Badminton)"
+            question: "1. Which sport uses a shuttlecock?",
+            options: ["Football", "Cricket", "Badminton", "Tennis"],
+            correct: "Badminton"
           },
           {
-            question: "২. গাজী স্পোর্টসের হেক্স ডাম্বেল (Hex Dumbbell Set) সেটের মোট ওজন কত?",
-            options: ["১০ কেজি (10kg)", "২০ কেজি (20kg)", "৩০ কেজি (30kg)", "৫ কেজি (5kg)"],
-            correct: "২০ কেজি (20kg)"
+            question: "2. What is the total weight of Gazi Sports' Hex Dumbbell Set?",
+            options: ["10kg", "20kg", "30kg", "5kg"],
+            correct: "20kg"
           },
           {
-            question: "৩. পেটের মেদ কমাতে এবং কোর শক্তিশালী করতে নিচের কোন রোলারটি উপযোগী?",
-            options: ["ফেস রোলার (Face Roller)", "হেয়ার রোলার (Hair Roller)", "এবি রোলার (AB Roller)"],
-            correct: "এবি রোলার (AB Roller)"
+            question: "3. Which of the following rollers is suitable for reducing belly fat and strengthening core?",
+            options: ["Face Roller", "Hair Roller", "AB Roller"],
+            correct: "AB Roller"
           }
         ]);
 
         const fitnessQuizJson = JSON.stringify([
           {
-            question: "১. কার্ডিও এক্সারসাইজের জন্য নিচের কোনটি সবচেয়ে কার্যকর?",
-            options: ["ভারোত্তোলন (Weightlifting)", "দড়ি লাফানো (Skipping)", "যোগব্যায়াম (Yoga)"],
-            correct: "দড়ি লাফানো (Skipping)"
+            question: "1. Which of the following is most effective for cardio exercise?",
+            options: ["Weightlifting", "Skipping", "Yoga"],
+            correct: "Skipping"
           },
           {
-            question: "২. আমাদের ট্র্যাডমিল সেটের সর্বোচ্চ গতিসীমা কত?",
-            options: ["১০ কিমি/ঘণ্টা", "১৬ কিমি/ঘণ্টা", "২২ কিমি/ঘণ্টা"],
-            correct: "১৬ কিমি/ঘণ্টা"
+            question: "2. What is the maximum speed limit of our treadmill set?",
+            options: ["10 km/h", "16 km/h", "22 km/h"],
+            correct: "16 km/h"
           }
         ]);
 
         db.run(`
           INSERT INTO events (id, title, description, reward_coupon_code, start_date, end_date, image_url, video_url, quiz_data, discount_value, status)
           VALUES 
-          ('EVT-001', 'Gazi Sports Welcome Quiz Challenge', 'আমাদের স্টোরের বিভিন্ন প্রোডাক্ট এবং খেলাধুলা বিষয়ক সাধারণ প্রশ্নের সঠিক উত্তর দিয়ে জিতে নিন ১৫% স্পেশাল কুপন ডিসকাউন্ট কোড।', 'GAZIQUIZ', ?, ?, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80', '', ?, 15, 'active'),
-          ('EVT-002', 'Summer Fitness Challenge 2026', 'ব্যায়াম ও সুস্থ থাকার এই চ্যালেঞ্জ ইভেন্টটি সম্পন্ন করে জিতে নিন আকর্ষণীয় ২০% ডিসকাউন্ট ভাউচার।', 'FITNESS2026', ?, ?, 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=80', '', ?, 20, 'active')
+          ('EVT-001', 'Gazi Sports Welcome Quiz Challenge', 'Answer simple questions about our store products and sports correctly to win a special 15% discount coupon code.', 'GAZIQUIZ', ?, ?, 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80', '', ?, 15, 'active'),
+          ('EVT-002', 'Summer Fitness Challenge 2026', 'Complete this exercise and health challenge event to win an exciting 20% discount voucher.', 'FITNESS2026', ?, ?, 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=600&q=80', '', ?, 20, 'active')
         `, [
           new Date().toISOString().split('T')[0],
           new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
@@ -749,7 +749,7 @@ function initializeDatabase() {
       if (!err && row && row.count === 0) {
         db.run(`
           INSERT INTO campaigns (id, name, type, status, sent, opened, clicked, converted, revenue, start_date, end_date, product_ids)
-          VALUES ('CMP-001', 'ধামাকা ওপেনিং অফার', 'email', 'active', 5000, 2400, 1100, 320, 145000.0, ?, ?, '1,2,3,4')
+          VALUES ('CMP-001', 'Dhaka Opening Offer', 'email', 'active', 5000, 2400, 1100, 320, 145000.0, ?, ?, '1,2,3,4')
         `, [
           new Date().toISOString().split('T')[0],
           new Date(Date.now() + 15 * 24 * 3600 * 1000).toISOString().split('T')[0]
@@ -879,57 +879,51 @@ function initializeDatabase() {
           const defaultBlogs = [
           {
             id: 'blog-1',
-            title: '৫টি সহজ উপায়ে আপনার স্কিন গ্লোয়িং ও হেলদি রাখুন',
-            slug: '5-ways-glowing-healthy-skin',
-            summary: 'স্কিন কেয়ার বা ত্বকের যত্ন নেওয়া কঠিন কিছু নয়। মাত্র কয়েকটি সাধারণ নিয়ম মেনে চললে আপনিও পেতে পারেন উজ্জ্বল ও সতেজ ত্বক। বিস্তারিত পড়ুন আমাদের আজকের ব্লগে।',
-            content: `<p>সুন্দর, উজ্জ্বল ও সুস্থ ত্বক সবারই কাম্য। তবে ব্যস্ত জীবনের ধকল, দূষণ ও সঠিক যত্নের অভাবে আমাদের ত্বক প্রায়শই সতেজতা হারিয়ে ফেলে। ত্বককে প্রাকৃতিকভাবে গ্লোয়িং ও হেলদি রাখার জন্য এখানে ৫টি অত্যন্ত কার্যকর ও সহজ উপায় আলোচনা করা হলো:</p>
+            title: '5 Simple Tips to Stay Fit and Healthy at Home',
+            slug: '5-simple-tips-stay-fit-healthy-home',
+            summary: 'Staying fit doesn\'t have to be complicated. With a few simple habits and the right equipment, you can stay healthy and active from the comfort of your home.',
+            content: `<p>Staying active and healthy is essential for a productive life. However, with busy schedules, it can be hard to go to the gym. Here are 5 effective tips to maintain your fitness at home:</p>
 
-<h3>১. পর্যাপ্ত পানি পান করুন</h3>
-<p>ত্বকের আর্দ্রতা ধরে রাখার সবচেয়ে সহজ উপায় হলো প্রচুর পানি পান করা। প্রতিদিন অন্তত ৮-১০ গ্লাস পানি পান করুন। এটি আপনার শরীর থেকে ক্ষতিকর টক্সিন বের করে দিতে সাহায্য করে এবং ত্বকে প্রাকৃতিক উজ্জ্বলতা এনে দেয়।</p>
+<h3>1. Stay Hydrated</h3>
+<p>Drinking enough water is key to maintaining energy levels and keeping your muscles functioning correctly. Aim for at least 8-10 glasses of water daily.</p>
 
-<h3>২. ডাবল ক্লিনজিং পদ্ধতি ব্যবহার করুন</h3>
-<p>সারাদিনের ধুলোবালি ও মেকআপ দূর করার জন্য শুধু ফেসওয়াশ যথেষ্ট নয়। প্রথমে একটি অয়েল-বেসড ক্লিনার বা মাইসেলার ওয়াটার দিয়ে ত্বক পরিষ্কার করুন। এরপর আপনার স্কিন টাইপ অনুযায়ী ফেসওয়াশ ব্যবহার করুন।</p>
+<h3>2. Set a Consistent Routine</h3>
+<p>Dedicate a specific time of day for your exercises, whether it's early morning or evening. Consistency builds habit.</p>
 
-<h3>৩. রেগুলার ময়েশ্চারাইজার ও সানস্ক্রিন ব্যবহার</h3>
-<p>স্কিন টাইপ যেমনই হোক না কেন, ময়েশ্চারাইজার ব্যবহার করা জরুরি। আর দিনের বেলা ঘরের বাইরে বা ভেতরে যেখানেই থাকুন না কেন, অন্তত SPF 30+ সমৃদ্ধ সানস্ক্রিন ব্যবহার করতে ভুলবেন না। এটি ত্বকে সানবার্ন ও অকাল বার্ধক্য প্রতিরোধ করে।</p>
+<h3>3. Use the Right Fitness Gear</h3>
+<p>Having basic gear like dumbbells, resistance bands, or a yoga mat can significantly increase the variety and effectiveness of your home workouts.</p>
 
-<h3>৪. সুষম খাবার ও পর্যাপ্ত ঘুম</h3>
-<p>ভিটামিন সি এবং ই সমৃদ্ধ ফলমূল যেমন লেবু, পেয়ারা, কমলা ইত্যাদি আপনার খাদ্যতালিকায় রাখুন। এছাড়াও প্রতিদিন ৭-৮ ঘণ্টার ভালো ঘুম ত্বক কোষের পুনর্গঠনে অত্যন্ত সাহায্য করে।</p>
+<h3>4. Focus on Balanced Nutrition</h3>
+<p>Eat a mix of proteins, healthy fats, and complex carbohydrates. Fueling your body correctly makes a big difference in how you feel and perform.</p>
 
-<h3>৫. ঘরোয়া ফেসপ্যাকের ব্যবহার</h3>
-<p>সপ্তাহে অন্তত একদিন বেসন, মধু এবং টকদই মিশিয়ে কাস্টম ফেসপ্যাক তৈরি করে মুখে লাগাতে পারেন। এটি ত্বককে প্রাকৃতিকভাবে এক্সফোলিয়েট করে এবং ইনস্ট্যান্ট গ্লো এনে দেয়।</p>
-
-<p>ত্বকের যত্ন নেওয়ার ক্ষেত্রে ধারাবাহিকতা সবচেয়ে গুরুত্বপূর্ণ। আজ থেকেই এই নিয়মগুলো মেনে চলা শুরু করুন এবং অল্প কিছুদিনের মধ্যেই আপনার ত্বকের পরিবর্তন লক্ষ্য করুন!</p>`,
+<h3>5. Prioritize Sleep</h3>
+<p>Your muscles need time to recover and rebuild. Ensure you get 7-8 hours of quality sleep every night.</p>`,
             banner_image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
-            author_name: 'সাবিহা ইয়াসমিন',
+            author_name: 'Gazi Sports Team',
             published: 1
           },
           {
             id: 'blog-2',
-            title: 'মেকআপ ব্রাশ পরিষ্কার করার সঠিক নিয়ম ও গুরুত্ব',
-            slug: 'how-to-clean-makeup-brushes-correctly',
-            summary: 'অপরিষ্কার মেকআপ ব্রাশ ব্যবহার করলে ত্বকে ব্রণ ও অন্যান্য সমস্যা হতে পারে। ব্রাশ পরিষ্কার করার সহজ ও সঠিক নিয়মটি জেনে নিন এই ব্লগের মাধ্যমে।',
-            content: `<p>মেকআপপ্রেমীদের কাছে মেকআপ ব্রাশ এবং ব্লেন্ডার অত্যন্ত মূল্যবান সরঞ্জাম। তবে এগুলো সঠিক সময়ে পরিষ্কার না করা হলে তা আপনার ত্বকের জন্য মারাত্মক ক্ষতিকর হতে পারে। নোংরা ব্রাশে ব্যাকটেরিয়া জমে থাকে, যা ত্বকে ব্রণ, ফুসকুড়ি ও ইনফেকশন তৈরি করতে পারে।</p>
+            title: 'How to Choose the Right Running Shoes',
+            slug: 'how-to-choose-right-running-shoes',
+            summary: 'Choosing the right pair of shoes is crucial to prevent injuries and improve performance. Learn how to pick the perfect fit for your feet.',
+            content: `<p>A good pair of running shoes is the most important piece of gear for any runner or fitness enthusiast. Wearing the wrong shoes can lead to discomfort, blisters, or even joint injuries.</p>
 
-<h3>কেন মেকআপ ব্রাশ পরিষ্কার করবেন?</h3>
+<h3>Why the Right Fit Matters</h3>
 <ul>
-  <li><strong>ত্বকের সুরক্ষায়:</strong> ব্রাশে থাকা অতিরিক্ত তেল, মৃত চামড়া এবং ধুলাবালি সরাসরি ত্বকের সংস্পর্শে আসে, যা পোরস ব্লক করে দেয়।</li>
-  <li><strong>মেকআপের পারফেকশনের জন্য:</strong> নোংরা ব্রাশে আগে লেগে থাকা মেকআপের কারণে নতুন মেকআপ ব্লেন্ড করতে সমস্যা হয়।</li>
-  <li><strong>ব্রাশের স্থায়িত্ব বাড়াতে:</strong> নিয়মিত পরিষ্কার করলে ব্রাশের ব্রিসলস নরম ও টেকসই থাকে।</li>
+  <li><strong>Injury Prevention:</strong> Proper shoes absorb shock and support your arches, protecting your knees and ankles.</li>
+  <li><strong>Better Performance:</strong> A shoe that fits well allows you to run faster and longer with less effort.</li>
+  <li><strong>Comfort:</strong> Breathable mesh and soft cushioning keep your feet comfortable during intense workouts.</li>
 </ul>
 
-<h3>পরিষ্কার করার সহজ ধাপসমূহ:</h3>
+<h3>Key Things to Consider</h3>
 <ol>
-  <li><strong>ব্রাশ ভেজানো:</strong> হালকা গরম পানিতে ব্রাশের ব্রিসলস বা চুলগুলো ভিজিয়ে নিন। লক্ষ্য রাখবেন যেন হ্যান্ডেল এবং ব্রিসলসের সংযোগস্থলে পানি না যায়, এতে আঠা আলগা হয়ে চুল পড়ে যেতে পারে।</li>
-  <li><strong>ক্লিনজার ব্যবহার:</strong> একটি পাত্রে সামান্য বেবি শ্যাম্পু অথবা ব্রাশ ক্লিনজার নিন। সেখানে ব্রাশটি আলতোভাবে ঘুরিয়ে ফেনা তৈরি করুন।</li>
-  <li><strong>স্ক্রাবিং:</strong> হাতের তালুতে অথবা একটি সিলিকন স্ক্রাব প্যাডে ব্রাশের মাথাটি আলতো করে ঘষুন যাতে জমে থাকা মেকআপ উঠে আসে।</li>
-  <li><strong>ধুয়ে ফেলা:</strong> পরিষ্কার পানি দিয়ে ব্রাশের মাথাটি ধুয়ে ফেলুন যতক্ষণ না পর্যন্ত ফেনা চলে যায়।</li>
-  <li><strong>শুকানো:</strong> অতিরিক্ত পানি চিপে বের করে একটি শুকনা তোয়ালেতে ব্রাশগুলো সমান করে বিছিয়ে দিন। কখনোই ব্রাশ সোজা খাড়া করে শুকাবেন না, এতে পানি হ্যান্ডেলের ভেতরে চলে যায়।</li>
-</ol>
-
-<p>নিয়মিত সপ্তাহে অন্তত একবার আপনার ব্যবহৃত মেকআপ ব্রাশ ও স্পঞ্জ পরিষ্কার করার অভ্যাস গড়ে তুলুন এবং ত্বককে রাখুন রোগমুক্ত ও সতেজ!</p>`,
+  <li><strong>Arch Support:</strong> Know your foot type (flat, neutral, or high arch) to select the matching sole support.</li>
+  <li><strong>Cushioning:</strong> Choose more cushioning for long-distance running, and less for track workouts.</li>
+  <li><strong>Size Up:</strong> Your feet swell when running, so it is often wise to choose a half-size larger than your casual shoes.</li>
+</ol>`,
             banner_image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80',
-            author_name: 'তানিয়া রহমান',
+            author_name: 'Gazi Sports Team',
             published: 1
           }
         ];

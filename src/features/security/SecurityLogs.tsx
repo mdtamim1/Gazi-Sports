@@ -54,10 +54,10 @@ export default function SecurityLogs() {
           setTotalCount(response.pagination.total || 0);
         }
       } else {
-        setErrorMsg(response?.message || 'লগ লোড করতে ব্যর্থ হয়েছে।');
+        setErrorMsg(response?.message || 'Failed to load logs.');
       }
     } catch (e) {
-      setErrorMsg('সার্ভারে যোগাযোগ করা যাচ্ছে না।');
+      setErrorMsg('Cannot connect to the server.');
     } finally {
       setLoading(false);
     }
@@ -88,7 +88,7 @@ export default function SecurityLogs() {
           setTotalCount(response.pagination?.total || 0);
         }
       })
-      .catch(() => setErrorMsg('সার্ভার থেকে লগ রিকোয়েস্ট ব্যর্থ হয়েছে।'))
+      .catch(() => setErrorMsg('Log request from server failed.'))
       .finally(() => setLoading(false));
   };
 
@@ -127,7 +127,7 @@ export default function SecurityLogs() {
           </div>
           <h1 className="page-title">Security & Audit Logs</h1>
           <p className="page-subtitle">
-            অ্যাডমিন এবং এমপ্লয়িদের সকল নিরাপত্তা ও ডাটা পরিবর্তনের অ্যাক্টিভিটি অডিট ট্রেইল।
+            Audit trail of all security and data change activities of admins and employees.
           </p>
         </div>
         <div className="page-header-actions">
@@ -251,7 +251,7 @@ export default function SecurityLogs() {
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-tertiary)' }}>
                     <ShieldAlert size={36} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-                    <div style={{ fontSize: 'var(--text-sm)' }}>কোনো লগ ডাটা পাওয়া যায়নি।</div>
+                    <div style={{ fontSize: 'var(--text-sm)' }}>No log data found.</div>
                   </td>
                 </tr>
               ) : (
@@ -451,3 +451,4 @@ export default function SecurityLogs() {
     </div>
   );
 }
+

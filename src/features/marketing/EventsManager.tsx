@@ -43,7 +43,7 @@ export default function EventsManager() {
 
   // Dynamic Quiz State
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([
-    { question: '১. কোন খেলায় শাটলকর্ক (shuttlecock) ব্যবহার করা হয়?', options: ['ফুটবল (Football)', 'ক্রিকেট (Cricket)', 'ব্যাডমিন্টন (Badminton)', 'টেনিস (Tennis)'], correct: 'ব্যাডমিন্টন (Badminton)' }
+    { question: '1. In which sport is a shuttlecock used?', options: ['Football', 'Cricket', 'Badminton', 'Tennis'], correct: 'Badminton' }
   ]);
 
   const loadEvents = async () => {
@@ -146,7 +146,7 @@ export default function EventsManager() {
       setVideoUrl('');
       setDiscountValue(15);
       setQuizQuestions([
-        { question: '১. কোন খেলায় শাটলকর্ক (shuttlecock) ব্যবহার করা হয়?', options: ['ফুটবল (Football)', 'ক্রিকেট (Cricket)', 'ব্যাডমিন্টন (Badminton)', 'টেনিস (Tennis)'], correct: 'ব্যাডমিন্টন (Badminton)' }
+        { question: '1. In which sport is a shuttlecock used?', options: ['Football', 'Cricket', 'Badminton', 'Tennis'], correct: 'Badminton' }
       ]);
       setStatus('active');
       loadEvents();
@@ -275,7 +275,7 @@ export default function EventsManager() {
             <label className="sfm-label" style={{ display: 'block', marginBottom: '6px' }}>Event Description</label>
             <textarea 
               rows={3}
-              placeholder="e.g. কুইজটির সঠিক উত্তর দিয়ে জিতে নিন স্পেশাল ডিসকাউন্ট কুপন..."
+              placeholder="e.g. Answer the quiz correctly to win a special discount coupon..."
               value={description}
               onChange={e => setDescription(e.target.value)}
               className="sfm-textarea"
@@ -323,7 +323,7 @@ export default function EventsManager() {
                           const webpBase64 = await convertToWebP(file);
                           setImageUrl(webpBase64);
                         } catch (err) {
-                          alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+                          alert('Failed to convert image.');
                         }
                       }
                     }} 
@@ -482,7 +482,7 @@ export default function EventsManager() {
                   <input 
                     type="text" 
                     required 
-                    placeholder="Enter question text (e.g. ১. ফুটবল ম্যাচ কত মিনিটের হয়?)"
+                    placeholder="Enter question text (e.g. 1. How many minutes is a football match?)"
                     value={q.question}
                     onChange={e => handleQuestionTextChange(qIdx, e.target.value)}
                     className="sfm-input"
@@ -588,7 +588,7 @@ export default function EventsManager() {
                         {event.reward_coupon_code}
                       </span>
                       <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                        🎁 {event.discount_value}% Discount
+                        ðŸŽ {event.discount_value}% Discount
                       </span>
                     </div>
                   </td>
@@ -621,3 +621,4 @@ export default function EventsManager() {
     </div>
   );
 }
+

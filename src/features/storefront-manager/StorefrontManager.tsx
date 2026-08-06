@@ -235,7 +235,7 @@ function BannersSection({ config, updateConfig }: SectionProps) {
               <div className="sfm-gradient-preview" style={{ background: banner.gradient, width: 60, height: 36, borderRadius: 6, flexShrink: 0 }} />
               <div className="sfm-item-content">
                 <div className="sfm-item-title">{banner.title}</div>
-                <div className="sfm-item-meta">{banner.tag} • {banner.offer}</div>
+                <div className="sfm-item-meta">{banner.tag} â€¢ {banner.offer}</div>
               </div>
               <Toggle checked={banner.enabled} onChange={(v) => update(banner.id, 'enabled', v)} />
               <div className="sfm-actions">
@@ -291,7 +291,7 @@ function BannersSection({ config, updateConfig }: SectionProps) {
                                   const webpBase64 = await convertToWebP(file);
                                   update(banner.id, 'image', webpBase64);
                                 } catch (err) {
-                                  alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+                                  alert('Failed to convert image.');
                                 }
                               }
                             }} 
@@ -380,7 +380,7 @@ function BannersSection({ config, updateConfig }: SectionProps) {
                                   const webpBase64 = await convertToWebP(file);
                                   updateMiddle(banner.id, 'image', webpBase64);
                                 } catch (err) {
-                                  alert('ইমেজ রূপান্তর করতে ব্যর্থ হয়েছে।');
+                                  alert('Failed to convert image.');
                                 }
                               }
                             }} 
@@ -414,7 +414,7 @@ function AnnouncementsSection({ config, updateConfig }: SectionProps) {
 
   const add = () => {
     const newId = Math.max(0, ...items.map(a => a.id)) + 1;
-    updateConfig('announcements', [...items, { id: newId, text: '📢 New announcement text here', enabled: true }]);
+    updateConfig('announcements', [...items, { id: newId, text: 'ðŸ“¢ New announcement text here', enabled: true }]);
   };
 
   const remove = (id: number) => {
@@ -525,7 +525,7 @@ function CategoriesSection({ config, updateConfig }: SectionProps) {
                 <div className="sfm-item-content">
                   <div className="sfm-item-title">{cat.name}</div>
                   <div className="sfm-item-meta">
-                    Image Mode: {cat.useCustomImage ? '🖼️ Custom Image Enabled' : '📦 Last Product Image (Auto)'} • {actualCount} products • Sort #{cat.sortOrder}
+                    Image Mode: {cat.useCustomImage ? 'ðŸ–¼ï¸ Custom Image Enabled' : 'ðŸ“¦ Last Product Image (Auto)'} â€¢ {actualCount} products â€¢ Sort #{cat.sortOrder}
                   </div>
                 </div>
                 <span className={`sfm-card-badge ${cat.published ? 'enabled' : 'disabled'}`}>
@@ -691,7 +691,7 @@ function NavigationSection({ config, updateConfig }: SectionProps) {
                     type="text"
                     className="sfm-input"
                     style={{ width: '100%', padding: '8px 12px', fontSize: '13px' }}
-                    placeholder="🔍 Search catalog products by name or category..."
+                    placeholder="ðŸ” Search catalog products by name or category..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                   />
@@ -818,7 +818,7 @@ function NavigationSection({ config, updateConfig }: SectionProps) {
                   borderTop: '1px dashed rgba(255,255,255,0.08)' 
                 }}>
                   <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    🕒 Timer Configuration (Countdown Clock)
+                    ðŸ•’ Timer Configuration (Countdown Clock)
                   </div>
                   
                   <div style={{ 
@@ -1009,7 +1009,7 @@ function FooterSection({ config, updateConfig }: SectionProps) {
                   <div style={{ marginTop: 6, borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: 8 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                       <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>
-                        📝 Page Content (HTML allowed, e.g. &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;, &lt;li&gt;)
+                        ðŸ“ Page Content (HTML allowed, e.g. &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;, &lt;li&gt;)
                       </span>
                       {link.customPageContent !== undefined ? (
                         <button
@@ -1030,7 +1030,7 @@ function FooterSection({ config, updateConfig }: SectionProps) {
                           className="btn btn-primary"
                           style={{ fontSize: '10px', padding: '2px 8px', height: 'auto', minHeight: 'unset' }}
                           onClick={() => {
-                            updateLink(colIdx, link.id, 'customPageContent', '<h3>নূতন পেজ</h3><p>এখানে আপনার পেজ এর লেখাগুলো লিখুন।</p>');
+                            updateLink(colIdx, link.id, 'customPageContent', '<h3>New Page</h3><p>Write your page content here.</p>');
                           }}
                         >
                           Enable Page Content
@@ -1094,7 +1094,7 @@ function FeaturedCollectionsSection({ config, updateConfig }: SectionProps) {
         {/* Trending Section */}
         <div className="sfm-card" style={{ margin: 0 }}>
           <div className="sfm-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div className="sfm-card-title">📈 Trending Collection</div>
+            <div className="sfm-card-title">ðŸ“ˆ Trending Collection</div>
             <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Selected: {trendingIds.length}</span>
           </div>
 
@@ -1163,7 +1163,7 @@ function FeaturedCollectionsSection({ config, updateConfig }: SectionProps) {
         {/* New Arrivals Section */}
         <div className="sfm-card" style={{ margin: 0 }}>
           <div className="sfm-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div className="sfm-card-title">✨ New Arrivals Collection</div>
+            <div className="sfm-card-title">âœ¨ New Arrivals Collection</div>
             <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Selected: {newArrivalIds.length}</span>
           </div>
 
@@ -1323,6 +1323,27 @@ function BrandingSection({ config, updateConfig }: SectionProps) {
             <label className="sfm-label">Instagram Profile URL</label>
             <input className="sfm-input" value={c.instagramUrl || ''} onChange={e => updateC('instagramUrl', e.target.value)} />
           </div>
+          <div className="sfm-form-group full-width">
+            <label className="sfm-label">🏢 Shop Physical Address</label>
+            <input
+              className="sfm-input"
+              value={c.shopAddress || ''}
+              onChange={e => updateC('shopAddress', e.target.value)}
+              placeholder="e.g. Sector 10, Uttara, Dhaka, Bangladesh"
+            />
+          </div>
+          <div className="sfm-form-group full-width">
+            <label className="sfm-label">📍 Google Maps Link (Shop Location)</label>
+            <input
+              className="sfm-input"
+              value={c.shopLocationMapUrl || ''}
+              onChange={e => updateC('shopLocationMapUrl', e.target.value)}
+              placeholder="Paste Google Maps URL here (e.g. https://maps.google.com/?q=...)"
+            />
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+              When set, a "Find Us on Google Maps" link will appear in the footer. Leave empty to hide it.
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1370,7 +1391,7 @@ function BadgesSection({ config, updateConfig }: SectionProps) {
               <div className="sfm-item-number">{idx + 1}</div>
               <div className="sfm-item-content">
                 <div className="sfm-item-title">{badge.title}</div>
-                <div className="sfm-item-meta">Icon: {badge.icon} • {badge.description}</div>
+                <div className="sfm-item-meta">Icon: {badge.icon} â€¢ {badge.description}</div>
               </div>
               <Toggle checked={badge.enabled} onChange={(v) => update(badge.id, 'enabled', v)} />
               <div className="sfm-actions">
@@ -1453,3 +1474,4 @@ function DeliverySection({ config, updateConfig }: SectionProps) {
     </div>
   );
 }
+

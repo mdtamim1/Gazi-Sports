@@ -85,7 +85,7 @@ export default function EventsPage() {
 
   const handleStartPlay = (event: EventData) => {
     if (!customer) {
-      alert("ইভেন্টে অংশগ্রহণ করতে প্রথমে আপনার জিমেইল অ্যাকাউন্ট দিয়ে লগইন করুন।");
+      alert("Please log in with your Gmail account to participate in events.");
       navigate('/account');
       return;
     }
@@ -136,7 +136,7 @@ export default function EventsPage() {
         setAchievements(achRes.data || []);
       }
     } else {
-      alert(res.message || "পুরস্কার ক্লেইম করা ব্যর্থ হয়েছে।");
+      alert(res.message || "Claiming the reward failed.");
     }
     setClaimLoading(false);
   };
@@ -172,32 +172,32 @@ export default function EventsPage() {
         >
           <div style={{ position: 'absolute', top: '10px', right: '20px', opacity: 0.1 }}><Trophy size={160} /></div>
           <span style={{ background: 'rgba(255, 255, 255, 0.15)', padding: '6px 16px', borderRadius: '30px', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <Sparkles size={14} style={{ color: '#fbbf24' }} /> কাস্টমার অ্যাচিভমেন্ট ও পুরস্কার
+            <Sparkles size={14} style={{ color: '#fbbf24' }} /> Customer Achievements & Rewards
           </span>
           <h1 style={{ margin: '0 0 10px 0', fontSize: '2rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
             GAZI SPORTS EVENTS
           </h1>
           <p style={{ margin: 0, fontSize: '0.95rem', color: '#e2e8f0', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.5 }}>
-            আমাদের বিভিন্ন ইভেন্টে অংশ নিয়ে সঠিক চ্যালেঞ্জ সম্পন্ন করুন এবং সরাসরি আপনার ওয়ালেটে কুপন ডিসকাউন্ট জিতে নিন!
+            Participate in our events, complete the challenges, and win coupon discounts directly in your wallet!
           </p>
         </div>
 
         {/* Info Box */}
         <div style={{ background: 'rgba(233, 43, 43, 0.04)', borderLeft: '4px solid #E92B2B', padding: '16px 20px', borderRadius: '8px', marginBottom: '30px', fontSize: '0.88rem', color: '#1e293b', lineHeight: 1.6 }}>
-          💡 <strong>অংশগ্রহণের শর্তাবলী:</strong> ইভেন্টগুলোতে অংশ নিতে অবশ্যই একটি **বাস্তব জিমেইল (@gmail.com)** অ্যাকাউন্ট দিয়ে গাজী স্পোর্টসে একাউন্ট তৈরি করে লগইন করতে হবে। অর্জিত সকল কুপন ও অ্যাচিভমেন্ট আপনার আইডিতে লাইফটাইম সেভ থাকবে।
+          💡 <strong>Terms & Conditions:</strong> To participate in events, you must log in using a valid **Gmail (@gmail.com)** account. All earned coupons and achievements will be saved lifetime in your profile.
         </div>
 
         {/* Events Section */}
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px 0' }}>
             <div style={{ width: '40px', height: '40px', border: '3px solid #E92B2B', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
-            <p style={{ color: 'var(--sf-text-tertiary)' }}>ইভেন্ট লোড হচ্ছে...</p>
+            <p style={{ color: 'var(--sf-text-tertiary)' }}>Loading events...</p>
           </div>
         ) : events.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', background: 'white', borderRadius: '12px', border: '1.5px solid var(--sf-border)' }}>
             <Trophy size={48} style={{ opacity: 0.2, margin: '0 auto 16px' }} />
-            <h3 style={{ margin: 0 }}>কোনো সক্রিয় ইভেন্ট নেই</h3>
-            <p style={{ color: 'var(--sf-text-tertiary)', marginTop: '6px' }}>নতুন কোনো ইভেন্ট পাবলিশ হলে তা এখানে দেখতে পাবেন।</p>
+            <h3 style={{ margin: 0 }}>No Active Events Found</h3>
+            <p style={{ color: 'var(--sf-text-tertiary)', marginTop: '6px' }}>When a new event is published, you will see it here.</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '30px' }}>
@@ -265,7 +265,7 @@ export default function EventsPage() {
                       {isClaimed ? (
                         <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '16px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#15803d', fontWeight: 800, fontSize: '0.85rem', marginBottom: '8px' }}>
-                            <CheckCircle size={16} /> <span>চ্যালেঞ্জ সফল ও পুরস্কার ক্লেইমড!</span>
+                            <CheckCircle size={16} /> <span>Challenge successful & reward claimed!</span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'white', border: '1.5px dashed #bbf7d0', padding: '8px 12px', borderRadius: '8px' }}>
                             <span style={{ fontFamily: 'monospace', fontWeight: 900, color: '#16a34a', fontSize: '1.1rem' }}>{activeCode}</span>
@@ -299,7 +299,7 @@ export default function EventsPage() {
                           }}
                         >
                           <Flame size={16} style={{ color: '#f59e0b' }} />
-                          <span>ইভেন্ট কুইজ খেলুন (Play Quiz)</span>
+                          <span>Play Quiz</span>
                           <ArrowRight size={16} />
                         </button>
                       )}
@@ -325,14 +325,14 @@ export default function EventsPage() {
 
               <h2 style={{ fontSize: '1.25rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', margin: '0 0 8px 0', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', color: '#0f172a' }}>
                 <HelpCircle size={22} style={{ color: '#E92B2B' }} />
-                <span>স্পোর্টস কুইজ চ্যালেঞ্জ</span>
+                <span>Sports Quiz Challenge</span>
               </h2>
 
               {!quizFinished ? (
                 <div>
                   <div style={{ margin: '16px 0', display: 'flex', justifyItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 800, color: '#E92B2B' }}>
-                    <span>প্রশ্ন: {currentQuestionIndex + 1} / {quizQuestions.length}</span>
-                    <span>সঠিক উত্তর দেয়া বাধ্যতামূলক</span>
+                    <span>Question: {currentQuestionIndex + 1} / {quizQuestions.length}</span>
+                    <span>Correct answers are mandatory</span>
                   </div>
 
                   <h3 style={{ fontSize: '1.05rem', fontWeight: 800, lineHeight: 1.5, margin: '0 0 20px 0', color: '#0f172a' }}>
@@ -382,7 +382,7 @@ export default function EventsPage() {
                       transition: 'all 0.2s'
                     }}
                   >
-                    {currentQuestionIndex === quizQuestions.length - 1 ? 'সাবমিট করুন' : 'পরবর্তী প্রশ্ন'}
+                    {currentQuestionIndex === quizQuestions.length - 1 ? 'Submit' : 'Next Question'}
                   </button>
                 </div>
               ) : (
@@ -392,16 +392,16 @@ export default function EventsPage() {
                       <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#16a34a' }}>
                         <CheckCircle size={36} />
                       </div>
-                      <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#16a34a', margin: '0 0 8px 0' }}>কুইজ সফল হয়েছে!</h3>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#16a34a', margin: '0 0 8px 0' }}>Quiz Successful!</h3>
                       <p style={{ color: '#334155', fontSize: '0.88rem', margin: '0 0 24px 0', lineHeight: 1.5 }}>
-                        সবগুলো প্রশ্নের সঠিক উত্তর প্রদানের মাধ্যমে আপনি পুরস্কার ভাউচারটি আনলক করেছেন।
+                        By answering all questions correctly, you have unlocked the reward voucher.
                       </p>
 
                       {claimLoading ? (
-                        <div style={{ padding: '16px 0', color: '#0f172a' }}>কুপন জেনারেট হচ্ছে...</div>
+                        <div style={{ padding: '16px 0', color: '#0f172a' }}>Generating coupon...</div>
                       ) : (
                         <div style={{ background: '#f8fafc', border: '1.5px dashed #cbd5e1', borderRadius: '16px', padding: '20px' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>আপনার কুপন কোড (Coupon Code)</span>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Your Coupon Code</span>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '8px' }}>
                             <span style={{ fontSize: '1.6rem', fontFamily: 'monospace', fontWeight: 900, color: '#16a34a' }}>{rewardCode}</span>
                             <button 
@@ -429,7 +429,7 @@ export default function EventsPage() {
                           cursor: 'pointer'
                         }}
                       >
-                        বন্ধ করুন
+                        Close
                       </button>
                     </div>
                   ) : (
@@ -437,9 +437,9 @@ export default function EventsPage() {
                       <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#ef4444' }}>
                         <X size={36} />
                       </div>
-                      <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ef4444', margin: '0 0 8px 0' }}>দুঃখিত! ভুল উত্তর দেওয়া হয়েছে।</h3>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ef4444', margin: '0 0 8px 0' }}>Sorry! Incorrect Answer.</h3>
                       <p style={{ color: '#334155', fontSize: '0.88rem', margin: '0 0 24px 0', lineHeight: 1.5 }}>
-                        আপনার যেকোনো প্রশ্নের উত্তর ভুল ছিল। পুরস্কার ভাউচার আনলক করতে সবগুলো উত্তর সঠিক হওয়া আবশ্যক।
+                        One of your answers was incorrect. Correct answers to all questions are mandatory to unlock the reward voucher.
                       </p>
 
                       <button
@@ -459,7 +459,7 @@ export default function EventsPage() {
                           cursor: 'pointer'
                         }}
                       >
-                        আবার চেষ্টা করুন (Retry)
+                        Retry
                       </button>
                     </div>
                   )}

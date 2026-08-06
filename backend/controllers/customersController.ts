@@ -33,7 +33,7 @@ export const grantNewCustomerWelcomeAndAutoCoupons = (email: string) => {
   // Insert code into customer_coupons
   db.run(
     `INSERT INTO customer_coupons (customer_email, code, title, discount_type, discount_value, status, source)
-     VALUES (?, ?, '🎉 নিউ অ্যাকাউন্ট ওয়েলকাম ১০% ছাড় (১ম অর্ডার)', 'percentage', 10, 'active', 'welcome_gift')`,
+     VALUES (?, ?, '🎉 New Account Welcome 10% Off (1st Order)', 'percentage', 10, 'active', 'welcome_gift')`,
     [cleanEmail, welcomeCode]
   );
 
@@ -52,7 +52,7 @@ export const grantNewCustomerWelcomeAndAutoCoupons = (email: string) => {
               [
                 cleanEmail,
                 camp.code,
-                camp.title || 'বিশেষ উপহার',
+                camp.title || 'Special Gift',
                 camp.discount_type || 'fixed',
                 Number(camp.discount_value) || 0
               ]
@@ -76,7 +76,7 @@ export const registerCustomer = (req: Request, res: Response) => {
 
   const cleanEmail = (email || '').trim().toLowerCase();
   if (!cleanEmail.endsWith('@gmail.com')) {
-    return res.status(400).json({ status: 'error', message: 'অ্যাকাউন্ট তৈরি করার জন্য শুধুমাত্র আসল জিমেইল (@gmail.com) অ্যাকাউন্ট ব্যবহার করা যাবে।' });
+    return res.status(400).json({ status: 'error', message: 'Only a valid Gmail (@gmail.com) account can be used to create an account.' });
   }
 
   // Check if customer already exists
@@ -87,7 +87,7 @@ export const registerCustomer = (req: Request, res: Response) => {
     }
 
     if (row) {
-      return res.status(400).json({ status: 'error', message: 'এই ইমেইল দিয়ে অলরেডি অ্যাকাউন্ট তৈরি করা আছে' });
+      return res.status(400).json({ status: 'error', message: 'An account already exists with this email address.' });
     }
 
     // Hash password
@@ -150,7 +150,7 @@ export const loginCustomer = (req: Request, res: Response) => {
 
   const cleanEmail = (email || '').trim().toLowerCase();
   if (!cleanEmail.endsWith('@gmail.com')) {
-    return res.status(400).json({ status: 'error', message: 'লগইন করার জন্য শুধুমাত্র জিমেইল (@gmail.com) অ্যাকাউন্ট ব্যবহার করা যাবে।' });
+    return res.status(400).json({ status: 'error', message: 'Only a Gmail (@gmail.com) account can be used to log in.' });
   }
 
   db.get('SELECT * FROM customers WHERE email = ?', [email], (err, customer: any) => {
@@ -160,16 +160,16 @@ export const loginCustomer = (req: Request, res: Response) => {
     }
 
     if (!customer) {
-      return res.status(401).json({ status: 'error', message: 'আপনার ইমেইল অথবা পাসওয়ার্ডটি সঠিক নয়' });
+      return res.status(401).json({ status: 'error', message: 'Your email or password is incorrect.' });
     }
 
     if (customer.status !== 'active') {
-      return res.status(403).json({ status: 'error', message: 'অ্যাকাউন্টটি বর্তমানে নিষ্ক্রিয় রয়েছে' });
+      return res.status(403).json({ status: 'error', message: 'This account is currently inactive.' });
     }
 
     bcrypt.compare(password, customer.password_hash, (err, isMatch) => {
       if (err || !isMatch) {
-        return res.status(401).json({ status: 'error', message: 'আপনার ইমেইল অথবা পাসওয়ার্ডটি সঠিক নয়' });
+        return res.status(401).json({ status: 'error', message: 'Your email or password is incorrect.' });
       }
 
       // Fetch customer addresses
@@ -511,7 +511,7 @@ export const googleLoginCustomer = async (req: Request, res: Response) => {
     }
 
     if (!email.endsWith('@gmail.com')) {
-      return res.status(400).json({ status: 'error', message: 'শুধুমাত্র আসল জিমেইল (@gmail.com) অ্যাকাউন্ট দিয়ে লগইন করা যাবে।' });
+      return res.status(400).json({ status: 'error', message: 'Only a valid Gmail (@gmail.com) account can be used to log in.' });
     }
 
     // Check if customer exists in database
@@ -597,6 +597,6 @@ export const googleLoginCustomer = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error('Failed to verify Google token:', error);
-    return res.status(401).json({ status: 'error', message: 'গুগল টোকেন ভেরিফিকেশন ব্যর্থ হয়েছে।' });
+    return res.status(401).json({ status: 'error', message: 'Google token verification failed.' });
   }
 };

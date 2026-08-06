@@ -110,7 +110,7 @@ export default function CampaignPage() {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', color: '#64748b' }}>
-        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>ক্যাম্পেইন লোড হচ্ছে...</p>
+        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>Loading campaign...</p>
       </div>
     );
   }
@@ -118,10 +118,10 @@ export default function CampaignPage() {
   if (!campaign) {
     return (
       <div className="store-container" style={{ padding: '80px 24px', textAlign: 'center', minHeight: '60vh' }}>
-        <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px' }}>ক্যাম্পেইন পাওয়া যায়নি</h2>
-        <p style={{ color: '#64748b', marginBottom: '32px' }}>এই ক্যাম্পেইনটি বর্তমানে অ্যাক্টিভ নেই অথবা ডিলিট করা হয়েছে।</p>
+        <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px' }}>Campaign Not Found</h2>
+        <p style={{ color: '#64748b', marginBottom: '32px' }}>This campaign is currently inactive or has been deleted.</p>
         <Link to="/" className="store-btn" style={{ textDecoration: 'none', display: 'inline-flex', gap: '8px', alignItems: 'center', background: 'var(--sf-accent)', color: 'white', padding: '12px 24px', borderRadius: '30px', fontWeight: 'bold' }}>
-          <ArrowLeft size={18} /> হোমপেজে ফিরে যান
+          <ArrowLeft size={18} /> Go to Homepage
         </Link>
       </div>
     );
@@ -151,7 +151,7 @@ export default function CampaignPage() {
       
       {/* Back Button */}
       <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#64748b', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, marginBottom: '24px', transition: 'color 0.2s' }} className="hover-accent">
-        <ArrowLeft size={16} /> হোমপেজে যান
+        <ArrowLeft size={16} /> Go to Homepage
       </Link>
 
       {/* Hero Banner Header */}
@@ -178,14 +178,14 @@ export default function CampaignPage() {
         </h1>
 
         <p style={{ fontSize: '1rem', color: '#94a3b8', margin: '0 0 24px 0' }}>
-          মেয়াদ: {new Date(campaign.startDate).toLocaleDateString('bn-BD')} থেকে {new Date(campaign.endDate).toLocaleDateString('bn-BD')}
+          Duration: {new Date(campaign.startDate).toLocaleDateString('en-US')} to {new Date(campaign.endDate).toLocaleDateString('en-US')}
         </p>
 
         {/* Countdown Timer */}
         {campaign.endDate && !timeLeft.expired && (
           <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '16px 24px', borderRadius: '16px', gap: '8px' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Clock size={14} /> ক্যাম্পেইন শেষ হতে বাকি
+              <Clock size={14} /> Campaign ends in
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -213,7 +213,7 @@ export default function CampaignPage() {
 
         {timeLeft.expired && (
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#f87171', padding: '10px 20px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 'bold' }}>
-            <Clock size={16} /> এই অফারটির মেয়াদ শেষ হয়ে গেছে
+            <Clock size={16} /> This offer has expired
           </div>
         )}
       </div>
@@ -221,7 +221,7 @@ export default function CampaignPage() {
       {/* Associated Products Section */}
       <div>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>
-          ক্যাম্পেইনের অফারকৃত পণ্যসমূহ ({campaignProducts.length})
+          Campaign Products ({campaignProducts.length})
         </h2>
 
         {campaignProducts.length > 0 ? (
@@ -271,8 +271,8 @@ export default function CampaignPage() {
         ) : (
           <div style={{ textAlign: 'center', padding: '60px 24px', background: '#f8fafc', borderRadius: '20px', border: '1px dashed #cbd5e1' }}>
             <Gift size={40} style={{ color: '#94a3b8', marginBottom: '16px' }} />
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>কোনো পণ্য পাওয়া যায়নি</h3>
-            <p style={{ color: '#64748b' }}>এই ক্যাম্পেইনে কোনো পণ্য অ্যাসাইন করা হয়নি।</p>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>No products found</h3>
+            <p style={{ color: '#64748b' }}>No products assigned to this campaign.</p>
           </div>
         )}
       </div>

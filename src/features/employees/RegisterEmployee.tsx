@@ -36,7 +36,7 @@ export default function RegisterEmployee() {
   // Step 1: Verify invitation token
   useEffect(() => {
     if (!token) {
-      setVerifyError('ইনভাইটেশন টোকেন পাওয়া যায়নি। দয়া করে সঠিক লিংক ব্যবহার করুন।');
+      setVerifyError('Invitation token not found. Please use the correct link.');
       setLoading(false);
       return;
     }
@@ -47,7 +47,7 @@ export default function RegisterEmployee() {
         setInvitedEmail(res.data.email);
         setInvitedRole(res.data.role);
       } else {
-        setVerifyError(res.message || 'ইনভাইটেশন টোকেনটি সঠিক নয় অথবা ইতিমধ্যে ব্যবহৃত হয়েছে।');
+        setVerifyError(res.message || 'The invitation token is invalid or has already been used.');
       }
       setLoading(false);
     };
@@ -99,15 +99,15 @@ export default function RegisterEmployee() {
     const currentConfirmPassword = confirmPasswordRef.current;
 
     if (!currentPassword) {
-      setSubmitError('দয়া করে একটি পাসওয়ার্ড তৈরি করুন।');
+      setSubmitError('Please create a password.');
       return;
     }
     if (currentPassword.length < 6) {
-      setSubmitError('পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে।');
+      setSubmitError('Password must be at least 6 characters.');
       return;
     }
     if (currentPassword !== currentConfirmPassword) {
-      setSubmitError('পাসওয়ার্ড দুটি মিলছে না।');
+      setSubmitError('Passwords do not match.');
       return;
     }
 
@@ -119,12 +119,12 @@ export default function RegisterEmployee() {
     setGoogleLoading(false);
 
     if (res.status === 'success' && res.data) {
-      setSubmitSuccess('রেজিস্ট্রেশন সফল! Admin panel-এ প্রবেশ করা হচ্ছে...');
+      setSubmitSuccess('Registration successful! Redirecting to the Admin panel...');
       // Auto-login: save token and redirect
       login(res.data.token, res.data.user);
       setTimeout(() => navigate('/firoz-84'), 2000);
     } else {
-      setSubmitError(res.message || 'Google দিয়ে verification সফল হয়নি।');
+      setSubmitError(res.message || 'Google verification was not successful.');
     }
   };
 
@@ -134,7 +134,7 @@ export default function RegisterEmployee() {
       <div style={{ display: 'flex', width: '100vw', height: '100vh', background: '#0a0e1a', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#6366f1', borderRadius: '50%', animation: 'rotate 1s linear infinite', margin: '0 auto 16px' }} />
-          <p>ইনভাইটেশন লিংক যাচাই করা হচ্ছে...</p>
+          <p>Verifying invitation link...</p>
         </div>
         <style>{`@keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
       </div>
@@ -149,10 +149,10 @@ export default function RegisterEmployee() {
           <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(239,68,68,0.1)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
             <AlertCircle size={28} />
           </div>
-          <h2 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 800, marginBottom: '12px' }}>ভুল বা মেয়াদোত্তীর্ণ লিংক</h2>
+          <h2 style={{ color: '#fff', fontSize: '1.3rem', fontWeight: 800, marginBottom: '12px' }}>Invalid or Expired Link</h2>
           <p style={{ color: '#9ca3af', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '24px' }}>{verifyError}</p>
           <button onClick={() => navigate('/firoz-84')} style={{ height: '42px', width: '100%', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}>
-            লগইন পেজে যান
+            Go to Login Page
           </button>
         </div>
       </div>
@@ -169,9 +169,9 @@ export default function RegisterEmployee() {
           <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(16,185,129,0.1)', border: '2px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
             <ShieldCheck size={30} color="#10b981" />
           </div>
-          <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 800, margin: '0 0 6px 0' }}>আমন্ত্রণপত্র গ্রহণ করুন</h2>
+          <h2 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 800, margin: '0 0 6px 0' }}>Accept Invitation</h2>
           <p style={{ color: '#9ca3af', fontSize: '0.85rem', margin: 0 }}>
-            আপনি এই পোর্টালে <strong style={{ color: '#fff' }}>{invitedRole}</strong> হিসেবে আমন্ত্রিত হয়েছেন
+            You have been invited to this portal as <strong style={{ color: '#fff' }}>{invitedRole}</strong>
           </p>
         </div>
 
@@ -179,7 +179,7 @@ export default function RegisterEmployee() {
         <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '10px', padding: '14px 16px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Mail size={18} color="#6366f1" style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>আমন্ত্রিত Gmail</div>
+            <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Invited Gmail</div>
             <div style={{ fontSize: '14px', color: '#fff', fontWeight: 600, marginTop: '2px' }}>{invitedEmail}</div>
           </div>
         </div>
@@ -188,7 +188,7 @@ export default function RegisterEmployee() {
         <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: '8px', padding: '12px 14px', marginBottom: '24px', display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '12px', color: '#fbbf24' }}>
           <AlertCircle size={15} style={{ flexShrink: 0, marginTop: '1px' }} />
           <span>
-            <strong>গুরুত্বপূর্ণ:</strong> শুধুমাত্র <strong>{invitedEmail}</strong> দিয়ে Google sign-in করুন। অন্য Gmail দিয়ে accept করা যাবে না।
+            <strong>Important:</strong> Only sign in with Google using <strong>{invitedEmail}</strong>. You cannot accept with a different Gmail.
           </span>
         </div>
 
@@ -208,22 +208,22 @@ export default function RegisterEmployee() {
         {!submitSuccess && (
           <>
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', color: '#9ca3af', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>পাসওয়ার্ড তৈরি করুন</label>
+              <label style={{ display: 'block', color: '#9ca3af', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>Create Password</label>
               <input 
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="পাসওয়ার্ড দিন (অন্তত ৬ অক্ষরের)"
+                placeholder="Enter password (at least 6 characters)"
                 style={{ width: '100%', height: '40px', padding: '8px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
               />
             </div>
             <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', color: '#9ca3af', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>পাসওয়ার্ড নিশ্চিত করুন</label>
+              <label style={{ display: 'block', color: '#9ca3af', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>Confirm Password</label>
               <input 
                 type="password" 
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="পাসওয়ার্ডটি আবার টাইপ করুন"
+                placeholder="Re-type your password"
                 style={{ width: '100%', height: '40px', padding: '8px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '8px', color: '#fff', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
               />
             </div>
@@ -235,12 +235,12 @@ export default function RegisterEmployee() {
           googleLoading ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', color: '#94a3b8', padding: '16px 0' }}>
               <div style={{ width: '20px', height: '20px', border: '2px solid rgba(255,255,255,0.1)', borderTopColor: '#6366f1', borderRadius: '50%', animation: 'rotate 1s linear infinite' }} />
-              <span style={{ fontSize: '14px' }}>Google verification হচ্ছে...</span>
+              <span style={{ fontSize: '14px' }}>Verifying with Google...</span>
             </div>
           ) : (
             <div style={{ width: '100%' }}>
               <p style={{ fontSize: '12px', color: '#64748b', textAlign: 'center', marginBottom: '12px', margin: '0 0 12px 0' }}>
-                পাসওয়ার্ড পূরণ করে নিচের বাটনে ক্লিক করে Google দিয়ে invitation accept করুন
+                Fill in the password and click the button below to accept the invitation with Google
               </p>
               <div ref={googleBtnRef} id="google-invite-btn" style={{ display: 'flex', justifyContent: 'center' }} />
             </div>
@@ -251,7 +251,7 @@ export default function RegisterEmployee() {
           <div style={{ marginTop: '20px', textAlign: 'center' }}>
             <button onClick={() => navigate('/login')} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               <ArrowRight size={12} style={{ transform: 'rotate(180deg)' }} />
-              লগইন পেজে ফিরে যান
+              Go back to Login
             </button>
           </div>
         )}

@@ -128,7 +128,7 @@ export default function TermsOfService() {
         <div className="premium-page-hero-content">
           <span className="premium-page-badge">Customer Agreement</span>
           <h1 className="premium-page-hero-title">Terms of Service</h1>
-          <p className="premium-page-subtitle">আমাদের সেবা ব্যবহারের নীতি ও অর্ডার সংক্রান্ত আইনি নিয়মাবলী সম্পর্কে জানুন</p>
+          <p className="premium-page-subtitle">Learn about the policies and legal terms governing the use of our services and orders</p>
         </div>
       </div>
 
@@ -139,7 +139,7 @@ export default function TermsOfService() {
         <aside className="premium-page-sidebar">
           {headings.length > 0 && (
             <div className="premium-toc-card">
-              <h2 className="premium-toc-title">সূচিপত্র (Contents)</h2>
+              <h2 className="premium-toc-title">Table of Contents</h2>
               <ul className="premium-toc-list">
                 {headings.map((item) => (
                   <li 

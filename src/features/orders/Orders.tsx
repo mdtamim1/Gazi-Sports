@@ -897,7 +897,7 @@ export default function Orders() {
       <div style={{ display: 'flex', width: '100%', height: 'calc(100vh - 120px)', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#6366f1', borderRadius: '50%', animation: 'rotate 1s linear infinite', margin: '0 auto 16px' }} />
-          <p>অর্ডার লিস্ট লোড হচ্ছে...</p>
+          <p>Loading order list...</p>
         </div>
         <style>{`@keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
       </div>
@@ -1807,3 +1807,4 @@ export default function Orders() {
     </div>
   );
 }
+
