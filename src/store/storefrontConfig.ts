@@ -263,6 +263,8 @@ const DEFAULT_PRODUCTS: ProductConfig[] = [];
 // ============================================================
 
 const STORAGE_KEY = 'storefront_config';
+// Cache key for localStorage config persistence (instant load on revisit)
+const CONFIG_CACHE_KEY = 'sf_config_v1';
 
 // ============================================================
 // CONFIG MANAGER
@@ -446,6 +448,18 @@ function loadConfig(): StorefrontConfig {
   if (_config && (Date.now() - _cacheTimestamp) < CACHE_TTL_MS) return _config;
   // Return stale cache while API fetch is in progress (avoids blank screen)
   if (_config) return _config;
+  // Try localStorage cache for instant load on revisit
+  try {
+    const cached = localStorage.getItem(CONFIG_CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed && Array.isArray(parsed.products)) {
+        _config = parsed;
+        // Don't set _cacheTimestamp so background sync still fires
+        return _config;
+      }
+    }
+  } catch {}
   _config = getDefaultConfig();
   return _config;
 }
@@ -505,6 +519,8 @@ async function syncWithBackend() {
         _config = serverConfig;
         _cacheTimestamp = Date.now();
         _synced = true;
+        // Persist to localStorage for instant load on next visit
+        try { localStorage.setItem(CONFIG_CACHE_KEY, JSON.stringify(_config)); } catch {}
         _listeners.forEach(fn => fn());
       }
     }
@@ -603,14 +619,21 @@ export function useStorefrontConfig(): [
     // One-time cleanup: remove stale localStorage config from older versions
     try { localStorage.removeItem(STORAGE_KEY); } catch {}
 
+    // Initial sync
     syncWithBackend();
     const unsubscribe = subscribeToConfig(() => {
       setConfigState({ ...loadConfig() });
       setConfigReady(_synced);
     });
 
+    // Poll every 30 seconds so admin changes reach customers quickly
+    const pollInterval = setInterval(() => {
+      syncWithBackend();
+    }, 30 * 1000);
+
     return () => {
       unsubscribe();
+      clearInterval(pollInterval);
     };
   }, []);
 

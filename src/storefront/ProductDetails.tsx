@@ -1023,38 +1023,52 @@ export default function ProductDetails() {
             });
 
             const VariantGroup = ({
-              label, emoji, items, selected, onSelect
-            }: { label: string; emoji: string; items: any[]; selected: string; onSelect: (v: string) => void }) => {
+              label, items, selected, onSelect, basePrice
+            }: { label: string; items: any[]; selected: string; onSelect: (v: string) => void; basePrice?: number }) => {
               if (items.length === 0) return null;
               return (
                 <div className="pdp-variant-group">
                   <div className="pdp-variant-label">
-                    <span>{emoji} {label}</span>
+                    <span>{label.toUpperCase()}</span>
                     {selected && <span className="pdp-variant-selected-badge">{selected}</span>}
                   </div>
                   <div className="pdp-variant-options">
-                    {items.map((item: any) => (
-                      <button
-                        key={item.label}
-                        type="button"
-                        className={`pdp-variant-btn${selected === item.label ? ' active' : ''}`}
-                        onClick={() => onSelect(selected === item.label ? '' : item.label)}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
+                    {items.map((item: any) => {
+                      const isActive = selected === item.label;
+                      // Show price difference if this option has a custom price
+                      const priceDiff = item.price && basePrice && item.price !== basePrice
+                        ? item.price - basePrice
+                        : null;
+                      return (
+                        <button
+                          key={item.label}
+                          type="button"
+                          className={`pdp-variant-btn${isActive ? ' active' : ''}`}
+                          onClick={() => onSelect(isActive ? '' : item.label)}
+                        >
+                          <span>{item.label}</span>
+                          {priceDiff !== null && (
+                            <span className="pdp-variant-btn-price">
+                              {priceDiff > 0 ? `+৳${priceDiff.toLocaleString()}` : `-৳${Math.abs(priceDiff).toLocaleString()}`}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               );
             };
 
+
             return (
               <div className="pdp-variants-container">
-                <VariantGroup label="Size" emoji="📐" items={sizeOpts} selected={selectedSize} onSelect={setSelectedSize} />
-                <VariantGroup label="Color" emoji="🎨" items={colorOpts} selected={selectedColor} onSelect={setSelectedColor} />
-                <VariantGroup label="Weight" emoji="⚖️" items={weightOpts} selected={selectedWeight} onSelect={setSelectedWeight} />
-                <VariantGroup label="Height" emoji="📏" items={heightOpts} selected={selectedHeight} onSelect={setSelectedHeight} />
-                <VariantGroup label="Option" emoji="✨" items={customOpts} selected={selectedSize} onSelect={setSelectedSize} />
+                <VariantGroup label="Size" items={sizeOpts} selected={selectedSize} onSelect={setSelectedSize} basePrice={product.price} />
+                <VariantGroup label="Color" items={colorOpts} selected={selectedColor} onSelect={setSelectedColor} basePrice={product.price} />
+                <VariantGroup label="Weight" items={weightOpts} selected={selectedWeight} onSelect={setSelectedWeight} basePrice={product.price} />
+                <VariantGroup label="Height" items={heightOpts} selected={selectedHeight} onSelect={setSelectedHeight} basePrice={product.price} />
+                <VariantGroup label="Option" items={customOpts} selected={selectedSize} onSelect={setSelectedSize} basePrice={product.price} />
+
                 
                 {(() => {
                   const missingGroups: string[] = [];
