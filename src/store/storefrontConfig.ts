@@ -454,9 +454,9 @@ function loadConfig(): StorefrontConfig {
     if (cached) {
       const parsed = JSON.parse(cached);
       if (parsed && Array.isArray(parsed.products)) {
-        _config = parsed;
+        _config = parsed as StorefrontConfig;
         // Don't set _cacheTimestamp so background sync still fires
-        return _config;
+        return parsed as StorefrontConfig;
       }
     }
   } catch {}
