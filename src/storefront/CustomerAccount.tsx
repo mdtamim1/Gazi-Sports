@@ -11,7 +11,6 @@ import {
 import { fetchOrdersFromBackend, fetchCustomerOrdersFromBackend, fetchChatHistory } from '../services/api';
 import { convertToWebP } from '../utils/imageCdn';
 import { getWebSocketUrl } from '../utils/storefrontUtils';
-import { generateOrders as getOrders } from '../mock/data';
 import { useStorefrontConfig } from '../store/storefrontConfig';
 import { CustomerCouponsTab } from './CustomerCouponsTab';
 import { CustomerEventsTab } from './CustomerEventsTab';

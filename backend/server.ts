@@ -96,7 +96,7 @@ const getBaseDomain = (urlStr: string): string => {
       return parts.slice(-2).join('.');
     }
     return hostname;
-  } catch (e) {
+  } catch {
     return 'gazisports24.com';
   }
 };
@@ -105,13 +105,9 @@ const storeBaseDomain = getBaseDomain(process.env.STORE_URL || 'https://gazispor
 
 const connectSrcOrigins = [
   "'self'",
-  "https://beauty-elegance-admin.onrender.com",
   `https://api.${storeBaseDomain}`,
   `https://${storeBaseDomain}`,
   `https://admin.${storeBaseDomain}`,
-  "https://api.tamimglobal.com",
-  "https://tamimglobal.com",
-  "https://admin.tamimglobal.com",
   "http://localhost:5000",
   "ws:",
   "wss:"
@@ -123,11 +119,7 @@ app.use(cors({
     if (
       !origin || 
       /^http:\/\/localhost(:\d+)?$/.test(origin) || 
-      origin.includes('beauty-elegance-ec88f') ||
-      origin.includes('web.app') ||
-      origin.includes('firebaseapp.com') ||
-      (storeBaseDomain && origin.includes(storeBaseDomain)) ||
-      origin.includes('tamimglobal.com')
+      (storeBaseDomain && origin.includes(storeBaseDomain))
     ) {
       callback(null, true);
     } else {
@@ -261,7 +253,7 @@ app.get(['/sitemap.xml', '/api/v1/sitemap.xml'], async (_req, res) => {
     res.header('Content-Type', 'application/xml; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.send(xml);
-  } catch (err) {
+  } catch {
     res.status(500).send('Error generating sitemap');
   }
 });
@@ -279,7 +271,7 @@ app.get(['/google-merchant.xml', '/merchant-feed.xml', '/api/v1/google-merchant.
     res.header('Content-Type', 'application/xml; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.send(xml);
-  } catch (err) {
+  } catch {
     res.status(500).send('Error generating Google Merchant feed');
   }
 });
@@ -323,6 +315,7 @@ app.use((_req, res) => {
   res.status(404).json({ status: 'error', message: 'Route not found' });
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ status: 'error', message: 'Internal server error' });

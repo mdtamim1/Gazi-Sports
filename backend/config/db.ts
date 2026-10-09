@@ -187,7 +187,7 @@ function connectDatabase() {
       port: parseInt(process.env.DB_PORT || '3306'),
       user: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_NAME || 'beauty_elegance',
+      database: process.env.DB_NAME || 'gazisports',
       connectionLimit: maxPoolSize,
       multipleStatements: true
     });
@@ -207,7 +207,7 @@ function connectDatabase() {
         port: parseInt(process.env.DB_PORT || '5432'),
         user: process.env.DB_USER || 'postgres',
         password: process.env.DB_PASSWORD || '',
-        database: process.env.DB_NAME || 'beauty_elegance',
+        database: process.env.DB_NAME || 'postgres',
         max: maxPoolSize
       });
     }
@@ -507,34 +507,34 @@ function initializeDatabase() {
     `);
 
     // Run migrations to alter existing table structure safely
-    db.run("ALTER TABLE products ADD COLUMN features TEXT", (err) => {
+    db.run("ALTER TABLE products ADD COLUMN features TEXT", () => {
       // ignore error if column already exists
     });
-    db.run("ALTER TABLE products ADD COLUMN specs TEXT", (err) => {
+    db.run("ALTER TABLE products ADD COLUMN specs TEXT", () => {
       // ignore error if column already exists
     });
-    db.run("ALTER TABLE products ADD COLUMN video_url TEXT DEFAULT NULL", (err) => {
+    db.run("ALTER TABLE products ADD COLUMN video_url TEXT DEFAULT NULL", () => {
       // ignore error if column already exists
     });
-    db.run("ALTER TABLE products ADD COLUMN photo_content TEXT DEFAULT NULL", (err) => {
+    db.run("ALTER TABLE products ADD COLUMN photo_content TEXT DEFAULT NULL", () => {
       // ignore error if column already exists
     });
-    db.run("ALTER TABLE products ADD COLUMN sizes TEXT DEFAULT '[]'", (err) => {
+    db.run("ALTER TABLE products ADD COLUMN sizes TEXT DEFAULT '[]'", () => {
       // ignore error if column already exists
     });
-    db.run("ALTER TABLE customers ADD COLUMN address TEXT", (err) => {
+    db.run("ALTER TABLE customers ADD COLUMN address TEXT", () => {
       // ignore error if column already exists
     });
-    db.run("ALTER TABLE roles ADD COLUMN permissions TEXT", (err) => {
+    db.run("ALTER TABLE roles ADD COLUMN permissions TEXT", () => {
       // ignore error if column already exists
     });
-    db.run("ALTER TABLE events ADD COLUMN video_url TEXT DEFAULT NULL", (err) => {
+    db.run("ALTER TABLE events ADD COLUMN video_url TEXT DEFAULT NULL", () => {
       // ignore error if column already exists
     });
-    db.run("ALTER TABLE events ADD COLUMN quiz_data TEXT DEFAULT NULL", (err) => {
+    db.run("ALTER TABLE events ADD COLUMN quiz_data TEXT DEFAULT NULL", () => {
       // ignore error if column already exists
     });
-    db.run("ALTER TABLE events ADD COLUMN discount_value INTEGER DEFAULT 15", (err) => {
+    db.run("ALTER TABLE events ADD COLUMN discount_value INTEGER DEFAULT 15", () => {
       // ignore error if column already exists
     });
 

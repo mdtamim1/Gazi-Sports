@@ -77,7 +77,7 @@ export function formatPageContent(text: string): string {
 
 /**
  * Helper to get the correct dynamic WebSocket URL for support chats.
- * Fallbacks to localhost:5000 in dev and api.tamimglobal.com in production,
+ * Fallbacks to localhost:5000 in dev and api.gazisports24.com in production,
  * but dynamically reads import.meta.env.VITE_API_URL if configured.
  */
 export function getWebSocketUrl(): string {

@@ -6,3 +6,5 @@ database/database.sqlite
 .gemini/
 .agents/
 .DS_Store
+scratch/
+*.db

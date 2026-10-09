@@ -77,6 +77,9 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
+    // Only inject fake activity feed if backend is offline (no real data loaded yet)
+    if (dbData) return; // ✅ Skip fake feed when real backend data is available
+
     const interval = setInterval(() => {
       const newFeed = generateActivityFeed(1);
       if (newFeed && newFeed.length > 0 && newFeed[0]) {
@@ -84,7 +87,7 @@ export default function Dashboard() {
       }
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [dbData]);
 
   const stats = dbData ? dbData.stats : null;
 
