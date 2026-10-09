@@ -815,16 +815,7 @@ export default function StorefrontLayout() {
           </div>
           <div className="store-footer-bottom">
             <span>
-              {branding.copyrightText}{' '}
-              | Designed & developed by{' '}
-              <a 
-                href="https://tamim-lab.netlify.app/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                style={{ color: '#6366f1', textDecoration: 'underline', fontWeight: '500' }}
-              >
-                Tamim Labs
-              </a>
+              {branding.copyrightText}
             </span>
             <span>
               {(branding.paymentMethodsText || '').split('•').map((method, i) => (
