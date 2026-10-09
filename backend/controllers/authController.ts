@@ -73,21 +73,47 @@ export const login = (req: Request, res: Response) => {
           return res.status(401).json({ status: 'error', message: 'Invalid email or password' });
         }
 
-        // ✅ Credentials correct — issue short-lived pre-auth token (5 minutes)
-        // This is NOT a full access token. Google verification still required.
-        const preAuthToken = jwt.sign(
-          { id: employee.id, email: employee.email, step: 'google_verify_required' },
-          PRE_AUTH_SECRET,
-          { expiresIn: '5m' }
+        let permissions: string[] = [];
+        if (employee.role_permissions) {
+          try { permissions = JSON.parse(employee.role_permissions); } catch (e) {}
+        }
+
+        const token = jwt.sign(
+          {
+            id: employee.id,
+            email: employee.email,
+            role: employee.role_name,
+            name: `${employee.first_name} ${employee.last_name}`,
+            permissions,
+          },
+          JWT_SECRET,
+          { expiresIn: '8h' }
         );
 
-        logSecurityAction(employee.id, employee.email, 'LOGIN_STEP1_OK', 'Credentials verified, awaiting Google 2FA', req);
+        // Update last login
+        const lastLoginIp = req.ip || req.socket.remoteAddress || '';
+        db.run(
+          `UPDATE employees SET last_login_at = CURRENT_TIMESTAMP, last_login_ip = ? WHERE id = ?`,
+          [lastLoginIp, employee.id]
+        );
+
+        logSecurityAction(employee.id, employee.email, 'LOGIN_SUCCESS', 'Direct password login successful', req);
 
         return res.json({
           status: 'success',
-          step: 'google_verify_required',
-          message: 'Credentials verified. Please complete Google verification.',
-          preAuthToken,
+          message: 'Login successful',
+          data: {
+            token,
+            user: {
+              id: employee.id,
+              email: employee.email,
+              name: `${employee.first_name} ${employee.last_name}`,
+              role: employee.role_name,
+              department: employee.department,
+              avatar: employee.first_name.substring(0, 1) + employee.last_name.substring(0, 1),
+              permissions,
+            },
+          },
         });
       });
     }
