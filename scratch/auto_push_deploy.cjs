@@ -21,7 +21,7 @@ try {
   console.log('✅ Git Push successful!\n');
 
   // Step 3: Remote Deployment via SSH
-  console.log('🔌 Connecting to VPS server (159.198.36.84) to update live app...');
+  console.log('🔌 Connecting to Namecheap VPS server (209.74.88.223) to update live app...');
   const conn = new Client();
 
   conn.on('ready', () => {
@@ -49,10 +49,10 @@ try {
     console.error('❌ SSH Connection Error:', err);
     process.exit(1);
   }).connect({
-    host: '159.198.36.84',
+    host: '209.74.88.223',
     port: 22,
     username: 'root',
-    password: 'g790QnH0s17QcVLywX',
+    password: 'sJ63r208GyylIgI3SZ',
     readyTimeout: 30000
   });
 

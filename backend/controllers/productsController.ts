@@ -370,6 +370,8 @@ export const createProduct = async (req: Request, res: Response) => {
       );
     }
 
+    const finalPhotoContent = photoContent ? await processImageUrl(photoContent, slugVal, 'photo-content') : null;
+
     db.run('BEGIN TRANSACTION', (txErr) => {
       if (txErr) {
         console.error('Failed to start transaction:', txErr);
@@ -382,7 +384,7 @@ export const createProduct = async (req: Request, res: Response) => {
         [
           id, name || 'New Product', slugVal, skuVal, brand || '', categoryVal, Number(price) || 0, original_price ? Number(original_price) : null, finalImage, description || '', Number(stock) || 0,
           published ? 1 : 0, JSON.stringify(features || []), JSON.stringify(specs || []),
-          videoUrl || null, photoContent || null, JSON.stringify(sizes || [])
+          videoUrl || null, finalPhotoContent || null, JSON.stringify(sizes || [])
         ],
         function (err) {
           if (err) {
@@ -460,6 +462,8 @@ export const updateProduct = async (req: Request, res: Response) => {
       );
     }
 
+    const finalPhotoContent = photoContent ? await processImageUrl(photoContent, slugVal, 'photo-content') : photoContent;
+
     db.run('BEGIN TRANSACTION', (txErr) => {
       if (txErr) {
         console.error('Failed to start transaction:', txErr);
@@ -489,7 +493,7 @@ export const updateProduct = async (req: Request, res: Response) => {
           features ? JSON.stringify(features) : null,
           specs ? JSON.stringify(specs) : null,
           videoUrl === undefined ? null : videoUrl,
-          photoContent === undefined ? null : photoContent,
+          finalPhotoContent === undefined ? null : finalPhotoContent,
           sizes ? JSON.stringify(sizes) : null,
           id
         ],
