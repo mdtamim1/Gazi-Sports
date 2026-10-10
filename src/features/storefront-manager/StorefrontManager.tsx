@@ -235,7 +235,7 @@ function BannersSection({ config, updateConfig }: SectionProps) {
               <div className="sfm-gradient-preview" style={{ background: banner.gradient, width: 60, height: 36, borderRadius: 6, flexShrink: 0 }} />
               <div className="sfm-item-content">
                 <div className="sfm-item-title">{banner.title}</div>
-                <div className="sfm-item-meta">{banner.tag} â€¢ {banner.offer}</div>
+                <div className="sfm-item-meta">{banner.tag} • {banner.offer}</div>
               </div>
               <Toggle checked={banner.enabled} onChange={(v) => update(banner.id, 'enabled', v)} />
               <div className="sfm-actions">
@@ -1391,7 +1391,7 @@ function BadgesSection({ config, updateConfig }: SectionProps) {
               <div className="sfm-item-number">{idx + 1}</div>
               <div className="sfm-item-content">
                 <div className="sfm-item-title">{badge.title}</div>
-                <div className="sfm-item-meta">Icon: {badge.icon} â€¢ {badge.description}</div>
+                <div className="sfm-item-meta">Icon: {badge.icon} • {badge.description}</div>
               </div>
               <Toggle checked={badge.enabled} onChange={(v) => update(badge.id, 'enabled', v)} />
               <div className="sfm-actions">

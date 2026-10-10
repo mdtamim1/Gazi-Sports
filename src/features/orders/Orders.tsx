@@ -3,6 +3,7 @@ import { ShoppingCart, Search, Plus, Download, Eye, RotateCcw, Truck, Clock, Che
 import { generateOrders, updateOrderStatus, addOrder, formatCurrency, formatDate, formatTime, timeAgo } from '../../mock/data';
 import { fetchOrdersFromBackend, updateOrderStatusInBackend, createOrderFromAdminInBackend, updateOrderInBackend, validateCouponCode, fetchProductsFromBackend, syncOrdersInBackend, assignOrderInBackend, fetchActiveEmployees, fetchOrderHistory } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { BD_DISTRICTS, normalizeDistrict } from '../../utils/bangladeshLocations';
 
 const DEMO_PRODUCTS: any[] = [];
 
@@ -13,73 +14,6 @@ const statusConfig: Record<string, { class: string; icon: any }> = {
   delivered: { class: 'badge-success', icon: CheckCircle },
   cancelled: { class: 'badge-danger', icon: XCircle },
   returned: { class: 'badge-purple', icon: RotateCcw },
-};
-
-const BD_DISTRICTS: Record<string, string[]> = {
-  "Dhaka": ["Dhamrai", "Dohar", "Keraniganj", "Nawabganj", "Savar"],
-  "Faridpur": ["Alfadanga", "Bhanga", "Boalmari", "Charbhadrasan", "Faridpur Sadar", "Madhukhali", "Nagarkanda", "Sadorpur", "Saltha"],
-  "Gazipur": ["Gazipur Sadar", "Kaliakair", "Kaliganj", "Kapasia", "Sreepur"],
-  "Gopalganj": ["Gopalganj Sadar", "Kashiani", "Kotalipara", "Muksudpur", "Tungipara"],
-  "Kishoreganj": ["Austagram", "Bajitpur", "Bhairab", "Hossainpur", "Itna", "Karimganj", "Katiadi", "Kishoreganj Sadar", "Kuliarchar", "Mithamain", "Nikli", "Pakundia", "Tarail"],
-  "Madaripur": ["Kalkini", "Madaripur Sadar", "Rajoir", "Shibchar", "Dasar"],
-  "Manikganj": ["Daulatpur", "Ghior", "Harirampur", "Manikganj Sadar", "Saturia", "Shibalaya", "Singair"],
-  "Munshiganj": ["Gazaria", "Lohajang", "Munshiganj Sadar", "Sirajdikhan", "Sreenagar", "Tongibari"],
-  "Narayanganj": ["Araihazar", "Sonargaon", "Narayanganj Sadar", "Rupganj", "Bandar"],
-  "Narsingdi": ["Belabo", "Monohardi", "Narsingdi Sadar", "Palash", "Raipura", "Shibpur"],
-  "Rajbari": ["Baliakandi", "Goalanda", "Kalukhali", "Pangsha", "Rajbari Sadar"],
-  "Shariatpur": ["Bhederganj", "Damudya", "Gosairhat", "Naria", "Shariatpur Sadar", "Zajira"],
-  "Tangail": ["Basail", "Bhuapur", "Delduar", "Dhanbari", "Ghatail", "Gopalpur", "Kalihati", "Madhupur", "Mirzapur", "Nagarpur", "Sakhipur", "Tangail Sadar"],
-  "Bagerhat": ["Chitalmari", "Fakirhat", "Kachua", "Mollahat", "Mongla", "Morelganj", "Rampal", "Sarankhola", "Bagerhat Sadar"],
-  "Chuadanga": ["Alamdanga", "Chuadanga Sadar", "Damurhuda", "Jibannagar"],
-  "Jashore": ["Abhaynagar", "Bagherpara", "Chougachha", "Jhikargachha", "Keshabpur", "Jashore Sadar", "Manirampur", "Sharsha"],
-  "Jhenaidah": ["Harinakunda", "Jhenaidah Sadar", "Kaliganj", "Kotchandpur", "Moheshpur", "Shailkupa"],
-  "Khulna": ["Batiaghata", "Dacope", "Dumuria", "Koyra", "Paikgachha", "Phultala", "Rupsha", "Terokhada", "Dighalia"],
-  "Kushtia": ["Bheramara", "Daulatpur", "Khoksa", "Kumarkhali", "Kushtia Sadar", "Mirpur"],
-  "Magura": ["Magura Sadar", "Mohammadpur", "Shalikha", "Sreepur"],
-  "Meherpur": ["Gangni", "Mujibnagar", "Meherpur Sadar"],
-  "Narail": ["Kalia", "Lohagara", "Narail Sadar"],
-  "Satkhira": ["Assasuni", "Debhata", "Kalaroa", "Kaliganj", "Satkhira Sadar", "Shyamnagar", "Tala"],
-  "Bandarban": ["Alikadam", "Bandarban Sadar", "Lama", "Naikhongchhari", "Rowangchhari", "Ruma", "Thanchi"],
-  "Brahmanbaria": ["Akhaura", "Bancharampur", "Bijoynagar", "Brahmanbaria Sadar", "Ashuganj", "Kasba", "Nabinagar", "Nasirnagar", "Sarail"],
-  "Chandpur": ["Chandpur Sadar", "Faridganj", "Haimchar", "Haziganj", "Kachua", "Matlab Dakshin", "Matlab Uttar", "Shahrasti"],
-  "Chattogram": ["Anwara", "Banshkhali", "Boalkhali", "Chandanaish", "Fatikchhari", "Hathazari", "Lohagara", "Mirsharai", "Patiya", "Rangunia", "Raozan", "Sandwip", "Satkania", "Sitakunda", "Karnafuli"],
-  "Cumilla": ["Barura", "Brahmanpara", "Burichang", "Chandina", "Chauddagram", "Adarsha Sadar", "Sadar Dakshin", "Daudkandi", "Debidwar", "Homna", "Laksam", "Monohorganj", "Meghna", "Muradnagar", "Nangalkot", "Titas", "Lalmai"],
-  "Cox's Bazar": ["Chakaria", "Coxs Bazar Sadar", "Kutubdia", "Moheshkhali", "Pekua", "Ramu", "Teknaf", "Ukhia", "Eidgaon"],
-  "Feni": ["Chhagalnaiya", "Daganbhuiyan", "Feni Sadar", "Fulgazi", "Parshuram", "Sonagazi"],
-  "Khagrachhari": ["Dighinala", "Manikchhari", "Khagrachhari Sadar", "Lakshmichhari", "Mahalchhari", "Matiranga", "Panchhari", "Ramgarh", "Guimara"],
-  "Lakshmipur": ["Kamalnagar", "Lakshmipur Sadar", "Raipur", "Ramganj", "Ramgoti"],
-  "Noakhali": ["Begumganj", "Chatkhil", "Companiganj", "Hatiya", "Senbagh", "Sonaimuri", "Subarnachar", "Noakhali Sadar", "Kabirhat"],
-  "Rangamati": ["Baghaichhari", "Barkal", "Kawkhali", "Kaptai", "Juraichhari", "Langadu", "Naniarchar", "Rangamati Sadar", "Rajasthali", "Bilaichhari"],
-  "Bogura": ["Adamdighi", "Bogura Sadar", "Dhunot", "Dupchanchia", "Gabtali", "Kahaloo", "Nandigram", "Sariakandi", "Shajahanpur", "Sherpur", "Shibganj", "Sonatala"],
-  "Joypurhat": ["Akkelpur", "Joypurhat Sadar", "Kalai", "Panchbibi", "Khetlal"],
-  "Naogaon": ["Atrai", "Dhamoirhat", "Manda", "Mohadevpur", "Naogaon Sadar", "Niamutpur", "Patnitala", "Raninagar", "Sapahar", "Badalgachhi", "Porsha"],
-  "Natore": ["Bagatipara", "Baraigram", "Gurudaspur", "Lalpur", "Natore Sadar", "Singra", "Naldanga"],
-  "Chapainawabganj": ["Shibganj", "Bholahat", "Gomastapur", "Nachole", "Chapainawabganj Sadar"],
-  "Pabna": ["Atgharia", "Bera", "Bhangura", "Chatmohar", "Faridpur", "Ishwardi", "Pabna Sadar", "Santhia", "Sujanagar"],
-  "Rajshahi": ["Bagha", "Bagmara", "Charghat", "Durgapur", "Godagari", "Mohanpur", "Paba", "Puthia", "Tanor"],
-  "Sirajganj": ["Belkuchi", "Chauhali", "Kamarkhanda", "Kazipur", "Raiganj", "Shahjadpur", "Sirajganj Sadar", "Tarash", "Ullapara"],
-  "Habiganj": ["Ajmiriganj", "Bahubal", "Baniyachong", "Chunarughat", "Habiganj Sadar", "Lakhai", "Madhabpur", "Nabiganj", "Sayestaganj"],
-  "Moulvibazar": ["Barlekha", "Juri", "Kamalganj", "Kulaura", "Moulvibazar Sadar", "Rajnagar", "Sreemangal"],
-  "Sunamganj": ["Bishwambharpur", "Chhatak", "Derai", "Dharampasha", "Dowarabazar", "Jagannathpur", "Jamalganj", "Sallah", "Sunamganj Sadar", "Tahirpur", "Shantiganj", "Madhyanagar"],
-  "Sylhet": ["Balaganj", "Beanibazar", "Bishwanath", "Companiganj", "Fenchuganj", "Golapganj", "Gowainghat", "Jaintiapur", "Kanaighat", "Sylhet Sadar", "Zakiganj", "Osmaninagar", "Dakshin Surma"],
-  "Dinajpur": ["Birampur", "Birganj", "Biral", "Bochaganj", "Chirirbandar", "Phulbari", "Ghoraghat", "Hakimpur", "Kaharole", "Khansama", "Nawabganj", "Parbatipur", "Dinajpur Sadar"],
-  "Gaibandha": ["Phulchhari", "Gaibandha Sadar", "Gobindaganj", "Palashbari", "Sadullapur", "Saghata", "Sundarganj"],
-  "Kurigram": ["Phulbari", "Bhurungamari", "Char Rajibpur", "Chilmari", "Kurigram Sadar", "Nageshwari", "Rajarhat", "Rowmari", "Ulipur"],
-  "Lalmonirhat": ["Aditmari", "Hatibandha", "Kaliganj", "Lalmonirhat Sadar", "Patgram"],
-  "Nilphamari": ["Domar", "Jaldhaka", "Kishoreganj", "Nilphamari Sadar", "Sayedpur", "Dimla"],
-  "Panchagarh": ["Atwari", "Boda", "Debiganj", "Panchagarh Sadar", "Tetulia"],
-  "Rangpur": ["Badarganj", "Kaunia", "Rangpur Sadar", "Mithapukur", "Pirgachha", "Pirganj", "Taraganj", "Gangachhara"],
-  "Thakurgaon": ["Pirganj", "Baliadangi", "Haripur", "Ranisankail", "Thakurgaon Sadar"],
-  "Jamalpur": ["Bakshiganj", "Dewanganj", "Islampur", "Jamalpur Sadar", "Madarganj", "Melandaha", "Sarishabari"],
-  "Mymensingh": ["Valuka", "Dhobaura", "Fulbaria", "Gafargaon", "Gouripur", "Haluaghat", "Ishwarganj", "Mymensingh Sadar", "Muktagachha", "Nandail", "Phulpur", "Tarakanda", "Trishal"],
-  "Netrokona": ["Atpara", "Barhatta", "Durgapur", "Khaliajuri", "Kalmakanda", "Kendua", "Madan", "Mohanganj", "Netrokona Sadar", "Purbadhala"],
-  "Sherpur": ["Jhenaigati", "Nakla", "Nalitabari", "Sherpur Sadar", "Sreebardi"],
-  "Jhalokati": ["Jhalokati Sadar", "Nalchity", "Kathalia", "Rajapur"],
-  "Barguna": ["Amtali", "Bamna", "Barguna Sadar", "Betagi", "Patharghata", "Taltali"],
-  "Barishal": ["Agailjhara", "Babuganj", "Bakerganj", "Banaripara", "Wazirpur", "Muladi", "Mehendiganj", "Barishal Sadar", "Hizla", "Gournadi"],
-  "Bhola": ["Bhola Sadar", "Burhanuddin", "Daulatkhan", "Lalmohan", "Manpura", "Tazumuddin", "Char Fasson"],
-  "Patuakhali": ["Bauphal", "Dashmina", "Dumki", "Kalapara", "Mirzaganj", "Patuakhali Sadar", "Rangabali", "Galachipa"],
-  "Pirojpur": ["Bhandaria", "Kawkhali", "Mathbaria", "Nazirpur", "Pirojpur Sadar", "Nesarabad", "Zianagar"]
 };
 
 export default function Orders() {
@@ -268,7 +202,8 @@ export default function Orders() {
     setFormCourier(order.courier || 'Pathao');
     setFormStatus(order.status);
     setFormDate(order.date ? order.date.split('T')[0] : new Date().toISOString().split('T')[0]);
-    setFormCity(order.city || 'Dhaka');
+    const normalizedDistrict = normalizeDistrict(order.city || 'Dhaka');
+    setFormCity(normalizedDistrict);
     setFormThana(order.thana || '');
     setFormArea(order.area || '');
     setFormCustomerNote(order.customerNote || '');
@@ -1459,12 +1394,15 @@ export default function Orders() {
                         onChange={(e) => {
                           const newCity = e.target.value;
                           setFormCity(newCity);
-                          const thanas = BD_DISTRICTS[newCity] || [];
-                          setFormThana(thanas.length > 0 ? thanas[0] : '');
+                          setFormThana('');
                         }} 
                         className="form-select" 
                         style={{ background: '#111827', border: '1px solid #1e293b', color: '#fff' }}
                       >
+                        <option value="">Select District</option>
+                        {formCity && !BD_DISTRICTS[formCity] && (
+                          <option value={formCity}>{formCity}</option>
+                        )}
                         {Object.keys(BD_DISTRICTS).sort().map(dist => (
                           <option key={dist} value={dist}>{dist}</option>
                         ))}
@@ -1479,7 +1417,10 @@ export default function Orders() {
                         style={{ background: '#111827', border: '1px solid #1e293b', color: '#fff' }}
                       >
                         <option value="">Select Thana</option>
-                        {(BD_DISTRICTS[formCity] || []).sort().map(th => (
+                        {formThana && !(BD_DISTRICTS[formCity] || []).includes(formThana) && (
+                          <option value={formThana}>{formThana}</option>
+                        )}
+                        {[...(BD_DISTRICTS[formCity] || [])].sort().map(th => (
                           <option key={th} value={th}>{th}</option>
                         ))}
                       </select>

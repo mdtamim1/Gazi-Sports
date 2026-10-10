@@ -1,10 +1,25 @@
 import { useState, useMemo } from 'react';
-import { Package, Search, Plus, Download, Edit, Trash2, AlertCircle, Grid, List as ListIcon, Star, X, RefreshCw, CheckCircle, Upload } from 'lucide-react';
+import { Package, Search, Plus, Download, Edit, Trash2, AlertCircle, Grid, List as ListIcon, Star, X, RefreshCw, CheckCircle, Upload, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useStorefrontConfig, type ProductConfig } from '../../store/storefrontConfig';
 import { convertToWebP } from '../../utils/imageCdn';
 import { formatCurrency } from '../../mock/data';
 import { createProductInBackend, updateProductInBackend, deleteProductFromBackend, fetchProductsFromBackend } from '../../services/api';
 import '../storefront-manager/storefront-manager.css';
+
+const cleanText = (str?: string) => {
+  if (!str) return '';
+  return str
+    .replace(/&#038;/g, '&')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#8211;/g, '–')
+    .replace(/&#8217;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/â€¢/g, '•')
+    .replace(/â€¹/g, '‹')
+    .replace(/â€º/g, '›');
+};
 
 export default function Products() {
   const [config, setConfig] = useStorefrontConfig();
@@ -523,13 +538,13 @@ export default function Products() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <img src={product.image} alt={product.name} style={{ width: '40px', height: '40px', borderRadius: 'var(--radius-md)', objectFit: 'cover', border: '1px solid var(--border-primary)' }} />
                         <div>
-                          <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{product.name}</div>
-                          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>{product.brand}</div>
+                          <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{cleanText(product.name)}</div>
+                          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>{cleanText(product.brand)}</div>
                         </div>
                       </div>
                     </td>
                     <td style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)' }}>{product.sku}</td>
-                    <td>{product.category}</td>
+                    <td>{cleanText(product.category)}</td>
                     <td style={{ fontWeight: 600 }}>{formatCurrency(product.price)}</td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -570,10 +585,10 @@ export default function Products() {
                   <img src={product.image} alt={product.name} style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
                   <div style={{ padding: 'var(--space-4)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                      <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 'var(--text-sm)', lineHeight: 1.2 }}>{product.name}</div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 'var(--text-sm)', lineHeight: 1.2 }}>{cleanText(product.name)}</div>
                       <span className={`badge ${product.published ? 'badge-success' : 'badge-warning'}`}>{product.published ? 'Active' : 'Draft'}</span>
                     </div>
-                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: '12px' }}>{product.brand} â€¢ {product.category}</div>
+                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: '12px' }}>{cleanText(product.brand)} • {cleanText(product.category)}</div>
                     
                     <div style={{ borderTop: '1px solid var(--border-secondary)', paddingTop: '12px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -601,11 +616,15 @@ export default function Products() {
         <div className="data-table-footer">
           <span>Showing {(page - 1) * perPage + 1}-{Math.min(page * perPage, filtered.length)} of {filtered.length}</span>
           <div className="pagination">
-            <button className="pagination-btn" disabled={page === 1} onClick={() => setPage(p => p - 1)}>â€¹</button>
+            <button className="pagination-btn" disabled={page === 1} onClick={() => setPage(p => p - 1)} aria-label="Previous Page">
+              <ChevronLeft size={16} />
+            </button>
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => (
               <button key={i} className={`pagination-btn ${page === i + 1 ? 'active' : ''}`} onClick={() => setPage(i + 1)}>{i + 1}</button>
             ))}
-            <button className="pagination-btn" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>â€º</button>
+            <button className="pagination-btn" disabled={page === totalPages} onClick={() => setPage(p => p + 1)} aria-label="Next Page">
+              <ChevronRight size={16} />
+            </button>
           </div>
         </div>
       </div>
