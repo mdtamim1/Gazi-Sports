@@ -311,7 +311,34 @@ export default function Checkout() {
     <div className="checkout-container">
       <div className="checkout-header">
         <h1>Secure Order Form</h1>
-        <p>Please fill out the form with correct details to complete your order</p>
+        <p>Fill in your details below — your order is safe & protected</p>
+        {/* Step indicators */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', marginTop: '20px' }}>
+          {[
+            { icon: '📦', label: 'Order' },
+            { icon: '👤', label: 'Details' },
+            { icon: '🚚', label: 'Shipping' },
+            { icon: '✅', label: 'Confirm' },
+          ].map((step, i, arr) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <div style={{
+                  width: '36px', height: '36px', borderRadius: '50%',
+                  background: i === 0 ? 'linear-gradient(135deg, #e11d48, #f97316)' : i < 3 ? '#e2e8f0' : '#e2e8f0',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1rem', boxShadow: i === 0 ? '0 4px 12px rgba(225,29,72,0.3)' : 'none',
+                  border: '2px solid', borderColor: i === 0 ? 'transparent' : '#e2e8f0'
+                }}>
+                  {step.icon}
+                </div>
+                <span style={{ fontSize: '0.6rem', fontWeight: 700, color: i === 0 ? '#e11d48' : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{step.label}</span>
+              </div>
+              {i < arr.length - 1 && (
+                <div style={{ width: '40px', height: '2px', background: '#e2e8f0', margin: '0 4px', marginBottom: '18px', flexShrink: 0 }} />
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
       <form className="checkout-layout" onSubmit={handleSubmit}>
@@ -347,22 +374,21 @@ export default function Checkout() {
           </div>
 
           {/* Coupon / Promo Code Form */}
-          <div style={{ padding: '16px', background: 'var(--sf-bg-secondary, #fafafa)', borderTop: '1px dashed var(--border-secondary)', borderBottom: '1px dashed var(--border-secondary)', margin: '0 0 16px 0' }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--sf-text-secondary)', marginBottom: '8px' }}>Promo Code</div>
+          <div style={{ padding: '14px 0', borderTop: '1px solid rgba(255,255,255,0.1)', borderBottom: '1px solid rgba(255,255,255,0.1)', margin: '4px 0 16px 0' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Promo Code</div>
             {appliedCoupon ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '8px 12px', borderRadius: '6px' }}>
-                <span style={{ fontSize: '0.82rem', color: '#16a34a', fontWeight: 600 }}>
-                  '{appliedCoupon.code}' applied ({appliedCoupon.type === 'percentage' ? `${appliedCoupon.value}%` : `৳${appliedCoupon.value}`} discount)
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.3)', padding: '8px 12px', borderRadius: '10px' }}>
+                <span style={{ fontSize: '0.82rem', color: '#4ade80', fontWeight: 600 }}>
+                  '{appliedCoupon.code}' applied ({appliedCoupon.type === 'percentage' ? `${appliedCoupon.value}%` : `৳${appliedCoupon.value}`} off)
                 </span>
-                <button type="button" onClick={handleRemoveCoupon} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 700 }}>Remove</button>
+                <button type="button" onClick={handleRemoveCoupon} style={{ background: 'none', border: 'none', color: '#f87171', fontSize: '0.78rem', cursor: 'pointer', fontWeight: 700 }}>Remove</button>
               </div>
             ) : (
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input
                   type="text"
-                  placeholder="Enter code (e.g. SUMMER20)"
-                  className="form-input"
-                  style={{ height: '36px', fontSize: '0.8rem', textTransform: 'uppercase', flex: 1 }}
+                  placeholder="Enter promo code..."
+                  style={{ flex: 1, height: '40px', padding: '0 14px', border: '1.5px solid rgba(255,255,255,0.15)', borderRadius: '10px', fontSize: '0.82rem', textTransform: 'uppercase', background: 'rgba(255,255,255,0.08)', color: 'white', outline: 'none', fontFamily: 'inherit', letterSpacing: '0.05em' }}
                   value={promoCodeInput}
                   onChange={(e) => setPromoCodeInput(e.target.value)}
                 />
@@ -370,14 +396,14 @@ export default function Checkout() {
                   type="button"
                   onClick={handleApplyCoupon}
                   disabled={isValidating}
-                  style={{ height: '36px', padding: '0 16px', background: '#000000', color: '#ffffff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}
+                  style={{ height: '40px', padding: '0 18px', background: 'rgba(225,29,72,0.9)', color: '#ffffff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700, whiteSpace: 'nowrap' }}
                 >
                   {isValidating ? '...' : 'Apply'}
                 </button>
               </div>
             )}
-            {couponError && <div style={{ color: '#dc2626', fontSize: '0.75rem', marginTop: '4px', fontWeight: 500 }}>{couponError}</div>}
-            {couponSuccess && <div style={{ color: '#16a34a', fontSize: '0.75rem', marginTop: '4px', fontWeight: 500 }}>{couponSuccess}</div>}
+            {couponError && <div style={{ color: '#f87171', fontSize: '0.74rem', marginTop: '6px', fontWeight: 500 }}>{couponError}</div>}
+            {couponSuccess && <div style={{ color: '#4ade80', fontSize: '0.74rem', marginTop: '6px', fontWeight: 500 }}>{couponSuccess}</div>}
           </div>
 
           <div className="summary-totals">

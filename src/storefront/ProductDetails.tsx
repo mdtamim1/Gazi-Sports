@@ -102,6 +102,14 @@ export default function ProductDetails() {
     let price = product.price;
     const selectedLabels = [selectedSize, selectedColor, selectedWeight, selectedKg, selectedHeight].filter(Boolean);
     if (product.sizes && Array.isArray(product.sizes)) {
+      // Try composite label first (e.g. "40 / Light Mint Green")
+      if (selectedSize && selectedColor) {
+        const compositeLabel = `${selectedSize} / ${selectedColor}`;
+        const compositeMatch = product.sizes.find((s: any) => s.label === compositeLabel && s.enabled);
+        if (compositeMatch && compositeMatch.price && Number(compositeMatch.price) > 0) {
+          return Number(compositeMatch.price);
+        }
+      }
       for (const label of selectedLabels) {
         const match = product.sizes.find((s: any) => s.label === label && s.enabled);
         if (match && match.price && Number(match.price) > 0) {
@@ -1022,9 +1030,39 @@ export default function ProductDetails() {
               return !isPredefined;
             });
 
+            // Detect composite labels like "40 / Light Mint Green"
+            const isComposite = customOpts.length > 0 && customOpts.some((s: any) => s.label.includes('/'));
+
+            // For composite: extract unique size-parts and color-parts
+            const compositeUniqueSizes: string[] = [];
+            const compositeUniqueColors: string[] = [];
+            if (isComposite) {
+              customOpts.forEach((s: any) => {
+                if (s.label.includes('/')) {
+                  const parts = s.label.split('/');
+                  const sizePart = parts[0].trim();
+                  const colorPart = parts.slice(1).join('/').trim();
+                  if (sizePart && !compositeUniqueSizes.includes(sizePart)) compositeUniqueSizes.push(sizePart);
+                  if (colorPart && !compositeUniqueColors.includes(colorPart)) compositeUniqueColors.push(colorPart);
+                } else {
+                  if (!compositeUniqueSizes.includes(s.label)) compositeUniqueSizes.push(s.label);
+                }
+              });
+            }
+
+            // Find which colors are available for selected size
+            const availableColorsForSize = isComposite && selectedSize
+              ? customOpts
+                  .filter((s: any) => {
+                    if (!s.label.includes('/')) return false;
+                    return s.label.split('/')[0].trim() === selectedSize;
+                  })
+                  .map((s: any) => s.label.split('/').slice(1).join('/').trim())
+              : compositeUniqueColors;
+
             const VariantGroup = ({
-              label, items, selected, onSelect, basePrice
-            }: { label: string; items: any[]; selected: string; onSelect: (v: string) => void; basePrice?: number }) => {
+              label, items, selected, onSelect, basePrice, disabledOptions
+            }: { label: string; items: any[]; selected: string; onSelect: (v: string) => void; basePrice?: number; disabledOptions?: string[] }) => {
               if (items.length === 0) return null;
               return (
                 <div className="pdp-variant-group">
@@ -1035,7 +1073,7 @@ export default function ProductDetails() {
                   <div className="pdp-variant-options">
                     {items.map((item: any) => {
                       const isActive = selected === item.label;
-                      // Show price difference if this option has a custom price
+                      const isDisabled = !!(disabledOptions && disabledOptions.length > 0 && !disabledOptions.includes(item.label));
                       const priceDiff = item.price && basePrice && item.price !== basePrice
                         ? item.price - basePrice
                         : null;
@@ -1043,8 +1081,9 @@ export default function ProductDetails() {
                         <button
                           key={item.label}
                           type="button"
-                          className={`pdp-variant-btn${isActive ? ' active' : ''}`}
-                          onClick={() => onSelect(isActive ? '' : item.label)}
+                          className={`pdp-variant-btn${isActive ? ' active' : ''}${isDisabled ? ' disabled-opt' : ''}`}
+                          onClick={() => { if (!isDisabled) onSelect(isActive ? '' : item.label); }}
+                          style={isDisabled ? { opacity: 0.35, cursor: 'not-allowed' } : {}}
                         >
                           <span>{item.label}</span>
                           {priceDiff !== null && (
@@ -1060,6 +1099,20 @@ export default function ProductDetails() {
               );
             };
 
+            // Build display items for composite size/color groups
+            const compositeSizeItems = compositeUniqueSizes.map((s) => {
+              const match = customOpts.find((opt: any) =>
+                opt.label.includes('/') ? opt.label.split('/')[0].trim() === s : opt.label === s
+              );
+              return { label: s, price: match?.price };
+            });
+            const compositeColorItems = compositeUniqueColors.map((c) => {
+              const match = customOpts.find((opt: any) => {
+                if (!opt.label.includes('/')) return false;
+                return opt.label.split('/').slice(1).join('/').trim() === c;
+              });
+              return { label: c, price: match?.price };
+            });
 
             return (
               <div className="pdp-variants-container">
@@ -1067,22 +1120,56 @@ export default function ProductDetails() {
                 <VariantGroup label="Color" items={colorOpts} selected={selectedColor} onSelect={setSelectedColor} basePrice={product.price} />
                 <VariantGroup label="Weight" items={weightOpts} selected={selectedWeight} onSelect={setSelectedWeight} basePrice={product.price} />
                 <VariantGroup label="Height" items={heightOpts} selected={selectedHeight} onSelect={setSelectedHeight} basePrice={product.price} />
-                <VariantGroup label="Option" items={customOpts} selected={selectedSize} onSelect={setSelectedSize} basePrice={product.price} />
 
-                
+                {isComposite ? (
+                  <>
+                    <VariantGroup
+                      label="Size"
+                      items={compositeSizeItems}
+                      selected={selectedSize}
+                      onSelect={(val) => {
+                        setSelectedSize(val);
+                        if (val && selectedColor) {
+                          const avail = customOpts
+                            .filter((s: any) => s.label.includes('/') && s.label.split('/')[0].trim() === val)
+                            .map((s: any) => s.label.split('/').slice(1).join('/').trim());
+                          if (!avail.includes(selectedColor)) setSelectedColor('');
+                        }
+                      }}
+                      basePrice={product.price}
+                    />
+                    <VariantGroup
+                      label="Color"
+                      items={compositeColorItems}
+                      selected={selectedColor}
+                      onSelect={setSelectedColor}
+                      basePrice={product.price}
+                      disabledOptions={selectedSize ? availableColorsForSize : undefined}
+                    />
+                  </>
+                ) : (
+                  customOpts.length > 0 && (
+                    <VariantGroup label="Option" items={customOpts} selected={selectedSize} onSelect={setSelectedSize} basePrice={product.price} />
+                  )
+                )}
+
                 {(() => {
                   const missingGroups: string[] = [];
                   if (sizeOpts.length > 0 && !selectedSize) missingGroups.push('Size');
                   if (colorOpts.length > 0 && !selectedColor) missingGroups.push('Color');
                   if (weightOpts.length > 0 && !selectedWeight) missingGroups.push('Weight');
                   if (heightOpts.length > 0 && !selectedHeight) missingGroups.push('Height');
-                  if (customOpts.length > 0 && !selectedSize) missingGroups.push('Option');
-
-                  if (missingGroups.length === 0) return null;
-
+                  if (isComposite) {
+                    if (!selectedSize) missingGroups.push('Size');
+                    if (!selectedColor) missingGroups.push('Color');
+                  } else if (customOpts.length > 0 && !selectedSize) {
+                    missingGroups.push('Option');
+                  }
+                  const unique = [...new Set(missingGroups)];
+                  if (unique.length === 0) return null;
                   return (
                     <div className="pdp-variant-warn">
-                      ⚠️ Please select your {missingGroups.join(', ')} before placing the order.
+                      Please select your {unique.join(', ')} before placing the order.
                     </div>
                   );
                 })()}
