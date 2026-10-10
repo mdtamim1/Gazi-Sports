@@ -1465,11 +1465,14 @@ export default function ProductDetails() {
             <div className="new-arrivals-grid">
               {related.map((relatedProduct: any) => {
                 const isJersey = relatedProduct.category && (relatedProduct.category.toLowerCase() === 'jersey' || relatedProduct.category.toLowerCase() === 'jerseys');
-                const hasDiscount = relatedProduct.originalPrice && relatedProduct.originalPrice > relatedProduct.price;
-                const discountPercent = hasDiscount ? Math.round((1 - relatedProduct.price / relatedProduct.originalPrice) * 100) : 0;
+                const originalPriceVal = relatedProduct.originalPrice ?? relatedProduct.original_price;
+                const hasDiscount = originalPriceVal && Number(originalPriceVal) > relatedProduct.price;
+                const discountPercent = hasDiscount ? Math.round((1 - relatedProduct.price / Number(originalPriceVal)) * 100) : 0;
+                const effectiveInStock = (relatedProduct.inStock !== undefined ? Boolean(relatedProduct.inStock) : (relatedProduct.in_stock !== undefined ? Boolean(relatedProduct.in_stock) : true));
+                const effectiveStock = (relatedProduct.stock !== undefined && relatedProduct.stock !== null) ? Number(relatedProduct.stock) : 50;
+                const isSoldOut = !effectiveInStock || effectiveStock <= 0;
                 
                 if (isJersey) {
-                  const isSoldOut = !relatedProduct.inStock || (relatedProduct.stock !== undefined && relatedProduct.stock <= 0);
                   return (
                     <Link to={`/product/${relatedProduct.slug || relatedProduct.id}`} key={relatedProduct.id} className="jersey-product-card" style={{ textDecoration: 'none' }}>
                       <div className="jersey-product-image-container">
@@ -1489,7 +1492,7 @@ export default function ProductDetails() {
                         <div className="jersey-product-price-row">
                           {hasDiscount && (
                             <span className="jersey-product-original-price">
-                              Tk {relatedProduct.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              Tk {Number(originalPriceVal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                           )}
                           <span className="jersey-product-price">
@@ -1521,7 +1524,7 @@ export default function ProductDetails() {
                       <div className="trending-product-price-row">
                         {hasDiscount && (
                           <span className="trending-product-original-price">
-                            ৳ {relatedProduct.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            ৳ {Number(originalPriceVal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                         )}
                         <span className="trending-product-price">

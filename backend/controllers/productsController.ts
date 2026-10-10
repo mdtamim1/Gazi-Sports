@@ -178,13 +178,17 @@ export const syncStorefrontConfigProducts = () => {
             try { if (r.specs) specs = JSON.parse(r.specs); } catch (e) {}
             try { if (r.sizes) sizes = JSON.parse(r.sizes); } catch (e) {}
             const gallery = galleryMap[r.id] || [];
+            const inStock = r.in_stock === 1 || r.in_stock === true || (r.stock ?? 0) > 0;
             return {
               ...r,
               features,
               specs,
               sizes,
               published: r.published === 1,
-              in_stock: r.in_stock === 1,
+              in_stock: inStock,
+              inStock: inStock,
+              stock: r.stock !== undefined && r.stock !== null ? Number(r.stock) : 50,
+              originalPrice: r.original_price ? Number(r.original_price) : null,
               gallery: gallery,
               videoUrl: r.video_url || null,
               photoContent: r.photo_content || null

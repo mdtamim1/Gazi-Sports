@@ -436,6 +436,23 @@ function migrateConfig(parsed: any): any {
     ];
   }
 
+  // Normalize products to guarantee inStock and originalPrice are always properly defined
+  if (parsed.products && Array.isArray(parsed.products)) {
+    parsed.products = parsed.products.map((p: any) => {
+      const inStock = p.inStock !== undefined 
+        ? Boolean(p.inStock) 
+        : (p.in_stock !== undefined ? (p.in_stock === 1 || p.in_stock === true) : true);
+      const stock = p.stock !== undefined && p.stock !== null ? Number(p.stock) : 50;
+      return {
+        ...p,
+        inStock: inStock && stock > 0,
+        in_stock: inStock && stock > 0,
+        stock: stock,
+        originalPrice: p.originalPrice ?? p.original_price ?? null
+      };
+    });
+  }
+
   return parsed;
 }
 

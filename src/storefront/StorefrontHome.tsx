@@ -107,12 +107,16 @@ export default function StorefrontHome() {
 
   const renderProductCard = (product: any) => {
     const isJersey = product.category && (product.category.toLowerCase() === 'jersey' || product.category.toLowerCase() === 'jerseys');
-    const hasDiscount = product.originalPrice && product.originalPrice > product.price;
-    const discountPercent = hasDiscount ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+    const originalPriceVal = product.originalPrice ?? product.original_price;
+    const hasDiscount = originalPriceVal && Number(originalPriceVal) > product.price;
+    const discountPercent = hasDiscount ? Math.round((1 - product.price / Number(originalPriceVal)) * 100) : 0;
     
     const productSlug = product.slug || product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const effectiveInStock = (product.inStock !== undefined ? Boolean(product.inStock) : (product.in_stock !== undefined ? Boolean(product.in_stock) : true));
+    const effectiveStock = (product.stock !== undefined && product.stock !== null) ? Number(product.stock) : 50;
+    const isSoldOut = !effectiveInStock || effectiveStock <= 0;
+
     if (isJersey) {
-      const isSoldOut = !product.inStock || (product.stock !== undefined && product.stock <= 0);
       return (
         <Link to={`/product/${productSlug}`} key={product.id} className="jersey-product-card" style={{ textDecoration: 'none' }}>
           <div className="jersey-product-image-container">
@@ -149,7 +153,7 @@ export default function StorefrontHome() {
             <div className="jersey-product-price-row">
               {hasDiscount && (
                 <span className="jersey-product-original-price">
-                  Tk {product.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  Tk {Number(originalPriceVal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               )}
               <span className="jersey-product-price">
@@ -161,7 +165,6 @@ export default function StorefrontHome() {
       );
     }
 
-    const isSoldOut = !product.inStock || (product.stock !== undefined && product.stock <= 0);
     const hasOptions = product.sizes && product.sizes.some((s: any) => s.enabled);
     return (
       <Link to={`/product/${productSlug}`} key={product.id} className="trending-product-card" style={{ textDecoration: 'none' }}>
@@ -200,7 +203,7 @@ export default function StorefrontHome() {
           <div className="trending-product-price-row">
             {hasDiscount && (
               <span className="trending-product-original-price">
-                ৳ {product.originalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ৳ {Number(originalPriceVal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             )}
             <span className="trending-product-price">
