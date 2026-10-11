@@ -22,27 +22,25 @@ export default function Orders() {
   const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    const loadOrders = async () => {
+    // ✅ PERFORMANCE: Fetch orders AND products in parallel, not sequential
+    const loadData = async () => {
       setIsLoading(true);
-      const dbOrders = await fetchOrdersFromBackend();
+      const [dbOrders, dbProducts] = await Promise.all([
+        fetchOrdersFromBackend(),
+        fetchProductsFromBackend()
+      ]);
       if (dbOrders !== null) {
         setOrders(dbOrders);
       } else {
-        // Fallback to localStorage orders (which generateOrders returns)
         setOrders(generateOrders(60));
+      }
+      if (dbProducts && dbProducts.length > 0) {
+        setProducts(dbProducts);
       }
       setIsLoading(false);
     };
 
-    const loadProducts = async () => {
-      const dbProducts = await fetchProductsFromBackend();
-      if (dbProducts && dbProducts.length > 0) {
-        setProducts(dbProducts);
-      }
-    };
-
-    loadOrders();
-    loadProducts();
+    loadData();
   }, []);
 
   // Order Sync state

@@ -24,15 +24,32 @@ const logOrderHistory = (
   );
 };
 
-export const getOrders = (req: Request, res: Response) => {
-  db.all(
-    `SELECT o.*, e.first_name as assigned_first_name, e.last_name as assigned_last_name 
-     FROM orders o 
-     LEFT JOIN employees e ON o.assigned_to = e.id 
-     WHERE o.status != 'pending_sync'
-     ORDER BY o.created_at DESC`, 
-    [], 
-    (err, orderRows: any[]) => {
+export const getOrders = async (req: Request, res: Response) => {
+  try {
+    // ✅ PERFORMANCE: Cache orders list for 30 seconds — eliminates repeat full-table scans
+    const cacheKey = 'orders:all';
+    const cached = cacheService.get<any[]>(cacheKey);
+    if (cached) {
+      return res.json({ status: 'success', data: cached, _cached: true });
+    }
+
+    // ✅ PERFORMANCE: Single query with LEFT JOIN instead of 2 separate queries + JS filter
+    // Uses GROUP_CONCAT to aggregate order items per order in one DB round-trip
+    const query = `
+      SELECT 
+        o.*,
+        e.first_name as assigned_first_name, 
+        e.last_name as assigned_last_name,
+        GROUP_CONCAT(oi.product_name || '||' || COALESCE(oi.color,'') || '||' || COALESCE(oi.size,'') || '||' || COALESCE(oi.code,'') || '||' || COALESCE(oi.quantity,1) || '||' || COALESCE(oi.price,0), ';;') as items_concat
+      FROM orders o
+      LEFT JOIN employees e ON o.assigned_to = e.id
+      LEFT JOIN order_items oi ON oi.order_id = o.id
+      WHERE o.status != 'pending_sync'
+      GROUP BY o.id
+      ORDER BY o.created_at DESC
+    `;
+
+    db.all(query, [], (err, orderRows: any[]) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
@@ -41,39 +58,39 @@ export const getOrders = (req: Request, res: Response) => {
         return res.json({ status: 'success', data: [] });
       }
 
-      // Fetch all order items and map them to their parent orders
-      db.all(`SELECT * FROM order_items`, [], (err, itemRows: any[]) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).json({ status: 'error', message: 'Database error' });
-        }
+      const ordersWithItems = orderRows.map(order => {
+        // Prefer stored assigned_name; fallback to joined employee name
+        const storedName = order.assigned_name;
+        const joinedName = order.assigned_first_name && order.assigned_last_name
+          ? `${order.assigned_first_name} ${order.assigned_last_name}`.trim()
+          : null;
 
-        const ordersWithItems = orderRows.map(order => {
-          const items = itemRows ? itemRows.filter(item => item.order_id === order.id) : [];
-          // Prefer stored assigned_name (persists even if employee goes offline/inactive)
-          // Fallback to joined employee name if stored name is missing
-          const storedName = order.assigned_name;
-          const joinedName = order.assigned_first_name && order.assigned_last_name
-            ? `${order.assigned_first_name} ${order.assigned_last_name}`.trim()
-            : null;
-          return {
-            ...order,
-            assigned_name: storedName || joinedName,
-            productsList: items.map(item => ({
-              name: item.product_name,
-              color: item.color,
-              size: item.size,
-              code: item.code,
-              quantity: item.quantity,
-              price: item.price
-            }))
-          };
-        });
+        // Parse the concatenated items string back into an array
+        const productsList = order.items_concat
+          ? order.items_concat.split(';;').filter(Boolean).map((raw: string) => {
+              const [name, color, size, code, quantity, price] = raw.split('||');
+              return { name, color, size, code, quantity: Number(quantity), price: Number(price) };
+            })
+          : [];
 
-        res.json({ status: 'success', data: ordersWithItems });
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { items_concat: _ic, assigned_first_name: _afn, assigned_last_name: _aln, ...rest } = order;
+        return {
+          ...rest,
+          assigned_name: storedName || joinedName,
+          productsList
+        };
       });
-    }
-  );
+
+      // Cache for 30 seconds (invalidated on create/update/status change)
+      cacheService.set('orders:all', ordersWithItems, 30);
+
+      res.json({ status: 'success', data: ordersWithItems });
+    });
+  } catch (err) {
+    console.error('getOrders error:', err);
+    res.status(500).json({ status: 'error', message: 'Internal server error' });
+  }
 };
 
 export const getOrderById = (req: Request, res: Response) => {
@@ -127,14 +144,24 @@ export const getMyOrders = (req: Request, res: Response) => {
         return res.json({ status: 'success', data: [] });
       }
 
-      db.all(`SELECT * FROM order_items`, [], (err, itemRows: any[]) => {
+      // ✅ PERFORMANCE: Only fetch items for the matching orders (not full table)
+      const orderIds = orderRows.map((o: any) => o.id);
+      const placeholders = orderIds.map(() => '?').join(',');
+      db.all(`SELECT * FROM order_items WHERE order_id IN (${placeholders})`, orderIds, (err, itemRows: any[]) => {
         if (err) {
           console.error(err);
           return res.status(500).json({ status: 'error', message: 'Database error' });
         }
 
+        // Build a map for O(1) lookup instead of O(n) filter per order
+        const itemsByOrderId = new Map<string, any[]>();
+        (itemRows || []).forEach((item: any) => {
+          if (!itemsByOrderId.has(item.order_id)) itemsByOrderId.set(item.order_id, []);
+          itemsByOrderId.get(item.order_id)!.push(item);
+        });
+
         const ordersWithItems = orderRows.map((order) => {
-          const items = itemRows ? itemRows.filter((item) => item.order_id === order.id) : [];
+          const items = itemsByOrderId.get(order.id) || [];
           return {
             ...order,
             productsList: items.map((item) => ({
@@ -190,7 +217,7 @@ export const createOrder = (req: Request, res: Response) => {
       if (decoded) {
         initialStatus = 'processing';
       }
-    } catch (e) {
+    } catch (_e) {
       // invalid token, default to pending_sync
     }
   }
@@ -258,6 +285,7 @@ export const createOrder = (req: Request, res: Response) => {
                         return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
                       }
                       cacheService.del('dashboard:stats').catch(console.error);
+                      cacheService.del('orders:all');
                       const performedBy = (req as any).user ? `${(req as any).user.name} (${(req as any).user.role})` : 'Customer';
                       logOrderHistory(id, 'create', null, initialStatus, performedBy);
 
@@ -351,8 +379,9 @@ export const updateOrderStatus = (req: Request, res: Response) => {
         console.error(err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
       }
-      // Invalidate dashboard stats cache
+      // Invalidate dashboard stats cache AND orders list cache
       cacheService.del('dashboard:stats').catch(console.error);
+      cacheService.del('orders:all');
 
       const performedBy = (req as any).user ? `${(req as any).user.name} (${(req as any).user.role})` : 'System';
       logOrderHistory(id, 'status_change', oldStatus, status, performedBy);

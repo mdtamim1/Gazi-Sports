@@ -6,7 +6,7 @@ import TopBar from './components/layout/TopBar';
 // Auth Provider & Context
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CustomerAuthProvider } from './context/CustomerAuthContext';
-import { useStorefrontConfig, setStorefrontConfigLocally, getStorefrontConfig } from './store/storefrontConfig';
+import { setStorefrontConfigLocally, getStorefrontConfig } from './store/storefrontConfig';
 import { fetchProductsFromBackend } from './services/api';
 
 // Loading Fallback Spinner
@@ -131,8 +131,6 @@ function AdminLayout() {
 const NotFound = lazy(() => import('./storefront/NotFound'));
 
 export default function App() {
-  const [config] = useStorefrontConfig();
-
   useEffect(() => {
     const loadProducts = async () => {
       try {

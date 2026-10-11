@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { getOptimizedImageUrl } from '../../utils/imageCdn';
 
 interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -23,10 +23,19 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   containerStyle,
   ...props
 }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [isLoaded, setIsLoaded] = useState(() => {
+    return !src || src.startsWith('data:');
+  });
 
   // Generate main optimized URL
   const optimizedSrc = getOptimizedImageUrl(src, width, height);
+
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+      setIsLoaded(true);
+    }
+  }, [optimizedSrc]);
 
   return (
     <div
@@ -42,6 +51,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       }}
     >
       <img
+        ref={imgRef}
         src={optimizedSrc}
         alt={alt}
         loading={priority ? "eager" : "lazy"}
@@ -53,7 +63,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
           width: '100%',
           height: '100%',
           opacity: isLoaded ? 1 : 0,
-          transition: 'opacity 0.2s ease-in-out',
+          transition: 'opacity 0.15s ease-in-out',
           display: 'block',
           ...style
         }}

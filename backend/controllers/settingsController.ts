@@ -203,7 +203,8 @@ export const updateSettings = (req: Request, res: Response) => {
 };
 
 export const getStorefrontSettings = (req: Request, res: Response) => {
-  res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  // no-store: deleted products must never be served from a stale browser/CDN cache
+  res.setHeader('Cache-Control', 'no-store');
   db.get(
     "SELECT setting_value FROM system_settings WHERE setting_key = 'storefront_config'",
     [],

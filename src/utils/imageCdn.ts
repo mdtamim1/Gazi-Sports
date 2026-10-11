@@ -11,9 +11,24 @@ export const getOptimizedImageUrl = (src: string, width?: number, height?: numbe
   if (src.startsWith('data:')) return src;
 
   // Case 1: Unsplash images (most product images in our seeds)
-  // Example: https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?auto=format&fit=crop&w=600&q=80
+  // Dynamically optimize Unsplash images using edge parameters (WebP, auto-format, quality 75)
   if (src.includes('images.unsplash.com')) {
-    return src;
+    try {
+      const url = new URL(src);
+      const targetW = width || 500;
+      url.searchParams.set('w', String(targetW));
+      if (height) {
+        url.searchParams.set('h', String(height));
+        url.searchParams.set('fit', 'crop');
+      } else {
+        url.searchParams.set('fit', 'max');
+      }
+      url.searchParams.set('auto', 'format');
+      url.searchParams.set('q', '75');
+      return url.toString();
+    } catch {
+      return src;
+    }
   }
 
   // Case 2: Other external URLs (http/https)
@@ -36,7 +51,7 @@ export const getOptimizedImageUrl = (src: string, width?: number, height?: numbe
       try {
         const urlObj = new URL(envApiUrl);
         backendBase = `${urlObj.protocol}//${urlObj.host}`;
-      } catch (e) {}
+      } catch {}
     }
   }
   
@@ -49,17 +64,9 @@ export const getOptimizedImageUrl = (src: string, width?: number, height?: numbe
   }
 
   // Build query/path options for sizing/formatting
-  let transformation = '';
-  if (width || height) {
-    const params = [];
-    if (width) params.push(`w-${width}`);
-    if (height) params.push(`h-${height}`);
-    params.push('f-auto'); // Auto-format format (WebP)
-    params.push('q-80');   // Quality compression 80%
-    transformation = `tr:${params.join(',')}`;
-  } else {
-    transformation = 'tr:f-auto,q-80';
-  }
+  const transformation = (width || height)
+    ? `tr:${[width ? `w-${width}` : '', height ? `h-${height}` : '', 'f-auto', 'q-80'].filter(Boolean).join(',')}`
+    : 'tr:f-auto,q-80';
 
   return `${cdnUrl}/${transformation}/${backendBase}${cleanPath}`;
 };

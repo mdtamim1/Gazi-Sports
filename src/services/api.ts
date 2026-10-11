@@ -54,7 +54,7 @@ export const googleRegisterEmployee = async (token: string, googleIdToken: strin
       body: JSON.stringify({ token, googleIdToken, name, password }),
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Cannot connect to the server.' };
   }
 };
@@ -66,7 +66,7 @@ export const checkServerHealth = async (): Promise<boolean> => {
     if (!res.ok) return false;
     const data = await res.json();
     return data.status === 'ok';
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -134,51 +134,83 @@ export const fetchCustomerOrdersFromBackend = async (email: string, phone?: stri
   }
 };
 
+// --- Client-side in-memory cache for admin orders list ---
+// 60-second TTL: navigating between sections returns instantly from memory
+const ORDERS_CACHE_TTL_MS = 60 * 1000;
+let _memOrdersCache: any[] | null = null;
+let _memOrdersCacheAt: number = 0;
+
+const isOrdersCacheFresh = () =>
+  _memOrdersCache !== null && (Date.now() - _memOrdersCacheAt) < ORDERS_CACHE_TTL_MS;
+
+export const invalidateOrdersCache = () => {
+  _memOrdersCache = null;
+  _memOrdersCacheAt = 0;
+};
+
 // Fetch all orders from backend database (Admin/Staff)
 export const fetchOrdersFromBackend = async (): Promise<Order[] | null> => {
-  try {
-    const response = await fetch(`${API_BASE}/orders`, {
-      headers: {
-        ...getAuthHeaders(),
-      },
-    });
-    if (!response.ok) return null;
-    const result = await response.json();
-    if (result.status !== 'success' || !Array.isArray(result.data)) return null;
+  // Return fresh in-memory cache immediately (no network request)
+  if (isOrdersCacheFresh()) return _memOrdersCache;
 
-    return result.data.map((order: any) => ({
-      id: order.id,
-      customer: order.customer,
-      email: order.email,
-      amount: order.amount,
-      status: order.status,
-      items: order.items,
-      date: order.created_at || order.date,
-      paymentMethod: order.payment_method || order.paymentMethod,
-      storeName: order.store_name || order.storeName,
-      phone: order.phone,
-      address: order.address,
-      courier: order.courier,
-      city: order.city,
-      thana: order.thana,
-      area: order.area,
-      customerNote: order.customer_note || order.customerNote,
-      shopNote: order.shop_note || order.shopNote,
-      paymentType: order.payment_type || order.paymentType,
-      memoNumber: order.memo_number || order.memoNumber,
-      deliveryCharge: order.delivery_charge || order.deliveryCharge,
-      discount: order.discount,
-      paidAmount: order.paid_amount || order.paidAmount,
-      subtotal: order.subtotal,
-      assigned_to: order.assigned_to || null,
-      assigned_name: order.assigned_name || null,
-      productsList: order.productsList || []
-    }));
-  } catch (e) {
-    console.warn('Backend server is down or unreachable. Using frontend localStorage mock data. Error:', e);
-    return null;
+  const doFetch = async (): Promise<Order[] | null> => {
+    try {
+      const response = await fetch(`${API_BASE}/orders`, {
+        headers: { ...getAuthHeaders() },
+      });
+      if (!response.ok) return null;
+      const result = await response.json();
+      if (result.status !== 'success' || !Array.isArray(result.data)) return null;
+
+      const mapped = result.data.map((order: any) => ({
+        id: order.id,
+        customer: order.customer,
+        email: order.email,
+        amount: order.amount,
+        status: order.status,
+        items: order.items,
+        date: order.created_at || order.date,
+        paymentMethod: order.payment_method || order.paymentMethod,
+        storeName: order.store_name || order.storeName,
+        phone: order.phone,
+        address: order.address,
+        courier: order.courier,
+        city: order.city,
+        thana: order.thana,
+        area: order.area,
+        customerNote: order.customer_note || order.customerNote,
+        shopNote: order.shop_note || order.shopNote,
+        paymentType: order.payment_type || order.paymentType,
+        memoNumber: order.memo_number || order.memoNumber,
+        deliveryCharge: order.delivery_charge || order.deliveryCharge,
+        discount: order.discount,
+        paidAmount: order.paid_amount || order.paidAmount,
+        subtotal: order.subtotal,
+        assigned_to: order.assigned_to || null,
+        assigned_name: order.assigned_name || null,
+        productsList: order.productsList || []
+      }));
+
+      // Save to in-memory cache
+      _memOrdersCache = mapped;
+      _memOrdersCacheAt = Date.now();
+      return mapped;
+    } catch (e) {
+      console.warn('Backend server is down or unreachable. Using frontend localStorage mock data. Error:', e);
+      return null;
+    }
+  };
+
+  // Stale cache exists — return it immediately, refresh in background
+  if (_memOrdersCache) {
+    doFetch().catch(() => {});
+    return _memOrdersCache;
   }
+
+  // No cache at all — wait for fetch
+  return doFetch();
 };
+
 
 // Update order status in backend database
 export const updateOrderStatusInBackend = async (orderId: string, status: string): Promise<boolean> => {
@@ -267,7 +299,7 @@ export const toggleEmployeeStatusInBackend = async (id: string): Promise<any> =>
       }
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to toggle employee status' };
   }
 };
@@ -368,7 +400,7 @@ export const getCachedProductsFromStorage = (): any[] | null => {
         return parsed.data;
       }
     }
-  } catch (e) {}
+  } catch {}
   return null;
 };
 
@@ -384,7 +416,7 @@ const isCacheFresh = (): boolean => {
         return (Date.now() - parsed.ts) < PRODUCTS_CACHE_TTL_MS;
       }
     }
-  } catch (e) {}
+  } catch {}
   return false;
 };
 
@@ -394,7 +426,7 @@ const saveProductsToCache = (products: any[]): void => {
   try {
     const payload: ProductsCache = { data: products, ts: Date.now() };
     localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(payload));
-  } catch (e) {}
+  } catch {}
 };
 
 // Fetch all products from backend SQLite
@@ -435,23 +467,90 @@ export const fetchProductsFromBackend = async (): Promise<any[] | null> => {
   return doFetch();
 };
 
-// Fetch a single product by ID from backend SQLite
-export const fetchProductByIdFromBackend = async (id: string | number): Promise<any | null> => {
-  try {
-    const backendId = toBackendId(id);
-    const response = await fetch(`${API_BASE}/products/${backendId}`, {
-      headers: {
-        ...getAuthHeaders(),
-      },
-    });
-    if (!response.ok) return null;
-    const result = await response.json();
-    if (result.status !== 'success' || !result.data) return null;
-    return mapProductToFrontend(result.data);
-  } catch (e) {
-    console.warn(`Failed to fetch product ${id} from backend:`, e);
-    return null;
+// --- Single product in-memory cache (2-minute TTL, stale-while-revalidate) ---
+const PRODUCT_BY_ID_TTL_MS = 2 * 60 * 1000;
+const _singleProductCache = new Map<string, { data: any; ts: number }>();
+const _singleProductInFlight = new Map<string, Promise<any | null>>();
+
+export const invalidateProductCache = (id?: string | number): void => {
+  if (id !== undefined) {
+    const rawId = String(id);
+    _singleProductCache.delete(rawId);
+    _singleProductCache.delete(toBackendId(id));
+  } else {
+    _singleProductCache.clear();
   }
+};
+
+// Fetch a single product by ID from backend SQLite
+// Uses stale-while-revalidate + local fallback to _memProductsCache for instant loading
+export const fetchProductByIdFromBackend = async (id: string | number): Promise<any | null> => {
+  const rawId = String(id);
+  const backendId = toBackendId(id);
+
+  // 1. Check _singleProductCache for fresh data
+  const cached = _singleProductCache.get(rawId) || _singleProductCache.get(backendId);
+  if (cached && (Date.now() - cached.ts) < PRODUCT_BY_ID_TTL_MS) {
+    return cached.data;
+  }
+
+  // 2. Instant fallback to all-products cache if available
+  const allProducts = getCachedProductsFromStorage();
+  const fallbackProduct = allProducts?.find((p: any) => 
+    String(p.id) === rawId || 
+    String(p.id) === backendId || 
+    (p.slug && (p.slug === rawId || p.slug === backendId))
+  );
+
+  // 3. Deduplicate in-flight fetch
+  const fetchKey = backendId;
+  const doFetch = async (): Promise<any | null> => {
+    try {
+      const response = await fetch(`${API_BASE}/products/${backendId}`, {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      });
+      if (!response.ok) return null;
+      const result = await response.json();
+      if (result.status !== 'success' || !result.data) return null;
+      const mapped = mapProductToFrontend(result.data);
+      
+      // Store in single product cache
+      const entry = { data: mapped, ts: Date.now() };
+      _singleProductCache.set(rawId, entry);
+      _singleProductCache.set(backendId, entry);
+      if (mapped.slug) {
+        _singleProductCache.set(mapped.slug, entry);
+      }
+      return mapped;
+    } catch (e) {
+      console.warn(`Failed to fetch product ${id} from backend:`, e);
+      return null;
+    } finally {
+      _singleProductInFlight.delete(fetchKey);
+    }
+  };
+
+  // If already in-flight, return the existing promise or available cached data
+  if (_singleProductInFlight.has(fetchKey)) {
+    if (cached) return cached.data;
+    if (fallbackProduct) return fallbackProduct;
+    return _singleProductInFlight.get(fetchKey)!;
+  }
+
+  const fetchPromise = doFetch();
+  _singleProductInFlight.set(fetchKey, fetchPromise);
+
+  // Stale or fallback product exists — return it immediately, revalidate in background
+  if (cached) {
+    return cached.data;
+  }
+  if (fallbackProduct) {
+    return fallbackProduct;
+  }
+
+  return fetchPromise;
 };
 
 // Create a new product in backend SQLite
@@ -534,7 +633,8 @@ export const updateProductInBackend = async (id: string | number, productData: a
       // Clear both in-memory and localStorage cache
       _memProductsCache = null;
       _memProductsCacheAt = 0;
-      try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch (err) {}
+      invalidateProductCache(id);
+      try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch {}
     }
     return result.status === 'success';
   } catch (e) {
@@ -544,25 +644,31 @@ export const updateProductInBackend = async (id: string | number, productData: a
 };
 
 // Delete a product from backend SQLite
+// ✅ NUCLEAR CACHE CLEAR: clears ALL frontend caches so product vanishes instantly everywhere
 export const deleteProductFromBackend = async (id: string | number): Promise<{ success: boolean; message?: string }> => {
   try {
-    // Pass the raw ID â€” backend handles both numeric and PRD-XXX formats
     const rawId = String(id);
     const response = await fetch(`${API_BASE}/products/${encodeURIComponent(rawId)}`, {
       method: 'DELETE',
-      headers: {
-        ...getAuthHeaders(),
-      },
+      headers: { ...getAuthHeaders() },
     });
     const result = await response.json().catch(() => null);
     if (!response.ok) {
       return { success: false, message: result?.message || `HTTP ${response.status}` };
     }
     if (result?.status === 'success') {
-      // Clear both in-memory and localStorage cache
+      // 1. Clear products in-memory cache
       _memProductsCache = null;
       _memProductsCacheAt = 0;
-      try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch (err) {}
+      invalidateProductCache(id);
+      // 2. Clear products localStorage cache
+      try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch {}
+      // 3. Remove product from storefront config cache (in-memory + localStorage sf_config_v1)
+      //    so the deleted product NEVER shows on storefront, admin panel, or any other page
+      try {
+        const { removeProductFromConfig } = await import('../store/storefrontConfig');
+        removeProductFromConfig(id);
+      } catch {}
     }
     return { success: result?.status === 'success', message: result?.message };
   } catch (e: any) {
@@ -570,6 +676,7 @@ export const deleteProductFromBackend = async (id: string | number): Promise<{ s
     return { success: false, message: e.message || 'Network error' };
   }
 };
+
 
 // Create a manual order from Admin panel
 export const createOrderFromAdminInBackend = async (orderData: any): Promise<boolean> => {
@@ -712,7 +819,7 @@ export const fetchEmployees = async (): Promise<any[] | null> => {
     if (!res.ok) return null;
     const json = await res.json();
     return json.status === 'success' ? json.data : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -729,7 +836,7 @@ export const updateEmployee = async (id: string, data: any): Promise<any> => {
       body: JSON.stringify(data)
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to update employee' };
   }
 };
@@ -742,7 +849,7 @@ export const deleteEmployee = async (id: string): Promise<any> => {
       headers: getAuthHeaders()
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to delete employee' };
   }
 };
@@ -756,7 +863,7 @@ export const fetchInvitations = async (): Promise<any[] | null> => {
     if (!res.ok) return null;
     const json = await res.json();
     return json.status === 'success' ? json.data : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -773,7 +880,7 @@ export const inviteEmployee = async (data: { email: string; role_id: number }): 
       body: JSON.stringify(data)
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to invite employee' };
   }
 };
@@ -786,7 +893,7 @@ export const deleteInvitation = async (id: string): Promise<any> => {
       headers: getAuthHeaders()
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to delete invitation' };
   }
 };
@@ -800,7 +907,7 @@ export const fetchRoles = async (): Promise<any[] | null> => {
     if (!res.ok) return null;
     const json = await res.json();
     return json.status === 'success' ? json.data : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -817,7 +924,7 @@ export const createRole = async (data: { name: string; description: string; perm
       body: JSON.stringify(data)
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to create role' };
   }
 };
@@ -834,7 +941,7 @@ export const updateRole = async (id: number, data: { name: string; description: 
       body: JSON.stringify(data)
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to update role' };
   }
 };
@@ -847,7 +954,7 @@ export const deleteRole = async (id: number): Promise<any> => {
       headers: getAuthHeaders()
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to delete role' };
   }
 };
@@ -857,7 +964,7 @@ export const verifyInvitationToken = async (token: string): Promise<any> => {
   try {
     const res = await fetch(`${API_BASE}/employees/invite/verify?token=${encodeURIComponent(token)}`);
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Cannot connect to the server.' };
   }
 };
@@ -873,7 +980,7 @@ export const registerEmployee = async (data: any): Promise<any> => {
       body: JSON.stringify(data)
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Cannot connect to the server.' };
   }
 };
@@ -887,7 +994,7 @@ export const fetchCoupons = async (): Promise<any[] | null> => {
     if (!res.ok) return null;
     const json = await res.json();
     return json.status === 'success' ? json.data : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -904,7 +1011,7 @@ export const createCoupon = async (data: { code: string; type: string; value: nu
       body: JSON.stringify(data)
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to create coupon' };
   }
 };
@@ -917,7 +1024,7 @@ export const deleteCoupon = async (code: string): Promise<any> => {
       headers: getAuthHeaders()
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to delete coupon' };
   }
 };
@@ -927,7 +1034,7 @@ export const validateCouponCode = async (code: string): Promise<any> => {
   try {
     const res = await fetch(`${API_BASE}/marketing/coupons/validate/${encodeURIComponent(code)}`);
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Cannot connect to the server.' };
   }
 };
@@ -938,7 +1045,7 @@ export const fetchCustomerCoupons = async (email: string): Promise<any> => {
   try {
     const res = await fetch(`${API_BASE}/marketing/my-coupons?email=${encodeURIComponent(email)}`);
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to fetch customer coupons' };
   }
 };
@@ -955,7 +1062,7 @@ export const dispatchDirectOffer = async (payload: any): Promise<any> => {
       body: JSON.stringify(payload)
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to dispatch offer' };
   }
 };
@@ -967,7 +1074,7 @@ export const fetchAutoDispatchCoupons = async (): Promise<any> => {
       headers: getAuthHeaders()
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to fetch auto-dispatch campaigns' };
   }
 };
@@ -980,7 +1087,7 @@ export const stopAutoDispatchCoupon = async (id: string): Promise<any> => {
       headers: getAuthHeaders()
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to stop campaign' };
   }
 };
@@ -994,7 +1101,7 @@ export const fetchSubscribers = async (): Promise<any[] | null> => {
     if (!res.ok) return null;
     const json = await res.json();
     return json.status === 'success' ? json.data : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -1010,7 +1117,7 @@ export const subscribeToNewsletter = async (email: string): Promise<any> => {
       body: JSON.stringify({ email })
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Cannot connect to the server.' };
   }
 };
@@ -1023,7 +1130,7 @@ export const deleteSubscriber = async (id: number): Promise<any> => {
       headers: getAuthHeaders()
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to delete subscriber' };
   }
 };
@@ -1037,19 +1144,32 @@ export const fetchAnalyticsData = async (range: string): Promise<any | null> => 
     if (!res.ok) return null;
     const json = await res.json();
     return json.status === 'success' ? json.data : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
 
+// --- Client-side campaigns cache (60s TTL) ---
+const CAMPAIGNS_CACHE_TTL_MS = 60 * 1000;
+let _memCampaignsCache: any[] | null = null;
+let _memCampaignsCacheAt = 0;
+
 // Fetch campaigns from backend (Public)
 export const fetchCampaignsFromBackend = async (): Promise<any[] | null> => {
+  if (_memCampaignsCache && (Date.now() - _memCampaignsCacheAt) < CAMPAIGNS_CACHE_TTL_MS) {
+    return _memCampaignsCache;
+  }
   try {
     const res = await fetch(`${API_BASE}/marketing/campaigns`);
     if (!res.ok) return null;
     const json = await res.json();
-    return json.status === 'success' ? json.data : null;
-  } catch (e) {
+    if (json.status === 'success' && Array.isArray(json.data)) {
+      _memCampaignsCache = json.data;
+      _memCampaignsCacheAt = Date.now();
+      return json.data;
+    }
+    return null;
+  } catch {
     return null;
   }
 };
@@ -1066,7 +1186,7 @@ export const createCampaignInBackend = async (campaignData: any): Promise<any> =
       body: JSON.stringify(campaignData)
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to create campaign' };
   }
 };
@@ -1083,7 +1203,7 @@ export const updateCampaignInBackend = async (id: string, status: string): Promi
       body: JSON.stringify({ status })
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to update campaign' };
   }
 };
@@ -1096,18 +1216,29 @@ export const deleteCampaignFromBackend = async (id: string): Promise<any> => {
       headers: getAuthHeaders()
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to delete campaign' };
   }
 };
 
-// --- BLOG APIS ---
+// --- BLOG APIS (60s in-memory cache) ---
+const BLOGS_CACHE_TTL_MS = 60 * 1000;
+let _memBlogsCache: any[] | null = null;
+let _memBlogsCacheAt = 0;
 
 export const fetchBlogsFromBackend = async (): Promise<any[]> => {
+  if (_memBlogsCache && (Date.now() - _memBlogsCacheAt) < BLOGS_CACHE_TTL_MS) {
+    return _memBlogsCache;
+  }
   try {
     const res = await fetch(`${API_BASE}/blogs`);
     const result = await res.json();
-    return result.status === 'success' ? result.data : [];
+    if (result.status === 'success' && Array.isArray(result.data)) {
+      _memBlogsCache = result.data;
+      _memBlogsCacheAt = Date.now();
+      return result.data;
+    }
+    return [];
   } catch (e) {
     console.error('Failed to fetch blogs:', e);
     return [];
@@ -1136,7 +1267,7 @@ export const createBlogInBackend = async (blogData: any): Promise<any> => {
       body: JSON.stringify(blogData)
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to create blog' };
   }
 };
@@ -1152,7 +1283,7 @@ export const updateBlogInBackend = async (id: string, blogData: any): Promise<an
       body: JSON.stringify(blogData)
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to update blog' };
   }
 };
@@ -1164,7 +1295,7 @@ export const deleteBlogFromBackend = async (id: string): Promise<any> => {
       headers: getAuthHeaders()
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to delete blog' };
   }
 };
@@ -1177,7 +1308,7 @@ export const fetchEventsFromBackend = async (): Promise<any> => {
   try {
     const res = await fetch(`${API_BASE}/events`);
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to fetch events' };
   }
 };
@@ -1193,7 +1324,7 @@ export const createEventInBackend = async (eventData: any): Promise<any> => {
       body: JSON.stringify(eventData)
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to create event' };
   }
 };
@@ -1205,7 +1336,7 @@ export const deleteEventFromBackend = async (id: string): Promise<any> => {
       headers: getAuthHeaders()
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to delete event' };
   }
 };
@@ -1214,7 +1345,7 @@ export const fetchCustomerAchievements = async (email: string): Promise<any> => 
   try {
     const res = await fetch(`${API_BASE}/events/achievements?email=${encodeURIComponent(email)}`);
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to fetch customer achievements' };
   }
 };
@@ -1227,7 +1358,7 @@ export const addCustomerAchievement = async (eventId: string, customerEmail: str
       body: JSON.stringify({ eventId, customerEmail })
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to submit event achievement' };
   }
 };
@@ -1252,7 +1383,7 @@ export const fetchSecurityLogs = async (
       headers: getAuthHeaders(),
     });
     return await res.json();
-  } catch (e) {
+  } catch {
     return { status: 'error', message: 'Failed to fetch security logs' };
   }
 };

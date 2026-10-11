@@ -6,7 +6,6 @@ import { Truck, Shield, RotateCcw, Headphones, Star, Heart, ShoppingCart, Zap,
   Grid3X3, ArrowRight, X, List
 } from 'lucide-react';
 import { useStorefrontConfig } from '../store/storefrontConfig';
-import { CountdownTimer } from './CollectionPage';
 import { fetchCampaignsFromBackend } from '../services/api';
 import { OptimizedImage } from '../components/layout/OptimizedImage';
 import { SEOMeta } from '../components/layout/SEOMeta';
@@ -426,6 +425,8 @@ export default function StorefrontHome() {
                 <img 
                   src={banner.image} 
                   alt="Promo Banner" 
+                  loading="lazy"
+                  decoding="async"
                   style={{ width: '100%', height: 'auto', borderRadius: '12px', display: 'block', cursor: 'pointer', transition: 'transform 0.3s ease', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }} 
                   className="middle-promo-banner-img"
                 />
@@ -435,6 +436,8 @@ export default function StorefrontHome() {
                 src={banner.image} 
                 alt="Promo Banner" 
                 key={banner.id}
+                loading="lazy"
+                decoding="async"
                 style={{ width: '100%', height: 'auto', borderRadius: '12px', display: 'block', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }} 
                 className="middle-promo-banner-img"
               />

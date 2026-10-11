@@ -503,49 +503,66 @@ const getAuthHeaders = (): Record<string, string> => {
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 };
 
-// Track whether at least one backend sync has completed
-let _synced = false;
+// Track whether at least one backend sync has completed (or cached config is present)
+let _synced = (() => {
+  try {
+    return Boolean(typeof window !== 'undefined' && localStorage.getItem(CONFIG_CACHE_KEY));
+  } catch {
+    return false;
+  }
+})();
 
-async function syncWithBackend() {
+let _syncPromise: Promise<void> | null = null;
+
+async function syncWithBackend(): Promise<void> {
   // Skip fetch if cache is still fresh (within TTL)
   if (_config && (Date.now() - _cacheTimestamp) < CACHE_TTL_MS) {
     _synced = true;
     return;
   }
 
-  try {
-    const response = await fetch(`${API_BASE}/settings/storefront`);
-    if (response.ok) {
-      const res = await response.json();
-      if (res.status === 'success' && res.data) {
-        let serverConfig = res.data;
-        serverConfig = migrateConfig(serverConfig);
+  // Reuse in-flight promise to prevent parallel redundant fetches
+  if (_syncPromise) return _syncPromise;
 
-        // Merge with current in-memory config to keep any loaded products/state
-        const current = _config || getDefaultConfig();
-        serverConfig = {
-          ...current,
-          ...serverConfig,
-          products: (serverConfig.products && serverConfig.products.length > 0) ? serverConfig.products : current.products,
-          contactInfo: { ...current.contactInfo, ...serverConfig.contactInfo },
-          branding: { ...current.branding, ...serverConfig.branding },
-          delivery: { ...current.delivery, ...serverConfig.delivery },
-          newsletter: { ...current.newsletter, ...serverConfig.newsletter },
-        };
+  _syncPromise = (async () => {
+    try {
+      const response = await fetch(`${API_BASE}/settings/storefront`);
+      if (response.ok) {
+        const res = await response.json();
+        if (res.status === 'success' && res.data) {
+          let serverConfig = res.data;
+          serverConfig = migrateConfig(serverConfig);
 
-        _config = serverConfig;
-        _cacheTimestamp = Date.now();
-        _synced = true;
-        // Persist to localStorage for instant load on next visit
-        try { localStorage.setItem(CONFIG_CACHE_KEY, JSON.stringify(_config)); } catch {}
-        _listeners.forEach(fn => fn());
+          // Merge with current in-memory config to keep any loaded products/state
+          const current = _config || getDefaultConfig();
+          serverConfig = {
+            ...current,
+            ...serverConfig,
+            products: (serverConfig.products && serverConfig.products.length > 0) ? serverConfig.products : current.products,
+            contactInfo: { ...current.contactInfo, ...serverConfig.contactInfo },
+            branding: { ...current.branding, ...serverConfig.branding },
+            delivery: { ...current.delivery, ...serverConfig.delivery },
+            newsletter: { ...current.newsletter, ...serverConfig.newsletter },
+          };
+
+          _config = serverConfig;
+          _cacheTimestamp = Date.now();
+          _synced = true;
+          // Persist to localStorage for instant load on next visit
+          try { localStorage.setItem(CONFIG_CACHE_KEY, JSON.stringify(_config)); } catch {}
+          _listeners.forEach(fn => fn());
+        }
       }
+    } catch (err) {
+      console.warn('⚠️ Failed to sync storefront config from backend — using cached defaults:', err);
+      _synced = true; // still mark ready so UI doesn't stay blank forever
+      _listeners.forEach(fn => fn()); // notify listeners even on failure
+    } finally {
+      _syncPromise = null;
     }
-  } catch (err) {
-    console.warn('⚠️ Failed to sync storefront config from backend — using cached defaults:', err);
-    _synced = true; // still mark ready so UI doesn't stay blank forever
-    _listeners.forEach(fn => fn()); // notify listeners even on failure
-  }
+  })();
+
+  return _syncPromise;
 }
 
 
@@ -574,6 +591,33 @@ export function setStorefrontConfig(config: StorefrontConfig): void {
 /** Update the full config locally only (does not PUT to backend) */
 export function setStorefrontConfigLocally(config: StorefrontConfig): void {
   saveConfig(config);
+}
+
+/**
+ * Remove a specific product (by id) from ALL local caches immediately.
+ * Call this right after a successful backend product delete so the product
+ * never appears again — in admin panel, storefront, or anywhere else —
+ * without waiting for the next background sync.
+ */
+export function removeProductFromConfig(productId: string | number): void {
+  const strId = String(productId);
+
+  // 1. Update in-memory config immediately
+  if (_config) {
+    _config = {
+      ..._config,
+      products: _config.products.filter(p => String(p.id) !== strId),
+    };
+    _cacheTimestamp = Date.now();
+    // Notify all React subscribers so UI re-renders instantly
+    _listeners.forEach(fn => fn());
+  }
+
+  // 2. Clear localStorage config cache so next page load doesn't resurrect it
+  try { localStorage.removeItem(CONFIG_CACHE_KEY); } catch {}
+
+  // 3. Force a background re-sync from backend to confirm fresh state
+  syncWithBackend();
 }
 
 /** Update a specific section of the config */

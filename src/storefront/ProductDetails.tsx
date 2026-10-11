@@ -3,7 +3,7 @@ import { useParams, Link, useOutletContext, useNavigate } from 'react-router-dom
 import { ShoppingCart, Heart, Share2, Star, CheckCircle, Shield, Truck, RotateCcw, ChevronRight, Smartphone, Phone, MessageCircle, X, User, MapPin, Package, CreditCard, ArrowRight, Minus, Plus, Headphones, Store, Send, ChevronLeft, ZoomIn, List } from 'lucide-react';
 import { useStorefrontConfig } from '../store/storefrontConfig';
 import { addOrder } from '../mock/data';
-import { sendOrderToBackend, fetchProductByIdFromBackend, fetchChatHistory, validateCouponCode } from '../services/api';
+import { sendOrderToBackend, fetchProductByIdFromBackend, fetchChatHistory, validateCouponCode, getCachedProductsFromStorage } from '../services/api';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { OptimizedImage } from '../components/layout/OptimizedImage';
 import { SEOMeta } from '../components/layout/SEOMeta';
@@ -34,7 +34,13 @@ export default function ProductDetails() {
   
   const getInitialProduct = () => {
     if (!id) return null;
-    const localProduct = config.products.find(p => String(p.id) === String(id) || (p.slug && String(p.slug) === String(id)));
+    let localProduct = config.products.find(p => String(p.id) === String(id) || (p.slug && String(p.slug) === String(id)));
+    if (!localProduct) {
+      const cachedList = getCachedProductsFromStorage();
+      if (cachedList) {
+        localProduct = cachedList.find((p: any) => String(p.id) === String(id) || (p.slug && String(p.slug) === String(id)));
+      }
+    }
     if (localProduct) {
       let reviewsList = localProduct.customerReviews || [];
       try {
@@ -751,19 +757,22 @@ export default function ProductDetails() {
     let active = true;
     const loadProduct = async () => {
       if (!id) return;
-      if (!configReady) {
-        setLoading(true);
-        return;
-      }
       
-      // Try to find the product in local config first for instant loading
-      const localProduct = config.products.find(p => String(p.id) === String(id) || (p.slug && String(p.slug) === String(id)));
+      // Try to find the product in local config or cached products first for instant zero-delay loading
+      let localProduct = config.products.find(p => String(p.id) === String(id) || (p.slug && String(p.slug) === String(id)));
+      if (!localProduct) {
+        const cachedList = getCachedProductsFromStorage();
+        if (cachedList) {
+          localProduct = cachedList.find((p: any) => String(p.id) === String(id) || (p.slug && String(p.slug) === String(id)));
+        }
+      }
+
       if (localProduct) {
         let reviewsList = localProduct.customerReviews || [];
         
         // Local storage reviews
         try {
-          const storedReviews = localStorage.getItem(`product_reviews_${id}`);
+          const storedReviews = localStorage.getItem(`product_reviews_${localProduct.id}`);
           if (storedReviews) {
             const parsed = JSON.parse(storedReviews);
             if (Array.isArray(parsed) && parsed.length > 0) {
@@ -785,8 +794,11 @@ export default function ProductDetails() {
         setProduct(finalProduct);
         setActiveIdx(0);
         setLoading(false);
+      } else if (!configReady) {
+        // Only if not found in ANY cache and config is still syncing, show skeleton loader
+        setLoading(true);
+        return;
       } else {
-        // If not found in local cache, show skeleton loader
         setLoading(true);
       }
 

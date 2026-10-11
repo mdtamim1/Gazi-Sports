@@ -1,12 +1,34 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, Heart, User, Zap, X, Minus, Plus, Phone, Mail, Menu, Home, MoreVertical, ArrowRight, Shield, Truck, RotateCcw, ChevronDown, MapPin } from 'lucide-react';
+import { Search, ShoppingCart, Heart, User, X, Minus, Plus, Phone, Mail, Menu, ArrowRight, Shield, Truck, RotateCcw, ChevronDown, MapPin } from 'lucide-react';
 import { useStorefrontConfig } from '../store/storefrontConfig';
 import './storefront.css';
-import { replaceContactInfo } from '../utils/storefrontUtils';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
+import { preloadPriorityRoutes, preloadRoute } from '../utils/routePreload';
 
 import { OptimizedImage } from '../components/layout/OptimizedImage';
+
+const StorefrontPageLoader = () => (
+  <div style={{
+    minHeight: '400px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    gap: '12px',
+    padding: '60px 20px',
+    color: 'var(--sf-text-secondary, #64748b)'
+  }}>
+    <div style={{
+      width: '32px',
+      height: '32px',
+      border: '3px solid rgba(220, 38, 38, 0.15)',
+      borderTopColor: 'var(--sf-accent, #dc2626)',
+      borderRadius: '50%',
+      animation: 'spin 0.8s linear infinite'
+    }} />
+  </div>
+);
 
 interface CartItem {
   product: any;
@@ -34,7 +56,6 @@ export default function StorefrontLayout() {
     (config.contactInfo.shopAddress ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.contactInfo.shopAddress)}` : '');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const { customer } = useCustomerAuth();
 
   // Helper function to map custom pages to clean slug-based URLs
@@ -47,8 +68,6 @@ export default function StorefrontLayout() {
     return `/page/${slug || link.id}`;
   };
 
-  // Filter enabled announcements
-  const announcements = config.announcements.filter(a => a.enabled);
   // Filter enabled nav links and dynamically normalize collection links
   const navLinks = config.navLinks
     .filter(n => n.enabled && !['offers', 'offer', 'deals', 'deal'].includes((n.label || '').toLowerCase()))
@@ -215,7 +234,7 @@ export default function StorefrontLayout() {
     if (storedCart) {
       try {
         setCart(JSON.parse(storedCart));
-      } catch (e) {
+      } catch {
         setCart([]);
       }
     } else {
@@ -227,7 +246,7 @@ export default function StorefrontLayout() {
     if (storedWishlist) {
       try {
         setWishlist(JSON.parse(storedWishlist));
-      } catch (e) {
+      } catch {
         setWishlist([]);
       }
     } else {
@@ -284,29 +303,9 @@ export default function StorefrontLayout() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastScrollTopRef = useRef(0);
-  const [bottomNavVisible, setBottomNavVisible] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
-  const isProductPage = location.pathname.startsWith('/product/');
-  const hasBanners = config.banners && config.banners.some(b => b.enabled);
-
-  // Load active campaigns from localStorage
-  const [activeCampaigns, setActiveCampaigns] = useState<any[]>([]);
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('campaignList');
-      if (stored) {
-        const list = JSON.parse(stored);
-        if (Array.isArray(list)) {
-          const active = list.filter((c: any) => c.status === 'active');
-          setActiveCampaigns(active);
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -321,16 +320,6 @@ export default function StorefrontLayout() {
       } else {
         setScrolled(true);
       }
-
-      // Hide/Show bottom navigation based on scroll direction
-      const diff = st - lastScrollTopRef.current;
-      if (diff > 15 && st > 100) {
-        // Scrolling down -> hide bottom nav
-        setBottomNavVisible(false);
-      } else if (diff < -15 || st <= 20) {
-        // Scrolling up or near top -> show bottom nav
-        setBottomNavVisible(true);
-      }
       lastScrollTopRef.current = st;
     };
 
@@ -344,7 +333,7 @@ export default function StorefrontLayout() {
     return () => container.removeEventListener('scroll', handleScroll);
   }, [isHome]);
 
-  // Scroll restoration and reset bottom nav on route changes
+  // Scroll restoration on route changes
   useEffect(() => {
     setShopDropdownOpen(false);
     setMobileShopDropdownOpen(false);
@@ -358,9 +347,29 @@ export default function StorefrontLayout() {
       container.scrollTop = 0;
     }
     window.scrollTo(0, 0);
-
-    setBottomNavVisible(true);
   }, [location.pathname, location.search]);
+
+  // Preload priority routes on idle and prefetch links on hover / touchstart
+  useEffect(() => {
+    preloadPriorityRoutes();
+
+    const handleInteraction = (e: MouseEvent | TouchEvent) => {
+      const target = (e.target as HTMLElement)?.closest('a');
+      if (!target) return;
+      const href = target.getAttribute('href');
+      if (href && href.startsWith('/')) {
+        preloadRoute(href);
+      }
+    };
+
+    document.addEventListener('mouseover', handleInteraction, { passive: true });
+    document.addEventListener('touchstart', handleInteraction, { passive: true });
+
+    return () => {
+      document.removeEventListener('mouseover', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
+    };
+  }, []);
 
   useEffect(() => {
     if (mobileSearchOpen && searchInputRef.current) {
@@ -660,7 +669,9 @@ export default function StorefrontLayout() {
       <div className="storefront-scroll-container" ref={containerRef}>
         {/* ---- Main Content Area ---- */}
         <main>
-          <Outlet context={{ addToCart, toggleWishlist, wishlist, cart, cartTotal, clearCart, updateQuantity, searchQuery, setSearchQuery }} />
+          <Suspense fallback={<StorefrontPageLoader />}>
+            <Outlet context={{ addToCart, toggleWishlist, wishlist, cart, cartTotal, clearCart, updateQuantity, searchQuery, setSearchQuery }} />
+          </Suspense>
         </main>
 
         {/* ---- Footer ---- */}
