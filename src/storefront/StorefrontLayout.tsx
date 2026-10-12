@@ -337,10 +337,6 @@ export default function StorefrontLayout() {
   useEffect(() => {
     setShopDropdownOpen(false);
     setMobileShopDropdownOpen(false);
-    // Track PageView in Facebook Meta Pixel on SPA route navigation
-    if (typeof window !== 'undefined' && (window as any).fbq) {
-      (window as any).fbq('track', 'PageView');
-    }
 
     const container = containerRef.current;
     if (container) {
@@ -424,18 +420,6 @@ export default function StorefrontLayout() {
   const clearCart = () => setCart([]);
 
   const addToCart = (product: any) => {
-    // Track AddToCart in Facebook Meta Pixel
-    if (typeof window !== 'undefined' && (window as any).fbq) {
-      (window as any).fbq('track', 'AddToCart', {
-        content_name: product.name,
-        content_category: product.category || 'Sports',
-        content_ids: [String(product.id)],
-        content_type: 'product',
-        value: product.price,
-        currency: 'BDT'
-      });
-    }
-
     const size = product.selectedSize || 'Free Size';
     setCart(prev => {
       const existing = prev.find(item => item.product.id === product.id && (item.product.selectedSize || 'Free Size') === size);

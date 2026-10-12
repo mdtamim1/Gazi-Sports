@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ShoppingCart, Search, Plus, Download, Eye, RotateCcw, Truck, Clock, CheckCircle, XCircle, RefreshCw, FileText, Users, History } from 'lucide-react';
 import { generateOrders, updateOrderStatus, addOrder, formatCurrency, formatDate, formatTime, timeAgo } from '../../mock/data';
-import { fetchOrdersFromBackend, updateOrderStatusInBackend, createOrderFromAdminInBackend, updateOrderInBackend, validateCouponCode, fetchProductsFromBackend, syncOrdersInBackend, assignOrderInBackend, fetchActiveEmployees, fetchOrderHistory } from '../../services/api';
+import { fetchOrdersFromBackend, updateOrderStatusInBackend, createOrderFromAdminInBackend, updateOrderInBackend, validateCouponCode, fetchProductsFromBackend, syncOrdersInBackend, assignOrderInBackend, fetchActiveEmployees, fetchOrderHistory, invalidateOrdersCache } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { BD_DISTRICTS, normalizeDistrict } from '../../utils/bangladeshLocations';
 
@@ -61,14 +61,19 @@ export default function Orders() {
   const handleSyncOrders = async () => {
     setIsSyncing(true);
     setSyncMessage('');
+    invalidateOrdersCache();
     const result = await syncOrdersInBackend();
     if (result.status === 'success') {
       setSyncMessage(result.message || 'Orders synced!');
-      // Reload orders to show assignments
-      const dbOrders = await fetchOrdersFromBackend();
+      invalidateOrdersCache();
+      // Reload orders immediately with forceRefresh = true to bypass any in-memory cache
+      const dbOrders = await fetchOrdersFromBackend(true);
       if (dbOrders !== null) {
         setOrders(dbOrders);
       }
+      // Automatically switch to processing view so newly synced orders appear immediately without page refresh
+      setFilterType('processing');
+      setPage(1);
       // Also refresh active employees list
       fetchActiveEmployees().then(setActiveEmployees);
     } else {

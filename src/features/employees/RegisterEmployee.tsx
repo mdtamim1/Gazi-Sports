@@ -30,8 +30,11 @@ export default function RegisterEmployee() {
 
   const passwordRef = useRef('');
   const confirmPasswordRef = useRef('');
-  passwordRef.current = password;
-  confirmPasswordRef.current = confirmPassword;
+
+  useEffect(() => {
+    passwordRef.current = password;
+    confirmPasswordRef.current = confirmPassword;
+  }, [password, confirmPassword]);
 
   // Step 1: Verify invitation token
   useEffect(() => {
@@ -54,6 +57,41 @@ export default function RegisterEmployee() {
 
     checkToken();
   }, [token]);
+
+  // Google OAuth callback → register + login
+  const handleGoogleResponse = async (response: any) => {
+    const currentPassword = passwordRef.current;
+    const currentConfirmPassword = confirmPasswordRef.current;
+
+    if (!currentPassword) {
+      setSubmitError('Please create a password.');
+      return;
+    }
+    if (currentPassword.length < 6) {
+      setSubmitError('Password must be at least 6 characters.');
+      return;
+    }
+    if (currentPassword !== currentConfirmPassword) {
+      setSubmitError('Passwords do not match.');
+      return;
+    }
+
+    setGoogleLoading(true);
+    setSubmitError('');
+    setSubmitSuccess('');
+
+    const res = await googleRegisterEmployee(token, response.credential, undefined, currentPassword);
+    setGoogleLoading(false);
+
+    if (res.status === 'success' && res.data) {
+      setSubmitSuccess('Registration successful! Redirecting to the Admin panel...');
+      // Auto-login: save token and redirect
+      login(res.data.token, res.data.user);
+      setTimeout(() => navigate('/firoz-84'), 2000);
+    } else {
+      setSubmitError(res.message || 'Google verification was not successful.');
+    }
+  };
 
   // Step 2: Load Google Sign-In after token verified
   useEffect(() => {
@@ -91,42 +129,7 @@ export default function RegisterEmployee() {
     };
 
     loadGsi();
-  }, [invitedEmail, loading]);
-
-  // Google OAuth callback → register + login
-  const handleGoogleResponse = async (response: any) => {
-    const currentPassword = passwordRef.current;
-    const currentConfirmPassword = confirmPasswordRef.current;
-
-    if (!currentPassword) {
-      setSubmitError('Please create a password.');
-      return;
-    }
-    if (currentPassword.length < 6) {
-      setSubmitError('Password must be at least 6 characters.');
-      return;
-    }
-    if (currentPassword !== currentConfirmPassword) {
-      setSubmitError('Passwords do not match.');
-      return;
-    }
-
-    setGoogleLoading(true);
-    setSubmitError('');
-    setSubmitSuccess('');
-
-    const res = await googleRegisterEmployee(token, response.credential, undefined, currentPassword);
-    setGoogleLoading(false);
-
-    if (res.status === 'success' && res.data) {
-      setSubmitSuccess('Registration successful! Redirecting to the Admin panel...');
-      // Auto-login: save token and redirect
-      login(res.data.token, res.data.user);
-      setTimeout(() => navigate('/firoz-84'), 2000);
-    } else {
-      setSubmitError(res.message || 'Google verification was not successful.');
-    }
-  };
+  }, [invitedEmail, loading, googleClientId]);
 
   // ── LOADING ──
   if (loading) {

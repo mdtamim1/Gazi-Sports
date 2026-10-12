@@ -3,7 +3,7 @@ import { Package, Search, Plus, Download, Edit, Trash2, AlertCircle, Grid, List 
 import { useStorefrontConfig, type ProductConfig } from '../../store/storefrontConfig';
 import { convertToWebP } from '../../utils/imageCdn';
 import { formatCurrency } from '../../mock/data';
-import { createProductInBackend, updateProductInBackend, deleteProductFromBackend, fetchProductsFromBackend } from '../../services/api';
+import { createProductInBackend, updateProductInBackend, deleteProductFromBackend, fetchProductsFromBackend, forceFetchProductsFromBackend } from '../../services/api';
 import '../storefront-manager/storefront-manager.css';
 
 const cleanText = (str?: string) => {
@@ -65,9 +65,9 @@ export default function Products() {
     alert(`Stock reordered for ${found.name}! +20 units added.`);
 
     await updateProductInBackend(prodId, { ...found, stock: newStock });
-    const fresh = await fetchProductsFromBackend();
+    const fresh = await forceFetchProductsFromBackend();
     if (fresh) {
-      setConfig({ ...config, products: fresh });
+      setConfig(prev => ({ ...prev, products: fresh }));
     }
   };
 
@@ -86,9 +86,9 @@ export default function Products() {
     alert(`Product "${found.name}" is now set Out of Stock!`);
 
     await updateProductInBackend(prodId, { ...found, stock: 0, inStock: false });
-    const fresh = await fetchProductsFromBackend();
+    const fresh = await forceFetchProductsFromBackend();
     if (fresh) {
-      setConfig({ ...config, products: fresh });
+      setConfig(prev => ({ ...prev, products: fresh }));
     }
   };
 
@@ -101,12 +101,10 @@ export default function Products() {
 
       const result = await deleteProductFromBackend(prod.id);
       if (result.success) {
-        // Refetch from backend to sync any server-side state
-        const fresh = await fetchProductsFromBackend();
+        // Force-refetch from backend (cache already cleared by deleteProductFromBackend)
+        const fresh = await forceFetchProductsFromBackend();
         if (fresh) {
-          // Only update if backend confirms product is truly gone
-          const freshWithoutDeleted = fresh.filter(p => String(p.id) !== String(prod.id));
-          setConfig(prev => ({ ...prev, products: freshWithoutDeleted }));
+          setConfig(prev => ({ ...prev, products: fresh.filter(p => String(p.id) !== String(prod.id)) }));
         }
         // If refetch fails, keep the optimistic removal from above
       } else {
@@ -388,7 +386,7 @@ export default function Products() {
         }
       }
 
-      const fresh = await fetchProductsFromBackend();
+      const fresh = await forceFetchProductsFromBackend();
       if (fresh) {
         setConfig(prev => ({ ...prev, products: fresh }));
       } else {

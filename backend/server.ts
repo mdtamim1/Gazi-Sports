@@ -113,14 +113,25 @@ const connectSrcOrigins = [
   "wss:"
 ];
 
+const isOriginAllowed = (origin?: string): boolean => {
+  if (!origin) return true;
+  if (/^http:\/\/localhost(:\d+)?$/.test(origin) || /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)) {
+    return true;
+  }
+  try {
+    const url = new URL(origin);
+    const hostname = url.hostname.toLowerCase();
+    const base = storeBaseDomain.toLowerCase();
+    return hostname === base || hostname.endsWith('.' + base);
+  } catch {
+    return false;
+  }
+};
+
 // --- Middleware ---
 app.use(cors({
   origin: (origin, callback) => {
-    if (
-      !origin || 
-      /^http:\/\/localhost(:\d+)?$/.test(origin) || 
-      (storeBaseDomain && origin.includes(storeBaseDomain))
-    ) {
+    if (isOriginAllowed(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS: ' + origin));

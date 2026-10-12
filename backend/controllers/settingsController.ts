@@ -56,8 +56,8 @@ export const getSettings = (req: Request, res: Response) => {
 
     const settingsObj: Record<string, any> = {
       // default fallbacks for safety
-      siteName: 'VIP Commerce Control Center',
-      siteUrl: 'https://admin.vipcommerce.com',
+      siteName: 'Gazi Sports 24',
+      siteUrl: 'https://gazisports24.com',
       timezone: 'Asia/Dhaka (GMT+6)',
       currency: 'BDT (৳)',
       maintenanceMode: false,

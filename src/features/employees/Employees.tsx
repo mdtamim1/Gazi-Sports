@@ -53,21 +53,6 @@ export default function Employees() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
 
-  if (!hasAccess) {
-    return (
-      <div style={{ padding: '64px 24px', textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔒</div>
-        <h2 style={{ color: 'var(--text-primary)', marginBottom: '8px', fontSize: '1.5rem', fontWeight: 700 }}>Access Restricted</h2>
-        <p style={{ color: 'var(--text-tertiary)', marginBottom: '24px', fontSize: '0.9rem', lineHeight: 1.5 }}>
-          You do not have permission to access the Employee Management section from your account.
-        </p>
-        <RouterLink to="/firoz-84" className="btn btn-primary">
-          Back to Dashboard
-        </RouterLink>
-      </div>
-    );
-  }
-
   // Modals state
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [editingRole, setEditingRole] = useState<any | null>(null);
@@ -122,8 +107,12 @@ export default function Employees() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (hasAccess) {
+      loadData();
+    } else {
+      setLoading(false);
+    }
+  }, [hasAccess]);
 
   // Handle Invite Form Submission
   const handleSendInvite = async (e: React.FormEvent) => {
@@ -306,6 +295,21 @@ export default function Employees() {
       prev.includes(modId) ? prev.filter(id => id !== modId) : [...prev, modId]
     );
   };
+
+  if (!hasAccess) {
+    return (
+      <div style={{ padding: '64px 24px', textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔒</div>
+        <h2 style={{ color: 'var(--text-primary)', marginBottom: '8px', fontSize: '1.5rem', fontWeight: 700 }}>Access Restricted</h2>
+        <p style={{ color: 'var(--text-tertiary)', marginBottom: '24px', fontSize: '0.9rem', lineHeight: 1.5 }}>
+          You do not have permission to access the Employee Management section from your account.
+        </p>
+        <RouterLink to="/firoz-84" className="btn btn-primary">
+          Back to Dashboard
+        </RouterLink>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

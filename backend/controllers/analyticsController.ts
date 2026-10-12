@@ -41,6 +41,9 @@ export const getAnalyticsStats = async (req: Request, res: Response) => {
     intervalDays = 90;
   }
 
+  // Safe filter for queries joining orders aliased as 'o'
+  const orderSqlFilter = sqlFilter.replace(/\bcreated_at\b/g, 'o.created_at');
+
   try {
     // 1. Core KPIs
     const salesRow = await dbGet(`SELECT SUM(amount) as sum FROM orders WHERE status NOT IN ('cancelled', 'returned') AND ${sqlFilter}`);
@@ -152,12 +155,12 @@ export const getAnalyticsStats = async (req: Request, res: Response) => {
 
     // 5. Category Revenue (Join product categories)
     const categoryRows = await dbAll(`
-      SELECT p.category as name, SUM(oi.quantity * oi.price) as value 
+      SELECT COALESCE(p.category, 'General') as name, SUM(oi.quantity * oi.price) as value 
       FROM order_items oi 
-      JOIN products p ON oi.code = p.sku 
+      LEFT JOIN products p ON oi.code = p.sku 
       JOIN orders o ON oi.order_id = o.id
-      WHERE o.status NOT IN ('cancelled', 'returned') AND o.${sqlFilter}
-      GROUP BY p.category 
+      WHERE o.status NOT IN ('cancelled', 'returned') AND ${orderSqlFilter}
+      GROUP BY COALESCE(p.category, 'General') 
       ORDER BY value DESC
     `);
     // Seed fallbacks if empty
@@ -169,12 +172,12 @@ export const getAnalyticsStats = async (req: Request, res: Response) => {
 
     // 6. Brand Performance
     const brandRows = await dbAll(`
-      SELECT p.brand as name, SUM(oi.quantity * oi.price) as value 
+      SELECT COALESCE(p.brand, 'Gazi Sports') as name, SUM(oi.quantity * oi.price) as value 
       FROM order_items oi 
-      JOIN products p ON oi.code = p.sku 
+      LEFT JOIN products p ON oi.code = p.sku 
       JOIN orders o ON oi.order_id = o.id
-      WHERE o.status NOT IN ('cancelled', 'returned') AND o.${sqlFilter}
-      GROUP BY p.brand 
+      WHERE o.status NOT IN ('cancelled', 'returned') AND ${orderSqlFilter}
+      GROUP BY COALESCE(p.brand, 'Gazi Sports') 
       ORDER BY value DESC 
       LIMIT 8
     `);

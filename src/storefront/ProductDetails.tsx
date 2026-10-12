@@ -677,17 +677,6 @@ export default function ProductDetails() {
     // Save locally for redundancy & to ensure local Admin panel functions properly
     addOrder(orderData);
 
-    // Track Purchase in Facebook Meta Pixel
-    if (typeof window !== 'undefined' && (window as any).fbq) {
-      (window as any).fbq('track', 'Purchase', {
-        value: total,
-        currency: 'BDT',
-        content_ids: [String(product.id)],
-        content_type: 'product',
-        num_items: buyNowQty
-      });
-    }
-
     setCheckoutSuccess(true);
   };
 

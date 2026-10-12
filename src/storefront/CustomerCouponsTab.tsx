@@ -18,12 +18,6 @@ export const CustomerCouponsTab: React.FC<{ email: string }> = ({ email }) => {
   const [loading, setLoading] = useState(true);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (email) {
-      loadCoupons();
-    }
-  }, [email]);
-
   const loadCoupons = async () => {
     if (!email) return;
     setLoading(true);
@@ -53,6 +47,12 @@ export const CustomerCouponsTab: React.FC<{ email: string }> = ({ email }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (email) {
+      loadCoupons();
+    }
+  }, [email]);
 
   const handleCopy = (code: string) => {
     navigator.clipboard.writeText(code);

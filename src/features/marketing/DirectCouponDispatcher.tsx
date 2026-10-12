@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { dispatchDirectOffer, fetchAutoDispatchCoupons, stopAutoDispatchCoupon } from '../../services/api';
 import { Send, Gift, Users, Mail, AlertCircle, CheckCircle, Zap, Trash2, RefreshCw } from 'lucide-react';
 
@@ -24,10 +24,6 @@ export const DirectCouponDispatcher: React.FC = () => {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [autoCampaigns, setAutoCampaigns] = useState<AutoCampaign[]>([]);
 
-  useEffect(() => {
-    loadAutoCampaigns();
-  }, []);
-
   const loadAutoCampaigns = async () => {
     try {
       const res = await fetchAutoDispatchCoupons();
@@ -38,6 +34,10 @@ export const DirectCouponDispatcher: React.FC = () => {
       console.error(e);
     }
   };
+
+  useEffect(() => {
+    loadAutoCampaigns();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

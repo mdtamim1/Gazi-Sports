@@ -538,7 +538,9 @@ async function syncWithBackend(): Promise<void> {
           serverConfig = {
             ...current,
             ...serverConfig,
-            products: (serverConfig.products && serverConfig.products.length > 0) ? serverConfig.products : current.products,
+            // Always prefer the current in-memory products — product mutations use /api/v1/products directly.
+            // The /settings/storefront endpoint may lag behind (stale), so never let it overwrite fresh products.
+            products: current.products.length > 0 ? current.products : (serverConfig.products || []),
             contactInfo: { ...current.contactInfo, ...serverConfig.contactInfo },
             branding: { ...current.branding, ...serverConfig.branding },
             delivery: { ...current.delivery, ...serverConfig.delivery },

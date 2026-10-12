@@ -264,17 +264,6 @@ export default function Checkout() {
       clearCart();
     }
     
-    // Track Purchase in Facebook Meta Pixel
-    if (typeof window !== 'undefined' && (window as any).fbq) {
-      (window as any).fbq('track', 'Purchase', {
-        value: total,
-        currency: 'BDT',
-        content_ids: items.map(item => String(item.product.id)),
-        content_type: 'product',
-        num_items: items.reduce((sum, item) => sum + item.quantity, 0)
-      });
-    }
-    
     setSubmittedOrder({
       invoiceNo: `GS-${Math.floor(100000 + Math.random() * 900000)}`,
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),

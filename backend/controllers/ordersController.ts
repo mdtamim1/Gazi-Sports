@@ -28,7 +28,7 @@ export const getOrders = async (req: Request, res: Response) => {
   try {
     // ✅ PERFORMANCE: Cache orders list for 30 seconds — eliminates repeat full-table scans
     const cacheKey = 'orders:all';
-    const cached = cacheService.get<any[]>(cacheKey);
+    const cached = await cacheService.get<any[]>(cacheKey);
     if (cached) {
       return res.json({ status: 'success', data: cached, _cached: true });
     }
@@ -45,7 +45,7 @@ export const getOrders = async (req: Request, res: Response) => {
       LEFT JOIN employees e ON o.assigned_to = e.id
       LEFT JOIN order_items oi ON oi.order_id = o.id
       WHERE o.status != 'pending_sync'
-      GROUP BY o.id
+      GROUP BY o.id, e.first_name, e.last_name
       ORDER BY o.created_at DESC
     `;
 
@@ -329,6 +329,7 @@ export const createOrder = (req: Request, res: Response) => {
               return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
             }
             cacheService.del('dashboard:stats').catch(console.error);
+            cacheService.del('orders:all').catch(console.error);
             const performedBy = (req as any).user ? `${(req as any).user.name} (${(req as any).user.role})` : 'Customer';
             logOrderHistory(id, 'create', null, initialStatus, performedBy);
 
@@ -508,6 +509,7 @@ export const updateOrder = (req: Request, res: Response) => {
                             return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
                           }
                           cacheService.del('dashboard:stats').catch(console.error);
+                          cacheService.del('orders:all').catch(console.error);
 
                           const performedBy = (req as any).user ? `${(req as any).user.name} (${(req as any).user.role})` : 'System';
                           if (oldStatus !== status) {
@@ -543,6 +545,7 @@ export const updateOrder = (req: Request, res: Response) => {
                   return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
                 }
                 cacheService.del('dashboard:stats').catch(console.error);
+                cacheService.del('orders:all').catch(console.error);
 
                 const performedBy = (req as any).user ? `${(req as any).user.name} (${(req as any).user.role})` : 'System';
                 if (oldStatus !== status) {
@@ -660,6 +663,7 @@ export const syncOrders = (req: Request, res: Response) => {
                         return res.status(500).json({ status: 'error', message: 'Failed to commit sync' });
                       }
                       cacheService.del('dashboard:stats').catch(console.error);
+                      cacheService.del('orders:all').catch(console.error);
                       res.json({
                         status: 'success',
                         message: `${totalOrders} new order(s) synced successfully and distributed among ${assignees.length} employee(s).`,
@@ -717,6 +721,7 @@ export const assignOrder = (req: Request, res: Response) => {
                 req
               );
 
+              cacheService.del('orders:all').catch(console.error);
               res.json({
                 status: 'success',
                 message: 'Order assigned successfully',
@@ -748,6 +753,7 @@ export const assignOrder = (req: Request, res: Response) => {
             req
           );
 
+          cacheService.del('orders:all').catch(console.error);
           res.json({
             status: 'success',
             message: 'Order unassigned successfully',

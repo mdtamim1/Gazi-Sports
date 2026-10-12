@@ -149,9 +149,9 @@ export const invalidateOrdersCache = () => {
 };
 
 // Fetch all orders from backend database (Admin/Staff)
-export const fetchOrdersFromBackend = async (): Promise<Order[] | null> => {
+export const fetchOrdersFromBackend = async (forceRefresh: boolean = false): Promise<Order[] | null> => {
   // Return fresh in-memory cache immediately (no network request)
-  if (isOrdersCacheFresh()) return _memOrdersCache;
+  if (!forceRefresh && isOrdersCacheFresh()) return _memOrdersCache;
 
   const doFetch = async (): Promise<Order[] | null> => {
     try {
@@ -201,13 +201,13 @@ export const fetchOrdersFromBackend = async (): Promise<Order[] | null> => {
     }
   };
 
-  // Stale cache exists — return it immediately, refresh in background
-  if (_memOrdersCache) {
+  // Stale cache exists — return it immediately, refresh in background (unless forceRefresh is requested)
+  if (!forceRefresh && _memOrdersCache) {
     doFetch().catch(() => {});
     return _memOrdersCache;
   }
 
-  // No cache at all — wait for fetch
+  // No cache at all or forceRefresh — wait for fetch
   return doFetch();
 };
 
@@ -242,6 +242,7 @@ export const syncOrdersInBackend = async (): Promise<any> => {
         ...getAuthHeaders(),
       },
     });
+    invalidateOrdersCache();
     return await response.json();
   } catch (e) {
     console.error('Failed to sync orders:', e);
@@ -260,6 +261,7 @@ export const assignOrderInBackend = async (orderId: string, assignedTo: string |
       },
       body: JSON.stringify({ assignedTo }),
     });
+    invalidateOrdersCache();
     return await response.json();
   } catch (e) {
     console.error('Failed to assign order:', e);
@@ -429,6 +431,16 @@ const saveProductsToCache = (products: any[]): void => {
   } catch {}
 };
 
+/** Clears all product caches (in-memory + localStorage). Call after any create/update/delete. */
+export const invalidateProductsCache = (): void => {
+  _memProductsCache = null;
+  _memProductsCacheAt = 0;
+  invalidateProductCache(); // single-product cache
+  try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch {}
+  // Also wipe the storefront config localStorage cache so it doesn't resurrect stale products
+  try { localStorage.removeItem('sf_config_v1'); } catch {}
+};
+
 // Fetch all products from backend SQLite
 // Uses stale-while-revalidate: returns cached immediately, refreshes in background
 export const fetchProductsFromBackend = async (): Promise<any[] | null> => {
@@ -465,6 +477,29 @@ export const fetchProductsFromBackend = async (): Promise<any[] | null> => {
 
   // No cache at all â€” wait for fetch
   return doFetch();
+};
+
+/**
+ * Force-fetch products from backend, bypassing ALL caches.
+ * Use this after create/update/delete to guarantee fresh data is shown.
+ */
+export const forceFetchProductsFromBackend = async (): Promise<any[] | null> => {
+  // Wipe all caches first so no stale data can sneak in
+  invalidateProductsCache();
+  try {
+    const response = await fetch(`${API_BASE}/products`, {
+      headers: { ...getAuthHeaders() },
+    });
+    if (!response.ok) return null;
+    const result = await response.json();
+    if (result.status !== 'success' || !Array.isArray(result.data)) return null;
+    const mapped = result.data.map(mapProductToFrontend);
+    saveProductsToCache(mapped);
+    return mapped;
+  } catch (e) {
+    console.warn('Force-fetch products failed:', e);
+    return null;
+  }
 };
 
 // --- Single product in-memory cache (2-minute TTL, stale-while-revalidate) ---
@@ -588,6 +623,10 @@ export const createProductInBackend = async (productData: any): Promise<any> => 
     if (!response.ok) {
       return { status: 'error', message: result?.message || `HTTP ${response.status}` };
     }
+    if (result?.status === 'success') {
+      // Clear all caches so the new product appears immediately on next fetch
+      invalidateProductsCache();
+    }
     return result || { status: 'success' };
   } catch (e: any) {
     console.warn('Failed to save product to backend:', e);
@@ -657,13 +696,9 @@ export const deleteProductFromBackend = async (id: string | number): Promise<{ s
       return { success: false, message: result?.message || `HTTP ${response.status}` };
     }
     if (result?.status === 'success') {
-      // 1. Clear products in-memory cache
-      _memProductsCache = null;
-      _memProductsCacheAt = 0;
-      invalidateProductCache(id);
-      // 2. Clear products localStorage cache
-      try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch {}
-      // 3. Remove product from storefront config cache (in-memory + localStorage sf_config_v1)
+      // 1. Wipe ALL product-related caches (in-memory + localStorage)
+      invalidateProductsCache();
+      // 2. Remove product from storefront config cache (in-memory + localStorage sf_config_v1)
       //    so the deleted product NEVER shows on storefront, admin panel, or any other page
       try {
         const { removeProductFromConfig } = await import('../store/storefrontConfig');

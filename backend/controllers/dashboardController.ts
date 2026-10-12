@@ -62,7 +62,7 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       dbAll(`SELECT strftime('%Y-%m', created_at, 'localtime') as month_str, SUM(amount) as total FROM orders WHERE status NOT IN ('cancelled', 'returned', 'pending_sync') AND created_at >= date('now', '-6 month', 'start of month') GROUP BY month_str`),
       dbAll(`SELECT date(created_at, 'localtime') as date_str, SUM(amount) as total FROM orders WHERE status NOT IN ('cancelled', 'returned', 'pending_sync') AND created_at >= date('now', '-30 day') GROUP BY date_str`),
       dbAll(`SELECT strftime('%H', created_at, 'localtime') as hour_str, COUNT(*) as count FROM orders WHERE status != 'pending_sync' AND date(created_at, 'localtime') = date('now', 'localtime') GROUP BY hour_str`),
-      dbAll(`SELECT p.category as name, SUM(oi.quantity * oi.price) as value FROM order_items oi JOIN products p ON oi.code = p.sku GROUP BY p.category ORDER BY value DESC`),
+      dbAll(`SELECT COALESCE(p.category, 'General') as name, SUM(oi.quantity * oi.price) as value FROM order_items oi LEFT JOIN products p ON oi.code = p.sku GROUP BY COALESCE(p.category, 'General') ORDER BY value DESC`),
       dbAll(`SELECT * FROM orders WHERE status != 'pending_sync' ORDER BY created_at DESC LIMIT 8`),
       dbAll(`SELECT * FROM customers ORDER BY created_at DESC LIMIT 5`)
     ]);

@@ -83,21 +83,35 @@ function translateSqlForPostgres(sql: string, params: any[] = []): { sql: string
   translatedSql = translatedSql.replace(/\?/g, () => `$${index++}`);
 
   // SQLite date & strftime translations for PostgreSQL
-  translatedSql = translatedSql.replace(/date\(\s*created_at\s*,\s*'localtime'\s*\)/gi, 'DATE(created_at)');
-  translatedSql = translatedSql.replace(/date\(\s*'now'\s*,\s*'localtime'\s*\)/gi, 'CURRENT_DATE');
-  translatedSql = translatedSql.replace(/date\(\s*'now'\s*,\s*'-1 day'\s*,\s*'localtime'\s*\)/gi, "(CURRENT_DATE - INTERVAL '1 day')");
-  translatedSql = translatedSql.replace(/date\(\s*'now'\s*,\s*'-30 day'\s*\)/gi, "(CURRENT_DATE - INTERVAL '30 days')");
-  translatedSql = translatedSql.replace(/date\(\s*'now'\s*,\s*'-6 month'\s*,\s*'start of month'\s*\)/gi, "DATE_TRUNC('month', CURRENT_DATE - INTERVAL '6 months')");
+  translatedSql = translatedSql.replace(/date\(\s*(?:([a-zA-Z0-9_]+)\.)?created_at\s*,\s*'localtime'\s*\)/gi, (_, prefix) => {
+    return prefix ? `DATE(${prefix}.created_at)` : 'DATE(created_at)';
+  });
+  translatedSql = translatedSql.replace(/date\(\s*'now'\s*,\s*'-(\d+)\s*days?'(?:\s*,\s*'localtime')?\s*\)/gi, "(CURRENT_DATE - INTERVAL '$1 days')");
+  translatedSql = translatedSql.replace(/date\(\s*'now'\s*,\s*'-(\d+)\s*months?'\s*,\s*'start of month'\s*\)/gi, "DATE_TRUNC('month', CURRENT_DATE - INTERVAL '$1 months')");
+  translatedSql = translatedSql.replace(/date\(\s*'now'\s*,\s*'-(\d+)\s*months?'(?:\s*,\s*'localtime')?\s*\)/gi, "(CURRENT_DATE - INTERVAL '$1 months')");
+  translatedSql = translatedSql.replace(/date\(\s*'now'\s*,\s*'start of month'\s*\)/gi, "DATE_TRUNC('month', CURRENT_DATE)");
+  translatedSql = translatedSql.replace(/date\(\s*'now'\s*(?:,\s*'localtime')?\s*\)/gi, 'CURRENT_DATE');
 
-  translatedSql = translatedSql.replace(/strftime\('%Y-%m',\s*created_at,\s*'localtime'\)/gi, "TO_CHAR(created_at, 'YYYY-MM')");
-  translatedSql = translatedSql.replace(/strftime\('%Y-%m',\s*'now',\s*'localtime'\)/gi, "TO_CHAR(CURRENT_DATE, 'YYYY-MM')");
+  translatedSql = translatedSql.replace(/strftime\('%Y-%m',\s*(?:([a-zA-Z0-9_]+)\.)?created_at,\s*'localtime'\)/gi, (_, prefix) => {
+    return prefix ? `TO_CHAR(${prefix}.created_at, 'YYYY-MM')` : "TO_CHAR(created_at, 'YYYY-MM')";
+  });
+  translatedSql = translatedSql.replace(/strftime\('%Y-%m',\s*'now',\s*'-(\d+)\s*months?',\s*'localtime'\)/gi, "TO_CHAR(CURRENT_DATE - INTERVAL '$1 months', 'YYYY-MM')");
   translatedSql = translatedSql.replace(/strftime\('%Y-%m',\s*'now',\s*'-1 month',\s*'localtime'\)/gi, "TO_CHAR(CURRENT_DATE - INTERVAL '1 month', 'YYYY-MM')");
-  translatedSql = translatedSql.replace(/strftime\('%Y',\s*created_at,\s*'localtime'\)/gi, "TO_CHAR(created_at, 'YYYY')");
-  translatedSql = translatedSql.replace(/strftime\('%Y',\s*'now',\s*'localtime'\)/gi, "TO_CHAR(CURRENT_DATE, 'YYYY')");
-  translatedSql = translatedSql.replace(/strftime\('%H',\s*created_at,\s*'localtime'\)/gi, "TO_CHAR(created_at, 'HH24')");
+  translatedSql = translatedSql.replace(/strftime\('%Y-%m',\s*'now'(?:,\s*'localtime')?\)/gi, "TO_CHAR(CURRENT_DATE, 'YYYY-MM')");
+  translatedSql = translatedSql.replace(/strftime\('%Y',\s*(?:([a-zA-Z0-9_]+)\.)?created_at,\s*'localtime'\)/gi, (_, prefix) => {
+    return prefix ? `TO_CHAR(${prefix}.created_at, 'YYYY')` : "TO_CHAR(created_at, 'YYYY')";
+  });
+  translatedSql = translatedSql.replace(/strftime\('%Y',\s*'now'(?:,\s*'localtime')?\)/gi, "TO_CHAR(CURRENT_DATE, 'YYYY')");
+  translatedSql = translatedSql.replace(/strftime\('%H',\s*(?:([a-zA-Z0-9_]+)\.)?created_at,\s*'localtime'\)/gi, (_, prefix) => {
+    return prefix ? `TO_CHAR(${prefix}.created_at, 'HH24')` : "TO_CHAR(created_at, 'HH24')";
+  });
+  translatedSql = translatedSql.replace(/strftime\('%w',\s*(?:([a-zA-Z0-9_]+)\.)?created_at,\s*'localtime'\)/gi, (_, prefix) => {
+    return prefix ? `CAST(EXTRACT(DOW FROM ${prefix}.created_at) AS INTEGER)` : "CAST(EXTRACT(DOW FROM created_at) AS INTEGER)";
+  });
 
-  // Translate GROUP_CONCAT(expr) to STRING_AGG(expr::text, ',') for PostgreSQL
-  translatedSql = translatedSql.replace(/GROUP_CONCAT\((.*?)\)/gi, "STRING_AGG($1::text, ',')");
+  // Translate SQLite GROUP_CONCAT(expr, delimiter) or GROUP_CONCAT(expr) to PostgreSQL STRING_AGG
+  translatedSql = translatedSql.replace(/GROUP_CONCAT\(([\s\S]*),\s*('(?:''|[^'])*')\s*\)/gi, "STRING_AGG($1, $2)");
+  translatedSql = translatedSql.replace(/GROUP_CONCAT\(([\s\S]*?)\)/gi, "STRING_AGG($1, ',')");
 
   // Replace SQLite upserts
   if (translatedSql.toUpperCase().includes('INSERT OR REPLACE INTO SYSTEM_SETTINGS')) {
@@ -847,8 +861,8 @@ function initializeDatabase() {
     db.get("SELECT COUNT(*) as count FROM system_settings", (err, row: any) => {
       if (!err && row && row.count === 0) {
         const defaultSettings = [
-          { key: 'site_name', val: 'VIP Commerce Control Center', group: 'general' },
-          { key: 'site_url', val: 'https://admin.vipcommerce.com', group: 'general' },
+          { key: 'site_name', val: 'Gazi Sports 24', group: 'general' },
+          { key: 'site_url', val: 'https://gazisports24.com', group: 'general' },
           { key: 'timezone', val: 'Asia/Dhaka (GMT+6)', group: 'general' },
           { key: 'currency', val: 'BDT (৳)', group: 'general' },
           { key: 'maintenance_mode', val: '0', group: 'general' },
