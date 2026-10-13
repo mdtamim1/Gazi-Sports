@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useOutletContext, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart, Share2, Star, CheckCircle, Shield, Truck, RotateCcw, ChevronRight, Smartphone, Phone, MessageCircle, X, User, MapPin, Package, CreditCard, ArrowRight, Minus, Plus, Headphones, Store, Send, ChevronLeft, ZoomIn, List } from 'lucide-react';
 import { useStorefrontConfig } from '../store/storefrontConfig';
-import { addOrder } from '../mock/data';
 import { sendOrderToBackend, fetchProductByIdFromBackend, fetchChatHistory, validateCouponCode, getCachedProductsFromStorage } from '../services/api';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { OptimizedImage } from '../components/layout/OptimizedImage';
@@ -42,21 +41,7 @@ export default function ProductDetails() {
       }
     }
     if (localProduct) {
-      let reviewsList = localProduct.customerReviews || [];
-      try {
-        const storedReviews = localStorage.getItem(`product_reviews_${localProduct.id}`);
-        if (storedReviews) {
-          const parsed = JSON.parse(storedReviews);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            const merged = [...parsed];
-            reviewsList.forEach((r: any) => {
-              if (!merged.some(m => m.id === r.id)) merged.push(r);
-            });
-            reviewsList = merged;
-          }
-        }
-      } catch (e) {}
-
+      const reviewsList = localProduct.customerReviews || [];
       return {
         ...localProduct,
         customerReviews: reviewsList,
@@ -378,39 +363,21 @@ export default function ProductDetails() {
 
 
 
-  // Sync local storage & local state
+  // Sync chat state
   const syncChatData = (updated: any[]) => {
-    localStorage.setItem('storefront_chats', JSON.stringify(updated));
-    window.dispatchEvent(new Event('storage'));
     if (customer) {
       const filtered = updated.filter(m => m.customerId === customer.id);
       setChatMessages(filtered);
     }
   };
 
-  const loadChatsLocal = () => {
-    if (!customer) return;
-    const stored = localStorage.getItem('storefront_chats');
-    if (stored) {
-      try {
-        const allChats = JSON.parse(stored);
-        const filtered = allChats.filter((m: any) => m.customerId === customer.id);
-        setChatMessages(filtered);
-      } catch (e) {}
-    }
-  };
-
   // Connect WebSocket & load history when chat drawer opens
   useEffect(() => {
     if (isChatDrawerOpen && customer) {
-      loadChatsLocal();
-
       const initializeChat = async () => {
         const history = await fetchChatHistory();
         if (history && history.length > 0) {
           syncChatData(history);
-        } else {
-          loadChatsLocal();
         }
 
         const wsUrl = getWebSocketUrl();
@@ -428,17 +395,7 @@ export default function ProductDetails() {
                const payload = JSON.parse(event.data);
                if (payload.type === 'message') {
                  const newMsg = payload.data;
-                 const stored = localStorage.getItem('storefront_chats');
-                 let chatsList = [];
-                 if (stored) {
-                   try {
-                     chatsList = JSON.parse(stored);
-                   } catch (e) {}
-                 }
-                 if (!chatsList.some((m: any) => m.id === newMsg.id)) {
-                   const updated = [...chatsList, newMsg];
-                   syncChatData(updated);
-                 }
+                 setChatMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg]);
                }
             } catch (e) {
                console.error('Error parsing WebSocket message content:', e);
@@ -451,15 +408,7 @@ export default function ProductDetails() {
 
       initializeChat();
 
-      const timer = setInterval(() => {
-        if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-          return;
-        }
-        loadChatsLocal();
-      }, 3000);
-
       return () => {
-        clearInterval(timer);
         if (socketRef.current) {
           socketRef.current.close();
         }
@@ -498,12 +447,7 @@ export default function ProductDetails() {
         message: shareMessage
       }));
     } else {
-      const storedChats = localStorage.getItem('storefront_chats');
-      let allChats = [];
-      if (storedChats) {
-        try { allChats = JSON.parse(storedChats); } catch (e) {}
-      }
-      syncChatData([...allChats, newMsg]);
+      setChatMessages(prev => [...prev, newMsg]);
     }
     setProductShared(true);
   };
@@ -537,19 +481,12 @@ export default function ProductDetails() {
         message: textMessage
       }));
     } else {
-      const storedChats = localStorage.getItem('storefront_chats');
-      let allChats = [];
-      if (storedChats) {
-        try { allChats = JSON.parse(storedChats); } catch (e) {}
-      }
-      syncChatData([...allChats, newMsg]);
+      setChatMessages(prev => [...prev, newMsg]);
 
       // Dummy auto-reply after 4 seconds (offline fallback support)
       setTimeout(() => {
-        const stored = localStorage.getItem('storefront_chats');
-        if (stored) {
-          const chats = JSON.parse(stored);
-          const lastMsg = chats.filter((m: any) => m.customerId === customer.id).pop();
+        setChatMessages(prev => {
+          const lastMsg = prev.filter((m: any) => m.customerId === customer.id).pop();
           if (lastMsg && lastMsg.sender === 'customer') {
             const autoReply = {
               id: `msg-reply-${Date.now()}`,
@@ -560,9 +497,10 @@ export default function ProductDetails() {
               timestamp: new Date().toISOString(),
               read: false
             };
-            syncChatData([...chats, autoReply]);
+            return [...prev, autoReply];
           }
-        }
+          return prev;
+        });
       }, 4000);
     }
 
@@ -674,9 +612,6 @@ export default function ProductDetails() {
     // Safely sync to backend SQLite database
     await sendOrderToBackend(orderData);
 
-    // Save locally for redundancy & to ensure local Admin panel functions properly
-    addOrder(orderData);
-
     setCheckoutSuccess(true);
   };
 
@@ -757,23 +692,7 @@ export default function ProductDetails() {
       }
 
       if (localProduct) {
-        let reviewsList = localProduct.customerReviews || [];
-        
-        // Local storage reviews
-        try {
-          const storedReviews = localStorage.getItem(`product_reviews_${localProduct.id}`);
-          if (storedReviews) {
-            const parsed = JSON.parse(storedReviews);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              const merged = [...parsed];
-              reviewsList.forEach((r: any) => {
-                if (!merged.some(m => m.id === r.id)) merged.push(r);
-              });
-              reviewsList = merged;
-            }
-          }
-        } catch (e) {}
-
+        const reviewsList = localProduct.customerReviews || [];
         const finalProduct = {
           ...localProduct,
           customerReviews: reviewsList,
@@ -797,23 +716,7 @@ export default function ProductDetails() {
       if (!active) return;
 
       if (dbProduct) {
-        let reviewsList = dbProduct.customerReviews || [];
-
-        // Local storage reviews
-        try {
-          const storedReviews = localStorage.getItem(`product_reviews_${id}`);
-          if (storedReviews) {
-            const parsed = JSON.parse(storedReviews);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              const merged = [...parsed];
-              reviewsList.forEach((r: any) => {
-                if (!merged.some(m => m.id === r.id)) merged.push(r);
-              });
-              reviewsList = merged;
-            }
-          }
-        } catch (e) {}
-
+        const reviewsList = dbProduct.customerReviews || [];
         const finalProduct = {
           ...dbProduct,
           customerReviews: reviewsList,

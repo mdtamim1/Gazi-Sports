@@ -275,14 +275,7 @@ export default function CustomerAccount() {
           message: base64String
         }));
       } else {
-        const storedChats = localStorage.getItem('storefront_chats');
-        let allChats: ChatMessage[] = [];
-        if (storedChats) {
-          try {
-            allChats = JSON.parse(storedChats);
-          } catch (e) {}
-        }
-        syncChatData([...allChats, newMessage]);
+        setChatMessages(prev => [...prev, newMessage]);
       }
     } catch (err) {
       alert('Failed to convert image.');
@@ -322,7 +315,6 @@ export default function CustomerAccount() {
     try {
       const custEmail = (customer.email || '').toLowerCase().trim();
       const custPhone = (customer.phone || '').replace(/[^0-9]/g, '');
-      const cacheKey = `customer_orders_${custEmail || custPhone}`;
 
       // Helper matcher function
       const isOrderForCustomer = (o: any) => {
@@ -367,46 +359,17 @@ export default function CustomerAccount() {
         }
       });
 
-      // If backend returned results, use them directly (no localStorage/mock mixing)
+      // If backend returned results, use them directly
       if (matchedMap.size > 0) {
         const finalOrders = Array.from(matchedMap.values()).sort((a: any, b: any) => {
           const dateA = new Date(a.date || a.created_at || 0).getTime();
           const dateB = new Date(b.date || b.created_at || 0).getTime();
           return dateB - dateA;
         });
-        localStorage.setItem(cacheKey, JSON.stringify(finalOrders));
         setOrders(finalOrders as any[]);
         return;
       }
-
-      // 2. Fallback: backend returned nothing — try localStorage cache (no mock data)
-      let cachedOrders: any[] = [];
-      try {
-        const storedCache = localStorage.getItem(cacheKey);
-        if (storedCache) cachedOrders = JSON.parse(storedCache);
-      } catch (e) {}
-
-      let localOrderList: any[] = [];
-      try {
-        const storedOrderList = localStorage.getItem('orderList');
-        if (storedOrderList) localOrderList = JSON.parse(storedOrderList);
-      } catch (e) {}
-
-      const fallbackMap = new Map<string, any>();
-      [...cachedOrders, ...localOrderList].forEach((o: any) => {
-        if (o && o.id && isOrderForCustomer(o)) {
-          const existing = fallbackMap.get(String(o.id)) || {};
-          fallbackMap.set(String(o.id), { ...existing, ...o });
-        }
-      });
-
-      const fallbackOrders = Array.from(fallbackMap.values()).sort((a: any, b: any) => {
-        const dateA = new Date(a.date || a.created_at || 0).getTime();
-        const dateB = new Date(b.date || b.created_at || 0).getTime();
-        return dateB - dateA;
-      });
-
-      setOrders(fallbackOrders as any[]);
+      setOrders([]);
     } catch (e) {
       console.error('Error loading customer orders:', e);
     } finally {
@@ -416,26 +379,11 @@ export default function CustomerAccount() {
 
 
 
-  // Sync state & localStorage
+  // Sync chat state
   const syncChatData = (updated: ChatMessage[]) => {
-    localStorage.setItem('storefront_chats', JSON.stringify(updated));
-    window.dispatchEvent(new Event('storage'));
-    
     if (customer) {
       const filtered = updated.filter(m => m.customerId === customer.id);
       setChatMessages(filtered);
-    }
-  };
-
-  const loadChatsLocal = () => {
-    if (!customer) return;
-    const stored = localStorage.getItem('storefront_chats');
-    if (stored) {
-      try {
-        const allChats: ChatMessage[] = JSON.parse(stored);
-        const filtered = allChats.filter(m => m.customerId === customer.id);
-        setChatMessages(filtered);
-      } catch (e) {}
     }
   };
 
@@ -448,8 +396,6 @@ export default function CustomerAccount() {
         const history = await fetchChatHistory();
         if (history && history.length > 0) {
           syncChatData(history);
-        } else {
-          loadChatsLocal();
         }
 
         // 2. Open WebSocket
@@ -468,19 +414,7 @@ export default function CustomerAccount() {
               const payload = JSON.parse(event.data);
               if (payload.type === 'message') {
                 const newMsg: ChatMessage = payload.data;
-                
-                const stored = localStorage.getItem('storefront_chats');
-                let chatsList: ChatMessage[] = [];
-                if (stored) {
-                  try {
-                    chatsList = JSON.parse(stored);
-                  } catch (e) {}
-                }
-                
-                if (!chatsList.some(m => m.id === newMsg.id)) {
-                  const updated = [...chatsList, newMsg];
-                  syncChatData(updated);
-                }
+                setChatMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg]);
               }
             } catch (e) {
               console.error('Error parsing WebSocket message content:', e);
@@ -488,29 +422,20 @@ export default function CustomerAccount() {
           };
 
           ws.onerror = (err) => {
-            console.warn('Storefront WebSocket connection error. Using local storage fallback polling.', err);
+            console.warn('Storefront WebSocket connection error.', err);
           };
 
           ws.onclose = () => {
-            console.warn('Storefront WebSocket connection closed. Using local storage fallback polling.');
+            console.warn('Storefront WebSocket connection closed.');
           };
         } catch (err) {
-          console.warn('Storefront WebSocket setup failed. Using local storage fallback polling.', err);
+          console.warn('Storefront WebSocket setup failed.', err);
         }
       };
 
       initializeChat();
 
-      // Fallback polling just in case WebSocket is down
-      const timer = setInterval(() => {
-        if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-          return;
-        }
-        loadChatsLocal();
-      }, 3000);
-
       return () => {
-        clearInterval(timer);
         if (socketRef.current) {
           socketRef.current.close();
         }
@@ -573,10 +498,7 @@ export default function CustomerAccount() {
     };
 
     // Optimistically update UI
-    const storedChats = localStorage.getItem('storefront_chats');
-    let allChats: ChatMessage[] = [];
-    try { allChats = storedChats ? JSON.parse(storedChats) : []; } catch (err) {}
-    syncChatData([...allChats, newMessage]);
+    setChatMessages(prev => [...prev, newMessage]);
 
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify({

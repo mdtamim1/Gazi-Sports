@@ -61,35 +61,27 @@ export default function Inbox() {
     setChatGroups(sortedGroups);
   };
 
-  // Sync state & localStorage
+  // Sync state (in-memory)
   const syncChatData = (updated: ChatMessage[]) => {
     setChats(updated);
-    localStorage.setItem('storefront_chats', JSON.stringify(updated));
-    window.dispatchEvent(new Event('storage'));
     groupMessages(updated);
   };
 
-  // Load chats from localStorage
-  const loadChatsLocal = () => {
-    const stored = localStorage.getItem('storefront_chats');
-    if (stored) {
-      try {
-        const allChats: ChatMessage[] = JSON.parse(stored);
-        setChats(allChats);
-        groupMessages(allChats);
-      } catch (e) {}
+  const loadChatsBackend = async () => {
+    try {
+      const history = await fetchChatHistory();
+      if (history && history.length > 0) {
+        syncChatData(history);
+      }
+    } catch (e) {
+      console.warn('Failed to fetch chat history:', e);
     }
   };
 
   useEffect(() => {
     const initializeChat = async () => {
       // 1. Fetch history from SQLite Database
-      const history = await fetchChatHistory();
-      if (history && history.length > 0) {
-        syncChatData(history);
-      } else {
-        loadChatsLocal();
-      }
+      await loadChatsBackend();
 
       // 2. Open WebSocket
       const wsUrl = getWebSocketUrl();
@@ -111,8 +103,6 @@ export default function Inbox() {
               setChats(prev => {
                 if (prev.some(m => m.id === newMsg.id)) return prev;
                 const updated = [...prev, newMsg];
-                localStorage.setItem('storefront_chats', JSON.stringify(updated));
-                window.dispatchEvent(new Event('storage'));
                 groupMessages(updated);
                 return updated;
               });
@@ -136,13 +126,13 @@ export default function Inbox() {
 
     initializeChat();
 
-    // Fallback polling just in case WebSocket is offline or for local synchronizations
+    // Fallback polling just in case WebSocket is offline
     const timer = setInterval(() => {
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         return;
       }
-      loadChatsLocal();
-    }, 3000);
+      loadChatsBackend();
+    }, 4000);
 
     return () => {
       clearInterval(timer);
@@ -162,27 +152,22 @@ export default function Inbox() {
     if (selectedCustomerId) {
       markCustomerChatAsRead(selectedCustomerId);
 
-      const stored = localStorage.getItem('storefront_chats');
-      if (stored) {
-        try {
-          const allChats: ChatMessage[] = JSON.parse(stored);
-          let modified = false;
-          
-          const updated = allChats.map(msg => {
-            if (msg.customerId === selectedCustomerId && msg.sender === 'customer' && !msg.read) {
-              modified = true;
-              return { ...msg, read: true };
-            }
-            return msg;
-          });
-
-          if (modified) {
-            syncChatData(updated);
+      setChats(prev => {
+        let modified = false;
+        const updated = prev.map(msg => {
+          if (msg.customerId === selectedCustomerId && msg.sender === 'customer' && !msg.read) {
+            modified = true;
+            return { ...msg, read: true };
           }
-        } catch (e) {
-          console.error(e);
+          return msg;
+        });
+
+        if (modified) {
+          groupMessages(updated);
+          return updated;
         }
-      }
+        return prev;
+      });
     }
   }, [selectedCustomerId]);
 
@@ -212,16 +197,12 @@ export default function Inbox() {
         message: replyText.trim()
       }));
     } else {
-      // Fallback local update
-      const storedChats = localStorage.getItem('storefront_chats');
-      let allChats: ChatMessage[] = [];
-      if (storedChats) {
-        try {
-          allChats = JSON.parse(storedChats);
-        } catch (e) {}
-      }
-      const updated = [...allChats, newReply];
-      syncChatData(updated);
+      // In-memory update
+      setChats(prev => {
+        const updated = [...prev, newReply];
+        groupMessages(updated);
+        return updated;
+      });
     }
     setReplyText('');
   };
@@ -255,17 +236,13 @@ export default function Inbox() {
           message: base64String
         }));
       } else {
-        const storedChats = localStorage.getItem('storefront_chats');
-        let allChats: ChatMessage[] = [];
-        if (storedChats) {
-          try {
-            allChats = JSON.parse(storedChats);
-          } catch (e) {}
-        }
-        const updated = [...allChats, newReply];
-        syncChatData(updated);
+        setChats(prev => {
+          const updated = [...prev, newReply];
+          groupMessages(updated);
+          return updated;
+        });
       }
-    } catch (err) {
+    } catch {
       alert('Failed to convert image.');
     }
   };
@@ -280,12 +257,7 @@ export default function Inbox() {
   );
 
   const handleRefresh = async () => {
-    const history = await fetchChatHistory();
-    if (history && history.length > 0) {
-      syncChatData(history);
-    } else {
-      loadChatsLocal();
-    }
+    await loadChatsBackend();
   };
 
   return (

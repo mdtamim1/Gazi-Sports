@@ -6,22 +6,15 @@ const randFloat = (min: number, max: number) => +(Math.random() * (max - min) + 
 const pick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 const genId = () => '#' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
-// Helper to read/write from localStorage
+// In-memory mock storage (RAM only — never pollutes customer or admin localStorage)
+const _mockDataStore = new Map<string, any>();
+
 const getStoredData = <T>(key: string, defaultVal: T): T => {
-  try {
-    const val = localStorage.getItem(key);
-    return val ? JSON.parse(val) : defaultVal;
-  } catch (e) {
-    return defaultVal;
-  }
+  return _mockDataStore.has(key) ? _mockDataStore.get(key) : defaultVal;
 };
 
 const setStoredData = <T>(key: string, data: T) => {
-  try {
-    localStorage.setItem(key, JSON.stringify(data));
-  } catch (e) {
-    // Ignore
-  }
+  _mockDataStore.set(key, data);
 };
 
 // ---- Default Seed Lists ----
@@ -107,11 +100,11 @@ const recalculateStats = () => {
   revenueData.expenses = +(total * 0.2).toFixed(2);
 };
 
-// Seeding standard data on load if localStorage is empty
-if (!localStorage.getItem('orderList')) {
+// Seeding standard data on load if in-memory store is empty
+if (!_mockDataStore.has('orderList')) {
   setStoredData('orderList', defaultOrders);
 }
-if (!localStorage.getItem('activityList')) {
+if (!_mockDataStore.has('activityList')) {
   setStoredData('activityList', defaultActivities);
 }
 
@@ -249,7 +242,7 @@ export const generateCustomers = (count: number = 50): Customer[] => {
 
 // ---- Products State Management ----
 let storedProducts = getStoredData('productList', defaultProducts);
-if (!localStorage.getItem('productList')) {
+if (!_mockDataStore.has('productList')) {
   setStoredData('productList', defaultProducts);
 }
 
@@ -274,7 +267,7 @@ export const generateVendors = (count: number = 30): Vendor[] => {
 
 // ---- Employees State Management ----
 let storedEmployees = getStoredData('employeeList', defaultEmployees);
-if (!localStorage.getItem('employeeList')) {
+if (!_mockDataStore.has('employeeList')) {
   setStoredData('employeeList', defaultEmployees);
 }
 
@@ -289,7 +282,7 @@ export const saveEmployees = (employees: Employee[]) => {
 
 // ---- Campaigns State Management ----
 let storedCampaigns = getStoredData('campaignList', defaultCampaigns);
-if (!localStorage.getItem('campaignList')) {
+if (!_mockDataStore.has('campaignList')) {
   setStoredData('campaignList', defaultCampaigns);
 }
 

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '../../context/AuthContext';
+import { fetchChatHistory } from '../../services/api';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -21,22 +22,25 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const [unreadChatsCount, setUnreadChatsCount] = useState(0);
 
   useEffect(() => {
-    const calculateUnread = () => {
-      const storedChats = localStorage.getItem('storefront_chats');
-      if (storedChats) {
-        try {
-          const chats = JSON.parse(storedChats);
+    let isMounted = true;
+    const calculateUnread = async () => {
+      try {
+        const chats = await fetchChatHistory();
+        if (isMounted && Array.isArray(chats)) {
           const unread = chats.filter((c: any) => c.sender === 'customer' && !c.read);
           setUnreadChatsCount(unread.length);
-        } catch (e) {
-          setUnreadChatsCount(0);
         }
+      } catch {
+        if (isMounted) setUnreadChatsCount(0);
       }
     };
 
     calculateUnread();
-    window.addEventListener('storage', calculateUnread);
-    return () => window.removeEventListener('storage', calculateUnread);
+    const interval = setInterval(calculateUnread, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [location.pathname]);
 
   const navSections = [

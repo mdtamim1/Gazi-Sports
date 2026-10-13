@@ -51,18 +51,11 @@ export default function StorefrontHome() {
     const loadCampaigns = async () => {
       try {
         const campaigns = await fetchCampaignsFromBackend();
-        if (campaigns) {
+        if (campaigns && Array.isArray(campaigns)) {
           const active = campaigns.filter((c: any) => c.status === 'active');
           setActiveCampaigns(active);
         } else {
-          // Fallback to localStorage if API is offline
-          const stored = localStorage.getItem('campaignList');
-          if (stored) {
-            const list = JSON.parse(stored);
-            if (Array.isArray(list)) {
-              setActiveCampaigns(list.filter((c: any) => c.status === 'active'));
-            }
-          }
+          setActiveCampaigns([]);
         }
       } catch (e) {
         console.error('Failed to load campaigns:', e);

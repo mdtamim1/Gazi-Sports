@@ -703,17 +703,6 @@ export default function Orders() {
     if (modalMode === 'create') {
       addOrder(orderData);
       await createOrderFromAdminInBackend(orderData);
-    } else if (modalMode === 'edit' && editingOrder) {
-      const oList = generateOrders();
-      const oIdx = oList.findIndex(o => o.id === editingOrder.id);
-      if (oIdx !== -1) {
-        oList[oIdx] = {
-          ...editingOrder,
-          ...orderData,
-          updatedAt: new Date().toISOString(),
-        };
-        localStorage.setItem('orderList', JSON.stringify(oList));
-      }
       await updateOrderInBackend(editingOrder.id, {
         ...orderData,
         status: formStatus

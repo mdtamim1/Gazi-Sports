@@ -461,22 +461,7 @@ const CACHE_TTL_MS = 5 * 60 * 1000;
 let _cacheTimestamp: number = 0;
 
 function loadConfig(): StorefrontConfig {
-  // Return in-memory cache if still fresh
-  if (_config && (Date.now() - _cacheTimestamp) < CACHE_TTL_MS) return _config;
-  // Return stale cache while API fetch is in progress (avoids blank screen)
   if (_config) return _config;
-  // Try localStorage cache for instant load on revisit
-  try {
-    const cached = localStorage.getItem(CONFIG_CACHE_KEY);
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (parsed && Array.isArray(parsed.products)) {
-        _config = parsed as StorefrontConfig;
-        // Don't set _cacheTimestamp so background sync still fires
-        return parsed as StorefrontConfig;
-      }
-    }
-  } catch {}
   _config = getDefaultConfig();
   return _config;
 }
@@ -503,14 +488,8 @@ const getAuthHeaders = (): Record<string, string> => {
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 };
 
-// Track whether at least one backend sync has completed (or cached config is present)
-let _synced = (() => {
-  try {
-    return Boolean(typeof window !== 'undefined' && localStorage.getItem(CONFIG_CACHE_KEY));
-  } catch {
-    return false;
-  }
-})();
+// Track whether at least one backend sync has completed
+let _synced = false;
 
 let _syncPromise: Promise<void> | null = null;
 
@@ -550,8 +529,6 @@ async function syncWithBackend(): Promise<void> {
           _config = serverConfig;
           _cacheTimestamp = Date.now();
           _synced = true;
-          // Persist to localStorage for instant load on next visit
-          try { localStorage.setItem(CONFIG_CACHE_KEY, JSON.stringify(_config)); } catch {}
           _listeners.forEach(fn => fn());
         }
       }
@@ -679,8 +656,11 @@ export function useStorefrontConfig(): [
   const [configReady, setConfigReady] = useStateReact<boolean>(() => _synced);
 
   useEffectReact(() => {
-    // One-time cleanup: remove stale localStorage config from older versions
-    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    // One-time cleanup: remove any stale localStorage config
+    try { 
+      localStorage.removeItem(STORAGE_KEY); 
+      localStorage.removeItem(CONFIG_CACHE_KEY); 
+    } catch {}
 
     // Initial sync
     syncWithBackend();

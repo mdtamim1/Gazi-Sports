@@ -381,63 +381,32 @@ const PRODUCTS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes freshness
 let _memProductsCache: any[] | null = null;
 let _memProductsCacheAt: number = 0;
 
-interface ProductsCache {
-  data: any[];
-  ts: number;
-}
 
 export const getCachedProductsFromStorage = (): any[] | null => {
-  // Check in-memory cache first (fastest)
+  // Check in-memory cache only (fast and fresh, no stale localStorage)
   if (_memProductsCache && (Date.now() - _memProductsCacheAt) < PRODUCTS_CACHE_TTL_MS) {
     return _memProductsCache;
   }
-  try {
-    const raw = localStorage.getItem(PRODUCTS_CACHE_KEY);
-    if (raw) {
-      const parsed: ProductsCache = JSON.parse(raw);
-      if (Array.isArray(parsed.data) && parsed.data.length > 0) {
-        // Populate in-memory cache from localStorage
-        _memProductsCache = parsed.data;
-        _memProductsCacheAt = parsed.ts || 0;
-        return parsed.data;
-      }
-    }
-  } catch {}
   return null;
 };
 
 const isCacheFresh = (): boolean => {
-  // In-memory fresh check
-  if (_memProductsCache && (Date.now() - _memProductsCacheAt) < PRODUCTS_CACHE_TTL_MS) return true;
-  // localStorage timestamp check
-  try {
-    const raw = localStorage.getItem(PRODUCTS_CACHE_KEY);
-    if (raw) {
-      const parsed: ProductsCache = JSON.parse(raw);
-      if (Array.isArray(parsed.data) && parsed.data.length > 0 && parsed.ts) {
-        return (Date.now() - parsed.ts) < PRODUCTS_CACHE_TTL_MS;
-      }
-    }
-  } catch {}
-  return false;
+  return Boolean(_memProductsCache && (Date.now() - _memProductsCacheAt) < PRODUCTS_CACHE_TTL_MS);
 };
 
 const saveProductsToCache = (products: any[]): void => {
   _memProductsCache = products;
   _memProductsCacheAt = Date.now();
-  try {
-    const payload: ProductsCache = { data: products, ts: Date.now() };
-    localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(payload));
-  } catch {}
+  // Ensure no stale localStorage key remains
+  try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch {}
 };
 
-/** Clears all product caches (in-memory + localStorage). Call after any create/update/delete. */
+/** Clears all product caches (in-memory + legacy localStorage). Call after any create/update/delete. */
 export const invalidateProductsCache = (): void => {
   _memProductsCache = null;
   _memProductsCacheAt = 0;
   invalidateProductCache(); // single-product cache
   try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch {}
-  // Also wipe the storefront config localStorage cache so it doesn't resurrect stale products
   try { localStorage.removeItem('sf_config_v1'); } catch {}
 };
 

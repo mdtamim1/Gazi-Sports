@@ -22,24 +22,10 @@ export const CustomerCouponsTab: React.FC<{ email: string }> = ({ email }) => {
     if (!email) return;
     setLoading(true);
 
-    const cacheKey = `customer_coupons_${email.trim().toLowerCase()}`;
-    // 1. Read local cache first
-    const localStored = localStorage.getItem(cacheKey);
-    if (localStored) {
-      try {
-        const parsed = JSON.parse(localStored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setCoupons(parsed);
-        }
-      } catch (e) {}
-    }
-
     try {
-      // 2. Fetch fresh coupons from backend
       const res = await fetchCustomerCoupons(email);
       if (res && res.status === 'success' && Array.isArray(res.data)) {
         setCoupons(res.data);
-        localStorage.setItem(cacheKey, JSON.stringify(res.data));
       }
     } catch (e) {
       console.error('Failed to load customer coupons:', e);

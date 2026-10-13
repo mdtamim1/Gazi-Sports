@@ -57,13 +57,11 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Initialize customer session and fetch fresh profile from database
   useEffect(() => {
-    // Keep local offline list cached
-    const storedCustomers = localStorage.getItem('storefront_customers');
-    if (storedCustomers) {
-      try {
-        setCustomers(JSON.parse(storedCustomers));
-      } catch (e) {}
-    }
+    // One-time cleanup of deprecated localStorage customer profile cache
+    try {
+      localStorage.removeItem('storefront_active_customer');
+      localStorage.removeItem('storefront_customers');
+    } catch {}
 
     const fetchProfile = async () => {
       const token = localStorage.getItem('customer_token');
@@ -76,28 +74,13 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
             const res = await response.json();
             if (res.status === 'success') {
               setCustomer(res.data);
-              localStorage.setItem('storefront_active_customer', JSON.stringify(res.data));
             } else {
               localStorage.removeItem('customer_token');
-              localStorage.removeItem('storefront_active_customer');
               setCustomer(null);
             }
           }
         } catch (e) {
-          console.warn('Backend server offline, loading customer from localStorage cache');
-          const cached = localStorage.getItem('storefront_active_customer');
-          if (cached) {
-            try {
-              setCustomer(JSON.parse(cached));
-            } catch (e) {}
-          }
-        }
-      } else {
-        const cached = localStorage.getItem('storefront_active_customer');
-        if (cached) {
-          try {
-            setCustomer(JSON.parse(cached));
-          } catch (e) {}
+          console.warn('Backend server offline');
         }
       }
       setLoading(false);
@@ -116,7 +99,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const res = await response.json();
       if (res.status === 'success') {
         localStorage.setItem('customer_token', res.data.token);
-        localStorage.setItem('storefront_active_customer', JSON.stringify(res.data.customer));
         setCustomer(res.data.customer);
         return { success: true };
       } else {
@@ -126,7 +108,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       console.warn('Backend offline, fallback login check');
       const found = customers.find(c => c.email.toLowerCase() === email.toLowerCase());
       if (found) {
-        localStorage.setItem('storefront_active_customer', JSON.stringify(found));
         setCustomer(found);
         return { success: true };
       }
@@ -144,7 +125,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const res = await response.json();
       if (res.status === 'success') {
         localStorage.setItem('customer_token', res.data.token);
-        localStorage.setItem('storefront_active_customer', JSON.stringify(res.data.customer));
         setCustomer(res.data.customer);
         return { success: true };
       } else {
@@ -163,8 +143,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       };
 
       const updated = [...customers, newCustomer];
-      localStorage.setItem('storefront_customers', JSON.stringify(updated));
-      localStorage.setItem('storefront_active_customer', JSON.stringify(newCustomer));
       setCustomers(updated);
       setCustomer(newCustomer);
       return { success: true };
@@ -173,7 +151,10 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const logout = () => {
     localStorage.removeItem('customer_token');
-    localStorage.removeItem('storefront_active_customer');
+    try {
+      localStorage.removeItem('storefront_active_customer');
+      localStorage.removeItem('storefront_customers');
+    } catch {}
     setCustomer(null);
   };
 
@@ -187,7 +168,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const res = await response.json();
       if (res.status === 'success') {
         localStorage.setItem('customer_token', res.data.token);
-        localStorage.setItem('storefront_active_customer', JSON.stringify(res.data.customer));
         setCustomer(res.data.customer);
         return { success: true };
       } else {
@@ -214,7 +194,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
               addresses: []
             };
             
-            localStorage.setItem('storefront_active_customer', JSON.stringify(offlineCustomer));
             setCustomer(offlineCustomer);
             return { success: true };
           }
@@ -228,7 +207,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (!customer) return;
     const updatedCustomer = { ...customer, phone };
     setCustomer(updatedCustomer);
-    localStorage.setItem('storefront_active_customer', JSON.stringify(updatedCustomer));
     
     try {
       await fetch(`${API_BASE}/profile`, {
@@ -246,7 +224,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (!customer) return;
     const updatedCustomer = { ...customer, ...profileData };
     setCustomer(updatedCustomer);
-    localStorage.setItem('storefront_active_customer', JSON.stringify(updatedCustomer));
 
     try {
       await fetch(`${API_BASE}/profile`, {
@@ -283,7 +260,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
         
         const updatedCustomer = { ...customer, addresses: updatedAddresses };
         setCustomer(updatedCustomer);
-        localStorage.setItem('storefront_active_customer', JSON.stringify(updatedCustomer));
       }
     } catch (e) {
       console.warn('Fallback offline address add');
@@ -299,7 +275,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       updatedAddresses.push(newAddress);
       const updatedCustomer = { ...customer, addresses: updatedAddresses };
       setCustomer(updatedCustomer);
-      localStorage.setItem('storefront_active_customer', JSON.stringify(updatedCustomer));
     }
   };
 
@@ -331,7 +306,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
         const updatedCustomer = { ...customer, addresses: updatedAddresses };
         setCustomer(updatedCustomer);
-        localStorage.setItem('storefront_active_customer', JSON.stringify(updatedCustomer));
       }
     } catch (e) {
       console.warn('Fallback offline address update');
@@ -348,7 +322,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
       const updatedCustomer = { ...customer, addresses: updatedAddresses };
       setCustomer(updatedCustomer);
-      localStorage.setItem('storefront_active_customer', JSON.stringify(updatedCustomer));
     }
   };
 
@@ -370,7 +343,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
         const updatedCustomer = { ...customer, addresses: updatedAddresses };
         setCustomer(updatedCustomer);
-        localStorage.setItem('storefront_active_customer', JSON.stringify(updatedCustomer));
       }
     } catch (e) {
       console.warn('Fallback offline address delete');
@@ -381,7 +353,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
       const updatedCustomer = { ...customer, addresses: updatedAddresses };
       setCustomer(updatedCustomer);
-      localStorage.setItem('storefront_active_customer', JSON.stringify(updatedCustomer));
     }
   };
 
@@ -401,7 +372,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
         const updatedCustomer = { ...customer, addresses: updatedAddresses };
         setCustomer(updatedCustomer);
-        localStorage.setItem('storefront_active_customer', JSON.stringify(updatedCustomer));
       }
     } catch (e) {
       console.warn('Fallback offline address set default');
@@ -411,7 +381,6 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }));
       const updatedCustomer = { ...customer, addresses: updatedAddresses };
       setCustomer(updatedCustomer);
-      localStorage.setItem('storefront_active_customer', JSON.stringify(updatedCustomer));
     }
   };
 

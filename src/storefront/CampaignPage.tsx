@@ -34,39 +34,14 @@ export default function CampaignPage() {
       try {
         const list = await fetchCampaignsFromBackend();
         let match = null;
-        if (list) {
+        if (list && Array.isArray(list)) {
           match = list.find((c: any) => String(c.id) === String(id));
         }
-
-        // Fallback to local storage if not found in backend list
-        if (!match) {
-          const stored = localStorage.getItem('campaignList');
-          if (stored) {
-            const localList = JSON.parse(stored);
-            if (Array.isArray(localList)) {
-              match = localList.find((c: any) => String(c.id) === String(id));
-            }
-          }
-        }
-
         if (match) {
           setCampaign(match);
         }
       } catch (e) {
         console.error('Failed to load campaign info:', e);
-        // Direct local storage fallback on exception
-        const stored = localStorage.getItem('campaignList');
-        if (stored) {
-          try {
-            const localList = JSON.parse(stored);
-            if (Array.isArray(localList)) {
-              const match = localList.find((c: any) => String(c.id) === String(id));
-              if (match) setCampaign(match);
-            }
-          } catch (err) {
-            console.error('Error parsing stored campaignList:', err);
-          }
-        }
       } finally {
         setLoading(false);
       }
