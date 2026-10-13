@@ -43,31 +43,57 @@ class InMemoryCache {
 const memoryCache = new InMemoryCache();
 const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 const DEFAULT_TTL = parseInt(process.env.CACHE_TTL || '3600');
+const INVALIDATION_CHANNEL = 'gazi:cache:invalidate';
 
 let redisClient: any = null;
+let redisSubClient: any = null;
 let isRedisConnected = false;
 
-// Attempt to connect to Redis server
+// Attempt to connect to Redis server with cluster-wide Pub/Sub synchronization
 if (process.env.REDIS_ENABLED !== 'false') {
   redisClient = createClient({ url: redisUrl });
+  redisSubClient = redisClient.duplicate();
 
-  redisClient.on('error', (err: any) => {
-    // Only warn once if connection is lost, prevent log spam
+  redisClient.on('error', () => {
     if (isRedisConnected) {
-      console.warn('⚠️ Redis connection lost. Operating on ultra-fast In-Memory Cache.');
+      console.warn('⚠️ Redis primary connection lost. Fallback to RAM.');
     }
     isRedisConnected = false;
   });
 
   redisClient.on('connect', () => {
-    console.log('🔌 Connected to Redis cache server.');
+    console.log('🔌 Connected to Redis cache server (Primary).');
     isRedisConnected = true;
   });
 
-  redisClient.connect().catch(() => {
-    console.warn('⚠️ Redis server unreachable. Operating on ultra-fast In-Memory Cache.');
-    isRedisConnected = false;
-  });
+  redisSubClient.on('error', () => {});
+
+  const initRedis = async () => {
+    try {
+      await redisClient.connect();
+      await redisSubClient.connect();
+
+      // Listen for invalidation messages from ANY PM2 cluster instance
+      await redisSubClient.subscribe(INVALIDATION_CHANNEL, (message: string) => {
+        try {
+          const payload = JSON.parse(message);
+          if (payload.action === 'del' && payload.key) {
+            memoryCache.del(payload.key);
+          } else if (payload.action === 'delPattern' && payload.pattern) {
+            memoryCache.delPattern(payload.pattern);
+          } else if (payload.action === 'clear') {
+            memoryCache.clear();
+          }
+        } catch {}
+      });
+      console.log('📡 Redis Pub/Sub cluster cache synchronizer active.');
+    } catch {
+      console.warn('⚠️ Local Redis not ready. Operating on In-Memory RAM Cache.');
+      isRedisConnected = false;
+    }
+  };
+
+  initRedis();
 }
 
 export const cacheService = {
@@ -89,11 +115,11 @@ export const cacheService = {
         const data = await redisClient.get(key);
         if (data !== null) {
           const parsed = JSON.parse(data) as T;
-          // Store in L1 RAM cache for future instant access
-          memoryCache.set(key, parsed, 300);
+          // Store in L1 RAM cache for future instant access (120s TTL)
+          memoryCache.set(key, parsed, 120);
           return parsed;
         }
-      } catch (err) {
+      } catch {
         // Silently ignore Redis error, RAM handles it
       }
     }
@@ -112,24 +138,25 @@ export const cacheService = {
       try {
         const serialized = JSON.stringify(value);
         redisClient.set(key, serialized, { EX: ttlSeconds }).catch(() => {});
-      } catch (err) {}
+      } catch {}
     }
   },
 
   /**
-   * Delete specific key from cache
+   * Delete specific key from cache and broadcast across ALL PM2 cluster workers
    */
   async del(key: string): Promise<void> {
     memoryCache.del(key);
     if (isRedisConnected && redisClient) {
       try {
-        redisClient.del(key).catch(() => {});
-      } catch (err) {}
+        await redisClient.del(key);
+        await redisClient.publish(INVALIDATION_CHANNEL, JSON.stringify({ action: 'del', key }));
+      } catch {}
     }
   },
 
   /**
-   * Delete keys matching a pattern (e.g. "products:*")
+   * Delete keys matching a pattern (e.g. "products:*") and broadcast across ALL PM2 workers
    */
   async delPattern(pattern: string): Promise<void> {
     memoryCache.delPattern(pattern);
@@ -137,17 +164,23 @@ export const cacheService = {
       try {
         const keys = await redisClient.keys(pattern);
         if (keys.length > 0) {
-          redisClient.del(keys).catch(() => {});
+          await redisClient.del(keys);
         }
-      } catch (err) {}
+        await redisClient.publish(INVALIDATION_CHANNEL, JSON.stringify({ action: 'delPattern', pattern }));
+      } catch {}
     }
   },
 
   /**
-   * Clear all L1 RAM cache
+   * Clear all L1 RAM cache and broadcast
    */
   clearMemory(): void {
     memoryCache.clear();
+    if (isRedisConnected && redisClient) {
+      try {
+        redisClient.publish(INVALIDATION_CHANNEL, JSON.stringify({ action: 'clear' })).catch(() => {});
+      } catch {}
+    }
   },
 
   /**
@@ -163,3 +196,4 @@ export const cacheService = {
     return freshData;
   }
 };
+

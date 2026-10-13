@@ -204,7 +204,7 @@ export const updateSettings = (req: Request, res: Response) => {
 };
 
 export const getStorefrontSettings = async (req: Request, res: Response) => {
-  res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  res.setHeader('Cache-Control', 'no-cache, must-revalidate');
   const cacheKey = 'settings:storefront';
   try {
     const cached = await cacheService.get<any>(cacheKey);

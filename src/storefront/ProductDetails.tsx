@@ -64,6 +64,25 @@ export default function ProductDetails() {
     setLoading(!newInitial);
     setActiveIdx(0);
   }
+
+  // Always fetch latest product details from backend to ensure real-time accuracy (prices, stock, description)
+  useEffect(() => {
+    if (!id) return;
+    let isMounted = true;
+    fetchProductByIdFromBackend(id).then((freshProduct) => {
+      if (isMounted && freshProduct) {
+        setProduct((prev: any) => ({
+          ...prev,
+          ...freshProduct,
+          customerReviews: freshProduct.customerReviews || prev?.customerReviews || [],
+          reviews: (freshProduct.customerReviews || prev?.customerReviews || []).length
+        }));
+        setLoading(false);
+      }
+    }).catch(() => {});
+    return () => { isMounted = false; };
+  }, [id]);
+
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
   
   const { customer, login, register, updateCustomerProfile } = useCustomerAuth();

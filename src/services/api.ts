@@ -375,12 +375,38 @@ const mapProductToFrontend = (p: any): any => {
 };
 
 const PRODUCTS_CACHE_KEY = 'gazi_products_cache_v2';
-const PRODUCTS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes freshness
+const PRODUCTS_CACHE_TTL_MS = 15 * 1000; // 15 seconds freshness
 
 // Module-level in-memory cache — survives page navigation within same session
 let _memProductsCache: any[] | null = null;
 let _memProductsCacheAt: number = 0;
 let _inFlightProductsPromise: Promise<any[] | null> | null = null;
+
+// Multi-tab real-time catalog synchronization channel
+const catalogChannel = typeof window !== 'undefined' && typeof window.BroadcastChannel !== 'undefined'
+  ? new window.BroadcastChannel('gazi_catalog_sync')
+  : null;
+
+export const broadcastCatalogChange = (type: 'create' | 'update' | 'delete', id?: string | number) => {
+  if (catalogChannel) {
+    try {
+      catalogChannel.postMessage({ type, id, timestamp: Date.now() });
+    } catch {}
+  }
+};
+
+if (catalogChannel) {
+  catalogChannel.onmessage = async () => {
+    _memProductsCache = null;
+    _memProductsCacheAt = 0;
+    _inFlightProductsPromise = null;
+    invalidateProductCache();
+    try {
+      const { forceRefreshStorefrontConfig } = await import('../store/storefrontConfig');
+      await forceRefreshStorefrontConfig();
+    } catch {}
+  };
+}
 
 export const getCachedProductsFromStorage = (): any[] | null => {
   // Check in-memory cache only (fast and fresh, no stale localStorage)
@@ -605,6 +631,11 @@ export const createProductInBackend = async (productData: any): Promise<any> => 
     if (result?.status === 'success') {
       // Clear all caches so the new product appears immediately on next fetch
       invalidateProductsCache();
+      broadcastCatalogChange('create', result.data?.id);
+      try {
+        const { forceRefreshStorefrontConfig } = await import('../store/storefrontConfig');
+        forceRefreshStorefrontConfig();
+      } catch {}
     }
     return result || { status: 'success' };
   } catch (e: any) {
@@ -653,6 +684,11 @@ export const updateProductInBackend = async (id: string | number, productData: a
       _memProductsCacheAt = 0;
       invalidateProductCache(id);
       try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch {}
+      broadcastCatalogChange('update', id);
+      try {
+        const { forceRefreshStorefrontConfig } = await import('../store/storefrontConfig');
+        forceRefreshStorefrontConfig();
+      } catch {}
     }
     return result.status === 'success';
   } catch (e) {
@@ -677,11 +713,13 @@ export const deleteProductFromBackend = async (id: string | number): Promise<{ s
     if (result?.status === 'success') {
       // 1. Wipe ALL product-related caches (in-memory + localStorage)
       invalidateProductsCache();
+      broadcastCatalogChange('delete', id);
       // 2. Remove product from storefront config cache (in-memory + localStorage sf_config_v1)
       //    so the deleted product NEVER shows on storefront, admin panel, or any other page
       try {
-        const { removeProductFromConfig } = await import('../store/storefrontConfig');
+        const { removeProductFromConfig, forceRefreshStorefrontConfig } = await import('../store/storefrontConfig');
         removeProductFromConfig(id);
+        forceRefreshStorefrontConfig();
       } catch {}
     }
     return { success: result?.status === 'success', message: result?.message };

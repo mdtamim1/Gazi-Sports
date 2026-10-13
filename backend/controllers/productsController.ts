@@ -157,62 +157,66 @@ db.run(`ALTER TABLE products ADD COLUMN sizes TEXT DEFAULT '[]'`, (err) => {
 });
 
 // Helper to keep storefront_config inside system_settings table in sync with real products DB
-export const syncStorefrontConfigProducts = () => {
-  db.get("SELECT setting_value FROM system_settings WHERE setting_key = 'storefront_config'", [], (err, row: any) => {
-    if (err || !row || !row.setting_value) return;
-    try {
-      const config = JSON.parse(row.setting_value);
-      db.all(`SELECT * FROM products`, [], (pErr, rows: any[]) => {
-        if (pErr || !rows) return;
-        db.all(`SELECT * FROM product_gallery`, [], (gErr, galleryRows: any[]) => {
-          const galleryMap: Record<string | number, string[]> = {};
-          if (!gErr && galleryRows) {
-            galleryRows.forEach(grow => {
-              if (!galleryMap[grow.product_id]) galleryMap[grow.product_id] = [];
-              galleryMap[grow.product_id].push(grow.image_url);
-            });
-          }
-          const freshProducts = rows.map(r => {
-            let features = [], specs = [], sizes = [];
-            try { if (r.features) features = JSON.parse(r.features); } catch (e) {}
-            try { if (r.specs) specs = JSON.parse(r.specs); } catch (e) {}
-            try { if (r.sizes) sizes = JSON.parse(r.sizes); } catch (e) {}
-            const gallery = galleryMap[r.id] || [];
-            const inStock = r.in_stock === 1 || r.in_stock === true || (r.stock ?? 0) > 0;
-            return {
-              ...r,
-              features,
-              specs,
-              sizes,
-              published: r.published === 1,
-              in_stock: inStock,
-              inStock: inStock,
-              stock: r.stock !== undefined && r.stock !== null ? Number(r.stock) : 50,
-              originalPrice: r.original_price ? Number(r.original_price) : null,
-              gallery: gallery,
-              videoUrl: r.video_url || null,
-              photoContent: r.photo_content || null
-            };
-          });
-          config.products = freshProducts;
-          db.run(
-            "INSERT OR REPLACE INTO system_settings (setting_key, setting_value, group_name, is_public) VALUES ('storefront_config', ?, 'storefront', 1)",
-            [JSON.stringify(config)],
-            () => {
-              cacheService.del('settings:storefront').catch(() => {});
+export const syncStorefrontConfigProducts = (): Promise<void> => {
+  return new Promise((resolve) => {
+    db.get("SELECT setting_value FROM system_settings WHERE setting_key = 'storefront_config'", [], (err, row: any) => {
+      if (err || !row || !row.setting_value) return resolve();
+      try {
+        const config = JSON.parse(row.setting_value);
+        db.all(`SELECT * FROM products`, [], (pErr, rows: any[]) => {
+          if (pErr || !rows) return resolve();
+          db.all(`SELECT * FROM product_gallery`, [], (gErr, galleryRows: any[]) => {
+            const galleryMap: Record<string | number, string[]> = {};
+            if (!gErr && galleryRows) {
+              galleryRows.forEach(grow => {
+                if (!galleryMap[grow.product_id]) galleryMap[grow.product_id] = [];
+                galleryMap[grow.product_id].push(grow.image_url);
+              });
             }
-          );
+            const freshProducts = rows.map(r => {
+              let features = [], specs = [], sizes = [];
+              try { if (r.features) features = JSON.parse(r.features); } catch (e) {}
+              try { if (r.specs) specs = JSON.parse(r.specs); } catch (e) {}
+              try { if (r.sizes) sizes = JSON.parse(r.sizes); } catch (e) {}
+              const gallery = galleryMap[r.id] || [];
+              const inStock = r.in_stock === 1 || r.in_stock === true || (r.stock ?? 0) > 0;
+              return {
+                ...r,
+                features,
+                specs,
+                sizes,
+                published: r.published === 1,
+                in_stock: inStock,
+                inStock: inStock,
+                stock: r.stock !== undefined && r.stock !== null ? Number(r.stock) : 50,
+                originalPrice: r.original_price ? Number(r.original_price) : null,
+                gallery: gallery,
+                videoUrl: r.video_url || null,
+                photoContent: r.photo_content || null
+              };
+            });
+            config.products = freshProducts;
+            db.run(
+              "INSERT OR REPLACE INTO system_settings (setting_key, setting_value, group_name, is_public) VALUES ('storefront_config', ?, 'storefront', 1)",
+              [JSON.stringify(config)],
+              async () => {
+                await cacheService.del('settings:storefront').catch(() => {});
+                resolve();
+              }
+            );
+          });
         });
-      });
-    } catch (e) {
-      console.error('Failed to sync storefront_config products:', e);
-    }
+      } catch (e) {
+        console.error('Failed to sync storefront_config products:', e);
+        resolve();
+      }
+    });
   });
 };
 
 export const getProducts = async (req: Request, res: Response) => {
   try {
-    res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
     const cacheKey = 'products:all';
     const cachedData = await cacheService.get<any[]>(cacheKey);
     if (cachedData) {
@@ -401,15 +405,18 @@ export const createProduct = async (req: Request, res: Response) => {
           }
 
           const commitTransaction = () => {
-            db.run('COMMIT', (commitErr) => {
+            db.run('COMMIT', async (commitErr) => {
               if (commitErr) {
                 console.error('Error committing transaction:', commitErr);
                 db.run('ROLLBACK', (rbErr) => { if (rbErr) console.error('Error rolling back transaction:', rbErr); });
                 return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
               }
-              cacheService.delPattern('products:*').catch(console.error);
-              cacheService.del('products:all').catch(console.error);
-              syncStorefrontConfigProducts();
+              await Promise.all([
+                cacheService.delPattern('products:*').catch(console.error),
+                cacheService.del('products:all').catch(console.error),
+                cacheService.del('settings:storefront').catch(console.error),
+                syncStorefrontConfigProducts().catch(console.error)
+              ]);
               const actor = (req as any).user;
               logSecurityAction(actor?.id || null, actor?.email || null, 'PRODUCT_CREATE',
                 `Product created: ${name} (SKU: ${skuVal}, ID: ${id}, Price: ৳${price})`, req);
@@ -514,7 +521,7 @@ export const updateProduct = async (req: Request, res: Response) => {
           }
 
           const commitTransaction = () => {
-            db.run('COMMIT', (commitErr) => {
+            db.run('COMMIT', async (commitErr) => {
               if (commitErr) {
                 console.error('Error committing transaction:', commitErr);
                 db.run('ROLLBACK', (rbErr) => {
@@ -522,10 +529,13 @@ export const updateProduct = async (req: Request, res: Response) => {
                 });
                 return res.status(500).json({ status: 'error', message: 'Failed to commit transaction' });
               }
-              cacheService.delPattern('products:*').catch(console.error);
-              cacheService.del('products:all').catch(console.error);
-              cacheService.del(`products:id:${id}`).catch(console.error);
-              syncStorefrontConfigProducts();
+              await Promise.all([
+                cacheService.delPattern('products:*').catch(console.error),
+                cacheService.del('products:all').catch(console.error),
+                cacheService.del(`products:id:${id}`).catch(console.error),
+                cacheService.del('settings:storefront').catch(console.error),
+                syncStorefrontConfigProducts().catch(console.error)
+              ]);
               const actor = (req as any).user;
               logSecurityAction(
                 actor?.id || null,
@@ -597,7 +607,7 @@ export const deleteProduct = (req: Request, res: Response) => {
     if (galleryErr) {
       console.error('Error deleting product gallery:', galleryErr);
     }
-    db.run(`DELETE FROM products WHERE id = ? OR id = ?`, [id, altId], function (err) {
+    db.run(`DELETE FROM products WHERE id = ? OR id = ?`, [id, altId], async function (err) {
       if (err) {
         console.error('Error deleting product:', err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
@@ -605,12 +615,15 @@ export const deleteProduct = (req: Request, res: Response) => {
 
       console.log(`[DELETE] Product ${id} — rows deleted: ${this.changes}`);
 
-      // Invalidate cache thoroughly
-      cacheService.delPattern('products:*').catch(console.error);
-      cacheService.del('products:all').catch(console.error);
-      cacheService.del(`products:id:${id}`).catch(console.error);
-      cacheService.del(`products:id:${altId}`).catch(console.error);
-      syncStorefrontConfigProducts();
+      // Invalidate cache thoroughly and await sync before response
+      await Promise.all([
+        cacheService.delPattern('products:*').catch(console.error),
+        cacheService.del('products:all').catch(console.error),
+        cacheService.del(`products:id:${id}`).catch(console.error),
+        cacheService.del(`products:id:${altId}`).catch(console.error),
+        cacheService.del('settings:storefront').catch(console.error),
+        syncStorefrontConfigProducts().catch(console.error)
+      ]);
 
       const actor = (req as any).user;
       logSecurityAction(

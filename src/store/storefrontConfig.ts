@@ -456,8 +456,8 @@ function migrateConfig(parsed: any): any {
   return parsed;
 }
 
-// In-memory cache TTL: 5 minutes
-const CACHE_TTL_MS = 5 * 60 * 1000;
+// In-memory cache TTL: 15 seconds (keeps browsing responsive while guaranteeing fresh sync)
+const CACHE_TTL_MS = 15 * 1000;
 let _cacheTimestamp: number = 0;
 
 function loadConfig(): StorefrontConfig {
@@ -512,14 +512,16 @@ async function syncWithBackend(): Promise<void> {
           let serverConfig = res.data;
           serverConfig = migrateConfig(serverConfig);
 
-          // Merge with current in-memory config to keep any loaded products/state
+          // Merge with current in-memory config to keep any loaded state
           const current = _config || getDefaultConfig();
+          const incomingProducts = (serverConfig.products && Array.isArray(serverConfig.products) && serverConfig.products.length > 0)
+            ? serverConfig.products
+            : current.products;
+
           serverConfig = {
             ...current,
             ...serverConfig,
-            // Always prefer the current in-memory products — product mutations use /api/v1/products directly.
-            // The /settings/storefront endpoint may lag behind (stale), so never let it overwrite fresh products.
-            products: current.products.length > 0 ? current.products : (serverConfig.products || []),
+            products: incomingProducts,
             contactInfo: { ...current.contactInfo, ...serverConfig.contactInfo },
             branding: { ...current.branding, ...serverConfig.branding },
             delivery: { ...current.delivery, ...serverConfig.delivery },
@@ -542,6 +544,30 @@ async function syncWithBackend(): Promise<void> {
   })();
 
   return _syncPromise;
+}
+
+/** Force an immediate refresh from backend without respecting cache TTL */
+export function forceRefreshStorefrontConfig(): Promise<void> {
+  _cacheTimestamp = 0;
+  _synced = false;
+  return syncWithBackend();
+}
+
+/** Update or insert a product in memory and notify UI immediately */
+export function updateProductInConfig(product: any): void {
+  const strId = String(product.id);
+  const current = _config || getDefaultConfig();
+  const index = current.products.findIndex(p => String(p.id) === strId);
+  let newProducts: any[];
+  if (index >= 0) {
+    newProducts = [...current.products];
+    newProducts[index] = { ...newProducts[index], ...product };
+  } else {
+    newProducts = [product, ...current.products];
+  }
+  _config = { ...current, products: newProducts };
+  _cacheTimestamp = Date.now();
+  _listeners.forEach(fn => fn());
 }
 
 
