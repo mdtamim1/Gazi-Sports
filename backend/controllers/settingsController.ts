@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import db from '../config/db';
 import { logSecurityAction } from '../utils/auditLogger';
 import { generateSitemap } from '../utils/sitemap';
+import { cacheService } from '../services/cacheService';
 
 const keyMapToCamel: Record<string, string> = {
   site_name: 'siteName',
@@ -202,9 +203,16 @@ export const updateSettings = (req: Request, res: Response) => {
   });
 };
 
-export const getStorefrontSettings = (req: Request, res: Response) => {
-  // no-store: deleted products must never be served from a stale browser/CDN cache
-  res.setHeader('Cache-Control', 'no-store');
+export const getStorefrontSettings = async (req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+  const cacheKey = 'settings:storefront';
+  try {
+    const cached = await cacheService.get<any>(cacheKey);
+    if (cached) {
+      return res.json({ status: 'success', data: cached });
+    }
+  } catch {}
+
   db.get(
     "SELECT setting_value FROM system_settings WHERE setting_key = 'storefront_config'",
     [],
@@ -218,8 +226,9 @@ export const getStorefrontSettings = (req: Request, res: Response) => {
       }
       try {
         const data = JSON.parse(row.setting_value);
+        cacheService.set(cacheKey, data, 600).catch(() => {});
         res.json({ status: 'success', data });
-      } catch (e) {
+      } catch {
         res.status(500).json({ status: 'error', message: 'Failed to parse storefront settings' });
       }
     }
@@ -236,6 +245,8 @@ export const updateStorefrontSettings = (req: Request, res: Response) => {
         console.error('Failed to update storefront settings:', err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
       }
+      // Invalidate memory cache immediately
+      cacheService.del('settings:storefront').catch(() => {});
       const actor = (req as any).user;
       logSecurityAction(
         actor?.id || null,

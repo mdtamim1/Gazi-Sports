@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import db from '../config/db';
+import { cacheService } from '../services/cacheService';
 
 export async function injectSeoToHtml(htmlTemplate: string, reqPath: string): Promise<string> {
   const domain = 'https://gazisports24.com';
@@ -35,106 +36,115 @@ export async function injectSeoToHtml(htmlTemplate: string, reqPath: string): Pr
   return injectDefaultSeo(htmlTemplate, domain, reqPath);
 }
 
-function injectProductSeo(htmlTemplate: string, param: string, domain: string, reqPath: string): Promise<string> {
+function renderProductSeoHtml(htmlTemplate: string, matched: any, domain: string, reqPath: string): string {
+  const rawTitle = matched.name || 'Sports Equipment';
+  const metaTitle = `${rawTitle} Price in Bangladesh | Buy Online | Gazi Sports 24`;
+  const cleanDesc = (matched.description || rawTitle).replace(/<[^>]*>/g, '').trim().slice(0, 160);
+  const metaDesc = cleanDesc ? `${rawTitle} Price in Bangladesh. ${cleanDesc}` : `Buy ${rawTitle} at best price in Bangladesh from Gazi Sports 24. Nationwide Cash on Delivery!`;
+
+  let imageUrl = matched.image || '';
+  if (imageUrl && !imageUrl.startsWith('http')) {
+    imageUrl = `${domain}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+  }
+  if (!imageUrl) {
+    imageUrl = `${domain}/assets/main-banner.webp`;
+  }
+
+  const canonicalUrl = `${domain}${reqPath.startsWith('/') ? '' : '/'}${reqPath}`.split('?')[0];
+  const price = Number(matched.price || 0);
+  const inStock = (matched.stock === undefined || matched.stock > 0);
+
+  const productSchema = {
+    '@context': 'https://schema.org/',
+    '@type': 'Product',
+    'name': rawTitle,
+    'image': [imageUrl],
+    'description': metaDesc,
+    'sku': `GAZI-${matched.id}`,
+    'brand': {
+      '@type': 'Brand',
+      'name': 'Gazi Sports 24'
+    },
+    'offers': {
+      '@type': 'Offer',
+      'url': canonicalUrl,
+      'priceCurrency': 'BDT',
+      'price': price,
+      'priceValidUntil': '2028-12-31',
+      'availability': inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      'itemCondition': 'https://schema.org/NewCondition'
+    },
+    'aggregateRating': {
+      '@type': 'AggregateRating',
+      'ratingValue': '5.0',
+      'reviewCount': '12'
+    }
+  };
+
+  const seoTags = `
+    <title>${escapeHtml(metaTitle)}</title>
+    <meta name="description" content="${escapeHtml(metaDesc)}" />
+    <meta name="keywords" content="${escapeHtml(rawTitle)}, Gazi Sports 24, sports store bangladesh, buy online bd" />
+    <link rel="canonical" href="${canonicalUrl}" />
+
+    <meta property="og:site_name" content="Gazi Sports 24" />
+    <meta property="og:type" content="og:product" />
+    <meta property="og:url" content="${canonicalUrl}" />
+    <meta property="og:title" content="${escapeHtml(metaTitle)}" />
+    <meta property="og:description" content="${escapeHtml(metaDesc)}" />
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:image:secure_url" content="${imageUrl}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="${escapeHtml(rawTitle)}" />
+    <meta property="og:locale" content="en_US" />
+
+    <meta property="product:price:amount" content="${price}" />
+    <meta property="product:price:currency" content="BDT" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(metaTitle)}" />
+    <meta name="twitter:description" content="${escapeHtml(metaDesc)}" />
+    <meta name="twitter:image" content="${imageUrl}" />
+
+    <script type="application/ld+json">
+    ${JSON.stringify(productSchema, null, 2)}
+    </script>
+  `;
+
+  return replaceHeadTags(htmlTemplate, seoTags);
+}
+
+async function injectProductSeo(htmlTemplate: string, param: string, domain: string, reqPath: string): Promise<string> {
+  const cacheKey = `seo:product:${param}`;
+  const cached = await cacheService.get<string>(cacheKey);
+  if (cached) return cached;
+
   return new Promise((resolve) => {
-    db.all("SELECT id, name, price, original_price, image, category, description, published, stock FROM products WHERE published = 1", [], (err, rows: any[]) => {
-      if (err || !rows || rows.length === 0) {
-        return resolve(injectDefaultSeo(htmlTemplate, domain, reqPath));
-      }
-
-      let matched = rows.find(p => String(p.id) === param || (p.slug && p.slug === param));
-      if (!matched) {
-        const cleanParam = param.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        matched = rows.find(p => {
-          const pNameSlug = (p.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-          return pNameSlug === cleanParam || cleanParam.includes(pNameSlug) || pNameSlug.includes(cleanParam);
-        });
-      }
-      if (!matched) {
-        matched = rows[0];
-      }
-
-      const rawTitle = matched.name || 'Sports Equipment';
-      const metaTitle = `${rawTitle} Price in Bangladesh | Buy Online | Gazi Sports 24`;
-      const cleanDesc = (matched.description || rawTitle).replace(/<[^>]*>/g, '').trim().slice(0, 160);
-      const metaDesc = cleanDesc ? `${rawTitle} Price in Bangladesh. ${cleanDesc}` : `Buy ${rawTitle} at best price in Bangladesh from Gazi Sports 24. Nationwide Cash on Delivery!`;
-
-      let imageUrl = matched.image || '';
-      if (imageUrl && !imageUrl.startsWith('http')) {
-        imageUrl = `${domain}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
-      }
-      if (!imageUrl) {
-        imageUrl = `${domain}/assets/main-banner.webp`;
-      }
-
-      const canonicalUrl = `${domain}${reqPath.startsWith('/') ? '' : '/'}${reqPath}`.split('?')[0];
-      const price = Number(matched.price || 0);
-      const inStock = (matched.stock === undefined || matched.stock > 0);
-
-      const productSchema = {
-        '@context': 'https://schema.org/',
-        '@type': 'Product',
-        'name': rawTitle,
-        'image': [imageUrl],
-        'description': metaDesc,
-        'sku': `GAZI-${matched.id}`,
-        'brand': {
-          '@type': 'Brand',
-          'name': 'Gazi Sports 24'
-        },
-        'offers': {
-          '@type': 'Offer',
-          'url': canonicalUrl,
-          'priceCurrency': 'BDT',
-          'price': price,
-          'priceValidUntil': '2028-12-31',
-          'availability': inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-          'itemCondition': 'https://schema.org/NewCondition'
-        },
-        'aggregateRating': {
-          '@type': 'AggregateRating',
-          'ratingValue': '5.0',
-          'reviewCount': '12'
+    // Single query instead of fetching entire 93-row table
+    db.get(
+      "SELECT id, name, slug, price, original_price, image, category, description, published, stock FROM products WHERE (slug = ? OR id = ?) AND published = 1 LIMIT 1",
+      [param, param],
+      (err, row: any) => {
+        if (!err && row) {
+          const result = renderProductSeoHtml(htmlTemplate, row, domain, reqPath);
+          cacheService.set(cacheKey, result, 600).catch(() => {});
+          return resolve(result);
         }
-      };
 
-      const seoTags = `
-        <title>${escapeHtml(metaTitle)}</title>
-        <meta name="description" content="${escapeHtml(metaDesc)}" />
-        <meta name="keywords" content="${escapeHtml(rawTitle)}, Gazi Sports 24, sports store bangladesh, buy online bd" />
-        <link rel="canonical" href="${canonicalUrl}" />
-
-        <meta property="og:site_name" content="Gazi Sports 24" />
-        <meta property="og:type" content="og:product" />
-        <meta property="og:url" content="${canonicalUrl}" />
-        <meta property="og:title" content="${escapeHtml(metaTitle)}" />
-        <meta property="og:description" content="${escapeHtml(metaDesc)}" />
-        <meta property="og:image" content="${imageUrl}" />
-        <meta property="og:image:secure_url" content="${imageUrl}" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="${escapeHtml(rawTitle)}" />
-        <meta property="og:locale" content="en_US" />
-
-        <meta property="product:price:amount" content="${price}" />
-        <meta property="product:price:currency" content="BDT" />
-        <meta property="product:availability" content="${inStock ? 'in stock' : 'out of stock'}" />
-        <meta property="product:condition" content="new" />
-        <meta property="product:brand" content="Gazi Sports 24" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@GaziSports24" />
-        <meta name="twitter:title" content="${escapeHtml(metaTitle)}" />
-        <meta name="twitter:description" content="${escapeHtml(metaDesc)}" />
-        <meta name="twitter:image" content="${imageUrl}" />
-
-        <script type="application/ld+json">
-          ${JSON.stringify(productSchema)}
-        </script>
-      `;
-
-      resolve(replaceHeadTags(htmlTemplate, seoTags));
-    });
+        // If not found by exact slug/id, use default fallback safely
+        db.get(
+          "SELECT id, name, slug, price, original_price, image, category, description, published, stock FROM products WHERE published = 1 LIMIT 1",
+          [],
+          (_e, fallbackRow: any) => {
+            const rowToUse = fallbackRow || { name: 'Sports Equipment', id: '1', price: 0 };
+            const result = renderProductSeoHtml(htmlTemplate, rowToUse, domain, reqPath);
+            cacheService.set(cacheKey, result, 600).catch(() => {});
+            resolve(result);
+          }
+        );
+      }
+    );
   });
 }
 

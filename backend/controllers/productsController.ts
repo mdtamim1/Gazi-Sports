@@ -197,7 +197,10 @@ export const syncStorefrontConfigProducts = () => {
           config.products = freshProducts;
           db.run(
             "INSERT OR REPLACE INTO system_settings (setting_key, setting_value, group_name, is_public) VALUES ('storefront_config', ?, 'storefront', 1)",
-            [JSON.stringify(config)]
+            [JSON.stringify(config)],
+            () => {
+              cacheService.del('settings:storefront').catch(() => {});
+            }
           );
         });
       });

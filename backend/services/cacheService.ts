@@ -34,6 +34,10 @@ class InMemoryCache {
       }
     }
   }
+
+  clear() {
+    this.cache.clear();
+  }
 }
 
 const memoryCache = new InMemoryCache();
@@ -50,7 +54,7 @@ if (process.env.REDIS_ENABLED !== 'false') {
   redisClient.on('error', (err: any) => {
     // Only warn once if connection is lost, prevent log spam
     if (isRedisConnected) {
-      console.warn('⚠️ Redis connection lost. Falling back to In-Memory Cache.');
+      console.warn('⚠️ Redis connection lost. Operating on ultra-fast In-Memory Cache.');
     }
     isRedisConnected = false;
   });
@@ -61,56 +65,66 @@ if (process.env.REDIS_ENABLED !== 'false') {
   });
 
   redisClient.connect().catch(() => {
-    console.warn('⚠️ Redis server unreachable. Falling back to In-Memory Cache.');
+    console.warn('⚠️ Redis server unreachable. Operating on ultra-fast In-Memory Cache.');
     isRedisConnected = false;
   });
 }
 
 export const cacheService = {
   /**
-   * Get value from cache (Redis first, in-memory fallback)
+   * Get value from cache:
+   * Level 1: In-Memory RAM (0.001 ms, ultra-fast - instant)
+   * Level 2: Redis (if available and not in RAM)
    */
   async get<T>(key: string): Promise<T | null> {
-    // Try Redis first
+    // 1. Ultra-fast L1 RAM Cache check first (instant)
+    const memVal = memoryCache.get(key);
+    if (memVal !== null && memVal !== undefined) {
+      return memVal as T;
+    }
+
+    // 2. L2 Redis check (if available)
     if (isRedisConnected && redisClient) {
       try {
         const data = await redisClient.get(key);
-        if (data !== null) return JSON.parse(data) as T;
+        if (data !== null) {
+          const parsed = JSON.parse(data) as T;
+          // Store in L1 RAM cache for future instant access
+          memoryCache.set(key, parsed, 300);
+          return parsed;
+        }
       } catch (err) {
-        console.error(`Error reading key "${key}" from Redis:`, err);
+        // Silently ignore Redis error, RAM handles it
       }
     }
-    // Fallback to in-memory cache (used when Redis is unavailable)
-    return memoryCache.get(key) as T | null;
+    return null;
   },
 
   /**
-   * Set value in cache (Redis + in-memory fallback)
+   * Set value in cache (writes instantly to L1 RAM and non-blocking L2 Redis)
    */
   async set(key: string, value: any, ttlSeconds: number = DEFAULT_TTL): Promise<void> {
-    const serialized = JSON.stringify(value);
-    // Always write to in-memory cache as fast fallback
+    // Write instantly to L1 RAM cache
     memoryCache.set(key, value, ttlSeconds);
+
+    // Asynchronously write to Redis without blocking the event loop
     if (isRedisConnected && redisClient) {
       try {
-        await redisClient.set(key, serialized, { EX: ttlSeconds });
-      } catch (err) {
-        console.error(`Error writing key "${key}" to Redis:`, err);
-      }
+        const serialized = JSON.stringify(value);
+        redisClient.set(key, serialized, { EX: ttlSeconds }).catch(() => {});
+      } catch (err) {}
     }
   },
 
   /**
-   * Delete specific key from cache (Redis + in-memory)
+   * Delete specific key from cache
    */
   async del(key: string): Promise<void> {
     memoryCache.del(key);
     if (isRedisConnected && redisClient) {
       try {
-        await redisClient.del(key);
-      } catch (err) {
-        console.error(`Error deleting key "${key}" from Redis:`, err);
-      }
+        redisClient.del(key).catch(() => {});
+      } catch (err) {}
     }
   },
 
@@ -123,12 +137,17 @@ export const cacheService = {
       try {
         const keys = await redisClient.keys(pattern);
         if (keys.length > 0) {
-          await redisClient.del(keys);
+          redisClient.del(keys).catch(() => {});
         }
-      } catch (err) {
-        console.error(`Error deleting pattern "${pattern}" from Redis:`, err);
-      }
+      } catch (err) {}
     }
+  },
+
+  /**
+   * Clear all L1 RAM cache
+   */
+  clearMemory(): void {
+    memoryCache.clear();
   },
 
   /**

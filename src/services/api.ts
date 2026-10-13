@@ -377,10 +377,10 @@ const mapProductToFrontend = (p: any): any => {
 const PRODUCTS_CACHE_KEY = 'gazi_products_cache_v2';
 const PRODUCTS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes freshness
 
-// Module-level in-memory cache â€” survives page navigation within same session
+// Module-level in-memory cache — survives page navigation within same session
 let _memProductsCache: any[] | null = null;
 let _memProductsCacheAt: number = 0;
-
+let _inFlightProductsPromise: Promise<any[] | null> | null = null;
 
 export const getCachedProductsFromStorage = (): any[] | null => {
   // Check in-memory cache only (fast and fresh, no stale localStorage)
@@ -405,6 +405,7 @@ const saveProductsToCache = (products: any[]): void => {
 export const invalidateProductsCache = (): void => {
   _memProductsCache = null;
   _memProductsCacheAt = 0;
+  _inFlightProductsPromise = null;
   invalidateProductCache(); // single-product cache
   try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch {}
   try { localStorage.removeItem('sf_config_v1'); } catch {}
@@ -420,7 +421,13 @@ export const fetchProductsFromBackend = async (): Promise<any[] | null> => {
     return stale;
   }
 
-  // Perform background fetch (or foreground if no cache)
+  // Deduplicate in-flight fetch across multiple components
+  if (_inFlightProductsPromise) {
+    if (stale) return stale;
+    return _inFlightProductsPromise;
+  }
+
+  // Perform fetch
   const doFetch = async (): Promise<any[] | null> => {
     try {
       const response = await fetch(`${API_BASE}/products`, {
@@ -435,17 +442,20 @@ export const fetchProductsFromBackend = async (): Promise<any[] | null> => {
     } catch (e) {
       console.warn('Backend server offline. Using cached products.', e);
       return null;
+    } finally {
+      _inFlightProductsPromise = null;
     }
   };
 
+  _inFlightProductsPromise = doFetch();
+
   if (stale) {
-    // Stale cache exists â€” return it immediately and refresh in the background
-    doFetch().catch(() => {});
+    // Stale cache exists — return it immediately and refresh in background
     return stale;
   }
 
-  // No cache at all â€” wait for fetch
-  return doFetch();
+  // No cache at all — wait for fetch
+  return _inFlightProductsPromise;
 };
 
 /**
