@@ -127,6 +127,27 @@ export default function Checkout() {
     }
   }, [customer, nameEdited, phoneEdited, addressEdited, emailEdited]);
 
+  // Meta Pixel InitiateCheckout Event
+  useEffect(() => {
+    if (items.length > 0 && typeof window !== 'undefined' && (window as any).fbq) {
+      try {
+        (window as any).fbq('track', 'InitiateCheckout', {
+          value: total,
+          currency: 'BDT',
+          num_items: items.reduce((sum, i) => sum + i.quantity, 0),
+          content_type: 'product',
+          contents: items.map(item => ({
+            id: item.product.sku || item.product.id,
+            quantity: item.quantity,
+            item_price: item.product.price
+          }))
+        });
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
   const handleSelectAddress = (addr: any) => {
     setSelectedAddressId(addr.id);
     setCustomerName(addr.name);
@@ -250,6 +271,24 @@ export default function Checkout() {
       discount,
       total
     });
+
+    // Meta Pixel Purchase Event
+    if (typeof window !== 'undefined' && (window as any).fbq) {
+      try {
+        (window as any).fbq('track', 'Purchase', {
+          value: total,
+          currency: 'BDT',
+          content_type: 'product',
+          contents: items.map(item => ({
+            id: item.product.sku || item.product.id,
+            quantity: item.quantity,
+            item_price: item.product.price
+          }))
+        });
+      } catch {
+        // ignore
+      }
+    }
 
     setIsSuccess(true);
   };

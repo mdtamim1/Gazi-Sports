@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getOrders, getOrderById, createOrder, updateOrderStatus, updateOrder, syncOrders, assignOrder, getOrderHistory, getMyOrders } from '../controllers/ordersController';
+import { getOrders, getOrderById, createOrder, updateOrderStatus, updateOrder, syncOrders, assignOrder, getOrderHistory, getMyOrders, steadfastCourierEntry } from '../controllers/ordersController';
 import { authenticateToken, requireRole } from '../middleware/auth';
 
 const router = Router();
@@ -20,5 +20,8 @@ router.put('/:id/status', authenticateToken, requireRole(['Super Admin', 'Admin'
 // Order sync and assignment (Admin only)
 router.post('/sync', authenticateToken, requireRole(['Super Admin', 'Admin']), syncOrders);
 router.put('/:id/assign', authenticateToken, requireRole(['Super Admin', 'Admin']), assignOrder);
+
+// Steadfast Courier Entry — submit shipped order to Steadfast automatically
+router.post('/:id/steadfast-entry', authenticateToken, requireRole(['Super Admin', 'Admin', 'Staff', 'Moderator']), steadfastCourierEntry);
 
 export default router;

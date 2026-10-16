@@ -2171,3 +2171,12 @@ html, body {
   font-size: var(--text-xs);
 }
 
+/* Steadfast Courier Entry — animations */
+@keyframes slideInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

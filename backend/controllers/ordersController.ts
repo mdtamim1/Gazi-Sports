@@ -779,3 +779,147 @@ export const getOrderHistory = (req: Request, res: Response) => {
     }
   );
 };
+
+// =============================================
+// Steadfast Courier Entry — Create parcel in Steadfast automatically
+// =============================================
+export const steadfastCourierEntry = async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+
+  // Fetch the order from DB
+  db.get(`SELECT * FROM orders WHERE id = ?`, [id], async (err, order: any) => {
+    if (err) {
+      console.error('DB error fetching order for Steadfast entry:', err);
+      return res.status(500).json({ status: 'error', message: 'Database error' });
+    }
+    if (!order) {
+      return res.status(404).json({ status: 'error', message: 'Order not found' });
+    }
+
+    // If already entered into Steadfast, return tracking info
+    if (order.steadfast_entry_done === 1 || order.steadfast_entry_done === true) {
+      return res.json({
+        status: 'already_done',
+        message: 'Order already submitted to Steadfast',
+        data: {
+          tracking_code: order.steadfast_tracking_code,
+          steadfast_entry_done: true
+        }
+      });
+    }
+
+    const STEADFAST_API_KEY = process.env.STEADFAST_API_KEY;
+    const STEADFAST_SECRET_KEY = process.env.STEADFAST_SECRET_KEY;
+
+    if (!STEADFAST_API_KEY || !STEADFAST_SECRET_KEY) {
+      return res.status(500).json({ status: 'error', message: 'Steadfast API credentials not configured in server environment.' });
+    }
+
+    // Calculate COD amount (net payable)
+    const subtotal = order.subtotal || order.amount || 0;
+    const deliveryCharge = order.delivery_charge || 0;
+    const discount = order.discount || 0;
+    const paidAmount = order.paid_amount || 0;
+    const codAmount = Math.max(0, Math.round((subtotal + deliveryCharge - discount) - paidAmount));
+
+    // Clean phone number (Steadfast expects standard 11 digits e.g. 01XXXXXXXXX)
+    let cleanPhone = String(order.phone || '').trim().replace(/[^0-9]/g, '');
+    if (cleanPhone.startsWith('880')) {
+      cleanPhone = cleanPhone.slice(2);
+    }
+
+    const recipientAddress = [order.address, order.thana, order.area, order.city]
+      .filter(Boolean).join(', ') || 'Dhaka, Bangladesh';
+
+    // Build note from order products
+    db.all(`SELECT * FROM order_items WHERE order_id = ?`, [id], async (itemErr, items: any[]) => {
+      const productNote = (items || [])
+        .map((p: any) => `${p.product_name} (x${p.quantity})`)
+        .join(', ');
+
+      const note = [
+        productNote || '',
+        order.customer_note ? `Note: ${order.customer_note}` : '',
+        order.shop_note ? `Shop Note: ${order.shop_note}` : ''
+      ].filter(Boolean).join(' | ');
+
+      const payload = {
+        invoice: id,
+        recipient_name: order.customer || 'Customer',
+        recipient_phone: cleanPhone,
+        recipient_address: recipientAddress,
+        cod_amount: codAmount,
+        note: note.substring(0, 500), // Steadfast note max 500 chars
+      };
+
+      try {
+        const response = await fetch('https://portal.steadfast.com.bd/api/v1/create_order', {
+          method: 'POST',
+          headers: {
+            'Api-Key': STEADFAST_API_KEY,
+            'Secret-Key': STEADFAST_SECRET_KEY,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data: any = await response.json();
+
+        if (data.status === 200 && data.consignment) {
+          const trackingCode = data.consignment.tracking_code || data.consignment.consignment_id;
+
+          // Save tracking code and mark as done
+          db.run(
+            `UPDATE orders SET steadfast_tracking_code = ?, steadfast_entry_done = 1 WHERE id = ?`,
+            [trackingCode, id],
+            (updateErr) => {
+              if (updateErr) {
+                console.error('Failed to save Steadfast tracking code:', updateErr);
+              }
+            }
+          );
+
+          // Invalidate order cache
+          cacheService.del('orders:all').catch(console.error);
+
+          // Log history
+          const performedBy = (req as any).user ? `${(req as any).user.name} (${(req as any).user.role})` : 'Admin';
+          logOrderHistory(id, 'steadfast_entry', null, `Tracking: ${String(trackingCode || '')}`, performedBy);
+
+          return res.json({
+            status: 'success',
+            message: `Order submitted to Steadfast! Tracking: ${trackingCode}`,
+            data: {
+              tracking_code: trackingCode,
+              steadfast_entry_done: true,
+              consignment: data.consignment
+            }
+          });
+        } else {
+          let errMsg = data.message || '';
+          if (data.errors && typeof data.errors === 'object') {
+            const errorDetails = Object.entries(data.errors)
+              .map(([field, errList]: [string, any]) => `${field}: ${Array.isArray(errList) ? errList.join(', ') : errList}`)
+              .join('; ');
+            errMsg = errMsg ? `${errMsg} (${errorDetails})` : errorDetails;
+          } else if (typeof data.errors === 'string') {
+            errMsg = data.errors;
+          } else if (!errMsg) {
+            errMsg = JSON.stringify(data);
+          }
+          console.error('Steadfast API error:', errMsg);
+          return res.status(400).json({
+            status: 'error',
+            message: `Steadfast rejected: ${errMsg}`
+          });
+        }
+      } catch (fetchErr) {
+        console.error('Failed to call Steadfast API:', fetchErr);
+        return res.status(500).json({
+          status: 'error',
+          message: 'Failed to connect to Steadfast API. Please check network.'
+        });
+      }
+    });
+  });
+};

@@ -13,7 +13,7 @@ const getAuthHeaders = (): Record<string, string> => {
 };
 
 // Login admin employee via backend
-// Step 1: Email + Password â†’ returns pre-auth token (not full access)
+// Step 1: Email + Password -> returns pre-auth token (not full access)
 export const loginToBackend = async (email: string, password: string): Promise<any> => {
   try {
     const response = await fetch(`${API_BASE}/auth/login`, {
@@ -30,7 +30,7 @@ export const loginToBackend = async (email: string, password: string): Promise<a
   }
 };
 
-// Step 2: Google ID Token verification â†’ returns full JWT
+// Step 2: Google ID Token verification -> returns full JWT
 export const verifyGoogleStep = async (preAuthToken: string, googleIdToken: string): Promise<any> => {
   try {
     const response = await fetch(`${API_BASE}/auth/verify-google`, {
@@ -188,6 +188,8 @@ export const fetchOrdersFromBackend = async (forceRefresh: boolean = false): Pro
         subtotal: order.subtotal,
         assigned_to: order.assigned_to || null,
         assigned_name: order.assigned_name || null,
+        steadfast_entry_done: order.steadfast_entry_done === 1 || order.steadfast_entry_done === true,
+        steadfast_tracking_code: order.steadfast_tracking_code || null,
         productsList: order.productsList || []
       }));
 
@@ -247,6 +249,24 @@ export const syncOrdersInBackend = async (): Promise<any> => {
   } catch (e) {
     console.error('Failed to sync orders:', e);
     return { status: 'error', message: 'Server unreachable' };
+  }
+};
+
+// Submit a shipped order to Steadfast Courier — auto-creates parcel and returns tracking code
+export const steadfastEntryInBackend = async (orderId: string): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE}/orders/${orderId}/steadfast-entry`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
+    });
+    invalidateOrdersCache();
+    return await response.json();
+  } catch (e) {
+    console.error('Failed to submit order to Steadfast:', e);
+    return { status: 'error', message: 'Failed to connect to server.' };
   }
 };
 

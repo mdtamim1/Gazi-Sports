@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import {
   Image, Megaphone, Grid3X3, ShoppingBag, Link2, Columns3,
-  Palette, Award, Truck, RotateCcw, Save, Plus, Trash2,
-  ChevronUp, ChevronDown, Edit3, Eye, EyeOff, X, Check, Upload,
+  Palette, Award, Truck, RotateCcw, Plus, Trash2,
+  ChevronUp, ChevronDown, Edit3, Eye, X, Check, Upload,
   CreditCard
 } from 'lucide-react';
 import {
@@ -11,9 +11,7 @@ import {
   type BannerSlide,
   type AnnouncementItem,
   type CategoryConfig,
-  type ProductConfig,
   type NavLinkItem,
-  type FooterColumn,
   type FeatureBadge,
   type MiddleBannerConfig,
   resetStorefrontConfig,
@@ -102,7 +100,12 @@ export default function StorefrontManager() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'banners' && <BannersSection config={config} updateConfig={updateConfig} />}
+      {activeTab === 'banners' && (
+        <>
+          <BannersSection config={config} updateConfig={updateConfig} />
+          <AnnouncementsSection config={config} updateConfig={updateConfig} />
+        </>
+      )}
       {activeTab === 'categories' && <CategoriesSection config={config} updateConfig={updateConfig} />}
       {activeTab === 'navigation' && <NavigationSection config={config} updateConfig={updateConfig} />}
       {activeTab === 'featured' && <FeaturedCollectionsSection config={config} updateConfig={updateConfig} />}
@@ -291,7 +294,7 @@ function BannersSection({ config, updateConfig }: SectionProps) {
                                 try {
                                   const webpBase64 = await convertToWebP(file);
                                   update(banner.id, 'image', webpBase64);
-                                } catch (err) {
+                                } catch {
                                   alert('Failed to convert image.');
                                 }
                               }
@@ -380,7 +383,7 @@ function BannersSection({ config, updateConfig }: SectionProps) {
                                 try {
                                   const webpBase64 = await convertToWebP(file);
                                   updateMiddle(banner.id, 'image', webpBase64);
-                                } catch (err) {
+                                } catch {
                                   alert('Failed to convert image.');
                                 }
                               }
@@ -415,7 +418,7 @@ function AnnouncementsSection({ config, updateConfig }: SectionProps) {
 
   const add = () => {
     const newId = Math.max(0, ...items.map(a => a.id)) + 1;
-    updateConfig('announcements', [...items, { id: newId, text: 'ðŸ“¢ New announcement text here', enabled: true }]);
+    updateConfig('announcements', [...items, { id: newId, text: '📢 New announcement text here', enabled: true }]);
   };
 
   const remove = (id: number) => {
@@ -461,12 +464,6 @@ function AnnouncementsSection({ config, updateConfig }: SectionProps) {
 // ============================================================
 // 3. CATEGORIES SECTION
 // ============================================================
-const ICON_OPTIONS = [
-  'Smartphone', 'Shirt', 'Home', 'Dumbbell', 'Sparkles', 'BookOpen',
-  'Monitor', 'Camera', 'Headphones', 'Watch', 'Car', 'Baby',
-  'Pizza', 'Flower', 'Palette', 'Music', 'Gamepad', 'Gift',
-];
-
 function CategoriesSection({ config, updateConfig }: SectionProps) {
   const [editId, setEditId] = useState<number | null>(null);
   const items = config.categories;
@@ -526,7 +523,7 @@ function CategoriesSection({ config, updateConfig }: SectionProps) {
                 <div className="sfm-item-content">
                   <div className="sfm-item-title">{cat.name}</div>
                   <div className="sfm-item-meta">
-                    Image Mode: {cat.useCustomImage ? 'ðŸ–¼ï¸ Custom Image Enabled' : 'ðŸ“¦ Last Product Image (Auto)'} â€¢ {actualCount} products â€¢ Sort #{cat.sortOrder}
+                    Image Mode: {cat.useCustomImage ? '🖼️ Custom Image Enabled' : '📦 Last Product Image (Auto)'} • {actualCount} products • Sort #{cat.sortOrder}
                   </div>
                 </div>
                 <span className={`sfm-card-badge ${cat.published ? 'enabled' : 'disabled'}`}>
@@ -692,7 +689,7 @@ function NavigationSection({ config, updateConfig }: SectionProps) {
                     type="text"
                     className="sfm-input"
                     style={{ width: '100%', padding: '8px 12px', fontSize: '13px' }}
-                    placeholder="ðŸ” Search catalog products by name or category..."
+                    placeholder="🔍 Search catalog products by name or category..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                   />
@@ -819,7 +816,7 @@ function NavigationSection({ config, updateConfig }: SectionProps) {
                   borderTop: '1px dashed rgba(255,255,255,0.08)' 
                 }}>
                   <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    ðŸ•’ Timer Configuration (Countdown Clock)
+                    🕒 Timer Configuration (Countdown Clock)
                   </div>
                   
                   <div style={{ 
@@ -1010,7 +1007,7 @@ function FooterSection({ config, updateConfig }: SectionProps) {
                   <div style={{ marginTop: 6, borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: 8 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                       <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>
-                        ðŸ“ Page Content (HTML allowed, e.g. &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;, &lt;li&gt;)
+                        📄 Page Content (HTML allowed, e.g. &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;, &lt;li&gt;)
                       </span>
                       {link.customPageContent !== undefined ? (
                         <button
@@ -1095,7 +1092,7 @@ function FeaturedCollectionsSection({ config, updateConfig }: SectionProps) {
         {/* Trending Section */}
         <div className="sfm-card" style={{ margin: 0 }}>
           <div className="sfm-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div className="sfm-card-title">ðŸ“ˆ Trending Collection</div>
+            <div className="sfm-card-title">📈 Trending Collection</div>
             <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Selected: {trendingIds.length}</span>
           </div>
 
@@ -1164,7 +1161,7 @@ function FeaturedCollectionsSection({ config, updateConfig }: SectionProps) {
         {/* New Arrivals Section */}
         <div className="sfm-card" style={{ margin: 0 }}>
           <div className="sfm-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div className="sfm-card-title">âœ¨ New Arrivals Collection</div>
+            <div className="sfm-card-title">✨ New Arrivals Collection</div>
             <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>Selected: {newArrivalIds.length}</span>
           </div>
 

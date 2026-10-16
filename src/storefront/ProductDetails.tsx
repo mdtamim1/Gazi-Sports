@@ -83,6 +83,23 @@ export default function ProductDetails() {
     return () => { isMounted = false; };
   }, [id]);
 
+  // Meta Pixel ViewContent Event
+  useEffect(() => {
+    if (product?.id && typeof window !== 'undefined' && (window as any).fbq) {
+      try {
+        (window as any).fbq('track', 'ViewContent', {
+          content_name: product.name,
+          content_ids: [product.sku || product.id],
+          content_type: 'product',
+          value: product.price,
+          currency: 'BDT'
+        });
+      } catch {
+        // ignore
+      }
+    }
+  }, [product?.id]);
+
   const [activeTab, setActiveTab] = useState<'description' | 'specs' | 'reviews'>('description');
   
   const { customer, login, register, updateCustomerProfile } = useCustomerAuth();

@@ -623,6 +623,14 @@ function initializeDatabase() {
       }
     });
 
+    // Migration: Add Steadfast courier entry columns
+    db.run(`ALTER TABLE orders ADD COLUMN steadfast_tracking_code TEXT DEFAULT NULL`, () => {
+      // Ignore error if column already exists
+    });
+    db.run(`ALTER TABLE orders ADD COLUMN steadfast_entry_done INTEGER DEFAULT 0`, () => {
+      // Ignore error if column already exists
+    });
+
     db.run(`
       CREATE TABLE IF NOT EXISTS order_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

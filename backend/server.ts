@@ -25,6 +25,7 @@ import db from './config/db'; // Initializes DB connection
 // Import routes
 import authRoutes from './routes/auth';
 import productRoutes from './routes/products';
+import { getFacebookFeed, getFacebookCsvFeed } from './controllers/productsController';
 import orderRoutes from './routes/orders';
 import customerRoutes from './routes/customers';
 import dashboardRoutes from './routes/dashboard';
@@ -286,6 +287,10 @@ app.get(['/google-merchant.xml', '/merchant-feed.xml', '/api/v1/google-merchant.
     res.status(500).send('Error generating Google Merchant feed');
   }
 });
+
+// Dynamic Meta / Facebook Product Catalog XML & CSV Feed Endpoints
+app.get(['/facebook-feed.xml', '/facebook-feed', '/catalog-feed.xml', '/catalog.xml', '/feed/facebook.xml'], getFacebookFeed);
+app.get(['/facebook-feed.csv', '/catalog-feed.csv', '/catalog.csv', '/feed/facebook.csv'], getFacebookCsvFeed);
 
 // For all other requests that are NOT API requests, serve the index.html from dist with Server-Side SEO Injection
 const frontendDistDir = fs.existsSync(path.resolve(__dirname, '../../dist/index.html'))

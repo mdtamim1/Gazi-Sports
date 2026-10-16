@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
-import { ShoppingCart, Search, Plus, Download, Eye, RotateCcw, Truck, Clock, CheckCircle, XCircle, RefreshCw, FileText, Users, History } from 'lucide-react';
+import { ShoppingCart, Search, Plus, Download, Eye, RotateCcw, Truck, Clock, CheckCircle, XCircle, RefreshCw, FileText, Users, History, Package } from 'lucide-react';
 import { generateOrders, updateOrderStatus, addOrder, formatCurrency, formatDate, formatTime, timeAgo } from '../../mock/data';
-import { fetchOrdersFromBackend, updateOrderStatusInBackend, createOrderFromAdminInBackend, updateOrderInBackend, validateCouponCode, fetchProductsFromBackend, syncOrdersInBackend, assignOrderInBackend, fetchActiveEmployees, fetchOrderHistory, invalidateOrdersCache } from '../../services/api';
+import { fetchOrdersFromBackend, updateOrderStatusInBackend, createOrderFromAdminInBackend, updateOrderInBackend, validateCouponCode, fetchProductsFromBackend, syncOrdersInBackend, assignOrderInBackend, fetchActiveEmployees, fetchOrderHistory, invalidateOrdersCache, steadfastEntryInBackend } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { BD_DISTRICTS, normalizeDistrict } from '../../utils/bangladeshLocations';
 
@@ -51,6 +51,10 @@ export default function Orders() {
   const [reassigningOrderId, setReassigningOrderId] = useState<string | null>(null);
   const [orderHistory, setOrderHistory] = useState<any[]>([]);
   const isAdmin = user?.role === 'Super Admin' || user?.role === 'Admin';
+
+  // Steadfast Courier Entry state
+  const [steadfastLoadingId, setSteadfastLoadingId] = useState<string | null>(null);
+  const [steadfastToast, setSteadfastToast] = useState<{ orderId: string; msg: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   useEffect(() => {
     if (isAdmin) {
@@ -165,6 +169,36 @@ export default function Orders() {
 
   const [productSearch, setProductSearch] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Handle Steadfast courier entry for a single shipped order
+  const handleSteadfastEntry = async (order: any) => {
+    if (steadfastLoadingId) return;
+    setSteadfastLoadingId(order.id);
+    setSteadfastToast(null);
+    const result = await steadfastEntryInBackend(order.id);
+    setSteadfastLoadingId(null);
+    if (result.status === 'success') {
+      // Mark the order as courier-entered in local state
+      setOrders(prev => prev.map(o =>
+        o.id === order.id
+          ? { ...o, steadfast_entry_done: true, steadfast_tracking_code: result.data?.tracking_code }
+          : o
+      ));
+      if (editingOrder && editingOrder.id === order.id) {
+        setEditingOrder({ ...editingOrder, steadfast_entry_done: true, steadfast_tracking_code: result.data?.tracking_code });
+        fetchOrderHistory(order.id).then(setOrderHistory).catch(console.error);
+      }
+      invalidateOrdersCache();
+      setSteadfastToast({ orderId: order.id, msg: `✅ Courier Entry OK! Tracking: ${result.data?.tracking_code || 'N/A'}`, type: 'success' });
+      setTimeout(() => setSteadfastToast(null), 6000);
+    } else if (result.status === 'already_done') {
+      setSteadfastToast({ orderId: order.id, msg: `ℹ️ Already submitted. Tracking: ${result.data?.tracking_code || 'N/A'}`, type: 'info' });
+      setTimeout(() => setSteadfastToast(null), 4000);
+    } else {
+      setSteadfastToast({ orderId: order.id, msg: `❌ ${result.message || 'Steadfast submission failed'}`, type: 'error' });
+      setTimeout(() => setSteadfastToast(null), 6000);
+    }
+  };
 
   const openCreateModal = () => {
     setModalMode('create');
@@ -1265,8 +1299,59 @@ export default function Orders() {
                       )}
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: '4px' }}>
+                      <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                         <button className="btn btn-ghost btn-sm" onClick={() => openEditModal(order)}><Eye size={14} /></button>
+                        {filterType === 'shipped' && (
+                          <button
+                            title={order.steadfast_entry_done ? `Already submitted — Tracking: ${order.steadfast_tracking_code || 'N/A'}` : 'Submit to Steadfast Courier'}
+                            disabled={!!order.steadfast_entry_done || steadfastLoadingId === order.id}
+                            onClick={() => handleSteadfastEntry(order)}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '4px 8px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              borderRadius: '6px',
+                              border: 'none',
+                              cursor: order.steadfast_entry_done || steadfastLoadingId === order.id ? 'not-allowed' : 'pointer',
+                              background: order.steadfast_entry_done
+                                ? 'rgba(16, 185, 129, 0.15)'
+                                : steadfastLoadingId === order.id
+                                  ? 'rgba(249, 115, 22, 0.2)'
+                                  : 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                              color: order.steadfast_entry_done
+                                ? '#10b981'
+                                : steadfastLoadingId === order.id
+                                  ? '#f97316'
+                                  : '#fff',
+                              boxShadow: order.steadfast_entry_done || steadfastLoadingId === order.id
+                                ? 'none'
+                                : '0 2px 8px rgba(249, 115, 22, 0.4)',
+                              transition: 'all 0.2s ease',
+                              opacity: order.steadfast_entry_done ? 0.7 : 1,
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {steadfastLoadingId === order.id ? (
+                              <>
+                                <span style={{ width: '10px', height: '10px', border: '2px solid rgba(249,115,22,0.4)', borderTopColor: '#f97316', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
+                                Sending...
+                              </>
+                            ) : order.steadfast_entry_done ? (
+                              <>
+                                <CheckCircle size={10} />
+                                Courier Entry ✓
+                              </>
+                            ) : (
+                              <>
+                                <Package size={10} />
+                                Courier Entry
+                              </>
+                            )}
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1281,6 +1366,48 @@ export default function Orders() {
         </div>
       </div>
 
+      {/* Steadfast Toast Notification */}
+      {steadfastToast && (
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          zIndex: 9999,
+          maxWidth: '420px',
+          padding: '14px 20px',
+          borderRadius: '12px',
+          fontWeight: 600,
+          fontSize: '13px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          animation: 'slideInUp 0.3s ease',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          background: steadfastToast.type === 'success'
+            ? 'linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(5,150,105,0.1) 100%)'
+            : steadfastToast.type === 'error'
+              ? 'linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.1) 100%)'
+              : 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(79,70,229,0.1) 100%)',
+          border: steadfastToast.type === 'success'
+            ? '1px solid rgba(16,185,129,0.3)'
+            : steadfastToast.type === 'error'
+              ? '1px solid rgba(239,68,68,0.3)'
+              : '1px solid rgba(99,102,241,0.3)',
+          color: steadfastToast.type === 'success' ? '#34d399'
+            : steadfastToast.type === 'error' ? '#f87171'
+            : '#a5b4fc',
+        }}>
+          <span style={{ fontSize: '16px' }}>
+            {steadfastToast.type === 'success' ? '✅' : steadfastToast.type === 'error' ? '❌' : 'ℹ️'}
+          </span>
+          <span>{steadfastToast.msg}</span>
+          <button
+            onClick={() => setSteadfastToast(null)}
+            style={{ background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer', opacity: 0.7, marginLeft: 'auto', fontSize: '16px', padding: '0 4px' }}
+          >✕</button>
+        </div>
+      )}
+
       {/* Detail and Create Modal */}
       {modalOpen && (
         <div className="modal-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.7)' }}>
@@ -1292,6 +1419,40 @@ export default function Orders() {
                 <Plus size={18} /> {modalMode === 'create' ? 'Create Order' : `Edit Order - ${formInvoice}`}
               </h3>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                {modalMode === 'edit' && formStatus === 'shipped' && (
+                  <button
+                    type="button"
+                    title={editingOrder?.steadfast_entry_done ? `Steadfast Tracking: ${editingOrder.steadfast_tracking_code || 'N/A'}` : 'Submit to Steadfast Courier'}
+                    disabled={!!editingOrder?.steadfast_entry_done || (editingOrder ? steadfastLoadingId === editingOrder.id : false)}
+                    onClick={() => editingOrder && handleSteadfastEntry(editingOrder)}
+                    className="btn btn-sm"
+                    style={{
+                      background: editingOrder?.steadfast_entry_done
+                        ? 'rgba(16, 185, 129, 0.15)'
+                        : 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                      border: editingOrder?.steadfast_entry_done ? '1px solid rgba(16, 185, 129, 0.3)' : 'none',
+                      color: editingOrder?.steadfast_entry_done ? '#10b981' : '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: editingOrder?.steadfast_entry_done || (editingOrder && steadfastLoadingId === editingOrder.id) ? 'not-allowed' : 'pointer',
+                      fontWeight: 600,
+                      boxShadow: editingOrder?.steadfast_entry_done ? 'none' : '0 2px 8px rgba(249, 115, 22, 0.4)',
+                    }}
+                  >
+                    {editingOrder && steadfastLoadingId === editingOrder.id ? (
+                      'Sending...'
+                    ) : editingOrder?.steadfast_entry_done ? (
+                      <>
+                        <CheckCircle size={14} /> Tracking: {editingOrder.steadfast_tracking_code || 'Recorded'}
+                      </>
+                    ) : (
+                      <>
+                        <Package size={14} /> Courier Entry
+                      </>
+                    )}
+                  </button>
+                )}
                 {modalMode === 'edit' && (
                   <button
                     type="button"
@@ -1686,6 +1847,10 @@ export default function Orders() {
                           description = log.new_value 
                             ? `Note: "${log.new_value}"` 
                             : 'Shop note was cleared.';
+                        } else if (log.action_type === 'steadfast_entry') {
+                          dotColor = '#f97316'; // orange for Steadfast
+                          eventTitle = 'Steadfast Courier Entry';
+                          description = `Submitted to Steadfast Courier. ${log.new_value || ''}`;
                         }
 
                         return (

@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
-import { Package, Search, Plus, Download, Edit, Trash2, AlertCircle, Grid, List as ListIcon, Star, X, RefreshCw, CheckCircle, Upload, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Package, Search, Plus, Download, Edit, Trash2, AlertCircle, Grid, List as ListIcon, X, RefreshCw, CheckCircle, Upload, ChevronLeft, ChevronRight, Share2, Copy, Check, ExternalLink } from 'lucide-react';
 import { useStorefrontConfig, type ProductConfig } from '../../store/storefrontConfig';
 import { convertToWebP } from '../../utils/imageCdn';
 import { formatCurrency } from '../../mock/data';
-import { createProductInBackend, updateProductInBackend, deleteProductFromBackend, fetchProductsFromBackend, forceFetchProductsFromBackend } from '../../services/api';
+import { createProductInBackend, updateProductInBackend, deleteProductFromBackend, forceFetchProductsFromBackend } from '../../services/api';
 import '../storefront-manager/storefront-manager.css';
 
 const cleanText = (str?: string) => {
@@ -16,9 +16,21 @@ const cleanText = (str?: string) => {
     .replace(/&#8217;/g, "'")
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
+    .replace(/ðŸ“ˆ/g, '📈')
+    .replace(/âœ¨/g, '✨')
+    .replace(/ðŸ“¢/g, '📢')
+    .replace(/ðŸ“¦/g, '📦')
+    .replace(/ðŸ” /g, '🔍')
+    .replace(/ðŸŽ /g, '🎁')
     .replace(/â€¢/g, '•')
     .replace(/â€¹/g, '‹')
-    .replace(/â€º/g, '›');
+    .replace(/â€º/g, '›')
+    .replace(/â€”/g, '—')
+    .replace(/â€“/g, '–')
+    .replace(/â€™/g, "'")
+    .replace(/â€˜/g, "'")
+    .replace(/â€œ/g, '"')
+    .replace(/â€/g, '"');
 };
 
 export default function Products() {
@@ -32,11 +44,12 @@ export default function Products() {
   const [sortBy, setSortBy] = useState('name');
   
   // Modals state
+  const [showCatalogModal, setShowCatalogModal] = useState(false);
+  const [copiedFeed, setCopiedFeed] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [tempProduct, setTempProduct] = useState<ProductConfig | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [editorTab, setEditorTab] = useState<'basic' | 'inventory' | 'media' | 'features'>('basic');
-  const [customOptionInput, setCustomOptionInput] = useState('');
   const [sizesInput, setSizesInput] = useState('');
   const [colorsInput, setColorsInput] = useState('');
   const [weightsInput, setWeightsInput] = useState('');
@@ -108,7 +121,7 @@ export default function Products() {
         }
         // If refetch fails, keep the optimistic removal from above
       } else {
-        // Backend delete failed â€” restore the product back
+        // Backend delete failed — restore the product back
         setConfig(prev => ({ ...prev, products: products }));
         alert(`Failed to delete product: ${result.message || 'Unknown error'}`);
       }
@@ -452,6 +465,7 @@ export default function Products() {
           <p className="page-subtitle">Manage inventory, pricing, and product catalogs</p>
         </div>
         <div className="page-header-actions">
+          <button className="btn btn-secondary" onClick={() => setShowCatalogModal(true)} style={{ borderColor: 'rgba(24, 119, 242, 0.4)', color: '#1877F2' }}><Share2 size={16} /> Meta Catalog</button>
           <button className="btn btn-secondary" onClick={() => setShowBulkModal(true)}><Download size={16} /> Bulk Upload</button>
           <button className="btn btn-primary" onClick={openAddEditor}><Plus size={16} /> Add Product</button>
         </div>
@@ -797,7 +811,7 @@ export default function Products() {
                                 try {
                                   const webpBase64 = await convertToWebP(file);
                                   setTempProduct({ ...tempProduct, image: webpBase64 });
-                                } catch (err) {
+                                } catch {
                                   alert('Failed to convert image.');
                                 }
                               }
@@ -837,7 +851,7 @@ export default function Products() {
                                       const newGallery = [...tempProduct.gallery];
                                       newGallery[idx] = webpBase64;
                                       setTempProduct({ ...tempProduct, gallery: newGallery });
-                                    } catch (err) {
+                                    } catch {
                                       alert('Failed to convert image.');
                                     }
                                   }
@@ -872,7 +886,7 @@ export default function Products() {
                                 try {
                                   const webpBase64 = await convertToWebP(file);
                                   setTempProduct({ ...tempProduct, photoContent: webpBase64 });
-                                } catch (err) {
+                                } catch {
                                   alert('Failed to convert image.');
                                 }
                               }
@@ -1129,6 +1143,70 @@ export default function Products() {
                 <button type="submit" className="btn btn-primary">Simulate Upload</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* META CATALOG FEED MODAL */}
+      {showCatalogModal && (
+        <div className="modal-overlay" style={{ display: 'flex' }}>
+          <div className="modal" style={{ maxWidth: '520px' }}>
+            <div className="modal-header">
+              <span className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Share2 size={18} style={{ color: '#1877F2' }} /> Meta / Facebook Product Catalog Feed
+              </span>
+              <button onClick={() => setShowCatalogModal(false)} style={{ color: 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer' }}><X size={18} /></button>
+            </div>
+            <div className="modal-body">
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '14px', lineHeight: 1.5 }}>
+                আপনার ওয়েবসাইটের সকল প্রোডাক্ট সবসময় এই লাইভ ফিডে অটোমেটিক আপডেট থাকে। মেটা কমার্স ম্যানেজার (Facebook Commerce Manager)-এ এই লিঙ্কটি একবার সেট করে দিলেই নতুন প্রোডাক্ট আপলোড বা এডিটের সাথে সাথে ফেসবুক ক্যাটালগও নিজে থেকে আপডেট হয়ে যাবে।
+              </p>
+
+              <div className="form-group" style={{ marginBottom: '16px' }}>
+                <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>XML Catalog Feed URL (Recommended)</span>
+                  <span className="badge badge-success" style={{ fontSize: '10px' }}>Auto-Sync</span>
+                </label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input 
+                    type="text" 
+                    readOnly 
+                    className="form-input" 
+                    value={`${window.location.origin.includes('localhost') ? window.location.origin : 'https://gazisports24.com'}/facebook-feed.xml`} 
+                    style={{ fontFamily: 'var(--font-mono)', fontSize: '12px' }}
+                  />
+                  <button 
+                    type="button" 
+                    className="btn btn-primary"
+                    style={{ background: '#1877F2', borderColor: '#1877F2', whiteSpace: 'nowrap' }}
+                    onClick={() => {
+                      const url = `${window.location.origin.includes('localhost') ? window.location.origin : 'https://gazisports24.com'}/facebook-feed.xml`;
+                      navigator.clipboard.writeText(url);
+                      setCopiedFeed(true);
+                      setTimeout(() => setCopiedFeed(false), 2000);
+                    }}
+                  >
+                    {copiedFeed ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ background: 'var(--bg-secondary)', padding: '12px', borderRadius: '8px', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>💡 কিভাবে অ্যাড রান করবেন?</div>
+                ১. <b>Commerce Manager</b> ➔ Data Sources ➔ Add items ➔ <b>Scheduled Feed</b> এ এই লিংকটি দিন।<br />
+                ২. <b>Ads Manager</b>-এ Carousel বা Collection Ads বানানোর সময় ক্যাটালগ থেকে প্রোডাক্ট বা প্রোডাক্ট সেট নির্বাচন করুন।
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button 
+                type="button" 
+                className="btn btn-secondary" 
+                onClick={() => window.open(`${window.location.origin.includes('localhost') ? window.location.origin : 'https://gazisports24.com'}/facebook-feed.xml`, '_blank')}
+              >
+                <ExternalLink size={14} /> View XML Feed
+              </button>
+              <button type="button" className="btn btn-primary" onClick={() => setShowCatalogModal(false)}>Done</button>
+            </div>
           </div>
         </div>
       )}

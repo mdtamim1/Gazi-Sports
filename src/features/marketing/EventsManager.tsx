@@ -588,7 +588,7 @@ export default function EventsManager() {
                         {event.reward_coupon_code}
                       </span>
                       <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                        ðŸŽ {event.discount_value}% Discount
+                        🎁 {event.discount_value}% Discount
                       </span>
                     </div>
                   </td>

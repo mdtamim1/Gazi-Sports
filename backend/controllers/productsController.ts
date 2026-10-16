@@ -175,9 +175,9 @@ export const syncStorefrontConfigProducts = (): Promise<void> => {
             }
             const freshProducts = rows.map(r => {
               let features = [], specs = [], sizes = [];
-              try { if (r.features) features = JSON.parse(r.features); } catch (e) {}
-              try { if (r.specs) specs = JSON.parse(r.specs); } catch (e) {}
-              try { if (r.sizes) sizes = JSON.parse(r.sizes); } catch (e) {}
+              try { if (r.features) features = JSON.parse(r.features); } catch {}
+              try { if (r.specs) specs = JSON.parse(r.specs); } catch {}
+              try { if (r.sizes) sizes = JSON.parse(r.sizes); } catch {}
               const gallery = galleryMap[r.id] || [];
               const inStock = r.in_stock === 1 || r.in_stock === true || (r.stock ?? 0) > 0;
               return {
@@ -252,9 +252,9 @@ export const getProducts = async (req: Request, res: Response) => {
         let features = [];
         let specs = [];
         let sizes = [];
-        try { if (row.features) features = JSON.parse(row.features); } catch (e) {}
-        try { if (row.specs) specs = JSON.parse(row.specs); } catch (e) {}
-        try { if (row.sizes) sizes = JSON.parse(row.sizes); } catch (e) {}
+        try { if (row.features) features = JSON.parse(row.features); } catch {}
+        try { if (row.specs) specs = JSON.parse(row.specs); } catch {}
+        try { if (row.sizes) sizes = JSON.parse(row.sizes); } catch {}
 
         // Parse gallery from GROUP_CONCAT result
         const gallery = row.gallery_urls
@@ -654,53 +654,198 @@ export const getFacebookFeed = (req: Request, res: Response) => {
     });
   };
 
-  db.all(`SELECT * FROM products WHERE published = 1`, [], (err, rows) => {
+  const productQuery = `
+    SELECT id, name, slug, sku, brand, category, price, original_price, image, description, stock, in_stock, published 
+    FROM products 
+    WHERE published = 1 
+    ORDER BY id DESC
+  `;
+
+  db.all(productQuery, [], (err, rows: any[]) => {
     if (err) {
-      console.error(err);
+      console.error('Error generating Facebook feed:', err);
       return res.status(500).send('Database error');
     }
-    const domain = process.env.STORE_URL || 'https://gazisports24.com';
-    const storeName = process.env.STORE_NAME || 'Gazi Sports';
-    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    xml += `<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">\n`;
-    xml += `  <channel>\n`;
-    xml += `    <title>${storeName} - Facebook Catalog Feed</title>\n`;
-    xml += `    <link>${domain}</link>\n`;
-    xml += `    <description>Dynamic Product Catalog Feed for Facebook Ads</description>\n`;
 
-    rows.forEach((p: any) => {
-      const rawDesc = p.description || `${p.name} - Premium sports item from ${storeName}.`;
-      const cleanDesc = rawDesc.replace(/<[^>]*>/g, ''); // strip HTML tags
-      
-      let imageLink = p.image || '';
-      if (imageLink && !imageLink.startsWith('http')) {
-        imageLink = `${domain}${imageLink.startsWith('/') ? '' : '/'}${imageLink}`;
-      }
+    db.all(`SELECT product_id, image_url FROM product_gallery`, [], (_gErr, galleryRows: any[]) => {
+      const galleryMap: Record<string, string[]> = {};
+      (galleryRows || []).forEach(r => {
+        if (!galleryMap[r.product_id]) galleryMap[r.product_id] = [];
+        if (r.image_url) galleryMap[r.product_id].push(r.image_url);
+      });
 
-      const inStock = p.in_stock === 1 || p.stock > 0;
-      const availability = inStock ? 'in stock' : 'out of stock';
-      const priceFormatted = `${p.price} BDT`;
+      const domain = process.env.STORE_URL || 'https://gazisports24.com';
+      const storeName = process.env.STORE_NAME || 'Gazi Sports 24';
 
-      xml += `    <item>\n`;
-      xml += `      <g:id>${escapeXml(p.id)}</g:id>\n`;
-      xml += `      <g:title>${escapeXml(p.name)}</g:title>\n`;
-      xml += `      <g:description>${escapeXml(cleanDesc)}</g:description>\n`;
-      xml += `      <g:link>${escapeXml(`${domain}/product/${p.id}`)}</g:link>\n`;
-      xml += `      <g:image_link>${escapeXml(imageLink)}</g:image_link>\n`;
-      xml += `      <g:brand>${escapeXml(p.brand || 'AURA Sports')}</g:brand>\n`;
-      xml += `      <g:condition>new</g:condition>\n`;
-      xml += `      <g:availability>${escapeXml(availability)}</g:availability>\n`;
-      xml += `      <g:price>${escapeXml(priceFormatted)}</g:price>\n`;
-      if (p.category) {
-        xml += `      <g:google_product_category>${escapeXml(p.category)}</g:google_product_category>\n`;
-      }
-      xml += `    </item>\n`;
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+      xml += `<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">\n`;
+      xml += `  <channel>\n`;
+      xml += `    <title>${escapeXml(storeName)} - Product Catalog Feed</title>\n`;
+      xml += `    <link>${domain}</link>\n`;
+      xml += `    <description>Dynamic Product Catalog Feed for Meta Facebook Ads &amp; Commerce Manager</description>\n`;
+
+      (rows || []).forEach((p: any) => {
+        const rawDesc = p.description || `${p.name} - Premium sports item from ${storeName}.`;
+        const cleanDesc = rawDesc.replace(/<[^>]*>/g, '').trim().substring(0, 5000);
+        
+        let imageLink = p.image || '';
+        if (imageLink && !imageLink.startsWith('http')) {
+          imageLink = `${domain}${imageLink.startsWith('/') ? '' : '/'}${imageLink}`;
+        }
+
+        // Gallery additional images
+        const galleryList: string[] = galleryMap[p.id] || [];
+
+        const inStock = p.in_stock === 1 || (p.stock !== undefined ? Number(p.stock) > 0 : true);
+        const availability = inStock ? 'in stock' : 'out of stock';
+
+        // Price & Sale Price formatting
+        const currentPrice = Number(p.price) || 0;
+        const origPrice = Number(p.original_price) || 0;
+        const hasDiscount = origPrice > currentPrice && currentPrice > 0;
+
+        const basePriceFormatted = hasDiscount ? `${origPrice} BDT` : `${currentPrice} BDT`;
+        const salePriceFormatted = hasDiscount ? `${currentPrice} BDT` : null;
+
+        const productLink = p.slug 
+          ? `${domain}/product/${encodeURIComponent(p.slug)}` 
+          : `${domain}/product/${p.id}`;
+
+        xml += `    <item>\n`;
+        xml += `      <g:id>${escapeXml(p.id)}</g:id>\n`;
+        xml += `      <g:title>${escapeXml(p.name)}</g:title>\n`;
+        xml += `      <g:description>${escapeXml(cleanDesc)}</g:description>\n`;
+        xml += `      <g:link>${escapeXml(productLink)}</g:link>\n`;
+        xml += `      <g:image_link>${escapeXml(imageLink)}</g:image_link>\n`;
+
+        galleryList.slice(0, 10).forEach(gUrl => {
+          let fullGUrl = gUrl.trim();
+          if (fullGUrl && !fullGUrl.startsWith('http')) {
+            fullGUrl = `${domain}${fullGUrl.startsWith('/') ? '' : '/'}${fullGUrl}`;
+          }
+          if (fullGUrl && fullGUrl !== imageLink) {
+            xml += `      <g:additional_image_link>${escapeXml(fullGUrl)}</g:additional_image_link>\n`;
+          }
+        });
+
+        xml += `      <g:brand>${escapeXml(p.brand || storeName)}</g:brand>\n`;
+        xml += `      <g:condition>new</g:condition>\n`;
+        xml += `      <g:availability>${escapeXml(availability)}</g:availability>\n`;
+        xml += `      <g:price>${escapeXml(basePriceFormatted)}</g:price>\n`;
+        if (salePriceFormatted) {
+          xml += `      <g:sale_price>${escapeXml(salePriceFormatted)}</g:sale_price>\n`;
+        }
+        if (p.category) {
+          xml += `      <g:google_product_category>Sporting Goods</g:google_product_category>\n`;
+          xml += `      <g:product_type>${escapeXml(p.category)}</g:product_type>\n`;
+        }
+        xml += `    </item>\n`;
+      });
+
+      xml += `  </channel>\n`;
+      xml += `</rss>\n`;
+
+      res.header('Content-Type', 'application/xml; charset=utf-8');
+      res.header('Cache-Control', 'public, max-age=300'); // 5 minutes cache
+      res.send(xml);
     });
+  });
+};
 
-    xml += `  </channel>\n`;
-    xml += `</rss>\n`;
+export const getFacebookCsvFeed = (req: Request, res: Response) => {
+  const escapeCsv = (str: any): string => {
+    if (str === null || str === undefined) return '""';
+    const clean = String(str).replace(/"/g, '""').replace(/[\r\n]+/g, ' ');
+    return `"${clean}"`;
+  };
 
-    res.header('Content-Type', 'text/xml; charset=utf-8');
-    res.send(xml);
+  const productQuery = `
+    SELECT id, name, slug, sku, brand, category, price, original_price, image, description, stock, in_stock, published 
+    FROM products 
+    WHERE published = 1 
+    ORDER BY id DESC
+  `;
+
+  db.all(productQuery, [], (err, rows: any[]) => {
+    if (err) {
+      console.error('Error generating CSV feed:', err);
+      return res.status(500).send('Database error');
+    }
+
+    db.all(`SELECT product_id, image_url FROM product_gallery`, [], (_gErr, galleryRows: any[]) => {
+      const galleryMap: Record<string, string[]> = {};
+      (galleryRows || []).forEach(r => {
+        if (!galleryMap[r.product_id]) galleryMap[r.product_id] = [];
+        if (r.image_url) galleryMap[r.product_id].push(r.image_url);
+      });
+
+      const domain = process.env.STORE_URL || 'https://gazisports24.com';
+      const storeName = process.env.STORE_NAME || 'Gazi Sports 24';
+
+      const headers = [
+        'id', 'title', 'description', 'availability', 'condition',
+        'price', 'sale_price', 'link', 'image_link', 'additional_image_link', 'brand',
+        'google_product_category', 'product_type'
+      ];
+
+      let csv = headers.join(',') + '\n';
+
+      (rows || []).forEach((p: any) => {
+        const rawDesc = p.description || `${p.name} - Premium sports item from ${storeName}.`;
+        const cleanDesc = rawDesc.replace(/<[^>]*>/g, '').trim().substring(0, 5000);
+
+        let imageLink = p.image || '';
+        if (imageLink && !imageLink.startsWith('http')) {
+          imageLink = `${domain}${imageLink.startsWith('/') ? '' : '/'}${imageLink}`;
+        }
+
+        const galleryList: string[] = (galleryMap[p.id] || [])
+          .map(u => {
+            let full = u.trim();
+            if (full && !full.startsWith('http')) {
+              full = `${domain}${full.startsWith('/') ? '' : '/'}${full}`;
+            }
+            return full;
+          })
+          .filter(u => u && u !== imageLink);
+
+        const inStock = p.in_stock === 1 || (p.stock !== undefined ? Number(p.stock) > 0 : true);
+        const availability = inStock ? 'in stock' : 'out of stock';
+
+        const currentPrice = Number(p.price) || 0;
+        const origPrice = Number(p.original_price) || 0;
+        const hasDiscount = origPrice > currentPrice && currentPrice > 0;
+
+        const basePrice = hasDiscount ? `${origPrice} BDT` : `${currentPrice} BDT`;
+        const salePrice = hasDiscount ? `${currentPrice} BDT` : '';
+
+        const productLink = p.slug 
+          ? `${domain}/product/${encodeURIComponent(p.slug)}` 
+          : `${domain}/product/${p.id}`;
+
+        const row = [
+          escapeCsv(p.id),
+          escapeCsv(p.name),
+          escapeCsv(cleanDesc),
+          escapeCsv(availability),
+          escapeCsv('new'),
+          escapeCsv(basePrice),
+          escapeCsv(salePrice),
+          escapeCsv(productLink),
+          escapeCsv(imageLink),
+          escapeCsv(galleryList.slice(0, 5).join(',')),
+          escapeCsv(p.brand || storeName),
+          escapeCsv('Sporting Goods'),
+          escapeCsv(p.category || 'Sports')
+        ];
+
+        csv += row.join(',') + '\n';
+      });
+
+      res.header('Content-Type', 'text/csv; charset=utf-8');
+      res.header('Content-Disposition', 'inline; filename="facebook-catalog-feed.csv"');
+      res.header('Cache-Control', 'public, max-age=300');
+      res.send(csv);
+    });
   });
 };
