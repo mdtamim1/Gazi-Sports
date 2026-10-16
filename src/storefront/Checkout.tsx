@@ -538,7 +538,7 @@ export default function Checkout() {
 
                   <ol style={{ paddingLeft: '20px', fontSize: '0.82rem', lineHeight: 1.6, color: 'var(--sf-text-secondary)', margin: '0 0 14px 0' }}>
                     <li>Open your <b>{paymentMethod === 'bkash' ? 'bKash' : 'Nagad'}</b> app or dial <b>{paymentMethod === 'bkash' ? '*247#' : '*167#'}</b> and select <b>Send Money</b>.</li>
-                    <li>Send to number: <b style={{ fontSize: '0.95rem', color: paymentMethod === 'bkash' ? '#e11d48' : '#ea580c', background: 'white', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--sf-border)' }}>{paymentMethod === 'bkash' ? '01700000000' : '01800000000'}</b> (Personal)</li>
+                    <li>Send to number: <b style={{ fontSize: '0.95rem', color: paymentMethod === 'bkash' ? '#e11d48' : '#ea580c', background: 'white', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--sf-border)' }}>{paymentMethod === 'bkash' ? (config.contactInfo?.bkashNumber || '01700000000') : (config.contactInfo?.nagadNumber || '01800000000')}</b> (Personal)</li>
                     <li>Send the total payable amount: <b style={{ color: 'var(--sf-text-primary)' }}>৳{total.toFixed(2)}</b>.</li>
                     <li>After sending, enter your <b>Transaction ID (TrxID)</b> and <b>Sender Phone number</b> below.</li>
                   </ol>

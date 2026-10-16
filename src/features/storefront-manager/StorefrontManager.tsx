@@ -2,7 +2,8 @@ import { useState } from 'react';
 import {
   Image, Megaphone, Grid3X3, ShoppingBag, Link2, Columns3,
   Palette, Award, Truck, RotateCcw, Save, Plus, Trash2,
-  ChevronUp, ChevronDown, Edit3, Eye, EyeOff, X, Check, Upload
+  ChevronUp, ChevronDown, Edit3, Eye, EyeOff, X, Check, Upload,
+  CreditCard
 } from 'lucide-react';
 import {
   useStorefrontConfig,
@@ -1342,6 +1343,44 @@ function BrandingSection({ config, updateConfig }: SectionProps) {
             />
             <div style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
               When set, a "Find Us on Google Maps" link will appear in the footer. Leave empty to hide it.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="sfm-card">
+        <div className="sfm-card-header">
+          <div className="sfm-card-title"><CreditCard size={16} /> Send Money Payment Numbers (bKash & Nagad)</div>
+        </div>
+        <div className="sfm-form-grid">
+          <div className="sfm-form-group">
+            <label className="sfm-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#e11d48' }} />
+              bKash Number (Personal / Send Money)
+            </label>
+            <input 
+              className="sfm-input" 
+              value={c.bkashNumber || ''} 
+              onChange={e => updateC('bkashNumber', e.target.value)} 
+              placeholder="e.g. 01700000000" 
+            />
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+              Customers will see this number during Checkout when selecting bKash Send Money.
+            </div>
+          </div>
+          <div className="sfm-form-group">
+            <label className="sfm-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: '#ea580c' }} />
+              Nagad Number (Personal / Send Money)
+            </label>
+            <input 
+              className="sfm-input" 
+              value={c.nagadNumber || ''} 
+              onChange={e => updateC('nagadNumber', e.target.value)} 
+              placeholder="e.g. 01800000000" 
+            />
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+              Customers will see this number during Checkout when selecting Nagad Send Money.
             </div>
           </div>
         </div>

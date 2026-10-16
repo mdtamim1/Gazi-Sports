@@ -72,6 +72,8 @@ export interface ContactInfo {
   instagramUrl?: string;
   shopLocationMapUrl?: string;
   shopAddress?: string;
+  bkashNumber?: string;
+  nagadNumber?: string;
 }
 
 export interface StoreBranding {
@@ -224,6 +226,8 @@ const DEFAULT_CONTACT_INFO: ContactInfo = {
   instagramUrl: '',
   shopLocationMapUrl: '',
   shopAddress: '',
+  bkashNumber: '',
+  nagadNumber: '',
 };
 
 const DEFAULT_BRANDING: StoreBranding = {
