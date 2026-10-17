@@ -381,41 +381,51 @@ export default function Products() {
     const isActuallyInStock = (tempProduct.stock !== undefined && tempProduct.stock !== null) ? (tempProduct.stock > 0 ? tempProduct.inStock : false) : tempProduct.inStock;
     const productWithSlug = { ...tempProduct, sku: skuVal, slug: slugVal, inStock: isActuallyInStock };
 
-    try {
-      if (isAdding) {
-        const res = await createProductInBackend(productWithSlug);
-        if (res.status === 'error') {
-          alert(`Failed to publish product: ${res.message || 'Unknown error'}`);
-          return;
-        }
-        if (res.data && res.data.id) {
-          productWithSlug.id = res.data.id;
-        }
-      } else {
-        const success = await updateProductInBackend(productWithSlug.id, productWithSlug);
-        if (!success) {
-          alert("Failed to update product in backend.");
-          return;
-        }
-      }
-
-      const fresh = await forceFetchProductsFromBackend();
-      if (fresh) {
-        setConfig(prev => ({ ...prev, products: fresh }));
-      } else {
-        let updatedList: ProductConfig[];
-        if (isAdding) {
-          updatedList = [...products, productWithSlug];
-        } else {
-          updatedList = products.map(p => String(p.id) === String(productWithSlug.id) ? productWithSlug : p);
-        }
-        setConfig(prev => ({ ...prev, products: updatedList }));
-      }
-      setTempProduct(null);
-    } catch (err: any) {
-      console.error("Backend synchronisation error:", err);
-      alert(`Error saving product: ${err.message || 'Network error'}`);
+    // ✅ OPTIMISTIC UPDATE: immediately update UI and close modal (no freeze/latency)
+    let optimisticList: ProductConfig[];
+    if (isAdding) {
+      optimisticList = [...products, productWithSlug];
+    } else {
+      optimisticList = products.map(p => String(p.id) === String(productWithSlug.id) ? productWithSlug : p);
     }
+    setConfig(prev => ({ ...prev, products: optimisticList }));
+    setTempProduct(null); // close modal immediately - no more freeze!
+
+    // Background sync: fire-and-forget, does NOT block the UI
+    (async () => {
+      try {
+        if (isAdding) {
+          const res = await createProductInBackend(productWithSlug);
+          if (res.status === 'error') {
+            console.error('Failed to create product in backend:', res.message);
+            // Silently revert optimistic add
+            setConfig(prev => ({ ...prev, products: products }));
+            alert(`Failed to publish product: ${res.message || 'Unknown error'}`);
+            return;
+          }
+          // Update ID if backend assigned a new one
+          if (res.data && res.data.id && String(res.data.id) !== String(productWithSlug.id)) {
+            setConfig(prev => ({
+              ...prev,
+              products: prev.products.map(p =>
+                String(p.id) === String(productWithSlug.id) ? { ...p, id: res.data.id } : p
+              )
+            }));
+          }
+        } else {
+          const success = await updateProductInBackend(productWithSlug.id, productWithSlug);
+          if (!success) {
+            console.error('Failed to update product in backend.');
+          }
+        }
+        // Silent background refresh to stay in sync (no await blocking UI)
+        forceFetchProductsFromBackend().then(fresh => {
+          if (fresh) setConfig(prev => ({ ...prev, products: fresh }));
+        });
+      } catch (err: any) {
+        console.error('Background sync error:', err);
+      }
+    })();
   };
 
   // Sorting & Filtering memo

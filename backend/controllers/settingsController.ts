@@ -24,6 +24,8 @@ const keyMapToCamel: Record<string, string> = {
   shipping_redx: 'shippingRedx',
   cache_driver: 'cacheDriver',
   cache_ttl: 'cacheTTL',
+  steadfast_api_key: 'steadfastApiKey',
+  steadfast_secret_key: 'steadfastSecretKey',
 };
 
 const keyMapToSnake: Record<string, string> = {
@@ -46,6 +48,8 @@ const keyMapToSnake: Record<string, string> = {
   shippingRedx: 'shipping_redx',
   cacheDriver: 'cache_driver',
   cacheTTL: 'cache_ttl',
+  steadfastApiKey: 'steadfast_api_key',
+  steadfastSecretKey: 'steadfast_secret_key',
 };
 
 export const getSettings = (req: Request, res: Response) => {
@@ -78,6 +82,8 @@ export const getSettings = (req: Request, res: Response) => {
       cacheHitRate: 94.2,
       cacheSize: '2.4 GB',
       cacheTTL: 3600,
+      steadfastApiKey: process.env.STEADFAST_API_KEY || 'fpggi3zhnga1t85ipmpu3h1giz7ijv5c',
+      steadfastSecretKey: process.env.STEADFAST_SECRET_KEY || 'o2trao0astdvtkctkwyg7o3j',
     };
 
     if (rows && rows.length > 0) {

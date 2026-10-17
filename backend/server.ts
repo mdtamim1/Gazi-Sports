@@ -41,6 +41,8 @@ import eventRoutes from './routes/events';
 import securityRoutes from './routes/security';
 
 dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 import { rateLimit } from 'express-rate-limit';
 

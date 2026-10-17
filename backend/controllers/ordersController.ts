@@ -217,7 +217,7 @@ export const createOrder = (req: Request, res: Response) => {
       if (decoded) {
         initialStatus = 'processing';
       }
-    } catch (_e) {
+    } catch {
       // invalid token, default to pending_sync
     }
   }
@@ -808,118 +808,244 @@ export const steadfastCourierEntry = async (req: Request, res: Response) => {
       });
     }
 
-    const STEADFAST_API_KEY = process.env.STEADFAST_API_KEY;
-    const STEADFAST_SECRET_KEY = process.env.STEADFAST_SECRET_KEY;
+    // Resolve Steadfast credentials:
+    // 1. system_settings from DB
+    // 2. process.env
+    // 3. Built-in defaults
+    db.all(
+      `SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('steadfast_api_key', 'steadfast_secret_key')`,
+      [],
+      async (settingsErr, settingRows: any[]) => {
+        let activeApiKey = process.env.STEADFAST_API_KEY || process.env.VITE_STEADFAST_API_KEY || 'fpggi3zhnga1t85ipmpu3h1giz7ijv5c';
+        let activeSecretKey = process.env.STEADFAST_SECRET_KEY || process.env.VITE_STEADFAST_SECRET_KEY || 'o2trao0astdvtkctkwyg7o3j';
 
-    if (!STEADFAST_API_KEY || !STEADFAST_SECRET_KEY) {
-      return res.status(500).json({ status: 'error', message: 'Steadfast API credentials not configured in server environment.' });
-    }
-
-    // Calculate COD amount (net payable)
-    const subtotal = order.subtotal || order.amount || 0;
-    const deliveryCharge = order.delivery_charge || 0;
-    const discount = order.discount || 0;
-    const paidAmount = order.paid_amount || 0;
-    const codAmount = Math.max(0, Math.round((subtotal + deliveryCharge - discount) - paidAmount));
-
-    // Clean phone number (Steadfast expects standard 11 digits e.g. 01XXXXXXXXX)
-    let cleanPhone = String(order.phone || '').trim().replace(/[^0-9]/g, '');
-    if (cleanPhone.startsWith('880')) {
-      cleanPhone = cleanPhone.slice(2);
-    }
-
-    const recipientAddress = [order.address, order.thana, order.area, order.city]
-      .filter(Boolean).join(', ') || 'Dhaka, Bangladesh';
-
-    // Build note from order products
-    db.all(`SELECT * FROM order_items WHERE order_id = ?`, [id], async (itemErr, items: any[]) => {
-      const productNote = (items || [])
-        .map((p: any) => `${p.product_name} (x${p.quantity})`)
-        .join(', ');
-
-      const note = [
-        productNote || '',
-        order.customer_note ? `Note: ${order.customer_note}` : '',
-        order.shop_note ? `Shop Note: ${order.shop_note}` : ''
-      ].filter(Boolean).join(' | ');
-
-      const payload = {
-        invoice: id,
-        recipient_name: order.customer || 'Customer',
-        recipient_phone: cleanPhone,
-        recipient_address: recipientAddress,
-        cod_amount: codAmount,
-        note: note.substring(0, 500), // Steadfast note max 500 chars
-      };
-
-      try {
-        const response = await fetch('https://portal.steadfast.com.bd/api/v1/create_order', {
-          method: 'POST',
-          headers: {
-            'Api-Key': STEADFAST_API_KEY,
-            'Secret-Key': STEADFAST_SECRET_KEY,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        });
-
-        const data: any = await response.json();
-
-        if (data.status === 200 && data.consignment) {
-          const trackingCode = data.consignment.tracking_code || data.consignment.consignment_id;
-
-          // Save tracking code and mark as done
-          db.run(
-            `UPDATE orders SET steadfast_tracking_code = ?, steadfast_entry_done = 1 WHERE id = ?`,
-            [trackingCode, id],
-            (updateErr) => {
-              if (updateErr) {
-                console.error('Failed to save Steadfast tracking code:', updateErr);
-              }
+        if (settingRows && settingRows.length > 0) {
+          settingRows.forEach(row => {
+            if (row.setting_key === 'steadfast_api_key' && row.setting_value?.trim()) {
+              activeApiKey = row.setting_value.trim();
             }
-          );
-
-          // Invalidate order cache
-          cacheService.del('orders:all').catch(console.error);
-
-          // Log history
-          const performedBy = (req as any).user ? `${(req as any).user.name} (${(req as any).user.role})` : 'Admin';
-          logOrderHistory(id, 'steadfast_entry', null, `Tracking: ${String(trackingCode || '')}`, performedBy);
-
-          return res.json({
-            status: 'success',
-            message: `Order submitted to Steadfast! Tracking: ${trackingCode}`,
-            data: {
-              tracking_code: trackingCode,
-              steadfast_entry_done: true,
-              consignment: data.consignment
+            if (row.setting_key === 'steadfast_secret_key' && row.setting_value?.trim()) {
+              activeSecretKey = row.setting_value.trim();
             }
-          });
-        } else {
-          let errMsg = data.message || '';
-          if (data.errors && typeof data.errors === 'object') {
-            const errorDetails = Object.entries(data.errors)
-              .map(([field, errList]: [string, any]) => `${field}: ${Array.isArray(errList) ? errList.join(', ') : errList}`)
-              .join('; ');
-            errMsg = errMsg ? `${errMsg} (${errorDetails})` : errorDetails;
-          } else if (typeof data.errors === 'string') {
-            errMsg = data.errors;
-          } else if (!errMsg) {
-            errMsg = JSON.stringify(data);
-          }
-          console.error('Steadfast API error:', errMsg);
-          return res.status(400).json({
-            status: 'error',
-            message: `Steadfast rejected: ${errMsg}`
           });
         }
-      } catch (fetchErr) {
-        console.error('Failed to call Steadfast API:', fetchErr);
-        return res.status(500).json({
-          status: 'error',
-          message: 'Failed to connect to Steadfast API. Please check network.'
+
+        if (!activeApiKey || !activeSecretKey) {
+          return res.status(500).json({ status: 'error', message: 'Steadfast API credentials not configured.' });
+        }
+
+        // Calculate COD amount (net payable)
+        const subtotal = order.subtotal || order.amount || 0;
+        const deliveryCharge = order.delivery_charge || 0;
+        const discount = order.discount || 0;
+        const paidAmount = order.paid_amount || 0;
+        const codAmount = Math.max(0, Math.round((subtotal + deliveryCharge - discount) - paidAmount));
+
+        // Clean phone number (Steadfast expects standard 11 digits e.g. 01XXXXXXXXX)
+        let cleanPhone = String(order.phone || '').trim().replace(/[^0-9]/g, '');
+        if (cleanPhone.startsWith('880')) {
+          cleanPhone = cleanPhone.slice(2);
+        }
+
+        const recipientAddress = [order.address, order.thana, order.area, order.city]
+          .filter(Boolean).join(', ') || 'Dhaka, Bangladesh';
+
+        // Build note from order products
+        db.all(`SELECT * FROM order_items WHERE order_id = ?`, [id], async (itemErr, items: any[]) => {
+          const productNote = (items || [])
+            .map((p: any) => `${p.product_name} (x${p.quantity})`)
+            .join(', ');
+
+          const note = [
+            productNote || '',
+            order.customer_note ? `Note: ${order.customer_note}` : '',
+            order.shop_note ? `Shop Note: ${order.shop_note}` : ''
+          ].filter(Boolean).join(' | ');
+
+          const payload = {
+            invoice: id,
+            recipient_name: order.customer || 'Customer',
+            recipient_phone: cleanPhone,
+            recipient_address: recipientAddress,
+            cod_amount: codAmount,
+            note: note.substring(0, 500), // Steadfast note max 500 chars
+          };
+
+          try {
+            // Official Steadfast Courier API endpoint
+            const response = await fetch('https://portal.packzy.com/api/v1/create_order', {
+              method: 'POST',
+              headers: {
+                'Api-Key': activeApiKey,
+                'Secret-Key': activeSecretKey,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+            });
+
+            const rawText = await response.text();
+            let data: any;
+            try {
+              data = JSON.parse(rawText);
+            } catch {
+              // Non-JSON response (e.g. plain text "Account is not active!")
+              data = { status: response.status, message: rawText.trim() };
+            }
+
+            if ((response.status === 200 || data.status === 200) && data.consignment) {
+              const trackingCode = data.consignment.tracking_code || data.consignment.consignment_id;
+
+              // Save tracking code and mark as done
+              db.run(
+                `UPDATE orders SET steadfast_tracking_code = ?, steadfast_entry_done = 1 WHERE id = ?`,
+                [trackingCode, id],
+                (updateErr) => {
+                  if (updateErr) {
+                    console.error('Failed to save Steadfast tracking code:', updateErr);
+                  }
+                }
+              );
+
+              // Invalidate order cache
+              cacheService.del('orders:all').catch(console.error);
+
+              // Log history
+              const performedBy = (req as any).user ? `${(req as any).user.name} (${(req as any).user.role})` : 'Admin';
+              logOrderHistory(id, 'steadfast_entry', null, `Tracking: ${String(trackingCode || '')}`, performedBy);
+
+              return res.json({
+                status: 'success',
+                message: `Order submitted to Steadfast! Tracking: ${trackingCode}`,
+                data: {
+                  tracking_code: trackingCode,
+                  steadfast_entry_done: true,
+                  consignment: data.consignment
+                }
+              });
+            } else {
+              let errMsg = data.message || '';
+              if (data.errors && typeof data.errors === 'object') {
+                const errorDetails = Object.entries(data.errors)
+                  .map(([field, errList]: [string, any]) => `${field}: ${Array.isArray(errList) ? errList.join(', ') : errList}`)
+                  .join('; ');
+                errMsg = errMsg ? `${errMsg} (${errorDetails})` : errorDetails;
+              } else if (typeof data.errors === 'string') {
+                errMsg = data.errors;
+              } else if (!errMsg) {
+                errMsg = rawText || `Steadfast responded with status ${response.status}`;
+              }
+              console.error('Steadfast API error:', errMsg);
+              return res.status(400).json({
+                status: 'error',
+                message: `Steadfast: ${errMsg}`
+              });
+            }
+          } catch (fetchErr: any) {
+            console.error('Failed to call Steadfast API:', fetchErr);
+            return res.status(500).json({
+              status: 'error',
+              message: `Failed to connect to Steadfast API: ${fetchErr?.message || 'Network error'}`
+            });
+          }
         });
       }
-    });
+    );
   });
+};
+
+// =============================================
+// Steadfast Courier Settings Management
+// =============================================
+export const getSteadfastSettings = (req: Request, res: Response) => {
+  db.all(
+    `SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('steadfast_api_key', 'steadfast_secret_key')`,
+    [],
+    (err, rows: any[]) => {
+      let apiKey = process.env.STEADFAST_API_KEY || 'fpggi3zhnga1t85ipmpu3h1giz7ijv5c';
+      let secretKey = process.env.STEADFAST_SECRET_KEY || 'o2trao0astdvtkctkwyg7o3j';
+      if (rows && rows.length > 0) {
+        rows.forEach(r => {
+          if (r.setting_key === 'steadfast_api_key' && r.setting_value) apiKey = r.setting_value;
+          if (r.setting_key === 'steadfast_secret_key' && r.setting_value) secretKey = r.setting_value;
+        });
+      }
+      res.json({
+        status: 'success',
+        data: {
+          apiKey,
+          secretKey,
+          isConfigured: !!(apiKey && secretKey)
+        }
+      });
+    }
+  );
+};
+
+export const saveSteadfastSettings = (req: Request, res: Response) => {
+  const { apiKey, secretKey } = req.body;
+  if (!apiKey || !secretKey) {
+    return res.status(400).json({ status: 'error', message: 'API Key and Secret Key are required' });
+  }
+
+  const cleanKey = String(apiKey).trim();
+  const cleanSecret = String(secretKey).trim();
+
+  db.serialize(() => {
+    db.run(
+      `INSERT OR REPLACE INTO system_settings (setting_key, setting_value, group_name, is_public) VALUES ('steadfast_api_key', ?, 'courier', 0)`,
+      [cleanKey]
+    );
+    db.run(
+      `INSERT OR REPLACE INTO system_settings (setting_key, setting_value, group_name, is_public) VALUES ('steadfast_secret_key', ?, 'courier', 0)`,
+      [cleanSecret],
+      (err) => {
+        if (err) {
+          console.error('Failed to save Steadfast settings:', err);
+          return res.status(500).json({ status: 'error', message: 'Database error saving settings' });
+        }
+        res.json({ status: 'success', message: 'Steadfast Courier credentials updated successfully!' });
+      }
+    );
+  });
+};
+
+export const testSteadfastConnection = async (req: Request, res: Response) => {
+  const { apiKey, secretKey } = req.body;
+  const keyToTest = (apiKey || process.env.STEADFAST_API_KEY || 'fpggi3zhnga1t85ipmpu3h1giz7ijv5c').trim();
+  const secretToTest = (secretKey || process.env.STEADFAST_SECRET_KEY || 'o2trao0astdvtkctkwyg7o3j').trim();
+
+  try {
+    const response = await fetch('https://portal.packzy.com/api/v1/get_balance', {
+      headers: {
+        'Api-Key': keyToTest,
+        'Secret-Key': secretToTest,
+      },
+    });
+
+    const rawText = await response.text();
+    let data: any;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      data = { status: response.status, message: rawText.trim() };
+    }
+
+    if (response.status === 200 && data.status === 200) {
+      return res.json({
+        status: 'success',
+        message: `Connected successfully! Current Account Balance: ৳${data.current_balance ?? 0}`,
+        balance: data.current_balance
+      });
+    } else {
+      return res.status(400).json({
+        status: 'error',
+        message: data.message || rawText || `Steadfast returned status ${response.status}`
+      });
+    }
+  } catch (err: any) {
+    return res.status(500).json({
+      status: 'error',
+      message: `Connection failed: ${err.message}`
+    });
+  }
 };

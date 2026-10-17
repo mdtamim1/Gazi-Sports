@@ -1,7 +1,7 @@
-import { useState, useMemo, useEffect } from 'react';
-import { ShoppingCart, Search, Plus, Download, Eye, RotateCcw, Truck, Clock, CheckCircle, XCircle, RefreshCw, FileText, Users, History, Package } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { ShoppingCart, Search, Plus, Download, Eye, RotateCcw, Truck, Clock, CheckCircle, XCircle, RefreshCw, FileText, Users, History, Package, Key } from 'lucide-react';
 import { generateOrders, updateOrderStatus, addOrder, formatCurrency, formatDate, formatTime, timeAgo } from '../../mock/data';
-import { fetchOrdersFromBackend, updateOrderStatusInBackend, createOrderFromAdminInBackend, updateOrderInBackend, validateCouponCode, fetchProductsFromBackend, syncOrdersInBackend, assignOrderInBackend, fetchActiveEmployees, fetchOrderHistory, invalidateOrdersCache, steadfastEntryInBackend } from '../../services/api';
+import { fetchOrdersFromBackend, updateOrderStatusInBackend, createOrderFromAdminInBackend, updateOrderInBackend, validateCouponCode, fetchProductsFromBackend, syncOrdersInBackend, assignOrderInBackend, fetchActiveEmployees, fetchOrderHistory, invalidateOrdersCache, steadfastEntryInBackend, fetchSteadfastSettings, saveSteadfastSettingsInBackend, testSteadfastConnectionInBackend } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { BD_DISTRICTS, normalizeDistrict } from '../../utils/bangladeshLocations';
 
@@ -51,16 +51,79 @@ export default function Orders() {
   const [reassigningOrderId, setReassigningOrderId] = useState<string | null>(null);
   const [orderHistory, setOrderHistory] = useState<any[]>([]);
   const isAdmin = user?.role === 'Super Admin' || user?.role === 'Admin';
+  const [openStatusDropdownId, setOpenStatusDropdownId] = useState<string | null>(null);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close status dropdown on outside click
+  useEffect(() => {
+    if (!openStatusDropdownId) return;
+    const handler = (e: MouseEvent) => {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(e.target as Node)) {
+        setOpenStatusDropdownId(null);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [openStatusDropdownId]);
 
   // Steadfast Courier Entry state
   const [steadfastLoadingId, setSteadfastLoadingId] = useState<string | null>(null);
-  const [steadfastToast, setSteadfastToast] = useState<{ orderId: string; msg: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [steadfastToast, setSteadfastToast] = useState<{ orderId: string; msg: string; type: 'success' | 'error' | 'info'; showConfigBtn?: boolean } | null>(null);
+
+  // Steadfast Courier Settings Modal state
+  const [showCourierModal, setShowCourierModal] = useState(false);
+  const [courierApiKey, setCourierApiKey] = useState('');
+  const [courierSecretKey, setCourierSecretKey] = useState('');
+  const [courierTestStatus, setCourierTestStatus] = useState<{ status: 'loading' | 'success' | 'error'; msg: string } | null>(null);
+  const [isSavingCourier, setIsSavingCourier] = useState(false);
+  const [courierSaveMsg, setCourierSaveMsg] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+
+  const openCourierSettings = async () => {
+    setShowCourierModal(true);
+    setCourierTestStatus(null);
+    setCourierSaveMsg(null);
+    const res = await fetchSteadfastSettings();
+    if (res.status === 'success' && res.data) {
+      setCourierApiKey(res.data.apiKey || '');
+      setCourierSecretKey(res.data.secretKey || '');
+    }
+  };
+
+  const handleTestCourier = async () => {
+    setCourierTestStatus({ status: 'loading', msg: 'Connecting to Steadfast Courier...' });
+    const res = await testSteadfastConnectionInBackend(courierApiKey, courierSecretKey);
+    if (res.status === 'success') {
+      setCourierTestStatus({ status: 'success', msg: res.message });
+    } else {
+      setCourierTestStatus({ status: 'error', msg: res.message || 'Connection test failed.' });
+    }
+  };
+
+  const handleSaveCourier = async () => {
+    if (!courierApiKey.trim() || !courierSecretKey.trim()) {
+      setCourierSaveMsg({ type: 'error', msg: 'API Key and Secret Key cannot be empty.' });
+      return;
+    }
+    setIsSavingCourier(true);
+    setCourierSaveMsg(null);
+    const res = await saveSteadfastSettingsInBackend(courierApiKey.trim(), courierSecretKey.trim());
+    setIsSavingCourier(false);
+    if (res.status === 'success') {
+      setCourierSaveMsg({ type: 'success', msg: '✅ Steadfast credentials saved to database!' });
+      setTimeout(() => {
+        setShowCourierModal(false);
+      }, 1500);
+    } else {
+      setCourierSaveMsg({ type: 'error', msg: `❌ ${res.message || 'Failed to save settings'}` });
+    }
+  };
 
   useEffect(() => {
     if (isAdmin) {
       fetchActiveEmployees().then(setActiveEmployees);
     }
   }, [isAdmin]);
+
 
   const handleSyncOrders = async () => {
     setIsSyncing(true);
@@ -195,8 +258,13 @@ export default function Orders() {
       setSteadfastToast({ orderId: order.id, msg: `ℹ️ Already submitted. Tracking: ${result.data?.tracking_code || 'N/A'}`, type: 'info' });
       setTimeout(() => setSteadfastToast(null), 4000);
     } else {
-      setSteadfastToast({ orderId: order.id, msg: `❌ ${result.message || 'Steadfast submission failed'}`, type: 'error' });
-      setTimeout(() => setSteadfastToast(null), 6000);
+      setSteadfastToast({
+        orderId: order.id,
+        msg: `❌ ${result.message || 'Steadfast submission failed'}`,
+        type: 'error',
+        showConfigBtn: true,
+      });
+      setTimeout(() => setSteadfastToast(null), 9000);
     }
   };
 
@@ -647,9 +715,14 @@ export default function Orders() {
   };
 
   const handleStatusUpdate = async (orderId: string, newStatus: typeof orders[0]['status']) => {
-    await updateOrderStatusInBackend(orderId, newStatus);
-    updateOrderStatus(orderId, newStatus);
+    // ✅ Optimistic update: instant UI response, backend fires in background
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    setOpenStatusDropdownId(null);
+    updateOrderStatus(orderId, newStatus);
+    // Background call - does NOT block UI
+    updateOrderStatusInBackend(orderId, newStatus).catch(err => {
+      console.error('Failed to update order status in backend:', err);
+    });
   };
 
   const addProductToOrder = (prod: typeof DEMO_PRODUCTS[0]) => {
@@ -876,6 +949,27 @@ export default function Orders() {
         <div className="page-header-actions">
           {isAdmin && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={openCourierSettings}
+                title="Configure Steadfast Courier API credentials"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: 'rgba(249, 115, 22, 0.12)',
+                  border: '1px solid rgba(249, 115, 22, 0.35)',
+                  color: '#fb923c',
+                  fontWeight: 600,
+                  fontSize: '13px',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                }}
+              >
+                <Truck size={15} /> Courier Settings
+              </button>
+
               <button 
                 className="btn btn-secondary" 
                 onClick={handleSyncOrders}
@@ -1139,31 +1233,115 @@ export default function Orders() {
                       )}
                     </td>
                     <td>
-                      <select
-                        value={order.status}
-                        onChange={(e) => handleStatusUpdate(order.id, e.target.value as any)}
-                        className={`badge ${statusConfig[order.status]?.class}`}
-                        style={{
-                          border: 'none',
-                          outline: 'none',
-                          cursor: 'pointer',
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          fontFamily: 'inherit',
-                          fontSize: 'var(--text-xs)',
-                          fontWeight: 600,
-                          textTransform: 'capitalize',
-                          appearance: 'none',
-                          textAlign: 'center',
-                        }}
-                      >
-                        <option value="pending" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Pending</option>
-                        <option value="processing" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Processing</option>
-                        <option value="shipped" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Shipped</option>
-                        <option value="delivered" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Delivered</option>
-                        <option value="cancelled" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Cancelled</option>
-                        <option value="returned" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Returned</option>
-                      </select>
+                      {/* ✅ Beautiful custom status dropdown - Task 3 redesign */}
+                      <div style={{ position: 'relative' }} ref={openStatusDropdownId === order.id ? statusDropdownRef : undefined}>
+                        <button
+                          type="button"
+                          onClick={() => setOpenStatusDropdownId(openStatusDropdownId === order.id ? null : order.id)}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '5px 10px 5px 8px',
+                            borderRadius: '20px',
+                            cursor: 'pointer',
+                            fontWeight: 700,
+                            fontSize: '11px',
+                            textTransform: 'capitalize',
+                            letterSpacing: '0.02em',
+                            transition: 'all 0.15s ease',
+                            outline: 'none',
+                            whiteSpace: 'nowrap',
+                            ...(order.status === 'pending'    ? { background: 'rgba(251,191,36,0.15)',  color: '#f59e0b', border: '1px solid rgba(251,191,36,0.3)' } :
+                               order.status === 'processing' ? { background: 'rgba(99,102,241,0.15)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.3)' } :
+                               order.status === 'shipped'    ? { background: 'rgba(14,165,233,0.15)',  color: '#38bdf8', border: '1px solid rgba(14,165,233,0.3)' } :
+                               order.status === 'delivered'  ? { background: 'rgba(16,185,129,0.15)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)' } :
+                               order.status === 'cancelled'  ? { background: 'rgba(239,68,68,0.15)',  color: '#f87171', border: '1px solid rgba(239,68,68,0.3)' } :
+                               order.status === 'returned'   ? { background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)' } :
+                               { background: 'rgba(148,163,184,0.1)', color: '#94a3b8', border: '1px solid rgba(148,163,184,0.2)' })
+                          }}
+                        >
+                          <span style={{
+                            width: '6px', height: '6px', borderRadius: '50%', flexShrink: 0,
+                            background: (
+                              order.status === 'pending'    ? '#f59e0b' :
+                              order.status === 'processing' ? '#818cf8' :
+                              order.status === 'shipped'    ? '#38bdf8' :
+                              order.status === 'delivered'  ? '#34d399' :
+                              order.status === 'cancelled'  ? '#f87171' :
+                              order.status === 'returned'   ? '#c084fc' : '#94a3b8'
+                            )
+                          }} />
+                          {order.status}
+                          <span style={{ fontSize: '8px', opacity: 0.7, marginLeft: '2px' }}>▾</span>
+                        </button>
+
+                        {openStatusDropdownId === order.id && (
+                          <div
+                            style={{
+                              position: 'absolute',
+                              top: 'calc(100% + 4px)',
+                              left: '0',
+                              zIndex: 9999,
+                              background: 'linear-gradient(135deg, #1a1f2e 0%, #0f1623 100%)',
+                              border: '1px solid rgba(255,255,255,0.1)',
+                              borderRadius: '12px',
+                              padding: '6px',
+                              minWidth: '145px',
+                              boxShadow: '0 12px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)',
+                              backdropFilter: 'blur(12px)',
+                            }}
+                          >
+                            {([
+                              { value: 'pending',    label: 'Pending',    color: '#f59e0b', bg: 'rgba(251,191,36,0.1)' },
+                              { value: 'processing', label: 'Processing', color: '#818cf8', bg: 'rgba(99,102,241,0.1)' },
+                              { value: 'shipped',    label: 'Shipped',    color: '#38bdf8', bg: 'rgba(14,165,233,0.1)' },
+                              { value: 'delivered',  label: 'Delivered',  color: '#34d399', bg: 'rgba(16,185,129,0.1)' },
+                              { value: 'cancelled',  label: 'Cancelled',  color: '#f87171', bg: 'rgba(239,68,68,0.1)' },
+                              { value: 'returned',   label: 'Returned',   color: '#c084fc', bg: 'rgba(168,85,247,0.1)' },
+                            ] as const).map(opt => (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => handleStatusUpdate(order.id, opt.value)}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                  width: '100%',
+                                  padding: '7px 10px',
+                                  background: order.status === opt.value ? opt.bg : 'transparent',
+                                  border: 'none',
+                                  borderRadius: '8px',
+                                  cursor: 'pointer',
+                                  color: order.status === opt.value ? opt.color : 'rgba(255,255,255,0.65)',
+                                  fontSize: '12px',
+                                  fontWeight: order.status === opt.value ? 700 : 500,
+                                  textAlign: 'left',
+                                  transition: 'all 0.12s ease',
+                                  textTransform: 'capitalize',
+                                }}
+                                onMouseEnter={e => {
+                                  if (order.status !== opt.value) {
+                                    e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                                    e.currentTarget.style.color = opt.color;
+                                  }
+                                }}
+                                onMouseLeave={e => {
+                                  if (order.status !== opt.value) {
+                                    e.currentTarget.style.background = 'transparent';
+                                    e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+                                  }
+                                }}
+                              >
+                                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: opt.color, flexShrink: 0 }} />
+                                {opt.label}
+                                {order.status === opt.value && <span style={{ marginLeft: 'auto', fontSize: '10px' }}>✓</span>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td style={{ fontSize: 'var(--text-xs)', maxWidth: '180px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={order.address || 'N/A'}>
                       {order.address || 'N/A'}
@@ -1373,7 +1551,7 @@ export default function Orders() {
           bottom: '24px',
           right: '24px',
           zIndex: 9999,
-          maxWidth: '420px',
+          maxWidth: '440px',
           padding: '14px 20px',
           borderRadius: '12px',
           fontWeight: 600,
@@ -1400,11 +1578,257 @@ export default function Orders() {
           <span style={{ fontSize: '16px' }}>
             {steadfastToast.type === 'success' ? '✅' : steadfastToast.type === 'error' ? '❌' : 'ℹ️'}
           </span>
-          <span>{steadfastToast.msg}</span>
+          <span style={{ wordBreak: 'break-word', flex: 1 }}>{steadfastToast.msg}</span>
+          {steadfastToast.showConfigBtn && isAdmin && (
+            <button
+              onClick={() => {
+                setSteadfastToast(null);
+                openCourierSettings();
+              }}
+              style={{
+                background: 'rgba(249, 115, 22, 0.25)',
+                border: '1px solid rgba(249, 115, 22, 0.5)',
+                color: '#fb923c',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                marginLeft: '8px'
+              }}
+            >
+              Configure
+            </button>
+          )}
           <button
             onClick={() => setSteadfastToast(null)}
-            style={{ background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer', opacity: 0.7, marginLeft: 'auto', fontSize: '16px', padding: '0 4px' }}
+            style={{ background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer', opacity: 0.7, marginLeft: '6px', fontSize: '16px', padding: '0 4px' }}
           >✕</button>
+        </div>
+      )}
+
+      {/* Steadfast Courier Settings Modal */}
+      {showCourierModal && (
+        <div
+          className="modal-overlay"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000,
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.75)',
+            backdropFilter: 'blur(6px)',
+          }}
+          onClick={() => setShowCourierModal(false)}
+        >
+          <div
+            className="modal"
+            style={{
+              maxWidth: '560px',
+              width: '92%',
+              background: '#0d1322',
+              color: '#e2e8f0',
+              borderRadius: '16px',
+              border: '1px solid #1e293b',
+              padding: '24px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+              animation: 'fadeIn 0.2s ease',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1e293b', paddingBottom: '16px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'rgba(249, 115, 22, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f97316' }}>
+                  <Truck size={20} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '17px', fontWeight: 700, margin: 0, color: '#fff' }}>Steadfast Courier Settings</h3>
+                  <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>API configuration for automated parcel submission</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCourierModal(false)}
+                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '20px', padding: '4px 8px', borderRadius: '6px' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '10px', padding: '12px 14px', fontSize: '12px', color: '#93c5fd', lineHeight: '1.5' }}>
+                ℹ️ Shipped orders can be submitted to Steadfast Courier with 1-click. Tracking IDs are automatically saved into the database and sync in real time.
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#cbd5e1', marginBottom: '6px' }}>
+                  Steadfast API Key
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    value={courierApiKey}
+                    onChange={(e) => setCourierApiKey(e.target.value)}
+                    placeholder="Enter Steadfast API Key"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px 10px 36px',
+                      background: '#090d16',
+                      border: '1px solid #334155',
+                      borderRadius: '8px',
+                      color: '#f8fafc',
+                      fontSize: '13px',
+                      fontFamily: 'monospace',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <Key size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#cbd5e1', marginBottom: '6px' }}>
+                  Steadfast Secret Key
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="password"
+                    value={courierSecretKey}
+                    onChange={(e) => setCourierSecretKey(e.target.value)}
+                    placeholder="Enter Steadfast Secret Key"
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px 10px 36px',
+                      background: '#090d16',
+                      border: '1px solid #334155',
+                      borderRadius: '8px',
+                      color: '#f8fafc',
+                      fontSize: '13px',
+                      fontFamily: 'monospace',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <Key size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+                </div>
+              </div>
+
+              {/* Status / Test Message */}
+              {courierTestStatus && (
+                <div style={{
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: courierTestStatus.status === 'success'
+                    ? 'rgba(16, 185, 129, 0.15)'
+                    : courierTestStatus.status === 'error'
+                      ? 'rgba(239, 68, 68, 0.15)'
+                      : 'rgba(99, 102, 241, 0.15)',
+                  border: courierTestStatus.status === 'success'
+                    ? '1px solid rgba(16, 185, 129, 0.3)'
+                    : courierTestStatus.status === 'error'
+                      ? '1px solid rgba(239, 68, 68, 0.3)'
+                      : '1px solid rgba(99, 102, 241, 0.3)',
+                  color: courierTestStatus.status === 'success' ? '#34d399' : courierTestStatus.status === 'error' ? '#f87171' : '#a5b4fc',
+                }}>
+                  {courierTestStatus.status === 'loading' && (
+                    <span style={{ width: '12px', height: '12px', border: '2px solid rgba(165, 180, 252, 0.3)', borderTopColor: '#a5b4fc', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
+                  )}
+                  <span>{courierTestStatus.msg}</span>
+                </div>
+              )}
+
+              {courierSaveMsg && (
+                <div style={{
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  background: courierSaveMsg.type === 'success' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                  border: courierSaveMsg.type === 'success' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+                  color: courierSaveMsg.type === 'success' ? '#34d399' : '#f87171',
+                }}>
+                  {courierSaveMsg.msg}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #1e293b', paddingTop: '18px', marginTop: '22px' }}>
+              <button
+                type="button"
+                onClick={handleTestCourier}
+                disabled={courierTestStatus?.status === 'loading'}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '9px 16px',
+                  background: '#1e293b',
+                  border: '1px solid #334155',
+                  color: '#94a3b8',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: courierTestStatus?.status === 'loading' ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <RefreshCw size={14} style={{ animation: courierTestStatus?.status === 'loading' ? 'spin 1s linear infinite' : 'none' }} />
+                Test Connection
+              </button>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowCourierModal(false)}
+                  style={{
+                    padding: '9px 16px',
+                    background: 'transparent',
+                    border: '1px solid #334155',
+                    color: '#94a3b8',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveCourier}
+                  disabled={isSavingCourier}
+                  style={{
+                    padding: '9px 20px',
+                    background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                    border: 'none',
+                    color: '#fff',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: isSavingCourier ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 4px 14px rgba(249, 115, 22, 0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  {isSavingCourier ? 'Saving...' : 'Save Credentials'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

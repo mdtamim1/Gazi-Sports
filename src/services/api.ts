@@ -270,6 +270,55 @@ export const steadfastEntryInBackend = async (orderId: string): Promise<any> => 
   }
 };
 
+// Fetch Steadfast Courier Settings
+export const fetchSteadfastSettings = async (): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE}/orders/courier/steadfast-settings`, {
+      headers: getAuthHeaders(),
+    });
+    return await response.json();
+  } catch (e) {
+    console.error('Failed to fetch Steadfast settings:', e);
+    return { status: 'error', message: 'Failed to connect to server.' };
+  }
+};
+
+// Save Steadfast Courier Settings
+export const saveSteadfastSettingsInBackend = async (apiKey: string, secretKey: string): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE}/orders/courier/steadfast-settings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({ apiKey, secretKey }),
+    });
+    return await response.json();
+  } catch (e) {
+    console.error('Failed to save Steadfast settings:', e);
+    return { status: 'error', message: 'Failed to save settings.' };
+  }
+};
+
+// Test Steadfast Courier Connection
+export const testSteadfastConnectionInBackend = async (apiKey?: string, secretKey?: string): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE}/orders/courier/steadfast-test`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({ apiKey, secretKey }),
+    });
+    return await response.json();
+  } catch (e) {
+    console.error('Failed to test Steadfast connection:', e);
+    return { status: 'error', message: 'Connection test failed.' };
+  }
+};
+
 // Assign/reassign a single order to a specific employee
 export const assignOrderInBackend = async (orderId: string, assignedTo: string | null): Promise<any> => {
   try {
@@ -790,22 +839,40 @@ export const updateOrderInBackend = async (orderId: string, orderData: any): Pro
   }
 };
 
-// Fetch dynamic aggregated statistics from backend database for administration dashboard
+// ✅ PERFORMANCE: 60-second stale-while-revalidate cache for dashboard stats
+// Navigating back to Dashboard within 60s = instant (no network round-trip)
+let _dashStatsCache: any | null = null;
+let _dashStatsCacheAt = 0;
+const DASH_CACHE_TTL = 60 * 1000;
+
 export const fetchDashboardStats = async (): Promise<any | null> => {
-  try {
-    const response = await fetch(`${API_BASE}/dashboard/stats`, {
-      headers: {
-        ...getAuthHeaders(),
-      },
-    });
-    if (!response.ok) return null;
-    const result = await response.json();
-    if (result.status !== 'success') return null;
-    return result.data;
-  } catch (e) {
-    console.warn('Backend server offline or statistics unavailable. Falling back to mock dataset.', e);
-    return null;
+  const isStillFresh = _dashStatsCache && (Date.now() - _dashStatsCacheAt) < DASH_CACHE_TTL;
+  if (isStillFresh) return _dashStatsCache;
+
+  const doFetch = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/dashboard/stats`, {
+        headers: { ...getAuthHeaders() },
+      });
+      if (!response.ok) return null;
+      const result = await response.json();
+      if (result.status !== 'success') return null;
+      _dashStatsCache = result.data;
+      _dashStatsCacheAt = Date.now();
+      return result.data;
+    } catch (e) {
+      console.warn('Backend server offline or statistics unavailable. Falling back to mock dataset.', e);
+      return null;
+    }
+  };
+
+  // Stale data available: return immediately, revalidate in background
+  if (_dashStatsCache) {
+    doFetch().catch(() => {});
+    return _dashStatsCache;
   }
+
+  return doFetch();
 };
 
 // Fetch system settings from backend database
@@ -882,19 +949,39 @@ export const markCustomerChatAsRead = async (customerId: string): Promise<boolea
   }
 };
 
-// Fetch registered employees
+// ✅ PERFORMANCE: 30-second stale-while-revalidate cache for employees list
+// Navigating back to Employees = instant render, refresh happens in background
+let _empCache: any[] | null = null;
+let _empCacheAt = 0;
+const EMP_CACHE_TTL = 30 * 1000;
+
 export const fetchEmployees = async (): Promise<any[] | null> => {
-  try {
-    const res = await fetch(`${API_BASE}/employees`, {
-      headers: getAuthHeaders()
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.status === 'success' ? json.data : null;
-  } catch {
-    return null;
+  const isStillFresh = _empCache && (Date.now() - _empCacheAt) < EMP_CACHE_TTL;
+  if (isStillFresh) return _empCache;
+
+  const doFetch = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/employees`, { headers: getAuthHeaders() });
+      if (!res.ok) return null;
+      const json = await res.json();
+      const data = json.status === 'success' ? json.data : null;
+      if (data) { _empCache = data; _empCacheAt = Date.now(); }
+      return data;
+    } catch {
+      return null;
+    }
+  };
+
+  // Stale cache: return immediately, background refresh
+  if (_empCache) {
+    doFetch().catch(() => {});
+    return _empCache;
   }
+
+  return doFetch();
 };
+
+export const invalidateEmployeesCache = () => { _empCache = null; _empCacheAt = 0; };
 
 // Update employee status, role, department
 export const updateEmployee = async (id: string, data: any): Promise<any> => {
