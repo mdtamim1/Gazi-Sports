@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { ShoppingCart, Search, Plus, Download, Eye, RotateCcw, Truck, Clock, CheckCircle, XCircle, RefreshCw, FileText, Users, History, Package, Key } from 'lucide-react';
 import { generateOrders, updateOrderStatus, addOrder, formatCurrency, formatDate, formatTime, timeAgo } from '../../mock/data';
 import { fetchOrdersFromBackend, updateOrderStatusInBackend, createOrderFromAdminInBackend, updateOrderInBackend, validateCouponCode, fetchProductsFromBackend, syncOrdersInBackend, assignOrderInBackend, fetchActiveEmployees, fetchOrderHistory, invalidateOrdersCache, steadfastEntryInBackend, fetchSteadfastSettings, saveSteadfastSettingsInBackend, testSteadfastConnectionInBackend } from '../../services/api';
@@ -49,22 +50,43 @@ export default function Orders() {
   const [syncMessage, setSyncMessage] = useState('');
   const [activeEmployees, setActiveEmployees] = useState<any[]>([]);
   const [reassigningOrderId, setReassigningOrderId] = useState<string | null>(null);
+  const [reassignDropdownPos, setReassignDropdownPos] = useState<{ top?: number; bottom?: number; left: number } | null>(null);
+  const reassignDropdownRef = useRef<HTMLDivElement>(null);
   const [orderHistory, setOrderHistory] = useState<any[]>([]);
   const isAdmin = user?.role === 'Super Admin' || user?.role === 'Admin';
   const [openStatusDropdownId, setOpenStatusDropdownId] = useState<string | null>(null);
+  const [statusDropdownPos, setStatusDropdownPos] = useState<{ top?: number; bottom?: number; left: number } | null>(null);
   const statusDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close status dropdown on outside click
+  // Close floating dropdowns on outside click, window scroll, or resize
   useEffect(() => {
-    if (!openStatusDropdownId) return;
-    const handler = (e: MouseEvent) => {
-      if (statusDropdownRef.current && !statusDropdownRef.current.contains(e.target as Node)) {
+    if (!openStatusDropdownId && !reassigningOrderId) return;
+    const handleDismiss = (e: MouseEvent) => {
+      if (openStatusDropdownId && statusDropdownRef.current && !statusDropdownRef.current.contains(e.target as Node)) {
         setOpenStatusDropdownId(null);
+        setStatusDropdownPos(null);
+      }
+      if (reassigningOrderId && reassignDropdownRef.current && !reassignDropdownRef.current.contains(e.target as Node)) {
+        setReassigningOrderId(null);
+        setReassignDropdownPos(null);
       }
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [openStatusDropdownId]);
+    const handleScroll = () => {
+      setOpenStatusDropdownId(null);
+      setStatusDropdownPos(null);
+      setReassigningOrderId(null);
+      setReassignDropdownPos(null);
+    };
+
+    document.addEventListener('mousedown', handleDismiss);
+    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('resize', handleScroll);
+    return () => {
+      document.removeEventListener('mousedown', handleDismiss);
+      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [openStatusDropdownId, reassigningOrderId]);
 
   // Steadfast Courier Entry state
   const [steadfastLoadingId, setSteadfastLoadingId] = useState<string | null>(null);
@@ -151,6 +173,8 @@ export default function Orders() {
   };
 
   const handleReassignOrder = async (orderId: string, employeeId: string | null) => {
+    setReassigningOrderId(null);
+    setReassignDropdownPos(null);
     const result = await assignOrderInBackend(orderId, employeeId);
     if (result.status === 'success') {
       setOrders(prev => prev.map(o =>
@@ -167,7 +191,6 @@ export default function Orders() {
         }
       }
     }
-    setReassigningOrderId(null);
   };
 
   const [search, setSearch] = useState('');
@@ -718,6 +741,7 @@ export default function Orders() {
     // ✅ Optimistic update: instant UI response, backend fires in background
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
     setOpenStatusDropdownId(null);
+    setStatusDropdownPos(null);
     updateOrderStatus(orderId, newStatus);
     // Background call - does NOT block UI
     updateOrderStatusInBackend(orderId, newStatus).catch(err => {
@@ -1117,7 +1141,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '550px' }}>
+        <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '550px', minHeight: '340px' }}>
           <table className="data-table sticky-header">
             <thead>
               <tr>
@@ -1233,11 +1257,27 @@ export default function Orders() {
                       )}
                     </td>
                     <td>
-                      {/* ✅ Beautiful custom status dropdown - Task 3 redesign */}
-                      <div style={{ position: 'relative' }} ref={openStatusDropdownId === order.id ? statusDropdownRef : undefined}>
+                      {/* ✅ Beautiful custom status dropdown with createPortal (no clipping) */}
+                      <div style={{ position: 'relative' }}>
                         <button
                           type="button"
-                          onClick={() => setOpenStatusDropdownId(openStatusDropdownId === order.id ? null : order.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (openStatusDropdownId === order.id) {
+                              setOpenStatusDropdownId(null);
+                              setStatusDropdownPos(null);
+                            } else {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              const spaceBelow = window.innerHeight - rect.bottom;
+                              const openUp = spaceBelow < 255;
+                              setStatusDropdownPos({
+                                top: openUp ? undefined : rect.bottom + 4,
+                                bottom: openUp ? (window.innerHeight - rect.top + 4) : undefined,
+                                left: Math.max(10, Math.min(rect.left, window.innerWidth - 165)),
+                              });
+                              setOpenStatusDropdownId(order.id);
+                            }
+                          }}
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -1276,20 +1316,23 @@ export default function Orders() {
                           <span style={{ fontSize: '8px', opacity: 0.7, marginLeft: '2px' }}>▾</span>
                         </button>
 
-                        {openStatusDropdownId === order.id && (
+                        {openStatusDropdownId === order.id && statusDropdownPos && createPortal(
                           <div
+                            ref={statusDropdownRef}
                             style={{
-                              position: 'absolute',
-                              top: 'calc(100% + 4px)',
-                              left: '0',
-                              zIndex: 9999,
-                              background: 'linear-gradient(135deg, #1a1f2e 0%, #0f1623 100%)',
-                              border: '1px solid rgba(255,255,255,0.1)',
+                              position: 'fixed',
+                              top: statusDropdownPos.top !== undefined ? `${statusDropdownPos.top}px` : 'auto',
+                              bottom: statusDropdownPos.bottom !== undefined ? `${statusDropdownPos.bottom}px` : 'auto',
+                              left: `${statusDropdownPos.left}px`,
+                              zIndex: 999999,
+                              background: 'linear-gradient(135deg, #131927 0%, #0b0f19 100%)',
+                              border: '1px solid rgba(255,255,255,0.14)',
                               borderRadius: '12px',
                               padding: '6px',
-                              minWidth: '145px',
-                              boxShadow: '0 12px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05)',
-                              backdropFilter: 'blur(12px)',
+                              minWidth: '150px',
+                              boxShadow: '0 16px 48px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.06)',
+                              backdropFilter: 'blur(16px)',
+                              animation: 'fadeIn 0.15s ease',
                             }}
                           >
                             {([
@@ -1314,7 +1357,7 @@ export default function Orders() {
                                   border: 'none',
                                   borderRadius: '8px',
                                   cursor: 'pointer',
-                                  color: order.status === opt.value ? opt.color : 'rgba(255,255,255,0.65)',
+                                  color: order.status === opt.value ? opt.color : 'rgba(255,255,255,0.7)',
                                   fontSize: '12px',
                                   fontWeight: order.status === opt.value ? 700 : 500,
                                   textAlign: 'left',
@@ -1330,7 +1373,7 @@ export default function Orders() {
                                 onMouseLeave={e => {
                                   if (order.status !== opt.value) {
                                     e.currentTarget.style.background = 'transparent';
-                                    e.currentTarget.style.color = 'rgba(255,255,255,0.65)';
+                                    e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
                                   }
                                 }}
                               >
@@ -1339,7 +1382,8 @@ export default function Orders() {
                                 {order.status === opt.value && <span style={{ marginLeft: 'auto', fontSize: '10px' }}>✓</span>}
                               </button>
                             ))}
-                          </div>
+                          </div>,
+                          document.body
                         )}
                       </div>
                     </td>
@@ -1376,24 +1420,46 @@ export default function Orders() {
                             gap: '4px',
                             whiteSpace: 'nowrap',
                             cursor: isAdmin ? 'pointer' : 'default'
-                          }} onClick={() => isAdmin && setReassigningOrderId(reassigningOrderId === order.id ? null : order.id)}>
+                          }} onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isAdmin) return;
+                            if (reassigningOrderId === order.id) {
+                              setReassigningOrderId(null);
+                              setReassignDropdownPos(null);
+                            } else {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              const spaceBelow = window.innerHeight - rect.bottom;
+                              const openUp = spaceBelow < 220;
+                              setReassignDropdownPos({
+                                top: openUp ? undefined : rect.bottom + 4,
+                                bottom: openUp ? (window.innerHeight - rect.top + 4) : undefined,
+                                left: Math.max(10, Math.min(rect.left, window.innerWidth - 180)),
+                              });
+                              setReassigningOrderId(order.id);
+                            }
+                          }}>
                             <Users size={10} />
                             {order.assigned_name}
                           </span>
-                          {isAdmin && reassigningOrderId === order.id && (
-                            <div style={{
-                              position: 'absolute',
-                              top: '100%',
-                              left: 0,
-                              zIndex: 50,
-                              background: 'var(--bg-card)',
-                              border: '1px solid rgba(255,255,255,0.1)',
-                              borderRadius: '8px',
-                              padding: '6px',
-                              minWidth: '160px',
-                              boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-                              marginTop: '4px'
-                            }}>
+                          {isAdmin && reassigningOrderId === order.id && reassignDropdownPos && createPortal(
+                            <div
+                              ref={reassignDropdownRef}
+                              style={{
+                                position: 'fixed',
+                                top: reassignDropdownPos.top !== undefined ? `${reassignDropdownPos.top}px` : 'auto',
+                                bottom: reassignDropdownPos.bottom !== undefined ? `${reassignDropdownPos.bottom}px` : 'auto',
+                                left: `${reassignDropdownPos.left}px`,
+                                zIndex: 999999,
+                                background: 'linear-gradient(135deg, #131927 0%, #0b0f19 100%)',
+                                border: '1px solid rgba(255,255,255,0.14)',
+                                borderRadius: '10px',
+                                padding: '6px',
+                                minWidth: '160px',
+                                boxShadow: '0 16px 48px rgba(0,0,0,0.85)',
+                                backdropFilter: 'blur(16px)',
+                                animation: 'fadeIn 0.15s ease',
+                              }}
+                            >
                               {activeEmployees.map(mod => (
                                 <div
                                   key={mod.id}
@@ -1402,13 +1468,13 @@ export default function Orders() {
                                     padding: '6px 10px',
                                     fontSize: '11px',
                                     cursor: 'pointer',
-                                    borderRadius: '4px',
-                                    color: order.assigned_to === mod.id ? '#818cf8' : 'var(--text-secondary)',
+                                    borderRadius: '6px',
+                                    color: order.assigned_to === mod.id ? '#818cf8' : 'rgba(255,255,255,0.7)',
                                     fontWeight: order.assigned_to === mod.id ? 600 : 400,
-                                    background: order.assigned_to === mod.id ? 'rgba(99,102,241,0.1)' : 'transparent',
+                                    background: order.assigned_to === mod.id ? 'rgba(99,102,241,0.15)' : 'transparent',
                                   }}
-                                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
-                                  onMouseLeave={e => { e.currentTarget.style.background = order.assigned_to === mod.id ? 'rgba(99,102,241,0.1)' : 'transparent'; }}
+                                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+                                  onMouseLeave={e => { e.currentTarget.style.background = order.assigned_to === mod.id ? 'rgba(99,102,241,0.15)' : 'transparent'; }}
                                 >
                                   {mod.name}
                                 </div>
@@ -1419,9 +1485,9 @@ export default function Orders() {
                                   padding: '6px 10px',
                                   fontSize: '11px',
                                   cursor: 'pointer',
-                                  borderRadius: '4px',
+                                  borderRadius: '6px',
                                   color: '#ef4444',
-                                  borderTop: '1px solid rgba(255,255,255,0.05)',
+                                  borderTop: '1px solid rgba(255,255,255,0.06)',
                                   marginTop: '4px'
                                 }}
                                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
@@ -1429,7 +1495,8 @@ export default function Orders() {
                               >
                                 ✕ Unassign
                               </div>
-                            </div>
+                            </div>,
+                            document.body
                           )}
                         </div>
                       ) : (
@@ -1437,23 +1504,46 @@ export default function Orders() {
                           {isAdmin ? (
                             <span 
                               style={{ cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dashed' }}
-                              onClick={() => setReassigningOrderId(reassigningOrderId === order.id ? null : order.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (reassigningOrderId === order.id) {
+                                  setReassigningOrderId(null);
+                                  setReassignDropdownPos(null);
+                                } else {
+                                  const rect = e.currentTarget.getBoundingClientRect();
+                                  const spaceBelow = window.innerHeight - rect.bottom;
+                                  const openUp = spaceBelow < 220;
+                                  setReassignDropdownPos({
+                                    top: openUp ? undefined : rect.bottom + 4,
+                                    bottom: openUp ? (window.innerHeight - rect.top + 4) : undefined,
+                                    left: Math.max(10, Math.min(rect.left, window.innerWidth - 180)),
+                                  });
+                                  setReassigningOrderId(order.id);
+                                }
+                              }}
                             >
                               Unassigned
                             </span>
                           ) : 'Unassigned'}
-                          {isAdmin && reassigningOrderId === order.id && !order.assigned_name && (
-                            <div style={{
-                              position: 'absolute',
-                              zIndex: 50,
-                              background: 'var(--bg-card)',
-                              border: '1px solid rgba(255,255,255,0.1)',
-                              borderRadius: '8px',
-                              padding: '6px',
-                              minWidth: '160px',
-                              boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-                              marginTop: '4px'
-                            }}>
+                          {isAdmin && reassigningOrderId === order.id && !order.assigned_name && reassignDropdownPos && createPortal(
+                            <div
+                              ref={reassignDropdownRef}
+                              style={{
+                                position: 'fixed',
+                                top: reassignDropdownPos.top !== undefined ? `${reassignDropdownPos.top}px` : 'auto',
+                                bottom: reassignDropdownPos.bottom !== undefined ? `${reassignDropdownPos.bottom}px` : 'auto',
+                                left: `${reassignDropdownPos.left}px`,
+                                zIndex: 999999,
+                                background: 'linear-gradient(135deg, #131927 0%, #0b0f19 100%)',
+                                border: '1px solid rgba(255,255,255,0.14)',
+                                borderRadius: '10px',
+                                padding: '6px',
+                                minWidth: '160px',
+                                boxShadow: '0 16px 48px rgba(0,0,0,0.85)',
+                                backdropFilter: 'blur(16px)',
+                                animation: 'fadeIn 0.15s ease',
+                              }}
+                            >
                               {activeEmployees.map(mod => (
                                 <div
                                   key={mod.id}
@@ -1462,16 +1552,17 @@ export default function Orders() {
                                     padding: '6px 10px',
                                     fontSize: '11px',
                                     cursor: 'pointer',
-                                    borderRadius: '4px',
-                                    color: 'var(--text-secondary)',
+                                    borderRadius: '6px',
+                                    color: 'rgba(255,255,255,0.7)',
                                   }}
-                                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+                                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
                                   onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                                 >
                                   {mod.name}
                                 </div>
                               ))}
-                            </div>
+                            </div>,
+                            document.body
                           )}
                         </span>
                       )}
