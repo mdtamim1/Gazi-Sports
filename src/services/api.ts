@@ -444,7 +444,7 @@ const mapProductToFrontend = (p: any): any => {
 };
 
 const PRODUCTS_CACHE_KEY = 'gazi_products_cache_v2';
-const PRODUCTS_CACHE_TTL_MS = 15 * 1000; // 15 seconds freshness
+const PRODUCTS_CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes freshness
 
 // Module-level in-memory cache — survives page navigation within same session
 let _memProductsCache: any[] | null = null;
@@ -478,10 +478,32 @@ if (catalogChannel) {
 }
 
 export const getCachedProductsFromStorage = (): any[] | null => {
-  // Check in-memory cache only (fast and fresh, no stale localStorage)
+  // 1. Check in-memory cache first (fastest)
   if (_memProductsCache && (Date.now() - _memProductsCacheAt) < PRODUCTS_CACHE_TTL_MS) {
     return _memProductsCache;
   }
+  // 2. Fallback to localStorage for across-refresh persistence (fast startup)
+  try {
+    const stored = localStorage.getItem(PRODUCTS_CACHE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed && Array.isArray(parsed.data) && parsed.data.length > 0) {
+        const age = Date.now() - (parsed.ts || 0);
+        if (age < PRODUCTS_CACHE_TTL_MS) {
+          // Restore to in-memory cache
+          _memProductsCache = parsed.data;
+          _memProductsCacheAt = parsed.ts;
+          return parsed.data;
+        }
+        // Stale but still usable as instant fallback — restore in-memory without fresh ts
+        if (age < 10 * 60 * 1000) { // up to 10 minutes old is acceptable as stale fallback
+          _memProductsCache = parsed.data;
+          _memProductsCacheAt = 0; // mark as stale so background refresh still fires
+          return parsed.data;
+        }
+      }
+    }
+  } catch {}
   return null;
 };
 
@@ -492,8 +514,10 @@ const isCacheFresh = (): boolean => {
 const saveProductsToCache = (products: any[]): void => {
   _memProductsCache = products;
   _memProductsCacheAt = Date.now();
-  // Ensure no stale localStorage key remains
-  try { localStorage.removeItem(PRODUCTS_CACHE_KEY); } catch {}
+  // Persist to localStorage for instant load on page refresh
+  try {
+    localStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify({ data: products, ts: Date.now() }));
+  } catch {}
 };
 
 /** Clears all product caches (in-memory + legacy localStorage). Call after any create/update/delete. */
@@ -576,8 +600,8 @@ export const forceFetchProductsFromBackend = async (): Promise<any[] | null> => 
   }
 };
 
-// --- Single product in-memory cache (2-minute TTL, stale-while-revalidate) ---
-const PRODUCT_BY_ID_TTL_MS = 2 * 60 * 1000;
+// --- Single product in-memory cache (5-minute TTL, stale-while-revalidate) ---
+const PRODUCT_BY_ID_TTL_MS = 5 * 60 * 1000;
 const _singleProductCache = new Map<string, { data: any; ts: number }>();
 const _singleProductInFlight = new Map<string, Promise<any | null>>();
 

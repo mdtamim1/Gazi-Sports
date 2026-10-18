@@ -216,7 +216,8 @@ export const syncStorefrontConfigProducts = (): Promise<void> => {
 
 export const getProducts = async (req: Request, res: Response) => {
   try {
-    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+    // Allow browsers and CDNs to cache for 60 seconds, serve stale for 5 minutes while revalidating
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
     const cacheKey = 'products:all';
     const cachedData = await cacheService.get<any[]>(cacheKey);
     if (cachedData) {
@@ -302,12 +303,27 @@ export const getProductById = async (req: Request, res: Response) => {
   const { id } = req.params;
   const cacheKey = `products:id:${id}`;
   try {
+    // Allow browsers and CDNs to cache single product for 120 seconds
+    res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=300');
+
     const cachedProduct = await cacheService.get<any>(cacheKey);
     if (cachedProduct) {
       return res.json({ status: 'success', data: cachedProduct });
     }
 
-    db.get(`SELECT * FROM products WHERE id = ? OR slug = ?`, [id, id], (err, product: any) => {
+    // Single LEFT JOIN query: fetch product + gallery in one round-trip
+    const query = `
+      SELECT
+        p.*,
+        GROUP_CONCAT(g.image_url) AS gallery_urls
+      FROM products p
+      LEFT JOIN product_gallery g ON g.product_id = p.id
+      WHERE p.id = ? OR p.slug = ?
+      GROUP BY p.id
+      LIMIT 1
+    `;
+
+    db.get(query, [id, id], (err, product: any) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ status: 'error', message: 'Database error' });
@@ -315,44 +331,35 @@ export const getProductById = async (req: Request, res: Response) => {
       if (!product) {
         return res.status(404).json({ status: 'error', message: 'Product not found' });
       }
-      // Fetch product gallery
-      db.all(`SELECT image_url FROM product_gallery WHERE product_id = ?`, [product.id], (err, galleryRows: any[]) => {
-        const gallery = galleryRows ? galleryRows.map(r => r.image_url) : [];
-        
-        let features = [];
-        let specs = [];
-        let sizes = [];
-        try {
-          if (product.features) features = JSON.parse(product.features);
-        } catch (e) {
-          console.error(`Error parsing features for product ${product.id}:`, e);
-        }
-        try {
-          if (product.specs) specs = JSON.parse(product.specs);
-        } catch (e) {
-          console.error(`Error parsing specs for product ${product.id}:`, e);
-        }
-        try {
-          if (product.sizes) sizes = JSON.parse(product.sizes);
-        } catch (e) {
-          console.error(`Error parsing sizes for product ${product.id}:`, e);
-        }
 
-        const resultData = {
-          ...product,
-          features,
-          specs,
-          sizes,
-          published: product.published === 1,
-          in_stock: product.in_stock === 1,
-          gallery: gallery.length > 0 ? gallery : [product.image],
-          video_url: product.video_url || null,
-          photo_content: product.photo_content || null
-        };
+      // Parse gallery from GROUP_CONCAT
+      const gallery = product.gallery_urls
+        ? product.gallery_urls.split(',').filter(Boolean)
+        : [product.image];
 
-        cacheService.set(cacheKey, resultData, 300).catch(console.error);
-        res.json({ status: 'success', data: resultData });
-      });
+      let features = [];
+      let specs = [];
+      let sizes = [];
+      try { if (product.features) features = JSON.parse(product.features); } catch {}
+      try { if (product.specs) specs = JSON.parse(product.specs); } catch {}
+      try { if (product.sizes) sizes = JSON.parse(product.sizes); } catch {}
+
+      const resultData = {
+        ...product,
+        features,
+        specs,
+        sizes,
+        published: product.published === 1,
+        in_stock: product.in_stock === 1,
+        gallery: gallery.length > 0 ? gallery : [product.image],
+        video_url: product.video_url || null,
+        photo_content: product.photo_content || null
+      };
+      // Remove raw GROUP_CONCAT field
+      delete resultData.gallery_urls;
+
+      cacheService.set(cacheKey, resultData, 300).catch(console.error);
+      res.json({ status: 'success', data: resultData });
     });
   } catch (err) {
     console.error(err);

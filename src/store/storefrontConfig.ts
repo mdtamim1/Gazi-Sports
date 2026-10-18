@@ -460,8 +460,8 @@ function migrateConfig(parsed: any): any {
   return parsed;
 }
 
-// In-memory cache TTL: 15 seconds (keeps browsing responsive while guaranteeing fresh sync)
-const CACHE_TTL_MS = 15 * 1000;
+// In-memory cache TTL: 3 minutes (keeps browsing responsive while guaranteeing fresh sync)
+const CACHE_TTL_MS = 3 * 60 * 1000;
 let _cacheTimestamp: number = 0;
 
 function loadConfig(): StorefrontConfig {
@@ -699,10 +699,10 @@ export function useStorefrontConfig(): [
       setConfigReady(_synced);
     });
 
-    // Poll every 30 seconds so admin changes reach customers quickly
+    // Poll every 2 minutes so admin changes reach customers in reasonable time
     const pollInterval = setInterval(() => {
       syncWithBackend();
-    }, 30 * 1000);
+    }, 2 * 60 * 1000);
 
     return () => {
       unsubscribe();
