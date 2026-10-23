@@ -206,7 +206,7 @@ export const createOrder = (req: Request, res: Response) => {
     productsList,
   } = req.body;
 
-  const id = 'ORD-' + Math.floor(10000 + Math.random() * 90000);
+  const id = 'ORD-' + Date.now().toString(36).toUpperCase().slice(-6) + Math.floor(1000 + Math.random() * 9000);
 
   let initialStatus = 'pending_sync';
   const authHeader = req.headers.authorization;
