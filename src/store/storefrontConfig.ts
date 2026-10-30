@@ -367,7 +367,7 @@ function migrateConfig(parsed: any): any {
           }
         }
         // Strip '/store' from any other URL
-        let url = link.url || '';
+        const url = link.url || '';
         if (url.startsWith('/store/')) {
           migrated = true;
           link = { ...link, url: url.replace('/store/', '/') };

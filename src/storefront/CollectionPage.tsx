@@ -164,7 +164,7 @@ export default function CollectionPage() {
   ).sort() as string[];
 
   // Categories for pill bar - aligned with home page and admin configuration
-  let categoriesConfig = config.categories
+  const categoriesConfig = config.categories
     .filter(c => c.published)
     .sort((a, b) => a.sortOrder - b.sortOrder);
   let categoryNames = categoriesConfig.map(c => c.name);

@@ -290,7 +290,7 @@ function injectDefaultSeo(htmlTemplate: string, domain: string, reqPath: string)
 
 function replaceHeadTags(htmlTemplate: string, newSeoTags: string): string {
   // Clean pre-existing title, description, canonical, and og tags from static template
-  let cleaned = htmlTemplate
+  const cleaned = htmlTemplate
     .replace(/<title>[\s\S]*?<\/title>/gi, '')
     .replace(/<meta name="description"[\s\S]*?\/>/gi, '')
     .replace(/<meta name="keywords"[\s\S]*?\/>/gi, '')

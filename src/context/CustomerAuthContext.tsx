@@ -335,7 +335,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       });
       if (response.ok) {
         const addressToDelete = customer.addresses.find(addr => addr.id === addressId);
-        let updatedAddresses = customer.addresses.filter(addr => addr.id !== addressId);
+        const updatedAddresses = customer.addresses.filter(addr => addr.id !== addressId);
 
         if (addressToDelete?.isDefault && updatedAddresses.length > 0) {
           updatedAddresses[0].isDefault = true;
@@ -347,7 +347,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } catch (e) {
       console.warn('Fallback offline address delete');
       const addressToDelete = customer.addresses.find(addr => addr.id === addressId);
-      let updatedAddresses = customer.addresses.filter(addr => addr.id !== addressId);
+      const updatedAddresses = customer.addresses.filter(addr => addr.id !== addressId);
       if (addressToDelete?.isDefault && updatedAddresses.length > 0) {
         updatedAddresses[0].isDefault = true;
       }

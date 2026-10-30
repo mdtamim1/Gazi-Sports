@@ -471,7 +471,7 @@ export const getCustomerCoupons = (req: Request, res: Response) => {
         return res.status(500).json({ status: 'error', message: 'Database error' });
       }
 
-      let couponsList: any[] = userRows || [];
+      const couponsList: any[] = userRows || [];
 
       // Check if a welcome gift coupon already exists for this email
       const hasWelcomeGift = couponsList.some(c => c.source === 'welcome_gift' || (c.code || '').toUpperCase().startsWith('WELCOME10'));
