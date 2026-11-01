@@ -426,6 +426,98 @@ export default function SecurityLogs() {
                 </div>
               </div>
 
+              {/* Task 2: Changed fields summary */}
+              {selectedLog.changed_fields && (
+                <div>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', fontWeight: 600, marginBottom: '6px' }}>Changed Fields</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {selectedLog.changed_fields.split(',').map((f: string) => (
+                      <span key={f.trim()} style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontFamily: 'monospace', background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.25)' }}>
+                        {f.trim()}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Task 2: Before/After comparison for SETTINGS_UPDATE and similar */}
+              {(selectedLog.before_value || selectedLog.after_value) && (
+                <div>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', fontWeight: 600, marginBottom: '8px' }}>Before / After Comparison</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div>
+                      <div style={{ fontSize: '10px', fontWeight: 700, color: '#ef4444', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        🔴 BEFORE
+                      </div>
+                      <pre style={{
+                        margin: 0,
+                        padding: '10px',
+                        background: 'rgba(239,68,68,0.06)',
+                        border: '1px solid rgba(239,68,68,0.2)',
+                        borderRadius: '6px',
+                        fontSize: '10px',
+                        color: 'var(--text-secondary)',
+                        overflowX: 'auto',
+                        maxHeight: '220px',
+                        overflowY: 'auto',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-all',
+                        fontFamily: 'monospace',
+                      }}>
+                        {(() => {
+                          try {
+                            const parsed = JSON.parse(selectedLog.before_value || 'null');
+                            // Show compact top-level keys only for readability
+                            const compact: Record<string, any> = {};
+                            if (parsed && typeof parsed === 'object') {
+                              for (const k of Object.keys(parsed)) {
+                                const v = parsed[k];
+                                compact[k] = Array.isArray(v) ? `[${v.length} items]` : (typeof v === 'object' && v !== null ? '{…}' : v);
+                              }
+                            }
+                            return JSON.stringify(compact, null, 2);
+                          } catch { return selectedLog.before_value || 'N/A'; }
+                        })()}
+                      </pre>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '10px', fontWeight: 700, color: '#10b981', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        🟢 AFTER
+                      </div>
+                      <pre style={{
+                        margin: 0,
+                        padding: '10px',
+                        background: 'rgba(16,185,129,0.06)',
+                        border: '1px solid rgba(16,185,129,0.2)',
+                        borderRadius: '6px',
+                        fontSize: '10px',
+                        color: 'var(--text-secondary)',
+                        overflowX: 'auto',
+                        maxHeight: '220px',
+                        overflowY: 'auto',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-all',
+                        fontFamily: 'monospace',
+                      }}>
+                        {(() => {
+                          try {
+                            const parsed = JSON.parse(selectedLog.after_value || 'null');
+                            const compact: Record<string, any> = {};
+                            if (parsed && typeof parsed === 'object') {
+                              for (const k of Object.keys(parsed)) {
+                                const v = parsed[k];
+                                compact[k] = Array.isArray(v) ? `[${v.length} items]` : (typeof v === 'object' && v !== null ? '{…}' : v);
+                              }
+                            }
+                            return JSON.stringify(compact, null, 2);
+                          } catch { return selectedLog.after_value || 'N/A'; }
+                        })()}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', fontWeight: 600 }}>User Agent (Device Info)</div>
                 <div style={{ 

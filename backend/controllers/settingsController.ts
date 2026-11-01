@@ -241,28 +241,76 @@ export const getStorefrontSettings = async (req: Request, res: Response) => {
   );
 };
 
-export const updateStorefrontSettings = (req: Request, res: Response) => {
-  const configString = JSON.stringify(req.body);
-  db.run(
-    "INSERT OR REPLACE INTO system_settings (setting_key, setting_value, group_name, is_public) VALUES ('storefront_config', ?, 'storefront', 1)",
-    [configString],
-    (err) => {
-      if (err) {
-        console.error('Failed to update storefront settings:', err);
-        return res.status(500).json({ status: 'error', message: 'Database error' });
+/**
+ * Deep merge two objects safely.
+ * - Arrays: prefer incoming if non-empty, else keep current.
+ * - Objects: recursively merge; incoming null/undefined never overwrites current.
+ * This prevents auto-reset of storefront settings (Task 3 fix).
+ */
+function deepMergeConfigs(current: any, incoming: any): any {
+  if (!incoming || typeof incoming !== 'object') return current ?? incoming;
+  if (Array.isArray(incoming)) {
+    return incoming.length > 0 ? incoming : (current || []);
+  }
+  if (typeof current === 'object' && !Array.isArray(current) && current !== null) {
+    const result: any = { ...current };
+    for (const key of Object.keys(incoming)) {
+      const inVal = incoming[key];
+      const curVal = current[key];
+      if (inVal === null || inVal === undefined) continue; // never wipe with null
+      if (Array.isArray(inVal)) {
+        result[key] = inVal.length > 0 ? inVal : (curVal || []);
+      } else if (typeof inVal === 'object' && typeof curVal === 'object' && curVal !== null && !Array.isArray(curVal)) {
+        result[key] = deepMergeConfigs(curVal, inVal);
+      } else {
+        result[key] = inVal;
       }
-      // Invalidate memory cache immediately
-      cacheService.del('settings:storefront').catch(() => {});
-      const actor = (req as any).user;
-      logSecurityAction(
-        actor?.id || null,
-        actor?.email || null,
-        'SETTINGS_UPDATE',
-        'Storefront layout configuration updated',
-        req
+    }
+    return result;
+  }
+  return incoming;
+}
+
+export const updateStorefrontSettings = (req: Request, res: Response) => {
+  // Read current config first so we can deep-merge (prevents any field from being accidentally wiped)
+  db.get(
+    "SELECT setting_value FROM system_settings WHERE setting_key = 'storefront_config'",
+    [],
+    (readErr, row: any) => {
+      let currentConfig: any = {};
+      if (!readErr && row && row.setting_value) {
+        try { currentConfig = JSON.parse(row.setting_value); } catch {}
+      }
+
+      // Deep merge: incoming changes applied on top of current without erasing untouched fields
+      const mergedConfig = deepMergeConfigs(currentConfig, req.body);
+      const configString = JSON.stringify(mergedConfig);
+
+      db.run(
+        "INSERT OR REPLACE INTO system_settings (setting_key, setting_value, group_name, is_public) VALUES ('storefront_config', ?, 'storefront', 1)",
+        [configString],
+        (err) => {
+          if (err) {
+            console.error('Failed to update storefront settings:', err);
+            return res.status(500).json({ status: 'error', message: 'Database error' });
+          }
+          // Invalidate memory cache immediately
+          cacheService.del('settings:storefront').catch(() => {});
+          const actor = (req as any).user;
+          // Task 2: log with before/after snapshot for full audit trail
+          logSecurityAction(
+            actor?.id || null,
+            actor?.email || null,
+            'SETTINGS_UPDATE',
+            'Storefront layout configuration updated',
+            req,
+            currentConfig,
+            mergedConfig
+          );
+          res.json({ status: 'success', message: 'Storefront settings updated successfully' });
+          generateSitemap().catch(console.error);
+        }
       );
-      res.json({ status: 'success', message: 'Storefront settings updated successfully' });
-      generateSitemap().catch(console.error);
     }
   );
 };

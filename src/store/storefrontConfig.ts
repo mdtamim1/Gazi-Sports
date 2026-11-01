@@ -515,25 +515,58 @@ async function syncWithBackend(force: boolean = false): Promise<void> {
           let serverConfig = res.data;
           serverConfig = migrateConfig(serverConfig);
 
-          // Merge with current in-memory config to keep any loaded state
+          // Merge with current in-memory config to keep any loaded state.
+          // safeMerge: incoming empty arrays / empty objects / null never wipe existing data.
           const current = _config || getDefaultConfig();
-          const incomingProducts = (serverConfig.products && Array.isArray(serverConfig.products) && serverConfig.products.length > 0)
-            ? serverConfig.products
-            : current.products;
 
-          const incomingCategories = (serverConfig.categories && Array.isArray(serverConfig.categories))
-            ? serverConfig.categories
-            : current.categories;
+          const safeMergeArr = <T>(cur: T[], inc: T[]): T[] =>
+            (Array.isArray(inc) && inc.length > 0) ? inc : cur;
+
+          const safeMergeObj = <T extends object>(cur: T, inc: Partial<T>): T => {
+            if (!inc || typeof inc !== 'object') return cur;
+            const result: any = { ...cur };
+            for (const k of Object.keys(inc) as (keyof T)[]) {
+              const inVal = inc[k];
+              if (inVal === null || inVal === undefined) continue;
+              if (Array.isArray(inVal)) {
+                result[k] = inVal.length > 0 ? inVal : (cur[k] ?? []);
+              } else {
+                result[k] = inVal;
+              }
+            }
+            return result as T;
+          };
+
+          const incomingProducts = safeMergeArr(current.products, serverConfig.products);
+          const incomingCategories = safeMergeArr(current.categories, serverConfig.categories);
+          const incomingNavLinks = safeMergeArr(current.navLinks, serverConfig.navLinks);
+          const incomingBanners = safeMergeArr(current.banners, serverConfig.banners);
+          const incomingAnnouncements = safeMergeArr(current.announcements, serverConfig.announcements);
+          const incomingMiddleBanners = safeMergeArr(current.middleBanners || [], serverConfig.middleBanners || []);
+          const incomingFooterColumns = safeMergeArr(current.footerColumns, serverConfig.footerColumns);
+          const incomingFeatureBadges = safeMergeArr(current.featureBadges, serverConfig.featureBadges);
 
           serverConfig = {
             ...current,
             ...serverConfig,
+            // Arrays: always use safeMerge to prevent accidental erasure
             categories: incomingCategories,
             products: incomingProducts,
-            contactInfo: { ...current.contactInfo, ...serverConfig.contactInfo },
-            branding: { ...current.branding, ...serverConfig.branding },
-            delivery: { ...current.delivery, ...serverConfig.delivery },
-            newsletter: { ...current.newsletter, ...serverConfig.newsletter },
+            navLinks: incomingNavLinks,
+            banners: incomingBanners,
+            announcements: incomingAnnouncements,
+            middleBanners: incomingMiddleBanners,
+            footerColumns: incomingFooterColumns,
+            featureBadges: incomingFeatureBadges,
+            // Objects: deep merge so individual fields are not wiped
+            contactInfo: safeMergeObj(current.contactInfo, serverConfig.contactInfo || {}),
+            branding: safeMergeObj(current.branding, serverConfig.branding || {}),
+            delivery: safeMergeObj(current.delivery, serverConfig.delivery || {}),
+            newsletter: safeMergeObj(current.newsletter, serverConfig.newsletter || {}),
+            // Scalar arrays: safeMerge
+            mostSellingProductIds: safeMergeArr(current.mostSellingProductIds || [], serverConfig.mostSellingProductIds || []),
+            trendingProductIds: safeMergeArr(current.trendingProductIds || [], serverConfig.trendingProductIds || []),
+            newArrivalProductIds: safeMergeArr(current.newArrivalProductIds || [], serverConfig.newArrivalProductIds || []),
           };
 
           _config = serverConfig;

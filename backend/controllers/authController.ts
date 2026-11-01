@@ -253,3 +253,43 @@ export const logout = (req: any, res: Response) => {
 export const getProfile = (req: any, res: Response) => {
   res.json({ status: 'success', data: req.user });
 };
+
+// ════════════════════════════════════════════════════════════
+// Verify Password (for sensitive action confirmation)
+// Requires a valid JWT in Authorization header + password in body.
+// Returns { valid: true } if password matches, { valid: false } otherwise.
+// Task 1: Used by storefront manager to confirm destructive deletes.
+// ════════════════════════════════════════════════════════════
+export const verifyPassword = (req: any, res: Response) => {
+  const { password } = req.body;
+  if (!password) {
+    return res.status(400).json({ status: 'error', message: 'Password is required' });
+  }
+
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ status: 'error', message: 'Unauthorized' });
+  }
+
+  db.get(
+    `SELECT password_hash, email FROM employees WHERE id = ?`,
+    [userId],
+    (err, employee: any) => {
+      if (err || !employee) {
+        return res.status(401).json({ status: 'error', message: 'User not found' });
+      }
+      bcrypt.compare(password, employee.password_hash, (bcryptErr, isMatch) => {
+        if (bcryptErr) {
+          return res.status(500).json({ status: 'error', message: 'Internal error' });
+        }
+        if (isMatch) {
+          logSecurityAction(userId, employee.email, 'PASSWORD_VERIFIED', 'Admin confirmed password for a sensitive action', req);
+          return res.json({ status: 'success', valid: true });
+        } else {
+          logSecurityAction(userId, employee.email, 'PASSWORD_VERIFY_FAILED', 'Wrong password entered for sensitive action confirmation', req);
+          return res.json({ status: 'success', valid: false });
+        }
+      });
+    }
+  );
+};

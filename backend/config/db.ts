@@ -1,4 +1,4 @@
-import sqlite3 from 'sqlite3';
+﻿import sqlite3 from 'sqlite3';
 import mysql from 'mysql2';
 import pg from 'pg';
 import path from 'path';
@@ -375,9 +375,17 @@ function initializeDatabase() {
         details TEXT,
         ip_address TEXT,
         user_agent TEXT,
+        before_value TEXT,
+        after_value TEXT,
+        changed_fields TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Migration: add new audit log columns for existing databases
+    db.run(`ALTER TABLE security_audit_logs ADD COLUMN before_value TEXT`, () => {});
+    db.run(`ALTER TABLE security_audit_logs ADD COLUMN after_value TEXT`, () => {});
+    db.run(`ALTER TABLE security_audit_logs ADD COLUMN changed_fields TEXT`, () => {});
 
     db.run(`
       CREATE TABLE IF NOT EXISTS blog_posts (

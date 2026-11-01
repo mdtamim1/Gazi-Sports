@@ -3,7 +3,7 @@ import {
   Image, Megaphone, Grid3X3, ShoppingBag, Link2, Columns3,
   Palette, Award, Truck, RotateCcw, Plus, Trash2,
   ChevronUp, ChevronDown, Edit3, Eye, X, Check, Upload,
-  CreditCard
+  CreditCard, Lock, AlertTriangle
 } from 'lucide-react';
 import {
   useStorefrontConfig,
@@ -59,10 +59,14 @@ export default function StorefrontManager() {
   };
 
   const handleReset = () => {
-    if (window.confirm('Reset ALL storefront settings to defaults? This cannot be undone.')) {
-      resetStorefrontConfig();
-      showToast('Reset to defaults!');
-    }
+    requirePassword(
+      'Reset Storefront Defaults',
+      'This will reset ALL storefront settings (banners, categories, navigation, branding, etc.) to factory defaults. This action is irreversible. Enter your admin password to continue.',
+      () => {
+        resetStorefrontConfig();
+        showToast('Reset to defaults!');
+      }
+    );
   };
 
   return (
@@ -133,6 +137,126 @@ export default function StorefrontManager() {
           <Check size={16} /> {toast}
         </div>
       )}
+      {/* Task 1: Password confirmation modal for destructive actions */}
+      <PasswordConfirmModal />
+    </div>
+  );
+}
+
+
+// ============================================================
+// PASSWORD CONFIRMATION MODAL (Task 1)
+// ============================================================
+const API_BASE_URL = (() => {
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  return isLocal ? `${window.location.protocol}//${window.location.hostname}:5000/api/v1` : 'https://api.gazisports24.com/api/v1';
+})();
+
+interface PasswordModalState {
+  open: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+}
+
+/** Shared state for the password modal — lifted to module level so any section can trigger it */
+let _pwModalSetState: ((s: PasswordModalState | null) => void) | null = null;
+
+/**
+ * Call this to show a password confirmation dialog before a destructive action.
+ * @param title   Modal title, e.g. "Delete Banner"
+ * @param message Explanation shown below the title
+ * @param onConfirm Callback run only after correct password is entered
+ */
+function requirePassword(title: string, message: string, onConfirm: () => void) {
+  if (_pwModalSetState) {
+    _pwModalSetState({ open: true, title, message, onConfirm });
+  }
+}
+
+function PasswordConfirmModal() {
+  const [state, setState] = useState<PasswordModalState | null>(null);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Register setter so requirePassword() can open the modal from anywhere (done in an effect to avoid render side-effect lint error)
+  useEffect(() => {
+    _pwModalSetState = setState;
+    return () => { _pwModalSetState = null; };
+  }, [setState]);
+
+  const close = () => {
+    setState(null);
+    setPassword('');
+    setError('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!password) { setError('Please enter your password.'); return; }
+    setLoading(true);
+    setError('');
+    try {
+      const token = localStorage.getItem('admin_token');
+      const res = await fetch(`${API_BASE_URL}/auth/verify-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        state?.onConfirm();
+        close();
+      } else {
+        setError('Incorrect password. Please try again.');
+        setPassword('');
+      }
+    } catch {
+      setError('Failed to verify password. Check your connection.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!state?.open) return null;
+
+  return (
+    <div className="modal-backdrop" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 99999 }}>
+      <div className="modal-content" style={{ maxWidth: '420px', width: '90%', animation: 'scaleUp 0.2s ease' }}>
+        <div className="modal-header">
+          <div className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#ef4444' }}>
+            <Lock size={18} /> {state.title}
+          </div>
+          <button className="modal-close" onClick={close}><X size={18} /></button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', gap: '10px', padding: '12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px' }}>
+              <AlertTriangle size={18} style={{ color: '#ef4444', flexShrink: 0, marginTop: '1px' }} />
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>{state.message}</p>
+            </div>
+            <div>
+              <label className="sfm-label">Admin Password</label>
+              <input
+                className="sfm-input"
+                type="password"
+                autoFocus
+                placeholder="Enter your admin panel password"
+                value={password}
+                onChange={e => { setPassword(e.target.value); setError(''); }}
+              />
+              {error && <div style={{ color: '#ef4444', fontSize: '12px', marginTop: '6px' }}>{error}</div>}
+            </div>
+          </div>
+          <div className="modal-footer" style={{ justifyContent: 'flex-end', gap: '8px' }}>
+            <button type="button" className="btn btn-secondary" onClick={close} disabled={loading}>Cancel</button>
+            <button type="submit" className="btn btn-danger" disabled={loading} style={{ background: '#ef4444', color: '#fff', border: 'none' }}>
+              {loading ? 'Verifying…' : 'Confirm Delete'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
@@ -201,13 +325,25 @@ function BannersSection({ config, updateConfig }: SectionProps) {
   };
 
   const removeBanner = (id: number) => {
-    updateConfig('banners', banners.filter(b => b.id !== id));
-    if (editId === id) setEditId(null);
+    requirePassword(
+      'Delete Banner',
+      'Are you sure you want to delete this banner? Enter your admin password to confirm.',
+      () => {
+        updateConfig('banners', banners.filter(b => b.id !== id));
+        if (editId === id) setEditId(null);
+      }
+    );
   };
 
   const removeMiddleBanner = (id: string) => {
-    updateConfig('middleBanners', middleBanners.filter(b => b.id !== id));
-    if (editMiddleId === id) setEditMiddleId(null);
+    requirePassword(
+      'Delete Middle Banner',
+      'Are you sure you want to delete this promotional banner? Enter your admin password to confirm.',
+      () => {
+        updateConfig('middleBanners', middleBanners.filter(b => b.id !== id));
+        if (editMiddleId === id) setEditMiddleId(null);
+      }
+    );
   };
 
   const move = (id: number, dir: -1 | 1) => {
@@ -521,8 +657,14 @@ function CategoriesSection({ config, updateConfig }: SectionProps) {
         return;
       }
     }
-    updateConfig('categories', items.filter(c => c.id !== id));
-    if (editId === id) setEditId(null);
+    requirePassword(
+      'Delete Category',
+      `Are you sure you want to delete the category "${cat?.name || ''}"? Products in this category will not be deleted but they will no longer be categorized. Enter your admin password to confirm.`,
+      () => {
+        updateConfig('categories', items.filter(c => c.id !== id));
+        if (editId === id) setEditId(null);
+      }
+    );
   };
 
   const move = (id: number, dir: -1 | 1) => {
@@ -671,8 +813,15 @@ function NavigationSection({ config, updateConfig }: SectionProps) {
   };
 
   const remove = (id: number) => {
-    updateConfig('navLinks', items.filter(n => n.id !== id));
-    if (manageProductsId === id) setManageProductsId(null);
+    const link = items.find(n => n.id === id);
+    requirePassword(
+      'Delete Navigation Link',
+      `Delete the navigation link "${link?.label || ''}"? Enter your admin password to confirm.`,
+      () => {
+        updateConfig('navLinks', items.filter(n => n.id !== id));
+        if (manageProductsId === id) setManageProductsId(null);
+      }
+    );
   };
 
   const move = (id: number, dir: -1 | 1) => {
@@ -989,15 +1138,22 @@ function FooterSection({ config, updateConfig }: SectionProps) {
   };
 
   const removeLink = (colIdx: number, linkId: number) => {
-    const newCols = columns.map((c, i) =>
-      i === colIdx
-        ? { ...c, links: c.links.filter(l => l.id !== linkId) }
-        : c
+    const linkLabel = columns[colIdx]?.links.find(l => l.id === linkId)?.label || '';
+    requirePassword(
+      'Delete Footer Link',
+      `Delete the footer link "${linkLabel}"? Enter your admin password to confirm.`,
+      () => {
+        const newCols = columns.map((c, i) =>
+          i === colIdx
+            ? { ...c, links: c.links.filter(l => l.id !== linkId) }
+            : c
+        );
+        updateConfig('footerColumns', newCols);
+        if (activeEditLink?.colIdx === colIdx && activeEditLink?.linkId === linkId) {
+          setActiveEditLink(null);
+        }
+      }
     );
-    updateConfig('footerColumns', newCols);
-    if (activeEditLink?.colIdx === colIdx && activeEditLink?.linkId === linkId) {
-      setActiveEditLink(null);
-    }
   };
 
   const addColumn = () => {
