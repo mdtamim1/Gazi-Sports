@@ -217,17 +217,17 @@ const DEFAULT_FOOTER_COLUMNS: FooterColumn[] = [
 ];
 
 const DEFAULT_CONTACT_INFO: ContactInfo = {
-  whatsappNumber: '',
-  phoneNumber: '',
-  messengerUrl: '',
-  email: '',
-  facebookUrl: '',
-  tiktokUrl: '',
-  instagramUrl: '',
+  whatsappNumber: '8801321832605',
+  phoneNumber: '01321832605',
+  messengerUrl: 'https://m.me/gazisports',
+  email: 'support@gazisports24.com',
+  facebookUrl: 'https://facebook.com/gazisports',
+  tiktokUrl: 'https://tiktok.com/@gazisports',
+  instagramUrl: 'https://instagram.com/gazisports',
   shopLocationMapUrl: '',
-  shopAddress: '',
-  bkashNumber: '',
-  nagadNumber: '',
+  shopAddress: 'Sector 10, Uttara, Dhaka, Bangladesh',
+  bkashNumber: '01321832605',
+  nagadNumber: '01321832605',
 };
 
 const DEFAULT_BRANDING: StoreBranding = {
