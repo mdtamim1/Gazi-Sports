@@ -497,10 +497,9 @@ let _synced = false;
 
 let _syncPromise: Promise<void> | null = null;
 
-async function syncWithBackend(): Promise<void> {
-  // Skip fetch if cache is still fresh (within TTL)
-  if (_config && (Date.now() - _cacheTimestamp) < CACHE_TTL_MS) {
-    _synced = true;
+async function syncWithBackend(force: boolean = false): Promise<void> {
+  // Only skip fetch if we have already completed at least ONE successful backend sync AND cache is still within TTL
+  if (!force && _synced && _config && (Date.now() - _cacheTimestamp) < CACHE_TTL_MS) {
     return;
   }
 
@@ -522,9 +521,14 @@ async function syncWithBackend(): Promise<void> {
             ? serverConfig.products
             : current.products;
 
+          const incomingCategories = (serverConfig.categories && Array.isArray(serverConfig.categories))
+            ? serverConfig.categories
+            : current.categories;
+
           serverConfig = {
             ...current,
             ...serverConfig,
+            categories: incomingCategories,
             products: incomingProducts,
             contactInfo: { ...current.contactInfo, ...serverConfig.contactInfo },
             branding: { ...current.branding, ...serverConfig.branding },
@@ -554,7 +558,7 @@ async function syncWithBackend(): Promise<void> {
 export function forceRefreshStorefrontConfig(): Promise<void> {
   _cacheTimestamp = 0;
   _synced = false;
-  return syncWithBackend();
+  return syncWithBackend(true);
 }
 
 /** Update or insert a product in memory and notify UI immediately */
@@ -599,7 +603,8 @@ export function setStorefrontConfig(config: StorefrontConfig): void {
 
 /** Update the full config locally only (does not PUT to backend) */
 export function setStorefrontConfigLocally(config: StorefrontConfig): void {
-  saveConfig(config);
+  _config = config;
+  _listeners.forEach(fn => fn());
 }
 
 /**

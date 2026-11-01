@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Image, Megaphone, Grid3X3, ShoppingBag, Link2, Columns3,
   Palette, Award, Truck, RotateCcw, Plus, Trash2,
@@ -15,6 +15,7 @@ import {
   type FeatureBadge,
   type MiddleBannerConfig,
   resetStorefrontConfig,
+  forceRefreshStorefrontConfig,
 } from '../../store/storefrontConfig';
 import { convertToWebP } from '../../utils/imageCdn';
 import './storefront-manager.css';
@@ -41,6 +42,10 @@ type TabId = (typeof TABS)[number]['id'];
 export default function StorefrontManager() {
   const [config, setConfig] = useStorefrontConfig();
   const [activeTab, setActiveTab] = useState<TabId>('banners');
+
+  useEffect(() => {
+    forceRefreshStorefrontConfig();
+  }, []);
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -466,7 +471,33 @@ function AnnouncementsSection({ config, updateConfig }: SectionProps) {
 // ============================================================
 function CategoriesSection({ config, updateConfig }: SectionProps) {
   const [editId, setEditId] = useState<number | null>(null);
-  const items = config.categories;
+  const items = config.categories || [];
+
+  const syncFromProducts = () => {
+    const uniqueCategoryNames = Array.from(
+      new Set(
+        config.products
+          .filter(p => p.published && p.category)
+          .map(p => p.category.trim())
+      )
+    ).filter(Boolean);
+
+    if (uniqueCategoryNames.length === 0) {
+      alert('No categories found in published products.');
+      return;
+    }
+
+    const newCategories = uniqueCategoryNames.map((name, index) => ({
+      id: index + 1,
+      name,
+      icon: 'Grid3X3',
+      count: config.products.filter(p => p.published && p.category === name).length,
+      published: true,
+      sortOrder: index + 1,
+    }));
+
+    updateConfig('categories', newCategories);
+  };
 
   const update = (id: number, field: keyof CategoryConfig, value: any) => {
     updateConfig('categories', items.map(c => c.id === id ? { ...c, [field]: value } : c));
@@ -509,11 +540,35 @@ function CategoriesSection({ config, updateConfig }: SectionProps) {
           <div className="sfm-section-title">Product Categories</div>
           <div className="sfm-section-subtitle">Organize your store products into categories</div>
         </div>
-        <button className="btn btn-primary btn-sm" onClick={add}><Plus size={14} /> Add Category</button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button className="btn btn-secondary btn-sm" onClick={syncFromProducts} title="Auto-detect categories from published products">
+            <RotateCcw size={14} /> Sync from Products
+          </button>
+          <button className="btn btn-primary btn-sm" onClick={add}>
+            <Plus size={14} /> Add Category
+          </button>
+        </div>
       </div>
 
       <div className="sfm-item-list">
-        {items.map((cat, idx) => {
+        {items.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '48px 24px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.15)' }}>
+            <Grid3X3 size={36} style={{ margin: '0 auto 12px', opacity: 0.4 }} />
+            <div style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '6px' }}>No Categories Listed Here Yet</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary, #94a3b8)', maxWidth: '420px', margin: '0 auto 20px' }}>
+              Your live storefront automatically displays categories detected from your products. Click "Sync from Products" below to load and customize them directly here in the admin panel.
+            </div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button className="btn btn-primary btn-sm" onClick={syncFromProducts}>
+                <RotateCcw size={14} /> Sync from Products ({Array.from(new Set(config.products.filter(p => p.published && p.category).map(p => p.category.trim()))).length} found)
+              </button>
+              <button className="btn btn-secondary btn-sm" onClick={add}>
+                <Plus size={14} /> Add Category Manually
+              </button>
+            </div>
+          </div>
+        ) : (
+          items.map((cat, idx) => {
           const isJerseyCategory = cat.name.toLowerCase().includes('jersey') || cat.name.toLowerCase().includes('jarsey');
           const actualCount = config.products.filter(p => p.category === cat.name).length;
           return (
@@ -591,7 +646,7 @@ function CategoriesSection({ config, updateConfig }: SectionProps) {
             )}
           </div>
           );
-        })}
+        }))}
       </div>
     </div>
   );
