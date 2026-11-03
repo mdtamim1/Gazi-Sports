@@ -6,7 +6,8 @@ import {
   Lock, ArrowRight, ShieldCheck, MapPin, Truck, CheckCircle2, 
   Clock, AlertCircle, HelpCircle, Send, Plus, ArrowLeft, RefreshCw,
   Trash2, Edit, X, Heart, ShoppingCart, Ticket, Menu, RotateCcw, Trophy,
-  FileText
+  FileText,
+  Eye, EyeOff, Loader2
 } from 'lucide-react';
 import { fetchOrdersFromBackend, fetchCustomerOrdersFromBackend, fetchChatHistory } from '../services/api';
 import { convertToWebP } from '../utils/imageCdn';
@@ -72,6 +73,8 @@ export default function CustomerAccount() {
   const [authPhone, setAuthPhone] = useState('');
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
   const [showGoogleAccounts, setShowGoogleAccounts] = useState(false);
 
   // Floating 3D Chat State
@@ -198,7 +201,7 @@ export default function CustomerAccount() {
       if (!script) {
         script = document.createElement('script');
         script.id = scriptId;
-        script.src = 'https://accounts.google.com/gsi/client';
+        script.src = 'https://accounts.google.com/gsi/client?hl=en';
         script.async = true;
         script.defer = true;
         document.body.appendChild(script);
@@ -229,7 +232,7 @@ export default function CustomerAccount() {
 
           (window as any).google.accounts.id.renderButton(
             document.getElementById('google-signin-btn'),
-            { theme: 'outline', size: 'large', width: 396 }
+            { theme: 'outline', size: 'large', type: 'standard', shape: 'rectangular', text: 'signin_with', logo_alignment: 'left', width: 340 }
           );
         }
       };
@@ -454,27 +457,35 @@ export default function CustomerAccount() {
     e.preventDefault();
     setAuthError('');
     setAuthSuccess('');
-
-    if (isRegister) {
-      if (!authName || !authEmail || !authPassword || !authPhone) {
-        setAuthError('Please fill in all the fields.');
-        return;
-      }
-      const res = await register(authName, authEmail, authPassword, authPhone);
-      if (!res.success) {
-        setAuthError(res.error || 'Registration failed.');
+    setAuthLoading(true);
+    try {
+      if (isRegister) {
+        if (!authName || !authEmail || !authPassword || !authPhone) {
+          setAuthError('Please fill in all the fields.');
+          setAuthLoading(false);
+          return;
+        }
+        const res = await register(authName, authEmail, authPassword, authPhone);
+        if (!res.success) {
+          setAuthError(res.error || 'Registration failed.');
+        } else {
+          setAuthSuccess('Account created successfully!');
+        }
       } else {
-        setAuthSuccess('Account created successfully!');
+        if (!authEmail || !authPassword) {
+          setAuthError('Please provide email and password.');
+          setAuthLoading(false);
+          return;
+        }
+        const res = await login(authEmail, authPassword);
+        if (!res.success) {
+          setAuthError(res.error || 'Login failed.');
+        }
       }
-    } else {
-      if (!authEmail || !authPassword) {
-        setAuthError('Please provide email and password.');
-        return;
-      }
-      const res = await login(authEmail, authPassword);
-      if (!res.success) {
-        setAuthError(res.error || 'Login failed.');
-      }
+    } catch (err: any) {
+      setAuthError(err?.message || 'Authentication error occurred.');
+    } finally {
+      setAuthLoading(false);
     }
   };
 
@@ -552,33 +563,25 @@ export default function CustomerAccount() {
   if (!customer) {
     return (
       <div className="premium-login-wrapper">
-        {/* Background animated particles */}
-        <div className="login-bg-particles">
-          <span className="particle p1"></span>
-          <span className="particle p2"></span>
-          <span className="particle p3"></span>
-          <span className="particle p4"></span>
-          <span className="particle p5"></span>
-          <span className="particle p6"></span>
+        {/* Subtle athletic sports energy grid */}
+        <div className="login-athletic-grid"></div>
+
+        {/* 3D Floating Decorative Badges */}
+        <div className="login-deco-badge badge-1" title="Trophy">
+          <Trophy size={22} />
+        </div>
+        <div className="login-deco-badge badge-2" title="Verified Protection">
+          <ShieldCheck size={22} />
         </div>
 
-        {/* Sport decorative shapes */}
-        <div className="login-deco-ring ring1"></div>
-        <div className="login-deco-ring ring2"></div>
-        <div className="login-deco-ring ring3"></div>
-
         <div className="premium-login-card">
-          {/* Shimmer top border */}
-          <div className="login-card-shimmer"></div>
+          {/* Top Racing Gradient Bar */}
+          <div className="login-card-racing-bar"></div>
 
           {/* Brand Header */}
           <div className="login-brand-header">
             <div className="login-brand-icon">
-              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                <path d="M2 12h20"/>
-              </svg>
+              <Trophy size={26} strokeWidth={2.4} />
             </div>
             <div className="login-brand-text">
               <div className="login-brand-name">GAZI SPORTS 24</div>
@@ -592,19 +595,21 @@ export default function CustomerAccount() {
               {isRegister ? 'Create Account' : 'Welcome Back'}
             </h2>
             <p className="login-subtitle">
-              {isRegister ? 'Join us for exclusive deals & order tracking' : 'Sign in to track orders & get support'}
+              {isRegister ? 'Register to track orders and enjoy member benefits' : 'Sign in to access your orders and account'}
             </p>
           </div>
 
           {authError && (
             <div className="login-alert login-alert-error">
-              <AlertCircle size={15} /> {authError}
+              <AlertCircle size={16} />
+              <span>{authError}</span>
             </div>
           )}
 
           {authSuccess && (
             <div className="login-alert login-alert-success">
-              <CheckCircle2 size={15} /> {authSuccess}
+              <CheckCircle2 size={16} />
+              <span>{authSuccess}</span>
             </div>
           )}
 
@@ -612,17 +617,31 @@ export default function CustomerAccount() {
             {isRegister && (
               <>
                 <div className="login-field">
-                  <label className="login-label">Your Name *</label>
+                  <label className="login-label">Full Name *</label>
                   <div className="login-input-wrap">
-                    <User size={16} className="login-input-icon" />
-                    <input type="text" required value={authName} onChange={e => setAuthName(e.target.value)} className="login-input" placeholder="e.g. John Doe" />
+                    <User size={17} className="login-input-icon" />
+                    <input 
+                      type="text" 
+                      required 
+                      value={authName} 
+                      onChange={e => setAuthName(e.target.value)} 
+                      className="login-input" 
+                      placeholder="e.g. Md Tamim" 
+                    />
                   </div>
                 </div>
                 <div className="login-field">
                   <label className="login-label">Mobile Number *</label>
                   <div className="login-input-wrap">
-                    <Phone size={16} className="login-input-icon" />
-                    <input type="tel" required value={authPhone} onChange={e => setAuthPhone(e.target.value)} className="login-input" placeholder="e.g. 017XXXXXXXX" />
+                    <Phone size={17} className="login-input-icon" />
+                    <input 
+                      type="tel" 
+                      required 
+                      value={authPhone} 
+                      onChange={e => setAuthPhone(e.target.value)} 
+                      className="login-input" 
+                      placeholder="e.g. 017XXXXXXXX" 
+                    />
                   </div>
                 </div>
               </>
@@ -631,31 +650,62 @@ export default function CustomerAccount() {
             <div className="login-field">
               <label className="login-label">Email Address *</label>
               <div className="login-input-wrap">
-                <Mail size={16} className="login-input-icon" />
-                <input type="email" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} className="login-input" placeholder="e.g. example@gmail.com" />
+                <Mail size={17} className="login-input-icon" />
+                <input 
+                  type="email" 
+                  required 
+                  value={authEmail} 
+                  onChange={e => setAuthEmail(e.target.value)} 
+                  className="login-input" 
+                  placeholder="example@gmail.com" 
+                />
               </div>
             </div>
 
             <div className="login-field">
               <label className="login-label">Password *</label>
               <div className="login-input-wrap">
-                <Lock size={16} className="login-input-icon" />
-                <input type="password" required value={authPassword} onChange={e => setAuthPassword(e.target.value)} className="login-input" placeholder="Enter Password" />
+                <Lock size={17} className="login-input-icon" />
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  required 
+                  value={authPassword} 
+                  onChange={e => setAuthPassword(e.target.value)} 
+                  className="login-input" 
+                  placeholder="••••••••" 
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="login-password-toggle-btn"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 
-            <button type="submit" className="login-submit-btn">
-              <span>{isRegister ? 'Create Account' : 'Login'}</span>
-              <ArrowRight size={18} />
+            <button type="submit" disabled={authLoading} className="login-submit-btn">
+              {authLoading ? (
+                <>
+                  <Loader2 size={18} className="login-spinner" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <span>{isRegister ? 'Create Account' : 'Sign In'}</span>
+                  <ArrowRight size={17} />
+                </>
+              )}
               <div className="login-btn-shimmer"></div>
             </button>
           </form>
 
           {/* OR Divider */}
           <div className="login-divider">
-            <span></span>
-            <span className="login-divider-text">OR</span>
-            <span></span>
+            <span className="login-divider-line"></span>
+            <span className="login-divider-text">OR CONTINUE WITH</span>
+            <span className="login-divider-line"></span>
           </div>
 
           {/* Google Sign-In */}
@@ -675,14 +725,20 @@ export default function CustomerAccount() {
             {isRegister ? (
               <>
                 Already have an account?{' '}
-                <button onClick={() => { setIsRegister(false); setAuthError(''); }} className="login-switch-btn">
-                  Login
+                <button 
+                  onClick={() => { setIsRegister(false); setAuthError(''); setAuthSuccess(''); }}
+                  className="login-switch-btn"
+                >
+                  Sign In
                 </button>
               </>
             ) : (
               <>
-                No account?{' '}
-                <button onClick={() => { setIsRegister(true); setAuthError(''); }} className="login-switch-btn">
+                Don't have an account?{' '}
+                <button 
+                  onClick={() => { setIsRegister(true); setAuthError(''); setAuthSuccess(''); }}
+                  className="login-switch-btn"
+                >
                   Create Account
                 </button>
               </>
