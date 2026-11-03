@@ -551,93 +551,138 @@ export default function CustomerAccount() {
 
   if (!customer) {
     return (
-      <div className="account-auth-container" style={{ maxWidth: '460px', margin: '60px auto', padding: '0 16px' }}>
-        <div style={{ background: 'white', padding: '32px', borderRadius: 'var(--sf-radius-lg)', border: '1px solid var(--sf-border)', boxShadow: 'var(--sf-shadow-md)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <div style={{ width: '48px', height: '48px', background: 'var(--sf-bg-light)', color: 'var(--sf-accent)', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-              <User size={24} />
+      <div className="premium-login-wrapper">
+        {/* Background animated particles */}
+        <div className="login-bg-particles">
+          <span className="particle p1"></span>
+          <span className="particle p2"></span>
+          <span className="particle p3"></span>
+          <span className="particle p4"></span>
+          <span className="particle p5"></span>
+          <span className="particle p6"></span>
+        </div>
+
+        {/* Sport decorative shapes */}
+        <div className="login-deco-ring ring1"></div>
+        <div className="login-deco-ring ring2"></div>
+        <div className="login-deco-ring ring3"></div>
+
+        <div className="premium-login-card">
+          {/* Shimmer top border */}
+          <div className="login-card-shimmer"></div>
+
+          {/* Brand Header */}
+          <div className="login-brand-header">
+            <div className="login-brand-icon">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                <path d="M2 12h20"/>
+              </svg>
             </div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--sf-text-primary)' }}>
-              {isRegister ? 'Create New Account' : 'Customer Login'}
+            <div className="login-brand-text">
+              <div className="login-brand-name">GAZI SPORTS 24</div>
+              <div className="login-brand-tagline">PLAY HARD · SHOP SMART</div>
+            </div>
+          </div>
+
+          {/* Title */}
+          <div className="login-title-block">
+            <h2 className="login-title">
+              {isRegister ? 'Create Account' : 'Welcome Back'}
             </h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--sf-text-tertiary)', marginTop: '4px' }}>
-              {isRegister ? 'Create an account for easy tracking & chat support' : 'Login to track orders and contact customer support'}
+            <p className="login-subtitle">
+              {isRegister ? 'Join us for exclusive deals & order tracking' : 'Sign in to track orders & get support'}
             </p>
           </div>
 
           {authError && (
-            <div style={{ background: '#fee2e2', color: '#ef4444', padding: '10px 12px', borderRadius: '8px', fontSize: '0.82rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <AlertCircle size={16} /> {authError}
+            <div className="login-alert login-alert-error">
+              <AlertCircle size={15} /> {authError}
             </div>
           )}
 
           {authSuccess && (
-            <div style={{ background: '#f0fdf4', color: '#16a34a', padding: '10px 12px', borderRadius: '8px', fontSize: '0.82rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CheckCircle2 size={16} /> {authSuccess}
+            <div className="login-alert login-alert-success">
+              <CheckCircle2 size={15} /> {authSuccess}
             </div>
           )}
 
-          <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <form onSubmit={handleAuthSubmit} className="login-form">
             {isRegister && (
               <>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Your Name *</label>
-                  <input type="text" required value={authName} onChange={e => setAuthName(e.target.value)} style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a' }} placeholder="e.g. John Doe" />
+                <div className="login-field">
+                  <label className="login-label">Your Name *</label>
+                  <div className="login-input-wrap">
+                    <User size={16} className="login-input-icon" />
+                    <input type="text" required value={authName} onChange={e => setAuthName(e.target.value)} className="login-input" placeholder="e.g. John Doe" />
+                  </div>
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Mobile Number *</label>
-                  <input type="tel" required value={authPhone} onChange={e => setAuthPhone(e.target.value)} style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a' }} placeholder="e.g. 017XXXXXXXX" />
+                <div className="login-field">
+                  <label className="login-label">Mobile Number *</label>
+                  <div className="login-input-wrap">
+                    <Phone size={16} className="login-input-icon" />
+                    <input type="tel" required value={authPhone} onChange={e => setAuthPhone(e.target.value)} className="login-input" placeholder="e.g. 017XXXXXXXX" />
+                  </div>
                 </div>
               </>
             )}
 
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Email Address *</label>
-              <input type="email" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a' }} placeholder="e.g. example@gmail.com" />
+            <div className="login-field">
+              <label className="login-label">Email Address *</label>
+              <div className="login-input-wrap">
+                <Mail size={16} className="login-input-icon" />
+                <input type="email" required value={authEmail} onChange={e => setAuthEmail(e.target.value)} className="login-input" placeholder="e.g. example@gmail.com" />
+              </div>
             </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--sf-text-secondary)', marginBottom: '6px' }}>Password *</label>
-              <input type="password" required value={authPassword} onChange={e => setAuthPassword(e.target.value)} style={{ width: '100%', height: '42px', border: '1px solid var(--sf-border)', borderRadius: '8px', padding: '0 12px', outline: 'none', backgroundColor: '#ffffff', color: '#0f172a' }} placeholder="Enter Password" />
+            <div className="login-field">
+              <label className="login-label">Password *</label>
+              <div className="login-input-wrap">
+                <Lock size={16} className="login-input-icon" />
+                <input type="password" required value={authPassword} onChange={e => setAuthPassword(e.target.value)} className="login-input" placeholder="Enter Password" />
+              </div>
             </div>
 
-            <button type="submit" style={{ width: '100%', height: '44px', background: 'var(--sf-text-primary)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '8px' }}>
-              {isRegister ? 'Create Account' : 'Login'} <ArrowRight size={16} />
+            <button type="submit" className="login-submit-btn">
+              <span>{isRegister ? 'Create Account' : 'Login'}</span>
+              <ArrowRight size={18} />
+              <div className="login-btn-shimmer"></div>
             </button>
           </form>
 
           {/* OR Divider */}
-          <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0', gap: '10px' }}>
-            <div style={{ flex: 1, height: '1px', background: 'var(--sf-border)' }} />
-            <span style={{ fontSize: '0.78rem', color: 'var(--sf-text-tertiary)', fontWeight: 600 }}>OR</span>
-            <div style={{ flex: 1, height: '1px', background: 'var(--sf-border)' }} />
+          <div className="login-divider">
+            <span></span>
+            <span className="login-divider-text">OR</span>
+            <span></span>
           </div>
 
-          {/* Google Sign-In Button Container */}
-          <div 
-            id="google-signin-btn" 
-            style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              width: '100%', 
+          {/* Google Sign-In */}
+          <div
+            id="google-signin-btn"
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              width: '100%',
               minHeight: '44px',
               borderRadius: '8px',
               overflow: 'hidden'
-            }} 
+            }}
           />
 
-          <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.85rem', color: 'var(--sf-text-secondary)' }}>
+          <div className="login-footer-text">
             {isRegister ? (
               <>
                 Already have an account?{' '}
-                <button onClick={() => { setIsRegister(false); setAuthError(''); }} style={{ background: 'none', border: 'none', color: 'var(--sf-accent)', fontWeight: 700, cursor: 'pointer', padding: 0 }}>
+                <button onClick={() => { setIsRegister(false); setAuthError(''); }} className="login-switch-btn">
                   Login
                 </button>
               </>
             ) : (
               <>
                 No account?{' '}
-                <button onClick={() => { setIsRegister(true); setAuthError(''); }} style={{ background: 'none', border: 'none', color: 'var(--sf-accent)', fontWeight: 700, cursor: 'pointer', padding: 0 }}>
+                <button onClick={() => { setIsRegister(true); setAuthError(''); }} className="login-switch-btn">
                   Create Account
                 </button>
               </>
