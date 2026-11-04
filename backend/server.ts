@@ -258,8 +258,12 @@ app.use(express.static(distPath, {
   }
 }));
 
-// Serve static uploaded files (product images, etc.) from uploads folder with 30-day caching
-app.use('/uploads', express.static(path.resolve(__dirname, '../../uploads'), {
+// Serve static uploaded files (product images, videos, etc.) from uploads folder with 30-day caching
+const uploadsPath = path.resolve(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath, { recursive: true });
+}
+app.use('/uploads', express.static(uploadsPath, {
   maxAge: '30d',
   etag: true
 }));

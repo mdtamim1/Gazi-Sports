@@ -345,7 +345,8 @@ export const uploadMedia = async (req: Request, res: Response) => {
       return res.status(400).json({ status: 'error', message: 'File too large. Maximum size is 50MB.' });
     }
 
-    const uploadsDir = path.resolve(__dirname, '../../uploads/media');
+    const baseUploads = path.resolve(process.cwd(), 'uploads');
+    const uploadsDir = path.join(baseUploads, 'media');
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
