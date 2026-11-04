@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Image, Megaphone, Video, Film, Grid3X3, ShoppingBag, Link2, Columns3,
   Palette, Award, Truck, RotateCcw, Plus, Trash2,
   ChevronUp, ChevronDown, Edit3, Eye, X, Check, Upload,
-  CreditCard, Lock, AlertTriangle
+  CreditCard, Lock, AlertTriangle, Monitor, Smartphone, Volume2, VolumeX, Repeat, Play, Sparkles
 } from 'lucide-react';
 import {
   useStorefrontConfig,
@@ -284,14 +284,21 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (val: boole
 // 1. BANNERS SECTION
 // ============================================================
 function BannersSection({ config, updateConfig }: SectionProps) {
-  const [editId, setEditId] = useState<number | null>(null);
-  const [editMiddleId, setEditMiddleId] = useState<string | null>(null);
+  const [viewportMode, setViewportMode] = useState<'desktop' | 'mobile'>('desktop');
   const [videoUploading, setVideoUploading] = useState(false);
   const [videoUploadError, setVideoUploadError] = useState('');
+  const [editMiddleId, setEditMiddleId] = useState<string | null>(null);
+  const previewVideoRef = useRef<HTMLVideoElement>(null);
 
-  const banners = config.banners;
-  const middleBanners = config.middleBanners || [];
   const heroBanner = config.heroBanner || DEFAULT_HERO_BANNER;
+  const middleBanners = config.middleBanners || [];
+  const publishedProducts = config.products.filter(p => p.published);
+  const sampleTrending = config.trendingProductIds && config.trendingProductIds.length > 0
+    ? publishedProducts.filter(p => config.trendingProductIds!.map(String).includes(String(p.id))).slice(0, 4)
+    : publishedProducts.slice(0, 4);
+  const sampleNewArrivals = config.newArrivalProductIds && config.newArrivalProductIds.length > 0
+    ? publishedProducts.filter(p => config.newArrivalProductIds!.map(String).includes(String(p.id))).slice(0, 4)
+    : publishedProducts.slice(0, 4);
 
   const updateHero = (field: string, value: any) => {
     updateConfig('heroBanner', { ...heroBanner, [field]: value });
@@ -301,8 +308,8 @@ function BannersSection({ config, updateConfig }: SectionProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 45 * 1024 * 1024) {
-      alert('Video file is too large! Please upload a video under 45MB.');
+    if (file.size > 50 * 1024 * 1024) {
+      alert('Video file is too large! Please upload a video under 50MB.');
       return;
     }
 
@@ -335,29 +342,8 @@ function BannersSection({ config, updateConfig }: SectionProps) {
     }
   };
 
-  const update = (id: number, field: keyof BannerSlide, value: any) => {
-    updateConfig('banners', banners.map(b => b.id === id ? { ...b, [field]: value } : b));
-  };
-
   const updateMiddle = (id: string, field: keyof MiddleBannerConfig, value: any) => {
     updateConfig('middleBanners', middleBanners.map(b => b.id === id ? { ...b, [field]: value } : b));
-  };
-
-  const addBanner = () => {
-    const newId = Math.max(0, ...banners.map(b => b.id)) + 1;
-    updateConfig('banners', [...banners, {
-      id: newId,
-      title: 'New Banner',
-      subtitle: 'Banner subtitle text',
-      gradient: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #1e40af 100%)',
-      image: '',
-      tag: 'New',
-      offer: 'Special Offer',
-      buttonText: 'Shop Now',
-      buttonLink: '#categories',
-      enabled: true,
-    }]);
-    setEditId(newId);
   };
 
   const addMiddleBanner = () => {
@@ -371,17 +357,6 @@ function BannersSection({ config, updateConfig }: SectionProps) {
     setEditMiddleId(newId);
   };
 
-  const removeBanner = (id: number) => {
-    requirePassword(
-      'Delete Banner',
-      'Are you sure you want to delete this banner? Enter your admin password to confirm.',
-      () => {
-        updateConfig('banners', banners.filter(b => b.id !== id));
-        if (editId === id) setEditId(null);
-      }
-    );
-  };
-
   const removeMiddleBanner = (id: string) => {
     requirePassword(
       'Delete Middle Banner',
@@ -393,14 +368,6 @@ function BannersSection({ config, updateConfig }: SectionProps) {
     );
   };
 
-  const move = (id: number, dir: -1 | 1) => {
-    const idx = banners.findIndex(b => b.id === id);
-    if ((dir === -1 && idx === 0) || (dir === 1 && idx === banners.length - 1)) return;
-    const newArr = [...banners];
-    [newArr[idx], newArr[idx + dir]] = [newArr[idx + dir], newArr[idx]];
-    updateConfig('banners', newArr);
-  };
-
   const moveMiddle = (id: string, dir: -1 | 1) => {
     const idx = middleBanners.findIndex(b => b.id === id);
     if ((dir === -1 && idx === 0) || (dir === 1 && idx === middleBanners.length - 1)) return;
@@ -410,64 +377,68 @@ function BannersSection({ config, updateConfig }: SectionProps) {
   };
 
   return (
-    <>
-      {/* 0. HOMEPAGE MAIN HERO BANNER (VIDEO / IMAGE BANNER) */}
-      <div className="sfm-section" style={{ marginBottom: '28px', border: '1.5px solid rgba(233, 43, 43, 0.25)', borderRadius: '12px', background: 'rgba(233, 43, 43, 0.02)' }}>
-        <div className="sfm-section-header">
-          <div>
-            <div className="sfm-section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Film size={18} style={{ color: 'var(--sf-accent, #E92B2B)' }} />
-              Homepage Main Hero Banner (Full-Width)
+    <div className="sfm-banner-studio">
+      {/* LEFT COLUMN: Clean Minimal Banner Controls */}
+      <div className="sfm-banner-controls-col">
+        {/* Main Hero Banner Setup */}
+        <div className="sfm-card" style={{ border: '1.5px solid rgba(233, 43, 43, 0.3)', borderRadius: '12px' }}>
+          <div className="sfm-card-header" style={{ paddingBottom: '14px', marginBottom: '16px' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                <Film size={18} style={{ color: 'var(--sf-accent, #E92B2B)' }} />
+                Homepage Hero Banner Setup
+              </div>
+              <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+                Clean full-width banner: choose between an optimized static image or seamless video
+              </p>
             </div>
-            <div className="sfm-section-subtitle">
-              Set a high-performance Video or Static Image banner at the top of your homepage
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                {heroBanner.enabled !== false ? 'Active' : 'Disabled'}
+              </span>
+              <Toggle checked={heroBanner.enabled !== false} onChange={(v) => updateHero('enabled', v)} />
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Status:</span>
-            <Toggle checked={heroBanner.enabled !== false} onChange={(v) => updateHero('enabled', v)} />
-          </div>
-        </div>
 
-        <div style={{ padding: '0 20px 20px' }}>
-          {/* Media Type Selector */}
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+          {/* Banner Media Mode Selector */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '18px' }}>
             <button
               type="button"
               className={`btn ${heroBanner.mediaType === 'image' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => updateHero('mediaType', 'image')}
-              style={{ flex: 1, padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 700 }}
+              style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 700, fontSize: '0.85rem' }}
             >
-              <Image size={16} /> Static Image Banner
+              <Image size={15} /> Static Image Banner
             </button>
             <button
               type="button"
               className={`btn ${heroBanner.mediaType === 'video' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => updateHero('mediaType', 'video')}
-              style={{ flex: 1, padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 700 }}
+              style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 700, fontSize: '0.85rem' }}
             >
-              <Video size={16} /> High-Speed Video Banner
+              <Video size={15} /> Video Hero Banner
             </button>
           </div>
 
           {heroBanner.mediaType === 'video' ? (
-            /* VIDEO HERO SETTINGS */
-            <div className="sfm-form-grid">
-              <div className="sfm-form-group full-width">
-                <label className="sfm-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Video Source (Upload MP4/WebM or Enter URL) *</span>
-                  <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>⚡ Fast 0ms first-load, auto-pauses on scroll</span>
+            /* ---- VIDEO HERO BANNER SETTINGS ---- */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Video File / URL Input */}
+              <div>
+                <label className="sfm-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span>Video File or Direct URL *</span>
+                  <span style={{ fontSize: '0.72rem', color: '#16a34a', fontWeight: 600 }}>⚡ 0ms instant stream</span>
                 </label>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                   <input
                     className="sfm-input"
-                    style={{ flex: 1, minWidth: '240px' }}
+                    style={{ flex: 1, minWidth: '220px' }}
                     value={heroBanner.videoUrl || ''}
                     onChange={e => updateHero('videoUrl', e.target.value)}
-                    placeholder="e.g. /uploads/media/hero.mp4 or https://example.com/video.mp4"
+                    placeholder="e.g. /uploads/media/banner.mp4 or https://..."
                   />
                   <label className="btn btn-secondary" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', height: '38px', boxSizing: 'border-box' }}>
-                    <Upload size={14} /> {videoUploading ? 'Uploading Video...' : 'Upload Video File'}
+                    <Upload size={14} /> {videoUploading ? 'Uploading...' : 'Upload MP4/WebM'}
                     <input
                       type="file"
                       accept="video/mp4,video/webm"
@@ -477,24 +448,25 @@ function BannersSection({ config, updateConfig }: SectionProps) {
                     />
                   </label>
                 </div>
-                {videoUploadError && <div style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px' }}>{videoUploadError}</div>}
+                {videoUploadError && <div style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '4px' }}>{videoUploadError}</div>}
               </div>
 
               {/* Poster / Fallback Image */}
-              <div className="sfm-form-group full-width">
-                <label className="sfm-label">
-                  Poster Image (Instant 0ms display while video loads or on slow connections)
+              <div>
+                <label className="sfm-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span>Fast Fallback Poster Image</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)' }}>Shown instantly before video frames start</span>
                 </label>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                   <input
                     className="sfm-input"
-                    style={{ flex: 1, minWidth: '240px' }}
+                    style={{ flex: 1, minWidth: '220px' }}
                     value={heroBanner.posterImage || ''}
                     onChange={e => updateHero('posterImage', e.target.value)}
                     placeholder="e.g. /assets/main-banner.webp"
                   />
                   <label className="btn btn-secondary" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', height: '38px', boxSizing: 'border-box' }}>
-                    <Upload size={14} /> Upload Poster Image
+                    <Upload size={14} /> Upload Poster
                     <input
                       type="file"
                       accept="image/*"
@@ -515,101 +487,100 @@ function BannersSection({ config, updateConfig }: SectionProps) {
                 </div>
               </div>
 
-              {/* Video Controls Toggles */}
-              <div className="sfm-form-group">
-                <label className="sfm-label">Autoplay Video</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', height: '38px' }}>
-                  <Toggle checked={heroBanner.autoPlay !== false} onChange={v => updateHero('autoPlay', v)} />
-                  <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Auto-starts on page load</span>
-                </div>
-              </div>
-
-              <div className="sfm-form-group">
-                <label className="sfm-label">Muted Audio (Required for mobile autoplay)</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', height: '38px' }}>
-                  <Toggle checked={heroBanner.muted !== false} onChange={v => updateHero('muted', v)} />
-                  <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Muted</span>
-                </div>
-              </div>
-
-              <div className="sfm-form-group">
-                <label className="sfm-label">Loop Video</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', height: '38px' }}>
-                  <Toggle checked={heroBanner.loop !== false} onChange={v => updateHero('loop', v)} />
-                  <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Continuous Loop</span>
-                </div>
-              </div>
-
-              <div className="sfm-form-group">
-                <label className="sfm-label">Dark Tint Overlay: {heroBanner.overlayOpacity ?? 25}%</label>
+              {/* Banner Click Link (Optional) */}
+              <div>
+                <label className="sfm-label" style={{ marginBottom: '6px' }}>Banner Redirect Link (Optional)</label>
                 <input
-                  type="range"
-                  min="0"
-                  max="80"
-                  step="5"
-                  value={heroBanner.overlayOpacity ?? 25}
-                  onChange={e => updateHero('overlayOpacity', Number(e.target.value))}
-                  style={{ width: '100%', accentColor: 'var(--sf-accent, #E92B2B)' }}
+                  className="sfm-input"
+                  value={heroBanner.link || ''}
+                  onChange={e => updateHero('link', e.target.value)}
+                  placeholder="e.g. /collection/all or /collection/gym-equipment"
                 />
               </div>
 
-              {/* Optional Text Overlay */}
-              <div className="sfm-form-group">
-                <label className="sfm-label">Overlay Title (Optional)</label>
-                <input className="sfm-input" value={heroBanner.title || ''} onChange={e => updateHero('title', e.target.value)} placeholder="e.g. GAZI SPORTS 24" />
-              </div>
+              {/* Video Controls & Display Effects Grid */}
+              <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-secondary)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Video Controls & Effects
+                </div>
 
-              <div className="sfm-form-group">
-                <label className="sfm-label">Overlay Subtitle (Optional)</label>
-                <input className="sfm-input" value={heroBanner.subtitle || ''} onChange={e => updateHero('subtitle', e.target.value)} placeholder="e.g. PLAY HARD · SHOP SMART" />
-              </div>
-
-              <div className="sfm-form-group">
-                <label className="sfm-label">CTA Button Text (Optional)</label>
-                <input className="sfm-input" value={heroBanner.buttonText || ''} onChange={e => updateHero('buttonText', e.target.value)} placeholder="e.g. SHOP NOW" />
-              </div>
-
-              <div className="sfm-form-group">
-                <label className="sfm-label">CTA Button Link (Optional)</label>
-                <input className="sfm-input" value={heroBanner.buttonLink || ''} onChange={e => updateHero('buttonLink', e.target.value)} placeholder="e.g. /collection/all" />
-              </div>
-
-              {/* Video Live Preview Box */}
-              {heroBanner.videoUrl && (
-                <div className="sfm-form-group full-width" style={{ marginTop: '12px' }}>
-                  <label className="sfm-label">Live Video Preview</label>
-                  <div style={{ position: 'relative', width: '100%', height: '220px', borderRadius: '8px', overflow: 'hidden', background: '#000' }}>
-                    <video
-                      src={heroBanner.videoUrl}
-                      poster={heroBanner.posterImage || heroBanner.image}
-                      autoPlay={heroBanner.autoPlay !== false}
-                      muted={heroBanner.muted !== false}
-                      loop={heroBanner.loop !== false}
-                      playsInline
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                    <div style={{ position: 'absolute', inset: 0, background: `rgba(0,0,0,${(heroBanner.overlayOpacity ?? 25) / 100})`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', textAlign: 'center', pointerEvents: 'none', padding: '16px' }}>
-                      {heroBanner.title && <div style={{ fontSize: '1.2rem', fontWeight: 800, textTransform: 'uppercase' }}>{heroBanner.title}</div>}
-                      {heroBanner.subtitle && <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>{heroBanner.subtitle}</div>}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
+                  {/* Mute Audio */}
+                  <div style={{ background: 'var(--bg-card)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Mute Audio</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>Required for autoplay</div>
                     </div>
+                    <Toggle checked={heroBanner.muted !== false} onChange={v => updateHero('muted', v)} />
+                  </div>
+
+                  {/* Loop Video */}
+                  <div style={{ background: 'var(--bg-card)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Continuous Loop</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>Replay seamlessly</div>
+                    </div>
+                    <Toggle checked={heroBanner.loop !== false} onChange={v => updateHero('loop', v)} />
+                  </div>
+
+                  {/* Autoplay */}
+                  <div style={{ background: 'var(--bg-card)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Autoplay</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>Auto-play on entry</div>
+                    </div>
+                    <Toggle checked={heroBanner.autoPlay !== false} onChange={v => updateHero('autoPlay', v)} />
+                  </div>
+
+                  {/* Edge Fading */}
+                  <div style={{ background: 'var(--bg-card)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Edge Fading</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>Soft vignette effect</div>
+                    </div>
+                    <Toggle checked={Boolean(heroBanner.fadeEdges)} onChange={v => updateHero('fadeEdges', v)} />
                   </div>
                 </div>
-              )}
+
+                {/* Dark Tint Slider */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label className="sfm-label" style={{ margin: 0 }}>Dark Tint Overlay</label>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '2px 8px', borderRadius: '10px', background: 'rgba(233, 43, 43, 0.15)', color: 'var(--sf-accent, #E92B2B)' }}>
+                      {heroBanner.overlayOpacity ?? 0}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="80"
+                    step="5"
+                    value={heroBanner.overlayOpacity ?? 0}
+                    onChange={e => updateHero('overlayOpacity', Number(e.target.value))}
+                    style={{ width: '100%', accentColor: 'var(--sf-accent, #E92B2B)' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--text-tertiary)', marginTop: '2px' }}>
+                    <span>0% (Crystal Clear)</span>
+                    <span>40% (Balanced)</span>
+                    <span>80% (Deep Dark)</span>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
-            /* STATIC IMAGE HERO SETTINGS */
-            <div className="sfm-form-grid">
-              <div className="sfm-form-group full-width">
-                <label className="sfm-label">Hero Banner Image URL / Upload *</label>
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+            /* ---- STATIC IMAGE HERO BANNER SETTINGS ---- */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label className="sfm-label" style={{ marginBottom: '6px' }}>Banner Image URL or Upload *</label>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                   <input
                     className="sfm-input"
-                    style={{ flex: 1, minWidth: '240px' }}
+                    style={{ flex: 1, minWidth: '220px' }}
                     value={heroBanner.image || ''}
                     onChange={e => updateHero('image', e.target.value)}
-                    placeholder="e.g. /assets/main-banner.webp or https://example.com/banner.png"
+                    placeholder="e.g. /assets/main-banner.webp or https://..."
                   />
-                  <label className="btn btn-secondary" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: '8px 16px', height: '38px', boxSizing: 'border-box' }}>
+                  <label className="btn btn-secondary" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', height: '38px', boxSizing: 'border-box' }}>
                     <Upload size={14} /> Upload Banner Image
                     <input
                       type="file"
@@ -631,199 +602,296 @@ function BannersSection({ config, updateConfig }: SectionProps) {
                 </div>
               </div>
 
-              {heroBanner.image && (
-                <div className="sfm-form-group full-width">
-                  <label className="sfm-label">Image Preview</label>
-                  <img src={heroBanner.image} alt="Hero Banner Preview" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '8px' }} />
+              {/* Banner Click Link (Optional) */}
+              <div>
+                <label className="sfm-label" style={{ marginBottom: '6px' }}>Banner Redirect Link (Optional)</label>
+                <input
+                  className="sfm-input"
+                  value={heroBanner.link || ''}
+                  onChange={e => updateHero('link', e.target.value)}
+                  placeholder="e.g. /collection/all or /collection/gym-equipment"
+                />
+              </div>
+
+              {/* Effects: Edge Fading & Dark Tint Overlay */}
+              <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-secondary)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ background: 'var(--bg-card)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Edge Fading</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>Soft vignette transition at top & bottom</div>
+                  </div>
+                  <Toggle checked={Boolean(heroBanner.fadeEdges)} onChange={v => updateHero('fadeEdges', v)} />
                 </div>
-              )}
+
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label className="sfm-label" style={{ margin: 0 }}>Dark Tint Overlay</label>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 700, padding: '2px 8px', borderRadius: '10px', background: 'rgba(233, 43, 43, 0.15)', color: 'var(--sf-accent, #E92B2B)' }}>
+                      {heroBanner.overlayOpacity ?? 0}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="80"
+                    step="5"
+                    value={heroBanner.overlayOpacity ?? 0}
+                    onChange={e => updateHero('overlayOpacity', Number(e.target.value))}
+                    style={{ width: '100%', accentColor: 'var(--sf-accent, #E92B2B)' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--text-tertiary)', marginTop: '2px' }}>
+                    <span>0% (Full Brightness)</span>
+                    <span>40% (Medium Tint)</span>
+                    <span>80% (Deep Dark)</span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
-      </div>
 
-      <div className="sfm-section">
-        <div className="sfm-section-header">
-          <div>
-            <div className="sfm-section-title">Hero Banner Carousel</div>
-          <div className="sfm-section-subtitle">Manage the main hero banners on your storefront homepage</div>
-        </div>
-        <button className="btn btn-primary btn-sm" onClick={addBanner}><Plus size={14} /> Add Banner</button>
-      </div>
-
-      <div className="sfm-item-list">
-        {banners.map((banner, idx) => (
-          <div key={banner.id}>
-            <div className="sfm-item">
-              <div className="sfm-item-number">{idx + 1}</div>
-              <div className="sfm-gradient-preview" style={{ background: banner.gradient, width: 60, height: 36, borderRadius: 6, flexShrink: 0 }} />
-              <div className="sfm-item-content">
-                <div className="sfm-item-title">{banner.title}</div>
-                <div className="sfm-item-meta">{banner.tag} • {banner.offer}</div>
-              </div>
-              <Toggle checked={banner.enabled} onChange={(v) => update(banner.id, 'enabled', v)} />
-              <div className="sfm-actions">
-                <button className="sfm-btn-icon" onClick={() => move(banner.id, -1)} title="Move up"><ChevronUp size={14} /></button>
-                <button className="sfm-btn-icon" onClick={() => move(banner.id, 1)} title="Move down"><ChevronDown size={14} /></button>
-                <button className="sfm-btn-icon" onClick={() => setEditId(editId === banner.id ? null : banner.id)} title="Edit"><Edit3 size={14} /></button>
-                <button className="sfm-btn-icon danger" onClick={() => removeBanner(banner.id)} title="Delete"><Trash2 size={14} /></button>
-              </div>
+        {/* Middle Promotional Banners */}
+        <div className="sfm-card">
+          <div className="sfm-card-header" style={{ paddingBottom: '12px', marginBottom: '14px' }}>
+            <div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Middle Promo Banners</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>Promotional banners displayed above the footer</div>
             </div>
+            <button className="btn btn-primary btn-sm" onClick={addMiddleBanner}>
+              <Plus size={14} /> Add Promo Banner
+            </button>
+          </div>
 
-            {editId === banner.id && (
-              <div className="sfm-expand">
-                <div className="sfm-expand-body">
-                  <div className="sfm-form-grid">
-                    <div className="sfm-form-group">
-                      <label className="sfm-label">Title</label>
-                      <input className="sfm-input" value={banner.title} onChange={e => update(banner.id, 'title', e.target.value)} />
+          <div className="sfm-item-list">
+            {middleBanners.length === 0 ? (
+              <div style={{ padding: '16px', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+                No middle promo banners added. Click "+ Add Promo Banner" to add one.
+              </div>
+            ) : (
+              middleBanners.map((banner, idx) => (
+                <div key={banner.id}>
+                  <div className="sfm-item">
+                    <div className="sfm-item-number">{idx + 1}</div>
+                    <div style={{ width: 56, height: 34, borderRadius: 6, flexShrink: 0, overflow: 'hidden', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      {banner.image && <img src={banner.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                     </div>
-                    <div className="sfm-form-group">
-                      <label className="sfm-label">Subtitle</label>
-                      <input className="sfm-input" value={banner.subtitle} onChange={e => update(banner.id, 'subtitle', e.target.value)} />
+                    <div className="sfm-item-content">
+                      <div className="sfm-item-title">{banner.link || 'No redirect link'}</div>
+                      <div className="sfm-item-meta">{banner.image ? 'Custom image' : 'No image set'}</div>
                     </div>
-                    <div className="sfm-form-group">
-                      <label className="sfm-label">Tag Line (Small text)</label>
-                      <input className="sfm-input" value={banner.tag} onChange={e => update(banner.id, 'tag', e.target.value)} />
-                    </div>
-                    <div className="sfm-form-group">
-                      <label className="sfm-label">Offer Badge Text</label>
-                      <input className="sfm-input" value={banner.offer} onChange={e => update(banner.id, 'offer', e.target.value)} />
-                    </div>
-                    <div className="sfm-form-group">
-                      <label className="sfm-label">Button Text</label>
-                      <input className="sfm-input" value={banner.buttonText} onChange={e => update(banner.id, 'buttonText', e.target.value)} />
-                    </div>
-                    <div className="sfm-form-group">
-                      <label className="sfm-label">Button Link</label>
-                      <input className="sfm-input" value={banner.buttonLink} onChange={e => update(banner.id, 'buttonLink', e.target.value)} />
-                    </div>
-                    <div className="sfm-form-group full-width">
-                      <label className="sfm-label">Image URL / Upload (Highly Recommended over color gradients)</label>
-                      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                        <input className="sfm-input" style={{ flex: 1, minWidth: '200px' }} value={banner.image || ''} onChange={e => update(banner.id, 'image', e.target.value)} placeholder="https://example.com/slide1.png" />
-                        <label className="btn btn-secondary" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: '8px 16px', height: '38px', boxSizing: 'border-box' }}>
-                          <Upload size={14} /> Upload Image
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            style={{ display: 'none' }} 
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                try {
-                                  const webpBase64 = await convertToWebP(file);
-                                  update(banner.id, 'image', webpBase64);
-                                } catch {
-                                  alert('Failed to convert image.');
-                                }
-                              }
-                            }} 
-                          />
-                        </label>
-                        {banner.image && <img src={banner.image} alt="" style={{ height: '36px', borderRadius: '4px' }} />}
-                      </div>
-                     </div>
-                    <div className="sfm-form-group full-width">
-                      <label className="sfm-label">Gradient Background CSS</label>
-                      <input className="sfm-input" value={banner.gradient} onChange={e => update(banner.id, 'gradient', e.target.value)} />
-                      <div className="sfm-gradient-preview" style={{ background: banner.gradient }} />
+                    <Toggle checked={banner.enabled} onChange={(v) => updateMiddle(banner.id, 'enabled', v)} />
+                    <div className="sfm-actions">
+                      <button className="sfm-btn-icon" onClick={() => moveMiddle(banner.id, -1)} title="Move up"><ChevronUp size={14} /></button>
+                      <button className="sfm-btn-icon" onClick={() => moveMiddle(banner.id, 1)} title="Move down"><ChevronDown size={14} /></button>
+                      <button className="sfm-btn-icon" onClick={() => setEditMiddleId(editMiddleId === banner.id ? null : banner.id)} title="Edit"><Edit3 size={14} /></button>
+                      <button className="sfm-btn-icon danger" onClick={() => removeMiddleBanner(banner.id)} title="Delete"><Trash2 size={14} /></button>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
 
-      {/* Homepage Middle Promo Banners */}
-      <div className="sfm-section-header" style={{ marginTop: '40px' }}>
-        <div>
-          <div className="sfm-section-title">Middle Promo Banners</div>
-          <div className="sfm-section-subtitle">Manage promotional banners displayed vertically above the footer</div>
-        </div>
-        <button className="btn btn-primary btn-sm" onClick={addMiddleBanner}><Plus size={14} /> Add Middle Banner</button>
-      </div>
-
-      <div className="sfm-item-list">
-        {middleBanners.map((banner, idx) => (
-          <div key={banner.id}>
-            <div className="sfm-item">
-              <div className="sfm-item-number">{idx + 1}</div>
-              <div style={{ width: 60, height: 36, borderRadius: 6, flexShrink: 0, overflow: 'hidden', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                {banner.image && <img src={banner.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-              </div>
-              <div className="sfm-item-content">
-                <div className="sfm-item-title">{banner.link || 'No redirect link set'}</div>
-                <div className="sfm-item-meta">{banner.image ? 'Custom image uploaded' : 'No image uploaded'}</div>
-              </div>
-              <Toggle checked={banner.enabled} onChange={(v) => updateMiddle(banner.id, 'enabled', v)} />
-              <div className="sfm-actions">
-                <button className="sfm-btn-icon" onClick={() => moveMiddle(banner.id, -1)} title="Move up"><ChevronUp size={14} /></button>
-                <button className="sfm-btn-icon" onClick={() => moveMiddle(banner.id, 1)} title="Move down"><ChevronDown size={14} /></button>
-                <button className="sfm-btn-icon" onClick={() => setEditMiddleId(editMiddleId === banner.id ? null : banner.id)} title="Edit"><Edit3 size={14} /></button>
-                <button className="sfm-btn-icon danger" onClick={() => removeMiddleBanner(banner.id)} title="Delete"><Trash2 size={14} /></button>
-              </div>
-            </div>
-
-            {editMiddleId === banner.id && (
-              <div className="sfm-expand">
-                <div className="sfm-expand-body">
-                  <div className="sfm-form-grid" style={{ gridTemplateColumns: '1fr' }}>
-                    <div className="sfm-form-group">
-                      <label className="sfm-label">Banner Redirect Link (Optional)</label>
-                      <input 
-                        className="sfm-input" 
-                        value={banner.link || ''} 
-                        onChange={e => updateMiddle(banner.id, 'link', e.target.value)} 
-                        placeholder="/collection/all"
-                      />
-                    </div>
-                    
-                    <div className="sfm-form-group">
-                      <label className="sfm-label">Banner Image URL / Upload</label>
-                      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                        <input 
-                          className="sfm-input" 
-                          style={{ flex: 1, minWidth: '200px' }} 
-                          value={banner.image || ''} 
-                          onChange={e => updateMiddle(banner.id, 'image', e.target.value)} 
-                          placeholder="https://example.com/banner.png" 
-                        />
-                        <label className="btn btn-secondary" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: '8px 16px', height: '38px', boxSizing: 'border-box' }}>
-                          <Upload size={14} /> Upload Banner
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            style={{ display: 'none' }} 
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                try {
-                                  const webpBase64 = await convertToWebP(file);
-                                  updateMiddle(banner.id, 'image', webpBase64);
-                                } catch {
-                                  alert('Failed to convert image.');
-                                }
-                              }
-                            }} 
-                          />
-                        </label>
-                        {banner.image && (
-                          <img src={banner.image} alt="" style={{ height: '50px', borderRadius: '6px', objectFit: 'contain', border: '1px solid rgba(255,255,255,0.1)' }} />
-                        )}
+                  {editMiddleId === banner.id && (
+                    <div className="sfm-expand">
+                      <div className="sfm-expand-body">
+                        <div className="sfm-form-grid" style={{ gridTemplateColumns: '1fr' }}>
+                          <div className="sfm-form-group">
+                            <label className="sfm-label">Redirect Link (Optional)</label>
+                            <input 
+                              className="sfm-input" 
+                              value={banner.link || ''} 
+                              onChange={e => updateMiddle(banner.id, 'link', e.target.value)} 
+                              placeholder="/collection/all"
+                            />
+                          </div>
+                          <div className="sfm-form-group">
+                            <label className="sfm-label">Banner Image URL / Upload</label>
+                            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                              <input 
+                                className="sfm-input" 
+                                style={{ flex: 1, minWidth: '200px' }} 
+                                value={banner.image || ''} 
+                                onChange={e => updateMiddle(banner.id, 'image', e.target.value)} 
+                                placeholder="https://example.com/banner.webp" 
+                              />
+                              <label className="btn btn-secondary" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', height: '38px', boxSizing: 'border-box' }}>
+                                <Upload size={14} /> Upload Image
+                                <input 
+                                  type="file" 
+                                  accept="image/*" 
+                                  style={{ display: 'none' }} 
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      try {
+                                        const webpBase64 = await convertToWebP(file);
+                                        updateMiddle(banner.id, 'image', webpBase64);
+                                      } catch {
+                                        alert('Failed to convert image.');
+                                      }
+                                    }
+                                  }} 
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
-              </div>
+              ))
             )}
           </div>
-        ))}
+        </div>
+      </div>
+
+      {/* RIGHT COLUMN: LIVE STOREFRONT WEBSITE PREVIEW */}
+      <div className="sfm-live-preview-panel">
+        <div className="sfm-preview-browser-bar">
+          <div className="sfm-preview-window-dots">
+            <span className="sfm-preview-window-dot sfm-dot-red" />
+            <span className="sfm-preview-window-dot sfm-dot-yellow" />
+            <span className="sfm-preview-window-dot sfm-dot-green" />
+          </div>
+
+          <div className="sfm-preview-address-bar">
+            <span>🔒</span>
+            <span>gazisports24.com</span>
+            <span style={{ color: '#10b981', marginLeft: '6px', fontSize: '9px', fontWeight: 700 }}>● LIVE</span>
+          </div>
+
+          <div className="sfm-preview-viewport-toggle">
+            <button
+              type="button"
+              className={`sfm-preview-viewport-btn ${viewportMode === 'desktop' ? 'active' : ''}`}
+              onClick={() => setViewportMode('desktop')}
+              title="Desktop View"
+            >
+              <Monitor size={12} /> PC
+            </button>
+            <button
+              type="button"
+              className={`sfm-preview-viewport-btn ${viewportMode === 'mobile' ? 'active' : ''}`}
+              onClick={() => setViewportMode('mobile')}
+              title="Mobile View"
+            >
+              <Smartphone size={12} /> Mobile
+            </button>
+          </div>
+        </div>
+
+        {/* Live Storefront Mockup Screen */}
+        <div className={`sfm-preview-screen ${viewportMode === 'mobile' ? 'mobile' : ''}`}>
+          {/* Simulated Header */}
+          <div className="sfm-preview-store-header">
+            {viewportMode === 'desktop' && (
+              <div className="sfm-preview-nav-links">
+                <span>Home</span>
+                <span>Shop</span>
+                <span>Blogs</span>
+              </div>
+            )}
+            <div className="sfm-preview-logo">
+              GAZI <span>SPORTS 24</span>
+            </div>
+            {viewportMode === 'desktop' ? (
+              <div className="sfm-preview-nav-links">
+                <span>Contact</span>
+                <span>Events</span>
+                <span>🛒 Cart (0)</span>
+              </div>
+            ) : (
+              <div style={{ fontSize: '0.8rem' }}>☰</div>
+            )}
+          </div>
+
+          {/* Simulated LIVE HERO BANNER */}
+          {heroBanner.enabled !== false ? (
+            <div className={`sfm-preview-hero-frame ${heroBanner.fadeEdges ? 'sfm-preview-hero-fade' : ''}`}>
+              {heroBanner.mediaType === 'video' && heroBanner.videoUrl ? (
+                <video
+                  ref={previewVideoRef}
+                  src={heroBanner.videoUrl}
+                  poster={heroBanner.posterImage || heroBanner.image}
+                  autoPlay={heroBanner.autoPlay !== false}
+                  muted={heroBanner.muted !== false}
+                  loop={heroBanner.loop !== false}
+                  playsInline
+                  className="sfm-preview-hero-media"
+                />
+              ) : (
+                <img
+                  src={heroBanner.image || '/assets/main-banner.webp'}
+                  alt="Live Hero Preview"
+                  className="sfm-preview-hero-media"
+                />
+              )}
+
+              {/* Tint Overlay */}
+              {Number(heroBanner.overlayOpacity ?? 0) > 0 && (
+                <div
+                  className="sfm-preview-hero-overlay"
+                  style={{ background: `rgba(0, 0, 0, ${(heroBanner.overlayOpacity ?? 0) / 100})` }}
+                />
+              )}
+            </div>
+          ) : (
+            <div style={{ background: '#f1f5f9', padding: '30px 16px', textAlign: 'center', color: '#64748b', fontSize: '0.8rem', fontWeight: 600 }}>
+              🚫 Hero Banner is currently disabled
+            </div>
+          )}
+
+          {/* Shop Now button */}
+          <div className="sfm-preview-cta-row">
+            <button type="button" className="sfm-preview-cta-btn">
+              Shop Now &rarr;
+            </button>
+          </div>
+
+          {/* Featured Categories Preview */}
+          <div className="sfm-preview-section-title">— Featured Categories —</div>
+          <div className="sfm-preview-categories-row">
+            {config.categories.filter(c => c.published).slice(0, 5).map(cat => (
+              <div key={cat.id} className="sfm-preview-category-chip">
+                <span>🏆</span>
+                <span>{cat.name}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Popular This Week Preview */}
+          <div className="sfm-preview-section-title" style={{ marginTop: '8px' }}>Popular This Week</div>
+          <div className="sfm-preview-products-grid">
+            {sampleTrending.map(product => (
+              <div key={product.id} className="sfm-preview-product-card">
+                <img src={product.image} alt={product.name} className="sfm-preview-product-img" />
+                <div className="sfm-preview-product-info">
+                  <div className="sfm-preview-product-name">{product.name}</div>
+                  <div className="sfm-preview-product-price">৳ {product.price.toLocaleString()}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* New Arrivals Preview */}
+          <div className="sfm-preview-section-title" style={{ marginTop: '4px' }}>New Arrivals</div>
+          <div className="sfm-preview-products-grid">
+            {sampleNewArrivals.map(product => (
+              <div key={product.id} className="sfm-preview-product-card">
+                <img src={product.image} alt={product.name} className="sfm-preview-product-img" />
+                <div className="sfm-preview-product-info">
+                  <div className="sfm-preview-product-name">{product.name}</div>
+                  <div className="sfm-preview-product-price">৳ {product.price.toLocaleString()}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Simulated Mini Footer */}
+          <div style={{ background: '#0a0e1a', color: '#94a3b8', padding: '16px', textAlign: 'center', fontSize: '0.68rem', marginTop: '16px' }}>
+            © 2026 Gazi Sports 24. All rights reserved.
+          </div>
+        </div>
       </div>
     </div>
-    </>
   );
 }
 

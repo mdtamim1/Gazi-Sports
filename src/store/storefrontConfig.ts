@@ -19,11 +19,13 @@ export interface HeroBannerConfig {
   image?: string;
   videoUrl?: string;
   posterImage?: string;
+  link?: string;
   title?: string;
   subtitle?: string;
   buttonText?: string;
   buttonLink?: string;
   overlayOpacity?: number; // 0 to 80
+  fadeEdges?: boolean;
   enabled?: boolean;
   muted?: boolean;
   loop?: boolean;
@@ -192,11 +194,13 @@ export const DEFAULT_HERO_BANNER: HeroBannerConfig = {
   image: '/assets/main-banner.webp',
   posterImage: '/assets/main-banner.webp',
   videoUrl: '',
+  link: '/collection/all',
   title: 'GAZI SPORTS 24',
   subtitle: 'PLAY HARD · SHOP SMART',
   buttonText: 'SHOP NOW',
   buttonLink: '/collection/all',
   overlayOpacity: 25,
+  fadeEdges: false,
   enabled: true,
   muted: true,
   loop: true,
@@ -211,7 +215,12 @@ const DEFAULT_ANNOUNCEMENTS: AnnouncementItem[] = [
   { id: 3, text: "📞 Contact us for any query!", enabled: true }
 ];
 
-const DEFAULT_CATEGORIES: CategoryConfig[] = [];
+const DEFAULT_CATEGORIES: CategoryConfig[] = [
+  { id: 1, name: 'Trofy', icon: 'Award', count: 2, published: true, sortOrder: 1 },
+  { id: 2, name: 'Gym Equipment', icon: 'Dumbbell', count: 8, published: true, sortOrder: 2 },
+  { id: 3, name: 'Sports', icon: 'Zap', count: 6, published: true, sortOrder: 3 },
+  { id: 4, name: 'Accessories', icon: 'Watch', count: 4, published: true, sortOrder: 4 },
+];
 
 const DEFAULT_NAV_LINKS: NavLinkItem[] = [
   { id: 1, label: 'Home', url: '/', enabled: true },
@@ -303,7 +312,7 @@ const DEFAULT_PRODUCTS: ProductConfig[] = [];
 
 const STORAGE_KEY = 'storefront_config';
 // Cache key for localStorage config persistence (instant load on revisit)
-const CONFIG_CACHE_KEY = 'sf_config_v1';
+const CONFIG_CACHE_KEY = 'gazi_sf_instant_cache_v5';
 
 // ============================================================
 // CONFIG MANAGER
@@ -504,11 +513,29 @@ let _cacheTimestamp: number = 0;
 
 function loadConfig(): StorefrontConfig {
   if (_config) return _config;
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(CONFIG_CACHE_KEY) : null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        const migrated = migrateConfig(parsed);
+        if (migrated) {
+          _config = migrated;
+          return migrated;
+        }
+      }
+    }
+  } catch {}
   _config = getDefaultConfig();
   return _config;
 }
 
 function saveConfig(config: StorefrontConfig): void {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(CONFIG_CACHE_KEY, JSON.stringify(config));
+    }
+  } catch {}
   _config = config;
   _cacheTimestamp = Date.now();
   // Notify all listeners
@@ -611,6 +638,11 @@ async function syncWithBackend(force: boolean = false): Promise<void> {
           _config = serverConfig;
           _cacheTimestamp = Date.now();
           _synced = true;
+          try {
+            if (typeof window !== 'undefined') {
+              localStorage.setItem(CONFIG_CACHE_KEY, JSON.stringify(serverConfig));
+            }
+          } catch {}
           _listeners.forEach(fn => fn());
         }
       }
@@ -766,7 +798,7 @@ export function useStorefrontConfig(): [
     // One-time cleanup: remove any stale localStorage config
     try { 
       localStorage.removeItem(STORAGE_KEY); 
-      localStorage.removeItem(CONFIG_CACHE_KEY); 
+      // Retain instant config cache for 0ms loading 
     } catch {}
 
     // Initial sync

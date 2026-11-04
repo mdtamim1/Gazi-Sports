@@ -45,8 +45,6 @@ export default function StorefrontHome() {
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
   const location = useLocation();
 
-
-
   // Load active campaigns from backend API
   const [activeCampaigns, setActiveCampaigns] = useState<any[]>([]);
   const announcements = config.announcements ? config.announcements.filter((a: any) => a.enabled) : [];
@@ -66,7 +64,6 @@ export default function StorefrontHome() {
     };
     loadCampaigns();
   }, []);
-
 
   // Shuffle products randomly on component mount or products update
   const shuffledProducts = useMemo(() => {
@@ -100,7 +97,7 @@ export default function StorefrontHome() {
     return config.products.filter(p => p.published).slice(0, 4);
   }, [config.products, config.newArrivalProductIds]);
 
-  const renderProductCard = (product: any) => {
+  const renderProductCard = (product: any, priority: boolean = false) => {
     const isJersey = product.category && (product.category.toLowerCase() === 'jersey' || product.category.toLowerCase() === 'jerseys');
     const originalPriceVal = product.originalPrice ?? product.original_price;
     const hasDiscount = originalPriceVal && Number(originalPriceVal) > product.price;
@@ -115,7 +112,7 @@ export default function StorefrontHome() {
       return (
         <Link to={`/product/${productSlug}`} key={product.id} className="jersey-product-card" style={{ textDecoration: 'none' }}>
           <div className="jersey-product-image-container">
-            <OptimizedImage src={product.image} alt={product.name} className="jersey-product-image" width={400} height={533} />
+            <OptimizedImage src={product.image} alt={product.name} className="jersey-product-image" width={400} height={533} priority={priority} />
             <button 
               type="button"
               className="product-card-wishlist"
@@ -164,7 +161,7 @@ export default function StorefrontHome() {
     return (
       <Link to={`/product/${productSlug}`} key={product.id} className="trending-product-card" style={{ textDecoration: 'none' }}>
         <div className="trending-product-image-container">
-          <OptimizedImage src={product.image} alt={product.name} className="trending-product-image" width={400} height={400} />
+          <OptimizedImage src={product.image} alt={product.name} className="trending-product-image" width={400} height={400} priority={priority} />
           <button 
             type="button"
             className="product-card-wishlist"
@@ -232,7 +229,6 @@ export default function StorefrontHome() {
     );
   };
 
-
   const filteredProducts = shuffledProducts.filter(p => {
     if (selectedCategory !== 'All' && p.category !== selectedCategory) return false;
     if (searchQuery && searchQuery.trim()) {
@@ -281,7 +277,6 @@ export default function StorefrontHome() {
     }));
   }
 
-
   // Find if there is an active timed campaign
   const activePromoSection = config.navLinks.find(n => n.enabled && n.timerEnabled && n.timerEndDate);
 
@@ -292,7 +287,6 @@ export default function StorefrontHome() {
     }, 4000);
     return () => clearInterval(timer);
   }, [banners.length]);
-
 
   // Pause hero video when scrolled out of view to save CPU, GPU & battery
   useEffect(() => {
@@ -354,7 +348,7 @@ export default function StorefrontHome() {
       {config.heroBanner?.enabled !== false && (
         <section className="hero-banner-section" ref={heroRef}>
           {config.heroBanner?.mediaType === 'video' && config.heroBanner?.videoUrl ? (
-            <div className="hero-video-container">
+            <div className={`hero-video-container ${config.heroBanner?.fadeEdges ? 'hero-fade-edges' : ''}`}>
               {/* Fallback Poster Image */}
               <div 
                 className={`hero-video-poster ${videoLoaded ? 'loaded' : ''}`}
@@ -373,40 +367,68 @@ export default function StorefrontHome() {
                 loop={config.heroBanner.loop !== false}
                 muted={config.heroBanner.muted !== false}
                 playsInline
-                preload="metadata"
+                preload="auto"
                 onLoadedData={() => setVideoLoaded(true)}
               />
 
               {/* Tint Overlay */}
-              <div 
-                className="hero-video-overlay" 
-                style={{ 
-                  background: `rgba(0, 0, 0, ${(config.heroBanner.overlayOpacity ?? 25) / 100})` 
-                }}
-              />
+              {Number(config.heroBanner.overlayOpacity ?? 0) > 0 && (
+                <div 
+                  className="hero-video-overlay" 
+                  style={{ 
+                    background: `rgba(0, 0, 0, ${(config.heroBanner.overlayOpacity ?? 0) / 100})` 
+                  }}
+                />
+              )}
 
-              {/* Optional Text Overlay */}
-              {(config.heroBanner.title || config.heroBanner.subtitle || config.heroBanner.buttonText) && (
-                <div className="hero-video-content">
-                  {config.heroBanner.title && <h1 className="hero-video-title">{config.heroBanner.title}</h1>}
-                  {config.heroBanner.subtitle && <p className="hero-video-subtitle">{config.heroBanner.subtitle}</p>}
-                  {config.heroBanner.buttonText && (
-                    <Link to={config.heroBanner.buttonLink || '/collection/all'} className="hero-video-cta-btn">
-                      {config.heroBanner.buttonText} &rarr;
-                    </Link>
-                  )}
-                </div>
+              {/* Optional clickable banner link */}
+              {config.heroBanner.link && (
+                <Link 
+                  to={config.heroBanner.link} 
+                  aria-label="Hero Banner Link"
+                  style={{ position: 'absolute', inset: 0, zIndex: 10 }}
+                />
               )}
             </div>
           ) : (
-            <div className="fullscreen-slides">
-              <div 
-                className="fullscreen-slide has-image" 
-                style={{ 
-                  background: `url(${config.heroBanner?.image || '/assets/main-banner.webp'}) center/cover no-repeat`,
-                  width: '100%'
-                }}
-              />
+            <div className={`hero-image-banner-container ${config.heroBanner?.fadeEdges ? 'hero-fade-edges' : ''}`}>
+              {config.heroBanner?.link ? (
+                <Link to={config.heroBanner.link} style={{ display: 'block', width: '100%', height: '100%', textDecoration: 'none', position: 'relative' }}>
+                  <img 
+                    src={config.heroBanner?.image || '/assets/main-banner.webp'} 
+                    alt="Hero Banner" 
+                    className="hero-banner-img"
+                    loading="eager"
+                    fetchPriority="high"
+                  />
+                  {Number(config.heroBanner?.overlayOpacity ?? 0) > 0 && (
+                    <div 
+                      className="hero-banner-overlay" 
+                      style={{ 
+                        background: `rgba(0, 0, 0, ${(config.heroBanner?.overlayOpacity ?? 0) / 100})` 
+                      }}
+                    />
+                  )}
+                </Link>
+              ) : (
+                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                  <img 
+                    src={config.heroBanner?.image || '/assets/main-banner.webp'} 
+                    alt="Hero Banner" 
+                    className="hero-banner-img"
+                    loading="eager"
+                    fetchPriority="high"
+                  />
+                  {Number(config.heroBanner?.overlayOpacity ?? 0) > 0 && (
+                    <div 
+                      className="hero-banner-overlay" 
+                      style={{ 
+                        background: `rgba(0, 0, 0, ${(config.heroBanner?.overlayOpacity ?? 0) / 100})` 
+                      }}
+                    />
+                  )}
+                </div>
+              )}
             </div>
           )}
         </section>
@@ -450,7 +472,7 @@ export default function StorefrontHome() {
               >
                 <div className="category-image-container">
                   {displayCategoryCardImage ? (
-                    <OptimizedImage src={displayCategoryCardImage} alt={cat.name} className="category-card-image" width={300} height={300} />
+                    <OptimizedImage src={displayCategoryCardImage} alt={cat.name} className="category-card-image" width={300} height={300} priority={true} />
                   ) : (
                     <div className="category-icon-fallback"><Icon size={22} /></div>
                   )}
@@ -473,7 +495,7 @@ export default function StorefrontHome() {
         </div>
         
         <div className="trending-products-grid">
-          {trendingProducts.map(renderProductCard)}
+          {trendingProducts.map((p, idx) => renderProductCard(p, idx < 6))}
         </div>
       </section>
 
@@ -485,7 +507,7 @@ export default function StorefrontHome() {
         </div>
         
         <div className="new-arrivals-grid">
-          {newArrivalProducts.map(renderProductCard)}
+          {newArrivalProducts.map((p, idx) => renderProductCard(p, idx < 4))}
         </div>
       </section>
 
@@ -525,5 +547,3 @@ export default function StorefrontHome() {
   </>
   );
 }
-
-
