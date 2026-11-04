@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useOutletContext, Link, useLocation } from 'react-router-dom';
 import { Truck, Shield, RotateCcw, Headphones, Star, Heart, ShoppingCart, Zap,
   Smartphone, Shirt, Home as HomeIcon, Dumbbell, Sparkles, BookOpen,
@@ -39,6 +39,9 @@ export default function StorefrontHome() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showCampaignsModal, setShowCampaignsModal] = useState(false);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
   const location = useLocation();
 
@@ -290,6 +293,34 @@ export default function StorefrontHome() {
     return () => clearInterval(timer);
   }, [banners.length]);
 
+
+  // Pause hero video when scrolled out of view to save CPU, GPU & battery
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (heroRef.current) {
+      observer.observe(heroRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [config.heroBanner]);
+
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEndX(null);
     setTouchStartX(e.targetTouches[0].clientX);
@@ -319,18 +350,67 @@ export default function StorefrontHome() {
         title="Gazi Sports 24 | Premium Gym & Sports Equipment Store in Bangladesh" 
         description="Gazi Sports 24 is the leading online store for gym accessories, sports equipment, fitness gear, and activewear at best prices in Bangladesh. Fast home delivery and Cash on Delivery." 
       />
-      {/* ---- Hero Full-Width Banner (Permanent) ---- */}
-      <section className="hero-carousel-fullscreen">
-        <div className="fullscreen-slides">
-          <div 
-            className="fullscreen-slide has-image" 
-            style={{ 
-              background: `url(/assets/main-banner.webp) center/cover no-repeat`,
-              width: '100%'
-            }}
-          />
-        </div>
-      </section>
+      {/* ---- Hero Full-Width Banner (Video / Image Banner) ---- */}
+      {config.heroBanner?.enabled !== false && (
+        <section className="hero-banner-section" ref={heroRef}>
+          {config.heroBanner?.mediaType === 'video' && config.heroBanner?.videoUrl ? (
+            <div className="hero-video-container">
+              {/* Fallback Poster Image */}
+              <div 
+                className={`hero-video-poster ${videoLoaded ? 'loaded' : ''}`}
+                style={{
+                  backgroundImage: `url(${config.heroBanner.posterImage || config.heroBanner.image || '/assets/main-banner.webp'})`
+                }}
+              />
+              
+              {/* High-Performance Video Element */}
+              <video
+                ref={videoRef}
+                className={`hero-video-element ${videoLoaded ? 'loaded' : ''}`}
+                src={config.heroBanner.videoUrl}
+                poster={config.heroBanner.posterImage || config.heroBanner.image || '/assets/main-banner.webp'}
+                autoPlay={config.heroBanner.autoPlay !== false}
+                loop={config.heroBanner.loop !== false}
+                muted={config.heroBanner.muted !== false}
+                playsInline
+                preload="metadata"
+                onLoadedData={() => setVideoLoaded(true)}
+              />
+
+              {/* Tint Overlay */}
+              <div 
+                className="hero-video-overlay" 
+                style={{ 
+                  background: `rgba(0, 0, 0, ${(config.heroBanner.overlayOpacity ?? 25) / 100})` 
+                }}
+              />
+
+              {/* Optional Text Overlay */}
+              {(config.heroBanner.title || config.heroBanner.subtitle || config.heroBanner.buttonText) && (
+                <div className="hero-video-content">
+                  {config.heroBanner.title && <h1 className="hero-video-title">{config.heroBanner.title}</h1>}
+                  {config.heroBanner.subtitle && <p className="hero-video-subtitle">{config.heroBanner.subtitle}</p>}
+                  {config.heroBanner.buttonText && (
+                    <Link to={config.heroBanner.buttonLink || '/collection/all'} className="hero-video-cta-btn">
+                      {config.heroBanner.buttonText} &rarr;
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="fullscreen-slides">
+              <div 
+                className="fullscreen-slide has-image" 
+                style={{ 
+                  background: `url(${config.heroBanner?.image || '/assets/main-banner.webp'}) center/cover no-repeat`,
+                  width: '100%'
+                }}
+              />
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ---- Announcement Bar Removed ---- */}
 

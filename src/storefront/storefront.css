@@ -7264,3 +7264,143 @@
 .product-card-image {
   border-radius: 0 !important;
 }
+
+/* =========================================================
+   HIGH-PERFORMANCE HERO VIDEO BANNER (Zero-Lag & Intersection Observed)
+   ========================================================= */
+
+.hero-banner-section {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #000000;
+}
+
+.hero-video-container {
+  position: relative;
+  width: 100%;
+  height: 540px;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-video-poster {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.6s ease;
+  z-index: 1;
+}
+
+.hero-video-poster.loaded {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hero-video-element {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  z-index: 2;
+}
+
+.hero-video-element.loaded {
+  opacity: 1;
+}
+
+.hero-video-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  transition: background 0.3s ease;
+}
+
+.hero-video-content {
+  position: relative;
+  z-index: 4;
+  text-align: center;
+  color: #ffffff;
+  padding: 0 20px;
+  max-width: 840px;
+}
+
+.hero-video-title {
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  line-height: 1.15;
+}
+
+.hero-video-subtitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+.hero-video-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--sf-accent, #E92B2B);
+  color: #ffffff;
+  padding: 14px 40px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-radius: 4px;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(233, 43, 43, 0.45);
+  transition: all 0.25s ease;
+}
+
+.hero-video-cta-btn:hover {
+  background: #ffffff;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 768px) {
+  .hero-video-container {
+    height: 380px;
+  }
+  .hero-video-title {
+    font-size: 1.8rem;
+  }
+  .hero-video-subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 18px;
+  }
+  .hero-video-cta-btn {
+    padding: 10px 24px;
+    font-size: 0.82rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-video-container {
+    height: 280px;
+  }
+  .hero-video-title {
+    font-size: 1.35rem;
+  }
+}

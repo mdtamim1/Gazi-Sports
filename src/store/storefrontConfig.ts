@@ -13,6 +13,23 @@
 // TYPES
 // ============================================================
 
+
+export interface HeroBannerConfig {
+  mediaType: 'image' | 'video';
+  image?: string;
+  videoUrl?: string;
+  posterImage?: string;
+  title?: string;
+  subtitle?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  overlayOpacity?: number; // 0 to 80
+  enabled?: boolean;
+  muted?: boolean;
+  loop?: boolean;
+  autoPlay?: boolean;
+}
+
 export interface BannerSlide {
   id: number;
   title: string;
@@ -162,11 +179,29 @@ export interface StorefrontConfig {
   middleBannerLink?: string;
   middleBannerEnabled?: boolean;
   middleBanners?: MiddleBannerConfig[];
+  heroBanner?: HeroBannerConfig;
 }
 
 // ============================================================
 // DEFAULT VALUES (matching current hardcoded content)
 // ============================================================
+
+
+export const DEFAULT_HERO_BANNER: HeroBannerConfig = {
+  mediaType: 'image',
+  image: '/assets/main-banner.webp',
+  posterImage: '/assets/main-banner.webp',
+  videoUrl: '',
+  title: 'GAZI SPORTS 24',
+  subtitle: 'PLAY HARD · SHOP SMART',
+  buttonText: 'SHOP NOW',
+  buttonLink: '/collection/all',
+  overlayOpacity: 25,
+  enabled: true,
+  muted: true,
+  loop: true,
+  autoPlay: true,
+};
 
 const DEFAULT_BANNERS: BannerSlide[] = [];
 
@@ -283,6 +318,7 @@ function getDefaultConfig(): StorefrontConfig {
   const cachedProducts = getCachedProductsFromStorage();
   return {
     banners: DEFAULT_BANNERS,
+    heroBanner: { ...DEFAULT_HERO_BANNER },
     announcements: DEFAULT_ANNOUNCEMENTS,
     categories: DEFAULT_CATEGORIES,
     navLinks: DEFAULT_NAV_LINKS,
@@ -314,7 +350,8 @@ function getDefaultConfig(): StorefrontConfig {
 // CONFIG MIGRATION HELPER
 // ============================================================
 function migrateConfig(parsed: any): any {
-  if (!parsed) return parsed;
+  if (!parsed) if (!parsed.heroBanner) parsed.heroBanner = { ...DEFAULT_HERO_BANNER };
+  return parsed;
   const defaults = getDefaultConfig();
   
   // Auto-migrate navigation links in local storage
@@ -457,6 +494,7 @@ function migrateConfig(parsed: any): any {
     });
   }
 
+  if (!parsed.heroBanner) parsed.heroBanner = { ...DEFAULT_HERO_BANNER };
   return parsed;
 }
 
@@ -563,6 +601,7 @@ async function syncWithBackend(force: boolean = false): Promise<void> {
             branding: safeMergeObj(current.branding, serverConfig.branding || {}),
             delivery: safeMergeObj(current.delivery, serverConfig.delivery || {}),
             newsletter: safeMergeObj(current.newsletter, serverConfig.newsletter || {}),
+            heroBanner: safeMergeObj(current.heroBanner || DEFAULT_HERO_BANNER, serverConfig.heroBanner || {}),
             // Scalar arrays: safeMerge
             mostSellingProductIds: safeMergeArr(current.mostSellingProductIds || [], serverConfig.mostSellingProductIds || []),
             trendingProductIds: safeMergeArr(current.trendingProductIds || [], serverConfig.trendingProductIds || []),

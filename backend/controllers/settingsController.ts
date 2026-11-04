@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { Request, Response } from 'express';
 import db from '../config/db';
 import { logSecurityAction } from '../utils/auditLogger';
@@ -315,3 +317,48 @@ export const updateStorefrontSettings = (req: Request, res: Response) => {
   );
 };
 
+
+export const uploadMedia = async (req: Request, res: Response) => {
+  try {
+    const { base64Data, filename } = req.body;
+    if (!base64Data) {
+      return res.status(400).json({ status: 'error', message: 'No media data provided' });
+    }
+
+    const matches = base64Data.match(/^data:([A-Za-z0-9-+/_]+);base64,(.+)$/);
+    let buffer: Buffer;
+    let ext = 'mp4';
+
+    if (matches && matches.length === 3) {
+      const mime = matches[1].toLowerCase();
+      if (mime.includes('webm')) ext = 'webm';
+      else if (mime.includes('mp4')) ext = 'mp4';
+      else if (mime.includes('png')) ext = 'png';
+      else if (mime.includes('jpeg') || mime.includes('jpg')) ext = 'jpg';
+      else if (mime.includes('webp')) ext = 'webp';
+      buffer = Buffer.from(matches[2], 'base64');
+    } else {
+      buffer = Buffer.from(base64Data, 'base64');
+    }
+
+    if (buffer.length > 50 * 1024 * 1024) {
+      return res.status(400).json({ status: 'error', message: 'File too large. Maximum size is 50MB.' });
+    }
+
+    const uploadsDir = path.resolve(__dirname, '../../uploads/media');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    const safeFilename = `hero-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${ext}`;
+    const filePath = path.join(uploadsDir, safeFilename);
+
+    fs.writeFileSync(filePath, buffer);
+
+    const publicUrl = `/uploads/media/${safeFilename}`;
+    res.json({ status: 'success', url: publicUrl });
+  } catch (err: any) {
+    console.error('Media upload failed:', err);
+    res.status(500).json({ status: 'error', message: err.message || 'Media upload failed' });
+  }
+};

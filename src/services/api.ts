@@ -1577,3 +1577,23 @@ export const fetchSecurityLogs = async (
 
 
 
+
+export const uploadMediaToBackend = async (base64Data: string, filename?: string): Promise<{ success: boolean; url?: string; error?: string }> => {
+  try {
+    const res = await fetch(`${API_BASE}/settings/upload-media`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({ base64Data, filename }),
+    });
+    const data = await res.json();
+    if (data.status === 'success' && data.url) {
+      return { success: true, url: data.url };
+    }
+    return { success: false, error: data.message || 'Media upload failed' };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Network error during media upload' };
+  }
+};

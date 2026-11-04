@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  Image, Megaphone, Grid3X3, ShoppingBag, Link2, Columns3,
+  Image, Megaphone, Video, Film, Grid3X3, ShoppingBag, Link2, Columns3,
   Palette, Award, Truck, RotateCcw, Plus, Trash2,
   ChevronUp, ChevronDown, Edit3, Eye, X, Check, Upload,
   CreditCard, Lock, AlertTriangle
@@ -14,10 +14,12 @@ import {
   type NavLinkItem,
   type FeatureBadge,
   type MiddleBannerConfig,
+  DEFAULT_HERO_BANNER,
   resetStorefrontConfig,
   forceRefreshStorefrontConfig,
 } from '../../store/storefrontConfig';
 import { convertToWebP } from '../../utils/imageCdn';
+import { uploadMediaToBackend } from '../../services/api';
 import './storefront-manager.css';
 
 // ============================================================
@@ -284,9 +286,54 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (val: boole
 function BannersSection({ config, updateConfig }: SectionProps) {
   const [editId, setEditId] = useState<number | null>(null);
   const [editMiddleId, setEditMiddleId] = useState<string | null>(null);
+  const [videoUploading, setVideoUploading] = useState(false);
+  const [videoUploadError, setVideoUploadError] = useState('');
 
   const banners = config.banners;
   const middleBanners = config.middleBanners || [];
+  const heroBanner = config.heroBanner || DEFAULT_HERO_BANNER;
+
+  const updateHero = (field: string, value: any) => {
+    updateConfig('heroBanner', { ...heroBanner, [field]: value });
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 45 * 1024 * 1024) {
+      alert('Video file is too large! Please upload a video under 45MB.');
+      return;
+    }
+
+    setVideoUploading(true);
+    setVideoUploadError('');
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+        const res = await uploadMediaToBackend(base64, file.name);
+        if (res.success && res.url) {
+          updateHero('videoUrl', res.url);
+          updateHero('mediaType', 'video');
+          alert('Video uploaded successfully!');
+        } else {
+          setVideoUploadError(res.error || 'Failed to upload video');
+          alert(res.error || 'Failed to upload video');
+        }
+        setVideoUploading(false);
+      };
+      reader.onerror = () => {
+        setVideoUploading(false);
+        setVideoUploadError('Error reading video file');
+      };
+      reader.readAsDataURL(file);
+    } catch (err: any) {
+      setVideoUploading(false);
+      setVideoUploadError(err.message || 'Upload error');
+    }
+  };
 
   const update = (id: number, field: keyof BannerSlide, value: any) => {
     updateConfig('banners', banners.map(b => b.id === id ? { ...b, [field]: value } : b));
@@ -363,10 +410,242 @@ function BannersSection({ config, updateConfig }: SectionProps) {
   };
 
   return (
-    <div className="sfm-section">
-      <div className="sfm-section-header">
-        <div>
-          <div className="sfm-section-title">Hero Banner Carousel</div>
+    <>
+      {/* 0. HOMEPAGE MAIN HERO BANNER (VIDEO / IMAGE BANNER) */}
+      <div className="sfm-section" style={{ marginBottom: '28px', border: '1.5px solid rgba(233, 43, 43, 0.25)', borderRadius: '12px', background: 'rgba(233, 43, 43, 0.02)' }}>
+        <div className="sfm-section-header">
+          <div>
+            <div className="sfm-section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Film size={18} style={{ color: 'var(--sf-accent, #E92B2B)' }} />
+              Homepage Main Hero Banner (Full-Width)
+            </div>
+            <div className="sfm-section-subtitle">
+              Set a high-performance Video or Static Image banner at the top of your homepage
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Status:</span>
+            <Toggle checked={heroBanner.enabled !== false} onChange={(v) => updateHero('enabled', v)} />
+          </div>
+        </div>
+
+        <div style={{ padding: '0 20px 20px' }}>
+          {/* Media Type Selector */}
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+            <button
+              type="button"
+              className={`btn ${heroBanner.mediaType === 'image' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => updateHero('mediaType', 'image')}
+              style={{ flex: 1, padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 700 }}
+            >
+              <Image size={16} /> Static Image Banner
+            </button>
+            <button
+              type="button"
+              className={`btn ${heroBanner.mediaType === 'video' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => updateHero('mediaType', 'video')}
+              style={{ flex: 1, padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 700 }}
+            >
+              <Video size={16} /> High-Speed Video Banner
+            </button>
+          </div>
+
+          {heroBanner.mediaType === 'video' ? (
+            /* VIDEO HERO SETTINGS */
+            <div className="sfm-form-grid">
+              <div className="sfm-form-group full-width">
+                <label className="sfm-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Video Source (Upload MP4/WebM or Enter URL) *</span>
+                  <span style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: 600 }}>⚡ Fast 0ms first-load, auto-pauses on scroll</span>
+                </label>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input
+                    className="sfm-input"
+                    style={{ flex: 1, minWidth: '240px' }}
+                    value={heroBanner.videoUrl || ''}
+                    onChange={e => updateHero('videoUrl', e.target.value)}
+                    placeholder="e.g. /uploads/media/hero.mp4 or https://example.com/video.mp4"
+                  />
+                  <label className="btn btn-secondary" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', height: '38px', boxSizing: 'border-box' }}>
+                    <Upload size={14} /> {videoUploading ? 'Uploading Video...' : 'Upload Video File'}
+                    <input
+                      type="file"
+                      accept="video/mp4,video/webm"
+                      style={{ display: 'none' }}
+                      disabled={videoUploading}
+                      onChange={handleVideoUpload}
+                    />
+                  </label>
+                </div>
+                {videoUploadError && <div style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px' }}>{videoUploadError}</div>}
+              </div>
+
+              {/* Poster / Fallback Image */}
+              <div className="sfm-form-group full-width">
+                <label className="sfm-label">
+                  Poster Image (Instant 0ms display while video loads or on slow connections)
+                </label>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input
+                    className="sfm-input"
+                    style={{ flex: 1, minWidth: '240px' }}
+                    value={heroBanner.posterImage || ''}
+                    onChange={e => updateHero('posterImage', e.target.value)}
+                    placeholder="e.g. /assets/main-banner.webp"
+                  />
+                  <label className="btn btn-secondary" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', height: '38px', boxSizing: 'border-box' }}>
+                    <Upload size={14} /> Upload Poster Image
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          try {
+                            const webp = await convertToWebP(file);
+                            updateHero('posterImage', webp);
+                          } catch {
+                            alert('Failed to convert poster image.');
+                          }
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Video Controls Toggles */}
+              <div className="sfm-form-group">
+                <label className="sfm-label">Autoplay Video</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', height: '38px' }}>
+                  <Toggle checked={heroBanner.autoPlay !== false} onChange={v => updateHero('autoPlay', v)} />
+                  <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Auto-starts on page load</span>
+                </div>
+              </div>
+
+              <div className="sfm-form-group">
+                <label className="sfm-label">Muted Audio (Required for mobile autoplay)</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', height: '38px' }}>
+                  <Toggle checked={heroBanner.muted !== false} onChange={v => updateHero('muted', v)} />
+                  <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Muted</span>
+                </div>
+              </div>
+
+              <div className="sfm-form-group">
+                <label className="sfm-label">Loop Video</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', height: '38px' }}>
+                  <Toggle checked={heroBanner.loop !== false} onChange={v => updateHero('loop', v)} />
+                  <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Continuous Loop</span>
+                </div>
+              </div>
+
+              <div className="sfm-form-group">
+                <label className="sfm-label">Dark Tint Overlay: {heroBanner.overlayOpacity ?? 25}%</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="80"
+                  step="5"
+                  value={heroBanner.overlayOpacity ?? 25}
+                  onChange={e => updateHero('overlayOpacity', Number(e.target.value))}
+                  style={{ width: '100%', accentColor: 'var(--sf-accent, #E92B2B)' }}
+                />
+              </div>
+
+              {/* Optional Text Overlay */}
+              <div className="sfm-form-group">
+                <label className="sfm-label">Overlay Title (Optional)</label>
+                <input className="sfm-input" value={heroBanner.title || ''} onChange={e => updateHero('title', e.target.value)} placeholder="e.g. GAZI SPORTS 24" />
+              </div>
+
+              <div className="sfm-form-group">
+                <label className="sfm-label">Overlay Subtitle (Optional)</label>
+                <input className="sfm-input" value={heroBanner.subtitle || ''} onChange={e => updateHero('subtitle', e.target.value)} placeholder="e.g. PLAY HARD · SHOP SMART" />
+              </div>
+
+              <div className="sfm-form-group">
+                <label className="sfm-label">CTA Button Text (Optional)</label>
+                <input className="sfm-input" value={heroBanner.buttonText || ''} onChange={e => updateHero('buttonText', e.target.value)} placeholder="e.g. SHOP NOW" />
+              </div>
+
+              <div className="sfm-form-group">
+                <label className="sfm-label">CTA Button Link (Optional)</label>
+                <input className="sfm-input" value={heroBanner.buttonLink || ''} onChange={e => updateHero('buttonLink', e.target.value)} placeholder="e.g. /collection/all" />
+              </div>
+
+              {/* Video Live Preview Box */}
+              {heroBanner.videoUrl && (
+                <div className="sfm-form-group full-width" style={{ marginTop: '12px' }}>
+                  <label className="sfm-label">Live Video Preview</label>
+                  <div style={{ position: 'relative', width: '100%', height: '220px', borderRadius: '8px', overflow: 'hidden', background: '#000' }}>
+                    <video
+                      src={heroBanner.videoUrl}
+                      poster={heroBanner.posterImage || heroBanner.image}
+                      autoPlay={heroBanner.autoPlay !== false}
+                      muted={heroBanner.muted !== false}
+                      loop={heroBanner.loop !== false}
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    <div style={{ position: 'absolute', inset: 0, background: `rgba(0,0,0,${(heroBanner.overlayOpacity ?? 25) / 100})`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', textAlign: 'center', pointerEvents: 'none', padding: '16px' }}>
+                      {heroBanner.title && <div style={{ fontSize: '1.2rem', fontWeight: 800, textTransform: 'uppercase' }}>{heroBanner.title}</div>}
+                      {heroBanner.subtitle && <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>{heroBanner.subtitle}</div>}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* STATIC IMAGE HERO SETTINGS */
+            <div className="sfm-form-grid">
+              <div className="sfm-form-group full-width">
+                <label className="sfm-label">Hero Banner Image URL / Upload *</label>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input
+                    className="sfm-input"
+                    style={{ flex: 1, minWidth: '240px' }}
+                    value={heroBanner.image || ''}
+                    onChange={e => updateHero('image', e.target.value)}
+                    placeholder="e.g. /assets/main-banner.webp or https://example.com/banner.png"
+                  />
+                  <label className="btn btn-secondary" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', padding: '8px 16px', height: '38px', boxSizing: 'border-box' }}>
+                    <Upload size={14} /> Upload Banner Image
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          try {
+                            const webp = await convertToWebP(file);
+                            updateHero('image', webp);
+                          } catch {
+                            alert('Failed to convert banner image.');
+                          }
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {heroBanner.image && (
+                <div className="sfm-form-group full-width">
+                  <label className="sfm-label">Image Preview</label>
+                  <img src={heroBanner.image} alt="Hero Banner Preview" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '8px' }} />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="sfm-section">
+        <div className="sfm-section-header">
+          <div>
+            <div className="sfm-section-title">Hero Banner Carousel</div>
           <div className="sfm-section-subtitle">Manage the main hero banners on your storefront homepage</div>
         </div>
         <button className="btn btn-primary btn-sm" onClick={addBanner}><Plus size={14} /> Add Banner</button>
@@ -544,6 +823,7 @@ function BannersSection({ config, updateConfig }: SectionProps) {
         ))}
       </div>
     </div>
+    </>
   );
 }
 
