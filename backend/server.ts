@@ -151,14 +151,18 @@ app.use(helmet({
       imgSrc: [
         "'self'",
         "data:",
-        "https://picsum.photos",
-        "https://*.picsum.photos",
-        "https://images.unsplash.com",
-        "https://*.unsplash.com"
+        "blob:",
+        "https:"
+      ],
+      mediaSrc: [
+        "'self'",
+        "data:",
+        "blob:",
+        "https:"
       ],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
-      frameSrc: ["'self'"]
+      frameSrc: ["'self'", "https://www.youtube.com", "https://youtube.com", "https://player.vimeo.com"]
     }
   },
   crossOriginEmbedderPolicy: false
